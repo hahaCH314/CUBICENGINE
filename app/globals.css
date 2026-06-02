@@ -1,26 +1,412 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-active: var(--surface-active);
+  --color-border: var(--border-color);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-glow: var(--accent-glow);
+  --color-muted: var(--muted);
+  --color-panel: var(--panel);
+  --color-panel-hover: var(--panel-hover);
+  --color-card: var(--card);
+  --color-card-hover: var(--card-hover);
+  --color-accent-aqua: var(--accent-aqua);
+  --color-accent-sun: var(--accent-sun);
+  --color-accent-grape: var(--accent-grape);
+  --font-sans: var(--font-yusei), var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-pixel: var(--font-pixel);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  /* ── 石グレー・ダークテーマ（コブルストーン風 / マゼンタ accent を活かす） ── */
+  --background: #2a2924;        /* コブルストーン風の暖かい暗グレー */
+  --foreground: #f5f0e1;        /* テキスト：温かいオフホワイト */
+  --surface: #3a3833;           /* カード/サイドバー（背景より少し明るい石） */
+  --surface-hover: #46443d;
+  --surface-active: #5a574e;
+  --border-color: #4a4842;      /* 石の継ぎ目風ボーダー */
+  --accent: #fb7185;            /* ヒーリング・ポーションピンク */
+  --accent-hover: #fda4af;
+  --accent-glow: rgba(251, 113, 133, 0.5);
+  --accent-aqua: #22d3ee;       /* ダイヤ・シアン（暗背景で明るめに） */
+  --accent-sun: #fbbf24;        /* 金鉱石（暗背景で明るめに） */
+  --accent-grape: #c084fc;      /* アメジスト（暗背景で明るめに） */
+  --gradient-spectrum: linear-gradient(135deg, #fb7185 0%, #c084fc 33%, #22d3ee 66%, #fbbf24 100%);
+  --gradient-warm:     linear-gradient(135deg, #fb7185 0%, #fbbf24 100%);
+  --gradient-cool:     linear-gradient(135deg, #c084fc 0%, #22d3ee 100%);
+  --card: #3a3833;              /* 石背景上に置くカード */
+  --card-hover: #46443d;
+  --muted: #9c9890;             /* 温かい中グレー（脇テキスト） */
+  --panel: #1f1e1a;             /* 上部メニュー・深い石パネル */
+  --panel-hover: #2a2924;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-active) transparent;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
+  background-image: 
+    /* シンプルな石の陰影（グリッド線なし） */
+    radial-gradient(circle at 25% 25%, rgba(0, 0, 0, 0.07) 0%, transparent 60%),
+    radial-gradient(circle at 75% 75%, rgba(0, 0, 0, 0.05) 0%, transparent 50%);
+  background-size: 128px 128px, 96px 96px;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+}
+
+/* Smooth transitions for all interactive elements */
+button, a, input, select, textarea {
+  transition: all 0.15s ease;
+}
+
+/* Custom scrollbar for webkit */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--surface-active);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
+/* Glowing animation for accent elements */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px var(--accent-glow), 0 0 40px rgba(236, 72, 153, 0.12); }
+  50% { box-shadow: 0 0 30px var(--accent-glow), 0 0 60px rgba(236, 72, 153, 0.22); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes jelly {
+  0%, 100% { transform: scale(1, 1); }
+  25% { transform: scale(0.9, 1.1); }
+  50% { transform: scale(1.08, 0.92); }
+  75% { transform: scale(0.95, 1.05); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 6s ease infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+.hover-jelly:hover {
+  animation: jelly 0.6s ease-in-out;
+}
+
+/* Glass morphism helper */
+.glass {
+  background: rgba(255, 252, 240, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(236, 72, 153, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(190, 80, 140, 0.15);
+}
+
+/* マイクラ風ピクセル質感（中間案：色は触らずスポット使用） */
+.font-pixel {
+  font-family: var(--font-pixel), monospace;
+  letter-spacing: 0.02em;
+  /* ピクセルフォントは小さく / アンチエイリアスをカットしてシャープに */
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  font-smooth: never;
+}
+
+/* ════════════════════════════════════════════════════
+   MC デザインシステム — Button / Panel / Badge
+   全ページの "外周" を統一する共通コンポーネント
+   ════════════════════════════════════════════════════ */
+
+/* ── ボタン（おもちゃのプッシュボタン風・3D角丸） ── */
+.mc-btn {
+  --mc-btn-bg:     #8c8779;   /* 画面に馴染む温かみのある石グレー */
+  --mc-btn-edge:   #c1bcb0;   /* 左上のハイライト */
+  --mc-btn-shadow: #4a4842;   /* 右下の太い影 */
+  --mc-btn-text:   #ffffff;   /* 文字は白 */
+  --mc-btn-text-shadow: #2f2d27; /* 濃い文字影 */
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 13px; /* 文字サイズ拡大 */
+  line-height: 1;
+  font-family: var(--font-pixel), monospace;
+  letter-spacing: 0.04em;
+  font-weight: 900;
+  text-transform: none;
+  color: var(--mc-btn-text);
+  text-shadow: 1.5px 1.5px 0 var(--mc-btn-text-shadow);
+  background: var(--mc-btn-bg);
+  border: 3px solid #1f1e1a; /* 太い黒枠 */
+  border-radius: 8px; /* 角丸おもちゃデザイン */
+  box-shadow: 
+    inset 2.5px 2.5px 0 var(--mc-btn-edge), 
+    inset -2.5px -2.5px 0 rgba(0,0,0,0.2), 
+    0 4px 0 var(--mc-btn-shadow);
+  cursor: pointer;
+  transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.08s ease, filter 0.12s ease;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: none;
+  image-rendering: pixelated;
+  transform: translateY(0);
+}
+.mc-btn:hover:not(:disabled) {
+  color: #ffffa0; /* ホバーでマイクラ伝統の黄色文字に */
+  transform: translateY(-2px); /* ぷるんと浮き上がる */
+  box-shadow: 
+    inset 2.5px 2.5px 0 var(--mc-btn-edge), 
+    inset -2.5px -2.5px 0 rgba(0,0,0,0.2), 
+    0 6px 0 var(--mc-btn-shadow);
+  filter: brightness(1.08) saturate(1.05);
+}
+.mc-btn:active:not(:disabled),
+.mc-btn[data-active="true"] {
+  transform: translateY(3px); /* 押し込まれる */
+  box-shadow: 
+    inset 2px 2px 2px rgba(0,0,0,0.35), 
+    0 1px 0 var(--mc-btn-shadow);
+}
+.mc-btn:disabled {
+  filter: grayscale(0.7) brightness(0.95);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* バリエーション（色違い・白文字には黒影でマイクラ風 1px シャドウ） */
+.mc-btn--primary { --mc-btn-bg:#fb7185; --mc-btn-edge:#fecdd3; --mc-btn-shadow:#be123c; --mc-btn-text:#fff; --mc-btn-text-shadow:#be123c; }
+.mc-btn--success { --mc-btn-bg:#10b981; --mc-btn-edge:#6ee7b7; --mc-btn-shadow:#064e3b; --mc-btn-text:#fff; --mc-btn-text-shadow:#064e3b; }
+.mc-btn--warning { --mc-btn-bg:#f59e0b; --mc-btn-edge:#fcd34d; --mc-btn-shadow:#7c2d12; --mc-btn-text:#fff; --mc-btn-text-shadow:#7c2d12; }
+.mc-btn--danger  { --mc-btn-bg:#dc2626; --mc-btn-edge:#fca5a5; --mc-btn-shadow:#7f1d1d; --mc-btn-text:#fff; --mc-btn-text-shadow:#7f1d1d; }
+.mc-btn--info    { --mc-btn-bg:#06b6d4; --mc-btn-edge:#67e8f9; --mc-btn-shadow:#155e75; --mc-btn-text:#fff; --mc-btn-text-shadow:#155e75; }
+.mc-btn--grape   { --mc-btn-bg:#a855f7; --mc-btn-edge:#d8b4fe; --mc-btn-shadow:#581c87; --mc-btn-text:#fff; --mc-btn-text-shadow:#581c87; }
+
+/* サイズ：ピクセルフォントは小さくしすぎないこと（11px 未満は読めない） */
+.mc-btn--sm { padding: 7px 11px; font-size: 11px; gap: 6px; letter-spacing: 0.03em; }
+.mc-btn--lg { padding: 13px 22px; font-size: 15px; gap: 10px; }
+
+/* ── パネル（インベントリ枠風 + 任意のタイトル） ── */
+.mc-panel {
+  background: var(--card, #ffffff);
+  border: 3px solid;
+  border-top-color: #f3eddc;
+  border-left-color: #f3eddc;
+  border-right-color: #5e554a;
+  border-bottom-color: #5e554a;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.5), inset -1px -1px 0 rgba(0,0,0,0.15);
+  border-radius: 0;
+}
+.mc-panel__title {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--font-pixel), monospace;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: #3a3340;
+  padding: 6px 10px;
+  border-bottom: 2px solid #d8d4c5;
+  background: linear-gradient(180deg, #f8f4e6 0%, #f0ead4 100%);
+}
+.mc-panel__body { padding: 8px; }
+
+/* ── バッジ（ステータス・カウンタ用 / ピクセルフォント + 強コントラスト） ── */
+.mc-badge {
+  --mc-badge-bg: #fffdf2;
+  --mc-badge-edge: #d5cbab;
+  --mc-badge-shadow: #6e6243;
+  --mc-badge-text: #1f1a2c;
+  --mc-badge-text-shadow: transparent;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 11px;
+  font-family: var(--font-pixel), monospace;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--mc-badge-text);
+  text-shadow: 1px 1px 0 var(--mc-badge-text-shadow);
+  background: var(--mc-badge-bg);
+  border: 2px solid;
+  border-top-color: var(--mc-badge-edge);
+  border-left-color: var(--mc-badge-edge);
+  border-right-color: var(--mc-badge-shadow);
+  border-bottom-color: var(--mc-badge-shadow);
+  border-radius: 0;
+  box-shadow: 0 2px 0 var(--mc-badge-shadow);
+  image-rendering: pixelated;
+  white-space: nowrap;
+}
+.mc-badge--magenta { --mc-badge-bg:#fb7185; --mc-badge-edge:#fecdd3; --mc-badge-shadow:#be123c; --mc-badge-text:#fff; --mc-badge-text-shadow:#be123c; }
+.mc-badge--aqua    { --mc-badge-bg:#06b6d4; --mc-badge-edge:#67e8f9; --mc-badge-shadow:#155e75; --mc-badge-text:#fff; --mc-badge-text-shadow:#155e75; }
+.mc-badge--sun     { --mc-badge-bg:#f59e0b; --mc-badge-edge:#fcd34d; --mc-badge-shadow:#7c2d12; --mc-badge-text:#fff; --mc-badge-text-shadow:#7c2d12; }
+.mc-badge--grape   { --mc-badge-bg:#a855f7; --mc-badge-edge:#d8b4fe; --mc-badge-shadow:#581c87; --mc-badge-text:#fff; --mc-badge-text-shadow:#581c87; }
+.mc-badge--emerald { --mc-badge-bg:#10b981; --mc-badge-edge:#6ee7b7; --mc-badge-shadow:#064e3b; --mc-badge-text:#fff; --mc-badge-text-shadow:#064e3b; }
+.mc-badge--spectrum {
+  background: linear-gradient(135deg,#fb7185 0%,#a855f7 50%,#06b6d4 100%);
+  color:#fff;
+  --mc-badge-edge: #fecdd3;
+  --mc-badge-shadow: #581c87;
+  --mc-badge-text-shadow: #581c87;
+}
+
+/* インベントリスロット風 4方向ベベル枠
+   左上が明、右下が暗 → 立体的に "凸" して見える */
+.mc-bevel {
+  border: 2px solid;
+  border-color: rgba(255,255,255,0.85) rgba(0,0,0,0.18) rgba(0,0,0,0.18) rgba(255,255,255,0.85);
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,0.5),
+    inset -1px -1px 0 rgba(0,0,0,0.1),
+    0 2px 0 rgba(0,0,0,0.12),
+    0 3px 6px rgba(0,0,0,0.08);
+  border-radius: 0;
+  image-rendering: pixelated;
+}
+
+/* "凹" 版（押し込まれた窪み = インベントリのアイテムスロット内側） */
+.mc-bevel-inset {
+  border: 2px solid;
+  border-color: rgba(0,0,0,0.25) rgba(255,255,255,0.6) rgba(255,255,255,0.6) rgba(0,0,0,0.25);
+  box-shadow:
+    inset 1px 1px 2px rgba(0,0,0,0.15),
+    inset -1px -1px 0 rgba(255,255,255,0.3);
+  border-radius: 0;
+}
+
+/* スペクトラム・グラデーション系（遊び心ヘルパー） */
+.text-spectrum {
+  background: var(--gradient-spectrum);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.bg-spectrum {
+  background: var(--gradient-spectrum);
+}
+.bg-spectrum-soft {
+  background: linear-gradient(135deg, rgba(236,72,153,0.12) 0%, rgba(168,85,247,0.12) 33%, rgba(6,182,212,0.12) 66%, rgba(245,158,11,0.12) 100%);
+}
+.border-spectrum {
+  border-image: var(--gradient-spectrum) 1;
+}
+.ring-spectrum {
+  box-shadow: 0 0 0 2px transparent, 0 0 14px var(--accent-glow);
+}
+
+/* Delay utilities */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+.delay-600 { animation-delay: 0.6s; }
+
+/* ── マイクラ風チェックボックス（デフォルトの白を排除） ── */
+input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #1e1d1a; /* インベントリスロット風の暗石炭色 */
+  border: 2px solid;
+  /* 凹みベベルの枠線 */
+  border-color: rgba(0,0,0,0.4) rgba(255,255,255,0.2) rgba(255,255,255,0.2) rgba(0,0,0,0.4);
+  width: 16px;
+  height: 16px;
+  display: inline-grid;
+  place-content: center;
+  cursor: pointer;
+  border-radius: 0;
+  box-shadow: inset 1px 1px 2px rgba(0,0,0,0.4);
+  transition: all 0.1s ease;
+}
+
+input[type="checkbox"]::before {
+  content: "✔";
+  font-family: var(--font-pixel), monospace;
+  font-size: 10px;
+  color: #fb7185; /* ポーションピンクのチェックマーク */
+  text-shadow: 1px 1px 0px rgba(0,0,0,0.5);
+  transform: scale(0);
+  transition: 80ms transform ease-in-out;
+}
+
+input[type="checkbox"]:checked::before {
+  transform: scale(1);
+}
+
+input[type="checkbox"]:hover {
+  background-color: #2a2924;
+  border-color: rgba(0,0,0,0.5) rgba(255,255,255,0.3) rgba(255,255,255,0.3) rgba(0,0,0,0.5);
 }
