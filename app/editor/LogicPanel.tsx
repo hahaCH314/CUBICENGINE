@@ -18,18 +18,18 @@ const uid = () => `b${_uid++}`;
    ══════════════════════════════════════════════════════════ */
 const SLOT_ACCEPT: Record<string, Category[]> = {
   inner: ["ifelse", "calc", "value", "variable"],   // もしも：条件式
-  then: ["action", "ifelse", "loop", "ui", "variable"],  // そうなら：動作
-  else: ["action", "ifelse", "loop", "ui", "variable"],  // ちがうなら：動作
+  then:  ["action", "ifelse", "loop", "ui", "variable"],  // そうなら：動作
+  else:  ["action", "ifelse", "loop", "ui", "variable"],  // ちがうなら：動作
 };
 const SLOT_BADGE: Record<string, { icon: string; label: string; color: string }> = {
   inner: { icon: "💎", label: "値・条件", color: "#9b59b6" },
-  then: { icon: "⚡", label: "動作", color: "#2ecc71" },
-  else: { icon: "⚡", label: "動作", color: "#ff7f50" },
+  then:  { icon: "⚡", label: "動作",     color: "#2ecc71" },
+  else:  { icon: "⚡", label: "動作",     color: "#ff7f50" },
 };
 const SLOT_HEAD: Record<string, { glyph: string; jp: string }> = {
   inner: { glyph: "⬦", jp: "もしも" },
-  then: { glyph: "✓", jp: "そうなら" },
-  else: { glyph: "✗", jp: "ちがうなら" },
+  then:  { glyph: "✓", jp: "そうなら" },
+  else:  { glyph: "✗", jp: "ちがうなら" },
 };
 
 /** スロットへ対象ブロックをハメてよいか */
@@ -38,11 +38,9 @@ function slotAccepts(slot: string, blockCategory: Category): boolean {
 }
 
 function spawnBlock(t: Tmpl, x: number, y: number): CBlock {
-  return {
-    id: uid(), type: t.type, emoji: t.emoji, label: t.label, sublabel: t.sublabel,
-    category: t.category, fields: t.fields.map(f => ({ ...f })),
-    x, y, nextId: null, innerId: null, thenId: null, elseId: null
-  };
+  return { id: uid(), type: t.type, emoji: t.emoji, label: t.label, sublabel: t.sublabel,
+    category: t.category, fields: t.fields.map(f=>({...f})),
+    x, y, nextId: null, innerId: null, thenId: null, elseId: null };
 }
 
 function makeInitial(): CBlock[] {
@@ -54,24 +52,24 @@ function makeInitial(): CBlock[] {
    ══════════════════════════════════════════════════════════ */
 
 function mkPreset(blocks: CBlock[]): CBlock[] {
-  const idMap = new Map<string, string>();
+  const idMap = new Map<string,string>();
   const newBlocks = blocks.map(b => {
     const newId = uid();
     idMap.set(b.id, newId);
-    return { ...b, id: newId };
+    return {...b, id: newId};
   });
   return newBlocks.map(b => ({
     ...b,
-    nextId: b.nextId ? (idMap.get(b.nextId) ?? null) : null,
+    nextId:  b.nextId  ? (idMap.get(b.nextId)  ?? null) : null,
     innerId: b.innerId ? (idMap.get(b.innerId) ?? null) : null,
-    thenId: b.thenId ? (idMap.get(b.thenId) ?? null) : null,
-    elseId: b.elseId ? (idMap.get(b.elseId) ?? null) : null,
+    thenId:  b.thenId  ? (idMap.get(b.thenId)  ?? null) : null,
+    elseId:  b.elseId  ? (idMap.get(b.elseId)  ?? null) : null,
   }));
 }
 
 const T = (type: string) => TEMPLATES.find(t => t.type === type)!;
 const sf = (b: CBlock, id: string, val: string): CBlock =>
-  ({ ...b, fields: b.fields.map((f: FieldDef) => f.id === id ? { ...f, value: val } : f) });
+  ({...b, fields: b.fields.map((f: FieldDef) => f.id === id ? {...f, value: val} : f)});
 
 interface PresetProject {
   name: string; emoji: string; desc: string;
@@ -80,28 +78,28 @@ interface PresetProject {
 
 const PRESET_PROJECTS: PresetProject[] = [
   {
-    name: "ウェルカムMod", emoji: "👋", desc: "参加時に歓迎メッセージを送信",
-    create: () => {
+    name:"ウェルカムMod", emoji:"👋", desc:"参加時に歓迎メッセージを送信",
+    create:() => {
       const a = spawnBlock(T("ev_join"), 100, 600);
-      let b = spawnBlock(T("ac_msg"), 100, 600 - BH - GAP);
-      b = sf(sf(b, "msg", "ようこそ！🎉 Modが動いています！"), "target", "@a");
+      let b = spawnBlock(T("ac_msg"), 100, 600-BH-GAP);
+      b = sf(sf(b,"msg","ようこそ！🎉 Modが動いています！"),"target","@a");
       a.nextId = b.id;
-      return mkPreset([a, b]);
+      return mkPreset([a,b]);
     },
   },
   {
-    name: "HP危険警告", emoji: "🩸", desc: "HP10以下で赤いメッセージを表示",
-    create: () => {
+    name:"HP危険警告", emoji:"🩸", desc:"HP10以下で赤いメッセージを表示",
+    create:() => {
       const a = spawnBlock(T("ev_hurt"), 80, 600);
-      const donut = spawnBlock(T("co_if"), 300, 600 - BH - GAP);
-      const cond = spawnBlock(T("co_hp"), 80, 600 - BH - GAP);
-      cond.fields = cond.fields.map(f => f.id === "threshold" ? { ...f, value: "10" } : f);
-      let msg = spawnBlock(T("ac_msg"), 600, 600 - BH * 2 - GAP * 2);
-      msg = sf(sf(msg, "msg", "§c§l⚠️ HPが残り少ない！回復して！"), "target", "@s");
+      const donut = spawnBlock(T("co_if"), 300, 600-BH-GAP);
+      const cond = spawnBlock(T("co_hp"), 80, 600-BH-GAP);
+      cond.fields = cond.fields.map(f => f.id==="threshold" ? {...f,value:"10"} : f);
+      let msg = spawnBlock(T("ac_msg"), 600, 600-BH*2-GAP*2);
+      msg = sf(sf(msg,"msg","§c§l⚠️ HPが残り少ない！回復して！"),"target","@s");
       a.nextId = donut.id;
       donut.innerId = cond.id;
       donut.thenId = msg.id;
-      return mkPreset([a, donut, cond, msg]);
+      return mkPreset([a,donut,cond,msg]);
     }
   }
 ];
@@ -143,9 +141,9 @@ function playDeleteSound() {
 }
 
 /** ツールバーボタン — カチッ（極短） */
-function playClickSound() { tone(1100, 0.022, "sine", 0.12); }
-function playSuccessSound() { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, 0.18, "sine", 0.18), i * 75)); }
-function playWireDeleteSound() { tone(600, 0.08, "sawtooth", 0.15, 200); }
+function playClickSound()     { tone(1100, 0.022, "sine",     0.12); }
+function playSuccessSound()   { [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,0.18,"sine",0.18),i*75)); }
+function playWireDeleteSound(){ tone(600, 0.08, "sawtooth", 0.15, 200); }
 
 function playEatSound() {
   try {
@@ -176,28 +174,28 @@ function playEatSound() {
   } catch { /* 音が出ない環境は無視 */ }
 }
 
-function buildCode(blocks: CBlock[]): string {
-  const roots = blocks.filter(b => {
-    for (const p of blocks)
-      if (p.nextId === b.id || p.innerId === b.id || p.thenId === b.id || p.elseId === b.id) return false;
+function buildCode(blocks:CBlock[]):string{
+  const roots=blocks.filter(b=>{
+    for(const p of blocks)
+      if(p.nextId===b.id||p.innerId===b.id||p.thenId===b.id||p.elseId===b.id)return false;
     return true;
   });
-  const triggers = roots.filter(b => b.category === "trigger");
-  const hasUI = blocks.some(b => b.category === "ui");
-  const varNames = new Set<string>();
-  blocks.filter(b => b.category === "variable").forEach(b => {
-    const name = b.fields.find(f => f.id === "name")?.value || "myVar";
+  const triggers=roots.filter(b=>b.category==="trigger");
+  const hasUI=blocks.some(b=>b.category==="ui");
+  const varNames=new Set<string>();
+  blocks.filter(b=>b.category==="variable").forEach(b=>{
+    const name=b.fields.find(f=>f.id==="name")?.value||"myVar";
     varNames.add(`_v_${sanitizeVarName(name)}`);
   });
-  const varDecls = [...varNames].map(n => `let ${n} = 0; // 変数: ${n.replace("_v_", "")}`).join("\n");
-  const header = [
+  const varDecls=[...varNames].map(n=>`let ${n} = 0; // 変数: ${n.replace("_v_","")}`).join("\n");
+  const header=[
     `// ============================================================`,
     `//  CUBICENGINE Studio — 自動生成コード`,
     `//  @minecraft/server 1.6.0  (実験的機能不要 / Minecraft 1.20.30+)`,
     `// ============================================================`,
     ``,
     `import { world, system } from "@minecraft/server";`,
-    ...(hasUI ? [`import { ActionFormData, ModalFormData, MessageFormData } from "@minecraft/server-ui";`] : []),
+    ...(hasUI?[`import { ActionFormData, ModalFormData, MessageFormData } from "@minecraft/server-ui";`]:[]),
     ``,
     ...(varDecls ? [varDecls, ``] : []),
     `// ★ 起動確認`,
@@ -214,22 +212,109 @@ function buildCode(blocks: CBlock[]): string {
     `});`,
     ``,
   ].join("\n");
-  if (!triggers.length) return header + "// ⚡ きっかけブロックをキャンバスにおいてください！\n";
-  return header + triggers.map(t => genTrigger(t, blocks)).join("\n\n") + "\n";
+  if(!triggers.length)return header+"// ⚡ きっかけブロックをキャンバスにおいてください！\n";
+  return header+triggers.map(t=>genTrigger(t,blocks)).join("\n\n")+"\n";
 }
 
 /* ══════════════════════════════════════════════════════════
    ブロック描画コンポーネント
    ══════════════════════════════════════════════════════════ */
 
+/** コロコロかわいいふっくら3Dキューブブロック */
+function renderSingleArm(offsetX: number, height: number, hasBlocks: boolean, label: string, colorCat: Category) {
+  const cat = CAT[colorCat];
+  const armW = 16;
+  const R = 8;
+  const armH = height + 45;
+  
+  return (
+    <div style={{
+      position: "absolute",
+      left: offsetX,
+      top: -armH,
+      width: BW,
+      height: armH,
+      pointerEvents: "none",
+      zIndex: -1,
+    }}>
+      {/* 3D押し出し上面 (Top Face) - アームの上梁 */}
+      <div style={{
+        position: "absolute",
+        left: -armW,
+        top: -16,
+        width: BW + armW,
+        height: 16,
+        background: `linear-gradient(to right, ${cat.top}, ${cat.top})`,
+        borderRadius: `${R}px ${R}px 0 0`,
+        transform: "skewX(-45deg)",
+        transformOrigin: "bottom left",
+        borderTop: `4px solid ${cat.border}`,
+        borderLeft: `4px solid ${cat.border}`,
+        boxSizing: "border-box",
+        zIndex: 1,
+      }} />
+
+      {/* 縦の側壁 (Left Wall) - 正面 */}
+      <div style={{
+        position: "absolute",
+        left: -armW,
+        top: 0,
+        width: armW,
+        height: armH + 6,
+        background: `linear-gradient(135deg, ${cat.top}, ${cat.bg})`,
+        borderLeft: `4px solid ${cat.border}`,
+        borderBottom: `4px solid ${cat.border}`,
+        boxSizing: "border-box",
+        boxShadow: "inset 2px 2px 0 rgba(255,255,255,0.2)",
+      }} />
+
+      {/* 上部アーム梁 (Top Bar) - 正面 */}
+      <div style={{
+        position: "absolute",
+        left: -armW,
+        top: 0,
+        width: BW + armW,
+        height: 16,
+        background: `linear-gradient(135deg, ${cat.top}, ${cat.bg})`,
+        borderBottom: `4px solid ${cat.border}`,
+        boxSizing: "border-box",
+        boxShadow: "inset 2px 2px 0 rgba(255,255,255,0.2)",
+      }} />
+
+      {/* アームスロットガイド */}
+      {!hasBlocks && (
+        <div style={{
+          position: "absolute",
+          left: 10,
+          top: 24,
+          width: BW - 20,
+          height: height - 12,
+          border: `2px dashed ${cat.border}88`,
+          borderRadius: 6,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: cat.text === "#ffffff" ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)",
+          fontSize: 10,
+          fontWeight: 900,
+          background: "rgba(0,0,0,0.08)",
+          textShadow: cat.text === "#ffffff" ? "1px 1px 0 rgba(0,0,0,0.3)" : "none",
+        }}>
+          {label}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAdding, isDeleting, innerBlock, blocks, onDown, onDelete, onFieldChange, onEjectInner, focusedField, setFocusedField, wireDrag, onSlotClick, isShaking, isDragging }: {
-  b: CBlock; pos: { x: number; y: number }; selected: boolean; snapSlot: string | null;
-  isEating?: boolean; isSnapping?: boolean; isAdding?: boolean; isDeleting?: boolean;
-  innerBlock?: CBlock | null; blocks: CBlock[];
-  onDown: (e: React.MouseEvent, id: string) => void;
-  onDelete: (id: string) => void;
-  onFieldChange: (id: string, fid: string, val: string) => void;
-  onEjectInner?: (id: string) => void;
+  b:CBlock; pos:{x:number;y:number}; selected:boolean; snapSlot:string|null;
+  isEating?:boolean; isSnapping?:boolean; isAdding?:boolean; isDeleting?:boolean;
+  innerBlock?:CBlock|null; blocks:CBlock[];
+  onDown:(e:React.MouseEvent,id:string)=>void;
+  onDelete:(id:string)=>void;
+  onFieldChange:(id:string,fid:string,val:string)=>void;
+  onEjectInner?:(id:string)=>void;
   focusedField?: { blockId: string; fieldId: string } | null;
   setFocusedField?: (val: { blockId: string; fieldId: string } | null) => void;
   wireDrag: { sourceBlockId: string; slot: string; armed: boolean; accepts: Category[] } | null;
@@ -238,7 +323,7 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
   isDragging?: boolean;
 }) {
   const cat = CAT[b.category];
-  const hl = snapSlot !== null;
+  const hl  = snapSlot !== null;
   const isCond = b.type === "co_if";
   const isLoop = b.type === "ct_rep";
   const thenH = isCond || isLoop ? (b.thenId ? getStackHeight(b.thenId, blocks) : 40) : 0;
@@ -249,14 +334,14 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
   const isDimmed = wireDrag && wireDrag.armed && !isAcceptable && wireDrag.sourceBlockId !== b.id;
   const badgeColor = wireDrag ? SLOT_BADGE[wireDrag.slot]?.color : "#ffffff";
 
-  const anim = isEating ? "swallow 0.55s ease-in forwards"
-    : isDeleting ? "blockDelete 0.6s cubic-bezier(0.36,0.07,0.19,0.97) forwards"
-      : isAdding ? "blockAdd 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards"
-        : isSnapping ? "blockSnap 0.12s ease-out"
-          : isShaking ? "blockShake 0.3s ease-in-out" // Error shake
-            : isAcceptable ? "wireTargetGlow 1.2s ease-in-out infinite"
-              : isDragging ? "blockDragHover 0.55s ease-in-out infinite"
-                : "none";
+  const anim = isEating   ? "swallow 0.55s ease-in forwards"
+             : isDeleting ? "blockDelete 0.6s cubic-bezier(0.36,0.07,0.19,0.97) forwards"
+             : isAdding   ? "blockAdd 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards"
+             : isSnapping ? "blockSnap 0.12s ease-out"
+             : isShaking ? "blockShake 0.3s ease-in-out" // Error shake
+             : isAcceptable ? "wireTargetGlow 1.2s ease-in-out infinite"
+             : isDragging ? "blockDragHover 0.55s ease-in-out infinite"
+             : "none";
 
   const w = BW;
   const h = blockH(b);
@@ -296,7 +381,7 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
           fontSize: 9,
           fontWeight: 900,
           cursor: "pointer",
-          boxShadow: isArmedThis
+          boxShadow: isArmedThis 
             ? `0 0 10px ${badge.color}, inset 0 1px 0 rgba(255,255,255,0.4)`
             : "inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 2px rgba(0,0,0,0.2)",
           animation: isArmedThis ? "slotPulse 1.0s ease-in-out infinite" : "none",
@@ -308,11 +393,11 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
           <span>{badge.icon}</span>
           <span>{head.jp}</span>
         </span>
-
+        
         {targetBlock ? (
           <span style={{
             maxWidth: 50, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-            fontSize: 8, background: "rgba(0,0,0,0.4)", padding: "1px 4px", borderRadius: 3, color: "#ccc"
+            fontSize: 8, background: "rgba(0,0,0,0.4)", padding: "1px 4px", borderRadius: 3, color:"#ccc"
           }}>
             {targetBlock.label}
           </span>
@@ -330,10 +415,10 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
   };
 
   return (
-    <div onMouseDown={e => onDown(e, b.id)} style={{
-      position: "absolute", left: pos.x, top: pos.y,
-      width: w, height: h,
-      cursor: isDragging ? "grabbing" : "grab", userSelect: "none",
+    <div onMouseDown={e=>onDown(e,b.id)} style={{
+      position:"absolute", left:pos.x, top:pos.y,
+      width:w, height:h,
+      cursor: isDragging ? "grabbing" : "grab", userSelect:"none",
       animation: anim,
       transformOrigin: isAdding ? "bottom center" : "center center",
       zIndex: isDragging ? 9999 : (selected ? 1000 : 20) + depth * 10,
@@ -376,7 +461,7 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
         zIndex: 1,
       }} />
       <div style={{
-        position: "absolute",
+        position:"absolute",
         left: 0, top: 0, width: w, height: h,
         background: `linear-gradient(135deg, ${cat.top}, ${cat.bg})`,
         borderRadius: R,
@@ -391,22 +476,22 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
             : isAcceptable
               ? `${innerBorder}, 0 0 0 4px #ffffff, 0 0 16px ${badgeColor}`
               : `${innerBorder}, 4px 4px 0px rgba(0,0,0,0.15)`,
-        transition: "box-shadow 0.15s, transform 0.1s",
-        display: "flex", flexDirection: "column", padding: "4px 14px", boxSizing: "border-box",
-        overflow: "hidden",
+        transition:"box-shadow 0.15s, transform 0.1s",
+        display:"flex", flexDirection:"column", padding: "4px 14px", boxSizing:"border-box",
+        overflow:"hidden",
         zIndex: 2,
         justifyContent: "center",
       }}>
         <div style={{
-          display: "flex", justifyContent: "center", alignItems: "center",
+          display:"flex", justifyContent:"center", alignItems:"center",
           marginTop: (isCond || isLoop) ? 12 : 2,
           paddingRight: 18, // ✕ボタン(14px+余白)の展限回避
         }}>
           <div style={{
             fontSize: b.label.length > 8 ? 12 : b.label.length > 6 ? 13 : 15,
-            fontWeight: 900,
+            fontWeight:900,
             color: cat.text,
-            lineHeight: 1.1,
+            lineHeight:1.1,
             textAlign: "center",
             width: "100%",
             textShadow: cat.text === "#ffffff"
@@ -422,13 +507,13 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
           </div>
         </div>
         <div style={{
-          fontSize: 8,
+          fontSize:8, 
           color: cat.text === "#ffffff" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.55)",
           textAlign: "center",
           textShadow: cat.text === "#ffffff"
             ? "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000"
             : "1px 1px 0 rgba(255,255,255,0.5), -1px 1px 0 rgba(255,255,255,0.5), 1px -1px 0 rgba(255,255,255,0.5), -1px -1px 0 rgba(255,255,255,0.5)",
-          fontWeight: 700, marginTop: 1, letterSpacing: "0.04em"
+          fontWeight:700, marginTop: 1, letterSpacing: "0.04em"
         }}>
           {cat.icon} {cat.label}
         </div>
@@ -446,23 +531,23 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
         )}
         {!isCond && b.fields.length > 0 && (
           <div style={{
-            marginTop: 6, display: "flex", flexDirection: "column", gap: 4,
-            background: "rgba(0,0,0,0.12)", padding: "6px", borderRadius: 8,
-            border: `2px solid ${cat.border}`, boxShadow: "inset 2.5px 2.5px 0 rgba(0,0,0,0.18)"
+            marginTop: 6, display:"flex", flexDirection:"column", gap: 4,
+            background:"rgba(0,0,0,0.12)", padding: "6px", borderRadius: 8,
+            border:`2px solid ${cat.border}`, boxShadow:"inset 2.5px 2.5px 0 rgba(0,0,0,0.18)"
           }}>
-            {b.fields.map(f => {
+            {b.fields.map(f=>{
               const isFocused = focusedField?.blockId === b.id && focusedField?.fieldId === f.id;
               return (
-                <div key={f.id} style={{ display: "flex", alignItems: "center", gap: 6, position: "relative", minHeight: 24 }}>
+                <div key={f.id} style={{display:"flex",alignItems:"center",gap:6,position:"relative",minHeight:24}}>
                   <span style={{
-                    fontSize: 12, color: cat.text, fontWeight: 900, minWidth: 32,
+                    fontSize:12,color: cat.text,fontWeight:900,minWidth:32,
                     textShadow: cat.text === "#ffffff"
                       ? "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000"
                       : "none"
                   }}>{f.label}</span>
-                  {f.options ? (
-                    <select value={f.value} onChange={e => onFieldChange(b.id, f.id, e.target.value)}
-                      onMouseDown={e => e.stopPropagation()}
+                  {f.options?(
+                    <select value={f.value} onChange={e=>onFieldChange(b.id,f.id,e.target.value)}
+                      onMouseDown={e=>e.stopPropagation()}
                       onFocus={() => setFocusedField?.({ blockId: b.id, fieldId: f.id })}
                       onBlur={() => setFocusedField?.(null)}
                       style={{
@@ -472,14 +557,14 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
                         width: isFocused ? 220 : "100%",
                         zIndex: isFocused ? 999 : 1,
                         transition: "width 0.25s ease, z-index 0.25s",
-                        fontSize: 12, background: "#2c2c2c", border: `2px solid #57606f`, borderRadius: 6, color: "#fff", padding: "2px", outline: "none", fontWeight: 800,
-                        boxShadow: "inset 1.5px 1.5px 0 rgba(0,0,0,0.5)", fontFamily: "inherit"
+                        fontSize:12,background:"#2c2c2c",border:`2px solid #57606f`,borderRadius:6,color:"#fff",padding:"2px",outline:"none",fontWeight:800,
+                        boxShadow:"inset 1.5px 1.5px 0 rgba(0,0,0,0.5)", fontFamily:"inherit"
                       }}>
-                      {f.options.map(o => <option key={o} value={o}>{o}</option>)}
+                      {f.options.map(o=><option key={o} value={o}>{o}</option>)}
                     </select>
-                  ) : (
-                    <input value={f.value} onChange={e => onFieldChange(b.id, f.id, e.target.value)}
-                      onMouseDown={e => e.stopPropagation()}
+                  ):(
+                    <input value={f.value} onChange={e=>onFieldChange(b.id,f.id,e.target.value)}
+                      onMouseDown={e=>e.stopPropagation()}
                       onFocus={() => setFocusedField?.({ blockId: b.id, fieldId: f.id })}
                       onBlur={() => setFocusedField?.(null)}
                       style={{
@@ -489,9 +574,9 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
                         width: isFocused ? 220 : "100%",
                         zIndex: isFocused ? 999 : 1,
                         transition: "width 0.25s ease, z-index 0.25s",
-                        fontSize: 12, background: "#2c2c2c", border: `2px solid #57606f`, borderRadius: 6, color: "#fff", padding: "2px 4px", outline: "none", fontWeight: 800,
-                        boxShadow: "inset 1.5px 1.5px 0 rgba(0,0,0,0.5)", fontFamily: "inherit"
-                      }} />
+                        fontSize:12,background:"#2c2c2c",border:`2px solid #57606f`,borderRadius:6,color:"#fff",padding:"2px 4px",outline:"none",fontWeight:800,
+                        boxShadow:"inset 1.5px 1.5px 0 rgba(0,0,0,0.5)", fontFamily:"inherit"
+                      }}/>
                   )}
                 </div>
               );
@@ -499,25 +584,43 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
           </div>
         )}
       </div>
-
+      {isLoop && renderSingleArm(0, thenH, !!b.thenId, "🔄 くりかえし", b.category)}
+      {isCond && (
+        <>
+          {renderSingleArm(0, thenH, !!b.thenId, "✓ そうなら", b.category)}
+          {renderSingleArm(BW + GAP + 120, elseH, !!b.elseId, "✗ ちがうなら", b.category)}
+          <div style={{
+            position: "absolute",
+            left: BW,
+            top: -16,
+            width: GAP + 120,
+            height: 16,
+            background: `linear-gradient(to bottom, ${cat.top}, ${cat.bg})`,
+            borderTop: `4px solid ${cat.border}`,
+            borderBottom: `4px solid ${cat.border}`,
+            boxSizing: "border-box",
+            zIndex: -2,
+          }} />
+        </>
+      )}
       {!isEating && (
         <button
-          onMouseDown={e => { e.stopPropagation(); onDelete(b.id); }}
+          onMouseDown={e=>{e.stopPropagation();onDelete(b.id);}}
           title="削除"
           style={{
-            position: "absolute", top: 3, right: 4,
-            width: 14, height: 14, borderRadius: 3,
-            background: "rgba(0,0,0,0.25)",
-            border: `1px solid ${cat.border}`,
-            color: cat.text, fontSize: 8, fontWeight: 900,
-            cursor: "pointer", zIndex: 30, display: "flex", alignItems: "center", justifyContent: "center",
+            position:"absolute", top: 3, right: 4,
+            width:14, height:14, borderRadius:3,
+            background:"rgba(0,0,0,0.25)",
+            border:`1px solid ${cat.border}`,
+            color: cat.text, fontSize:8, fontWeight:900,
+            cursor:"pointer", zIndex:30, display:"flex", alignItems:"center", justifyContent:"center",
             opacity: 0.45,
-            padding: 0,
-            lineHeight: 1,
-            transition: "opacity 0.15s",
+            padding:0,
+            lineHeight:1,
+            transition:"opacity 0.15s",
           }}
-          onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-          onMouseLeave={e => (e.currentTarget.style.opacity = "0.45")}
+          onMouseEnter={e=>(e.currentTarget.style.opacity="1")}
+          onMouseLeave={e=>(e.currentTarget.style.opacity="0.45")}
         >✕</button>
       )}
     </div>
@@ -542,7 +645,7 @@ function ToyWall(_props: { pan: { x: number; y: number }; zoom: number }) {
       pointerEvents: "none",
       background: "linear-gradient(to bottom, #2a262d 0%, #1d1c20 50%, #14131a 100%)",
       boxShadow: "inset 0 0 180px rgba(0,0,0,0.55)",
-    }} />
+    }}/>
   );
 }
 
@@ -641,7 +744,7 @@ function CyberBackdrop() {
         position: "absolute", inset: 0,
         background: "linear-gradient(to bottom, #0a0517 0%, #1a0a2a 40%, #2a0e3a 80%, #1a0820 100%)",
       }} />
-
+      
       {/* 2. 遠景の星／薄いノイズ */}
       <div style={{
         position: "absolute", inset: 0,
@@ -666,24 +769,24 @@ function CyberBackdrop() {
       >
         <path d="M 0 180 L 0 110 L 40 110 L 40 130 L 90 130 L 90 90 L 150 90 L 150 140 L 180 140 L 180 80 L 230 80 L 230 120 L 290 120 L 290 100 L 340 100 L 340 145 L 390 145 L 390 70 L 450 70 L 450 115 L 500 115 L 500 135 L 550 135 L 550 95 L 610 95 L 610 140 L 660 140 L 660 75 L 720 75 L 720 125 L 770 125 L 770 105 L 830 105 L 830 140 L 890 140 L 890 85 L 940 85 L 940 115 L 1000 115 L 1000 135 L 1060 135 L 1060 90 L 1120 90 L 1120 125 L 1200 125 L 1200 180 Z"
           fill="#0e1830" opacity="0.6" />
-        <circle cx="25" cy="140" r="1.5" fill="#fbbf24" opacity="0.8" />
-        <circle cx="25" cy="155" r="1.5" fill="#fbbf24" opacity="0.8" />
-        <circle cx="110" cy="110" r="1.5" fill="#fbbf24" opacity="0.8" />
-        <circle cx="110" cy="125" r="1.5" fill="#fbbf24" opacity="0.8" />
-        <circle cx="130" cy="110" r="1.5" fill="#fbbf24" opacity="0.8" />
-        <circle cx="130" cy="125" r="1.5" fill="#fbbf24" opacity="0.8" />
-        <circle cx="205" cy="100" r="1.5" fill="#fbbf24" opacity="0.8" />
-        <circle cx="205" cy="115" r="1.5" fill="#fbbf24" opacity="0.8" />
-        <circle cx="415" cy="90" r="1.5" fill="#fbbf24" opacity="0.8" />
-        <circle cx="415" cy="105" r="1.5" fill="#fbbf24" opacity="0.8" />
-        <circle cx="430" cy="90" r="1.5" fill="#fbbf24" opacity="0.8" />
-        <circle cx="430" cy="105" r="1.5" fill="#fbbf24" opacity="0.8" />
-        <circle cx="685" cy="95" r="1.5" fill="#fbbf24" opacity="0.8" />
-        <circle cx="685" cy="110" r="1.5" fill="#fbbf24" opacity="0.8" />
-        <circle cx="700" cy="95" r="1.5" fill="#fbbf24" opacity="0.8" />
-        <circle cx="700" cy="110" r="1.5" fill="#fbbf24" opacity="0.8" />
-        <circle cx="915" cy="105" r="1.5" fill="#fbbf24" opacity="0.8" />
-        <circle cx="915" cy="120" r="1.5" fill="#fbbf24" opacity="0.8" />
+        <circle cx="25" cy="140" r="1.5" fill="#fbbf24" opacity="0.8"/>
+        <circle cx="25" cy="155" r="1.5" fill="#fbbf24" opacity="0.8"/>
+        <circle cx="110" cy="110" r="1.5" fill="#fbbf24" opacity="0.8"/>
+        <circle cx="110" cy="125" r="1.5" fill="#fbbf24" opacity="0.8"/>
+        <circle cx="130" cy="110" r="1.5" fill="#fbbf24" opacity="0.8"/>
+        <circle cx="130" cy="125" r="1.5" fill="#fbbf24" opacity="0.8"/>
+        <circle cx="205" cy="100" r="1.5" fill="#fbbf24" opacity="0.8"/>
+        <circle cx="205" cy="115" r="1.5" fill="#fbbf24" opacity="0.8"/>
+        <circle cx="415" cy="90" r="1.5" fill="#fbbf24" opacity="0.8"/>
+        <circle cx="415" cy="105" r="1.5" fill="#fbbf24" opacity="0.8"/>
+        <circle cx="430" cy="90" r="1.5" fill="#fbbf24" opacity="0.8"/>
+        <circle cx="430" cy="105" r="1.5" fill="#fbbf24" opacity="0.8"/>
+        <circle cx="685" cy="95" r="1.5" fill="#fbbf24" opacity="0.8"/>
+        <circle cx="685" cy="110" r="1.5" fill="#fbbf24" opacity="0.8"/>
+        <circle cx="700" cy="95" r="1.5" fill="#fbbf24" opacity="0.8"/>
+        <circle cx="700" cy="110" r="1.5" fill="#fbbf24" opacity="0.8"/>
+        <circle cx="915" cy="105" r="1.5" fill="#fbbf24" opacity="0.8"/>
+        <circle cx="915" cy="120" r="1.5" fill="#fbbf24" opacity="0.8"/>
       </svg>
 
       {/* 4. 中景のビル（高層ビル＋ネオン縁取り） */}
@@ -728,8 +831,8 @@ function CyberBackdrop() {
       >
         <defs>
           <linearGradient id="gridFade" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#06b6d4" stopOpacity="0" />
-            <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.4" />
+            <stop offset="0%" stopColor="#06b6d4" stopOpacity="0"/>
+            <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.4"/>
           </linearGradient>
         </defs>
         <path d="
@@ -795,10 +898,10 @@ function ThemeBackdrop({ theme }: { theme: "workshop" | "cyber" }) {
    接続コネクター
    ══════════════════════════════════════════════════════════ */
 
-function Connector({ x, y, color }: { x: number; y: number; color: string }) {
+function Connector({ x, y, color }: { x:number; y:number; color:string }) {
   return (
     <div style={{
-      position: "absolute",
+      position:"absolute",
       left: x - BW / 2,
       top: y - 2,
       width: BW,
@@ -807,7 +910,7 @@ function Connector({ x, y, color }: { x: number; y: number; color: string }) {
       boxShadow: `0 0 6px ${color}, 0 0 2px rgba(255,255,255,0.6)`,
       zIndex: 10,
       pointerEvents: "none",
-    }} />
+    }}/>
   );
 }
 
@@ -815,16 +918,16 @@ function Connector({ x, y, color }: { x: number; y: number; color: string }) {
    スナップインジケーター
    ══════════════════════════════════════════════════════════ */
 
-function SnapIndicator({ x, y, color, zoom, slot }: { x: number; y: number; color: string; zoom: number; slot: string }) {
+function SnapIndicator({ x, y, color, zoom, slot }: { x:number; y:number; color:string; zoom:number; slot:string }) {
   const width = BW * zoom;
   const height = BH * zoom;
   const R = 8 * zoom;
 
   // 接続スロットごとに矢印 + 短い説明
-  const labelMap: Record<string, string> = {
-    next: "▼ ここに積む",
-    then: "▼ そうなら",
-    else: "▶ ちがうなら",
+  const labelMap: Record<string,string> = {
+    next:  "▼ ここに積む",
+    then:  "▼ そうなら",
+    else:  "▶ ちがうなら",
     inner: "◀ ここに入れる",
   };
   const label = labelMap[slot] ?? "▼ ここに接続";
@@ -833,9 +936,9 @@ function SnapIndicator({ x, y, color, zoom, slot }: { x: number; y: number; colo
     <>
       {/* メインのスナップゾーン — 二重枠 + 半透明フィル + パルス */}
       <div style={{
-        position: "absolute",
-        left: x - width / 2,
-        top: y - height / 2,
+        position:"absolute",
+        left: x - width/2,
+        top: y - height/2,
         width, height,
         borderRadius: R,
         border: `4px solid ${color}`,
@@ -846,25 +949,25 @@ function SnapIndicator({ x, y, color, zoom, slot }: { x: number; y: number; colo
         animation: "snapPulse 0.55s ease-in-out infinite alternate",
         zIndex: 100,
         pointerEvents: "none",
-      }} />
+      }}/>
       {/* 中央の十字スナップポイント (磁石の中心) */}
       <div style={{
-        position: "absolute",
+        position:"absolute",
         left: x - 10, top: y - 10,
         width: 20, height: 20,
         zIndex: 101,
-        pointerEvents: "none",
+        pointerEvents:"none",
       }}>
-        <div style={{ position: "absolute", left: 9, top: 0, width: 2, height: 20, background: "#fff", boxShadow: `0 0 6px ${color}` }} />
-        <div style={{ position: "absolute", left: 0, top: 9, width: 20, height: 2, background: "#fff", boxShadow: `0 0 6px ${color}` }} />
+        <div style={{position:"absolute", left:9, top:0, width:2, height:20, background:"#fff", boxShadow:`0 0 6px ${color}`}}/>
+        <div style={{position:"absolute", left:0, top:9, width:20, height:2, background:"#fff", boxShadow:`0 0 6px ${color}`}}/>
       </div>
       {/* 方向ラベル — スロットに応じた説明 */}
       <div style={{
-        position: "absolute",
+        position:"absolute",
         left: x - 75,
-        top: y - height / 2 - 32,
+        top: y - height/2 - 32,
         width: 150,
-        textAlign: "center",
+        textAlign:"center",
         fontFamily: "var(--font-pixel), monospace",
         fontSize: 10,
         letterSpacing: "0.05em",
@@ -875,9 +978,9 @@ function SnapIndicator({ x, y, color, zoom, slot }: { x: number; y: number; colo
         boxShadow: `0 2px 0 rgba(0,0,0,0.4), 0 0 12px ${color}`,
         animation: "snapLabelBob 0.45s ease-in-out infinite alternate",
         zIndex: 102,
-        pointerEvents: "none",
-        whiteSpace: "nowrap",
-        textShadow: "1px 1px 0 rgba(0,0,0,0.6)",
+        pointerEvents:"none",
+        whiteSpace:"nowrap",
+        textShadow:"1px 1px 0 rgba(0,0,0,0.6)",
       }}>{label}</div>
     </>
   );
@@ -1003,7 +1106,7 @@ function BlockTray({
                       : "0 2px 0 #0a0907",
                     textShadow: active ? "1px 1px 0 rgba(255,255,255,0.3)" : "none",
                   }}>
-                  <span style={{ fontSize: 13 }}>{s.icon}</span>
+                  <span style={{fontSize: 13}}>{s.icon}</span>
                   <span>{s.label}</span>
                 </button>
               );
@@ -1024,128 +1127,128 @@ function BlockTray({
           scrollbarWidth: "thin",
           scrollbarColor: "#4a4842 #2a2924"
         }}>
-          {visibleTemplates.map(t => {
-            const c = CAT[t.category];
+        {visibleTemplates.map(t => {
+          const c = CAT[t.category];
 
-            // キャンバスのブロックと統一した 3D キューブの内側ベベル
-            const innerBorder = "inset 3px 3px 0 rgba(255,255,255,0.32), inset -3px -3px 0 rgba(0,0,0,0.22)";
-            const hoverInnerBorder = "inset 3px 3px 0 rgba(255,255,255,0.45), inset -3px -3px 0 rgba(0,0,0,0.26)";
-            const pressInnerBorder = "inset 3px 3px 0 rgba(0,0,0,0.32), inset -3px -3px 0 rgba(255,255,255,0.20)";
-            const bw_w = 92;
-            const bw_h = 62;
-            const FACE_D = 16;
-            const R = 8;
+          // キャンバスのブロックと統一した 3D キューブの内側ベベル
+          const innerBorder = "inset 3px 3px 0 rgba(255,255,255,0.32), inset -3px -3px 0 rgba(0,0,0,0.22)";
+          const hoverInnerBorder = "inset 3px 3px 0 rgba(255,255,255,0.45), inset -3px -3px 0 rgba(0,0,0,0.26)";
+          const pressInnerBorder = "inset 3px 3px 0 rgba(0,0,0,0.32), inset -3px -3px 0 rgba(255,255,255,0.20)";
+          const bw_w = 92;
+          const bw_h = 62;
+          const FACE_D = 16;
+          const R = 8;
 
-            return (
-              <button key={t.type + t.label} onClick={() => onAdd(t)} title={t.sublabel}
-                style={{
-                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1,
-                  width: bw_w, height: bw_h, padding: "4px 3px",
-                  borderRadius: R,
-                  background: `linear-gradient(135deg, ${c.top}, ${c.bg})`,
-                  borderLeft: `4px solid ${c.border}`,
-                  borderBottom: `4px solid ${c.border}`,
-                  borderRight: `2px solid rgba(0,0,0,0.22)`,
-                  borderTop: `2px solid rgba(0,0,0,0.22)`,
-                  cursor: "pointer",
-                  transition: "transform 0.1s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.1s ease, filter 0.1s ease",
-                  boxShadow: `${innerBorder}, 0 3px 0 rgba(0,0,0,0.25)`,
-                  flexShrink: 0,
-                  position: "relative",
-                  overflow: "visible",
-                  marginTop: FACE_D, // 3D 上面分の余白を上に確保（はみ出し防止）
-                }}
-                onMouseEnter={e => {
-                  const el = e.currentTarget;
-                  el.style.transform = "translateY(-3px)";
-                  el.style.boxShadow = `${hoverInnerBorder}, 0 6px 0 rgba(0,0,0,0.28), 0 8px 14px rgba(0,0,0,0.3)`;
-                  el.style.filter = "brightness(1.06)";
-                }}
-                onMouseLeave={e => {
-                  const el = e.currentTarget;
-                  el.style.transform = "";
-                  el.style.boxShadow = `${innerBorder}, 0 3px 0 rgba(0,0,0,0.25)`;
-                  el.style.filter = "";
-                }}
-                onMouseDown={e => {
-                  const el = e.currentTarget;
-                  el.style.transform = "translateY(2px)";
-                  el.style.boxShadow = `${pressInnerBorder}, 0 1px 0 rgba(0,0,0,0.2)`;
-                }}
-                onMouseUp={e => {
-                  const el = e.currentTarget;
-                  el.style.transform = "translateY(-3px)";
-                  el.style.boxShadow = `${hoverInnerBorder}, 0 6px 0 rgba(0,0,0,0.28), 0 8px 14px rgba(0,0,0,0.3)`;
-                }}
-              >
-                {/* 3D 上面 — キャンバスブロックと同じ skewX 形状（角丸厚みアップ） */}
-                <div style={{
-                  position: "absolute",
-                  left: 0,
-                  top: -FACE_D,
-                  width: bw_w,
-                  height: FACE_D,
-                  background: c.top,
-                  borderRadius: `${R}px ${R}px 0 0`,
-                  transform: "skewX(-45deg)",
-                  transformOrigin: "bottom left",
-                  borderTop: `3.5px solid ${c.border}`,
-                  borderLeft: `3.5px solid ${c.border}`,
-                  borderRight: `1.5px solid rgba(0,0,0,0.22)`,
-                  borderBottom: `1.5px solid rgba(0,0,0,0.22)`,
-                  boxSizing: "border-box",
-                  pointerEvents: "none",
-                  zIndex: 1,
-                }} />
+          return (
+            <button key={t.type + t.label} onClick={() => onAdd(t)} title={t.sublabel}
+              style={{
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1,
+                width: bw_w, height: bw_h, padding: "4px 3px",
+                borderRadius: R,
+                background: `linear-gradient(135deg, ${c.top}, ${c.bg})`,
+                borderLeft: `4px solid ${c.border}`,
+                borderBottom: `4px solid ${c.border}`,
+                borderRight: `2px solid rgba(0,0,0,0.22)`,
+                borderTop: `2px solid rgba(0,0,0,0.22)`,
+                cursor: "pointer",
+                transition: "transform 0.1s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.1s ease, filter 0.1s ease",
+                boxShadow: `${innerBorder}, 0 3px 0 rgba(0,0,0,0.25)`,
+                flexShrink: 0,
+                position: "relative",
+                overflow: "visible",
+                marginTop: FACE_D, // 3D 上面分の余白を上に確保（はみ出し防止）
+              }}
+              onMouseEnter={e => {
+                const el = e.currentTarget;
+                el.style.transform = "translateY(-3px)";
+                el.style.boxShadow = `${hoverInnerBorder}, 0 6px 0 rgba(0,0,0,0.28), 0 8px 14px rgba(0,0,0,0.3)`;
+                el.style.filter = "brightness(1.06)";
+              }}
+              onMouseLeave={e => {
+                const el = e.currentTarget;
+                el.style.transform = "";
+                el.style.boxShadow = `${innerBorder}, 0 3px 0 rgba(0,0,0,0.25)`;
+                el.style.filter = "";
+              }}
+              onMouseDown={e => {
+                const el = e.currentTarget;
+                el.style.transform = "translateY(2px)";
+                el.style.boxShadow = `${pressInnerBorder}, 0 1px 0 rgba(0,0,0,0.2)`;
+              }}
+              onMouseUp={e => {
+                const el = e.currentTarget;
+                el.style.transform = "translateY(-3px)";
+                el.style.boxShadow = `${hoverInnerBorder}, 0 6px 0 rgba(0,0,0,0.28), 0 8px 14px rgba(0,0,0,0.3)`;
+              }}
+            >
+              {/* 3D 上面 — キャンバスブロックと同じ skewX 形状（角丸厚みアップ） */}
+              <div style={{
+                position: "absolute",
+                left: 0,
+                top: -FACE_D,
+                width: bw_w,
+                height: FACE_D,
+                background: c.top,
+                borderRadius: `${R}px ${R}px 0 0`,
+                transform: "skewX(-45deg)",
+                transformOrigin: "bottom left",
+                borderTop: `3.5px solid ${c.border}`,
+                borderLeft: `3.5px solid ${c.border}`,
+                borderRight: `1.5px solid rgba(0,0,0,0.22)`,
+                borderBottom: `1.5px solid rgba(0,0,0,0.22)`,
+                boxSizing: "border-box",
+                pointerEvents: "none",
+                zIndex: 1,
+              }} />
 
-                {/* 3D 右側面 — キャンバスブロックと同じ skewY 形状 */}
-                <div style={{
-                  position: "absolute",
-                  left: bw_w,
-                  top: 0,
-                  width: FACE_D,
-                  height: bw_h,
-                  background: c.side,
-                  borderRadius: `0 ${R}px ${R}px 0`,
-                  transform: "skewY(-45deg)",
-                  transformOrigin: "top left",
-                  borderTop: `1.5px solid rgba(0,0,0,0.22)`,
-                  borderRight: `3.5px solid ${c.border}`,
-                  borderBottom: `3.5px solid ${c.border}`,
-                  borderLeft: `1.5px solid rgba(0,0,0,0.22)`,
-                  boxSizing: "border-box",
-                  pointerEvents: "none",
-                  zIndex: 1,
-                }} />
+              {/* 3D 右側面 — キャンバスブロックと同じ skewY 形状 */}
+              <div style={{
+                position: "absolute",
+                left: bw_w,
+                top: 0,
+                width: FACE_D,
+                height: bw_h,
+                background: c.side,
+                borderRadius: `0 ${R}px ${R}px 0`,
+                transform: "skewY(-45deg)",
+                transformOrigin: "top left",
+                borderTop: `1.5px solid rgba(0,0,0,0.22)`,
+                borderRight: `3.5px solid ${c.border}`,
+                borderBottom: `3.5px solid ${c.border}`,
+                borderLeft: `1.5px solid rgba(0,0,0,0.22)`,
+                boxSizing: "border-box",
+                pointerEvents: "none",
+                zIndex: 1,
+              }} />
 
-                <span style={{ fontSize: t.type === "co_if" ? 22 : 20, filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.4))", lineHeight: 1, zIndex: 2, position: "relative" }}>
-                  {t.emoji}
-                </span>
-                <span style={{
-                  fontSize: t.label.length > 7 ? 10 : 12,
-                  fontWeight: 900,
-                  color: c.text,
-                  textAlign: "center",
-                  lineHeight: 1.1,
-                  width: "100%",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  textShadow: c.text === "#ffffff"
-                    ? "1.5px 1.5px 0 #000, -1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000"
-                    : "none",
-                  zIndex: 2, position: "relative",
-                }}>
-                  {t.label}
-                </span>
-              </button>
-            );
-          })}
-          {visibleTemplates.length === 0 && (
-            <div style={{ color: "#9c9890", fontSize: 12, padding: "10px 20px" }}>
-              該当するブロックなし
-            </div>
-          )}
+              <span style={{ fontSize: t.type === "co_if" ? 22 : 20, filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.4))", lineHeight: 1, zIndex: 2, position: "relative" }}>
+                {t.emoji}
+              </span>
+              <span style={{
+                fontSize: t.label.length > 7 ? 10 : 12,
+                fontWeight: 900,
+                color: c.text,
+                textAlign: "center",
+                lineHeight: 1.1,
+                width: "100%",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                textShadow: c.text === "#ffffff"
+                  ? "1.5px 1.5px 0 #000, -1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000"
+                  : "none",
+                zIndex: 2, position: "relative",
+              }}>
+                {t.label}
+              </span>
+            </button>
+          );
+        })}
+        {visibleTemplates.length === 0 && (
+          <div style={{ color: "#9c9890", fontSize: 12, padding: "10px 20px" }}>
+            該当するブロックなし
+          </div>
+        )}
         </div>{/* /inner scroll */}
       </div>{/* /outer column */}
     </div>
@@ -1163,47 +1266,47 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
   onLoad: (blocks: CBlock[]) => void;
   onClose: () => void;
 }) {
-  const [projects, setProjects] = useState<Omit<SavedProject, "blocks">[]>([]);
+  const [projects, setProjects] = useState<Omit<SavedProject,"blocks">[]>([]);
   const [saveName, setSaveName] = useState("マイプロジェクト");
   const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
     try {
-      const stored: Record<string, SavedProject> = JSON.parse(localStorage.getItem("mmc-projects") || "{}");
-      setProjects(Object.values(stored).map(p => ({ name: p.name, savedAt: p.savedAt })));
-    } catch { }
+      const stored: Record<string,SavedProject> = JSON.parse(localStorage.getItem("mmc-projects")||"{}");
+      setProjects(Object.values(stored).map(p => ({name:p.name, savedAt:p.savedAt})));
+    } catch {}
   }, []);
 
-  const flash = (m: string) => { setMsg(m); setTimeout(() => setMsg(""), 2000); };
+  const flash = (m: string) => { setMsg(m); setTimeout(()=>setMsg(""), 2000); };
 
   const save = () => {
     if (!saveName.trim()) return;
-    const stored: Record<string, SavedProject> = JSON.parse(localStorage.getItem("mmc-projects") || "{}");
-    const project: SavedProject = { name: saveName, savedAt: new Date().toLocaleString("ja-JP"), blocks };
+    const stored: Record<string,SavedProject> = JSON.parse(localStorage.getItem("mmc-projects")||"{}");
+    const project: SavedProject = { name:saveName, savedAt:new Date().toLocaleString("ja-JP"), blocks };
     stored[saveName] = project;
     localStorage.setItem("mmc-projects", JSON.stringify(stored));
-    setProjects(Object.values(stored).map(p => ({ name: p.name, savedAt: p.savedAt })));
+    setProjects(Object.values(stored).map(p=>({name:p.name,savedAt:p.savedAt})));
     flash("💾 保存しました！");
   };
 
   const load = (name: string) => {
-    const stored: Record<string, SavedProject> = JSON.parse(localStorage.getItem("mmc-projects") || "{}");
+    const stored: Record<string,SavedProject> = JSON.parse(localStorage.getItem("mmc-projects")||"{}");
     if (stored[name]) { onLoad(stored[name].blocks); onClose(); }
   };
 
   const del = (name: string) => {
-    const stored: Record<string, SavedProject> = JSON.parse(localStorage.getItem("mmc-projects") || "{}");
+    const stored: Record<string,SavedProject> = JSON.parse(localStorage.getItem("mmc-projects")||"{}");
     delete stored[name];
     localStorage.setItem("mmc-projects", JSON.stringify(stored));
-    setProjects(Object.values(stored).map(p => ({ name: p.name, savedAt: p.savedAt })));
+    setProjects(Object.values(stored).map(p=>({name:p.name,savedAt:p.savedAt})));
   };
 
   const exportJson = () => {
-    const data = JSON.stringify({ name: saveName, blocks, version: "2.0" }, null, 2);
-    const url = URL.createObjectURL(new Blob([data], { type: "application/json" }));
+    const data = JSON.stringify({name:saveName, blocks, version:"2.0"}, null, 2);
+    const url = URL.createObjectURL(new Blob([data],{type:"application/json"}));
     const a = document.createElement("a");
-    a.href = url; a.download = `${saveName.replace(/\s+/g, "_")}.mmc.json`; a.click();
+    a.href=url; a.download=`${saveName.replace(/\s+/g,"_")}.mmc.json`; a.click();
     URL.revokeObjectURL(url);
     flash("📤 ダウンロードしました！");
   };
@@ -1222,61 +1325,53 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
   };
 
   return (
-    <div className="mc-panel" style={{
-      position: "absolute", top: 50, left: "50%", transform: "translateX(-50%)", zIndex: 50,
-      width: 460, background: "var(--surface)", boxShadow: "0 12px 48px rgba(0,0,0,0.6)", overflow: "hidden"
-    }}>
+    <div className="mc-panel" style={{position:"absolute",top:50,left:"50%",transform:"translateX(-50%)",zIndex:50,
+      width:460,background:"var(--surface)",boxShadow:"0 12px 48px rgba(0,0,0,0.6)",overflow:"hidden"}}>
       {/* ヘッダー */}
-      <div style={{
-        padding: "10px 16px", background: "var(--panel)", borderBottom: "2px solid var(--border-color)",
-        display: "flex", justifyContent: "space-between", alignItems: "center"
-      }}>
-        <span className="font-pixel text-[11px]" style={{ color: "var(--accent)", letterSpacing: "0.05em" }}>📁 PROJECTS</span>
+      <div style={{padding:"10px 16px",background:"var(--panel)",borderBottom:"2px solid var(--border-color)",
+        display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <span className="font-pixel text-[11px]" style={{color:"var(--accent)",letterSpacing:"0.05em"}}>📁 PROJECTS</span>
         <button onClick={onClose} className="mc-btn mc-btn--sm">✕ 閉じる</button>
       </div>
 
-      <div style={{ padding: "16px 18px", maxHeight: 440, overflowY: "auto", background: "var(--surface)" }}>
+      <div style={{padding:"16px 18px",maxHeight:440,overflowY:"auto",background:"var(--surface)"}}>
         {/* 保存 */}
-        <div style={{ marginBottom: 16 }}>
-          <div className="font-pixel" style={{ fontSize: 10, color: "var(--foreground)", marginBottom: 8, letterSpacing: "0.05em" }}>💾 現在の作業を保存</div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <input value={saveName} onChange={e => setSaveName(e.target.value)}
-              style={{
-                flex: 1, padding: "8px 12px", borderRadius: 0, border: "2px solid var(--border-color)",
-                borderTopColor: "#1f1e1a", borderLeftColor: "#1f1e1a",
-                background: "#1f1e1a", color: "var(--foreground)", fontSize: 12, outline: "none", fontWeight: 600
-              }}
+        <div style={{marginBottom:16}}>
+          <div className="font-pixel" style={{fontSize:10,color:"var(--foreground)",marginBottom:8,letterSpacing:"0.05em"}}>💾 現在の作業を保存</div>
+          <div style={{display:"flex",gap:8}}>
+            <input value={saveName} onChange={e=>setSaveName(e.target.value)}
+              style={{flex:1,padding:"8px 12px",borderRadius:0,border:"2px solid var(--border-color)",
+                borderTopColor:"#1f1e1a",borderLeftColor:"#1f1e1a",
+                background:"#1f1e1a",color:"var(--foreground)",fontSize:12,outline:"none",fontWeight:600}}
               placeholder="プロジェクト名" />
             <button onClick={save} className="mc-btn mc-btn--primary">保存</button>
           </div>
-          {msg && <div className="font-pixel" style={{ marginTop: 8, fontSize: 10, color: "#6ee7b7" }}>{msg}</div>}
+          {msg && <div className="font-pixel" style={{marginTop:8,fontSize:10,color:"#6ee7b7"}}>{msg}</div>}
         </div>
 
         {/* 保存済みプロジェクト */}
         {projects.length > 0 && (
-          <div style={{ marginBottom: 14 }}>
-            <div className="font-pixel" style={{ fontSize: 10, color: "var(--foreground)", marginBottom: 8, letterSpacing: "0.05em" }}>📂 保存済みプロジェクト</div>
+          <div style={{marginBottom:14}}>
+            <div className="font-pixel" style={{fontSize:10,color:"var(--foreground)",marginBottom:8,letterSpacing:"0.05em"}}>📂 保存済みプロジェクト</div>
             {projects.map(p => (
-              <div key={p.name} className="mc-bevel-inset" style={{
-                display: "flex", alignItems: "center", gap: 6, padding: "8px 10px",
-                background: "#1f1e1a", marginBottom: 6
-              }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--foreground)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
-                  <div style={{ fontSize: 10, color: "var(--muted)" }}>{p.savedAt}</div>
+              <div key={p.name} className="mc-bevel-inset" style={{display:"flex",alignItems:"center",gap:6,padding:"8px 10px",
+                background:"#1f1e1a",marginBottom:6}}>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:12,fontWeight:700,color:"var(--foreground)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.name}</div>
+                  <div style={{fontSize:10,color:"var(--muted)"}}>{p.savedAt}</div>
                 </div>
-                <button onClick={() => load(p.name)} className="mc-btn mc-btn--sm mc-btn--info">開く</button>
-                <button onClick={() => del(p.name)} className="mc-btn mc-btn--sm mc-btn--danger">削除</button>
+                <button onClick={()=>load(p.name)} className="mc-btn mc-btn--sm mc-btn--info">開く</button>
+                <button onClick={()=>del(p.name)} className="mc-btn mc-btn--sm mc-btn--danger">削除</button>
               </div>
             ))}
           </div>
         )}
 
         {/* インポート/エクスポート */}
-        <div style={{ borderTop: "2px solid var(--border-color)", paddingTop: 14, display: "flex", gap: 8 }}>
-          <button onClick={exportJson} className="mc-btn mc-btn--warning" style={{ flex: 1 }}>📤 JSON ダウンロード</button>
-          <button onClick={() => fileRef.current?.click()} className="mc-btn mc-btn--success" style={{ flex: 1 }}>📥 JSON 読み込み</button>
-          <input ref={fileRef} type="file" accept=".json,.mmc.json" onChange={importJson} style={{ display: "none" }} />
+        <div style={{borderTop:"2px solid var(--border-color)",paddingTop:14,display:"flex",gap:8}}>
+          <button onClick={exportJson} className="mc-btn mc-btn--warning" style={{flex:1}}>📤 JSON ダウンロード</button>
+          <button onClick={()=>fileRef.current?.click()} className="mc-btn mc-btn--success" style={{flex:1}}>📥 JSON 読み込み</button>
+          <input ref={fileRef} type="file" accept=".json,.mmc.json" onChange={importJson} style={{display:"none"}} />
         </div>
       </div>
     </div>
@@ -1292,36 +1387,30 @@ function TemplateGallery({ onSelect, onClose }: {
   onClose: () => void;
 }) {
   return (
-    <div className="mc-panel" style={{
-      position: "absolute", top: 50, left: "50%", transform: "translateX(-50%)", zIndex: 50,
-      width: 540, background: "var(--surface)", boxShadow: "0 12px 48px rgba(0,0,0,0.6)", overflow: "hidden"
-    }}>
-      <div style={{
-        padding: "10px 16px", background: "var(--panel)", borderBottom: "2px solid var(--border-color)",
-        display: "flex", justifyContent: "space-between", alignItems: "center"
-      }}>
-        <span className="font-pixel text-[11px]" style={{ color: "#22d3ee", letterSpacing: "0.05em" }}>🎮 TEMPLATES</span>
+    <div className="mc-panel" style={{position:"absolute",top:50,left:"50%",transform:"translateX(-50%)",zIndex:50,
+      width:540,background:"var(--surface)",boxShadow:"0 12px 48px rgba(0,0,0,0.6)",overflow:"hidden"}}>
+      <div style={{padding:"10px 16px",background:"var(--panel)",borderBottom:"2px solid var(--border-color)",
+        display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <span className="font-pixel text-[11px]" style={{color:"#22d3ee",letterSpacing:"0.05em"}}>🎮 TEMPLATES</span>
         <button onClick={onClose} className="mc-btn mc-btn--sm">✕ 閉じる</button>
       </div>
-      <div style={{ padding: "14px 18px", maxHeight: 460, overflowY: "auto", background: "var(--surface)" }}>
-        <div className="font-pixel" style={{ fontSize: 10, color: "var(--muted)", marginBottom: 14, letterSpacing: "0.04em" }}>
+      <div style={{padding:"14px 18px",maxHeight:460,overflowY:"auto",background:"var(--surface)"}}>
+        <div className="font-pixel" style={{fontSize:10,color:"var(--muted)",marginBottom:14,letterSpacing:"0.04em"}}>
           クリックで今のキャンバスに追加（既存ブロックは残ります）
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
           {PRESET_PROJECTS.map((p, i) => (
             <button key={i} onClick={() => { onSelect(p.create()); onClose(); }}
               className="mc-bevel-inset"
-              style={{
-                textAlign: "left", padding: "14px 14px",
-                background: "#1f1e1a", cursor: "pointer",
-                transition: "all 0.12s, transform 0.08s",
-                color: "var(--foreground)"
-              }}
-              onMouseEnter={e => { const el = e.currentTarget; el.style.background = "#2a2924"; el.style.borderColor = "#ec4899"; el.style.transform = "translateY(-1px)"; }}
-              onMouseLeave={e => { const el = e.currentTarget; el.style.background = "#1f1e1a"; el.style.borderColor = ""; el.style.transform = ""; }}>
-              <div style={{ fontSize: 26, marginBottom: 6, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.4))" }}>{p.emoji}</div>
-              <div className="font-pixel" style={{ fontSize: 11, color: "var(--foreground)", marginBottom: 4, letterSpacing: "0.03em" }}>{p.name}</div>
-              <div style={{ fontSize: 10, color: "var(--muted)", lineHeight: 1.45 }}>{p.desc}</div>
+              style={{textAlign:"left",padding:"14px 14px",
+                background:"#1f1e1a",cursor:"pointer",
+                transition:"all 0.12s, transform 0.08s",
+                color:"var(--foreground)"}}
+              onMouseEnter={e=>{const el=e.currentTarget;el.style.background="#2a2924";el.style.borderColor="#ec4899";el.style.transform="translateY(-1px)";}}
+              onMouseLeave={e=>{const el=e.currentTarget;el.style.background="#1f1e1a";el.style.borderColor="";el.style.transform="";}}>
+              <div style={{fontSize:26,marginBottom:6,filter:"drop-shadow(0 2px 6px rgba(0,0,0,0.4))"}}>{p.emoji}</div>
+              <div className="font-pixel" style={{fontSize:11,color:"var(--foreground)",marginBottom:4,letterSpacing:"0.03em"}}>{p.name}</div>
+              <div style={{fontSize:10,color:"var(--muted)",lineHeight:1.45}}>{p.desc}</div>
             </button>
           ))}
         </div>
@@ -1340,8 +1429,8 @@ export default function LogicPanel() {
     setMounted(true);
   }, []);
 
-  const setGeneratedJsCode = useEditorStore(s => s.setGeneratedJsCode);
-  const setLogicGraphJson = useEditorStore(s => s.setLogicGraphJson);
+  const setGeneratedJsCode = useEditorStore(s=>s.setGeneratedJsCode);
+  const setLogicGraphJson  = useEditorStore(s=>s.setLogicGraphJson);
 
   // 古い記憶（過去のセーブデータ）を最新の仕様に浄化（絵文字分離・ラベル統一）
   const migrateBlocks = (blocks: any[]): CBlock[] => {
@@ -1358,37 +1447,37 @@ export default function LogicPanel() {
     });
   };
 
-  const [blocks, setBlocks] = useState<CBlock[]>(() => {
-    try {
-      const j = useEditorStore.getState().logicGraphJson;
-      if (j) {
+  const [blocks, setBlocks] = useState<CBlock[]>(()=>{
+    try{
+      const j=useEditorStore.getState().logicGraphJson; 
+      if(j) {
         const parsed = JSON.parse(j);
         const raw = parsed.nodes ?? parsed.blocks;
         if (raw) return migrateBlocks(raw);
       }
-    } catch { }
-    try {
-      if (typeof window !== "undefined") {
+    }catch{}
+    try{
+      if(typeof window !== "undefined") {
         const local = localStorage.getItem("mmc-autosave-logic");
-        if (local) {
+        if(local) {
           const parsed = JSON.parse(local);
           const raw = parsed.blocks ?? parsed;
           if (Array.isArray(raw)) return migrateBlocks(raw);
         }
       }
-    } catch { }
+    }catch{}
     return makeInitial();
   });
-  const [pan, setPan] = useState({ x: 60, y: 60 });
+  const [pan,       setPan]      = useState({x:60,y:60});
   // ズーム機能（復活）：縦に積んだ時の全体俯瞰用。0.4 〜 1.0 の範囲。
-  const [zoom, setZoom] = useState(1.0);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
-  const [showLib, setShowLib] = useState(true);
+  const [zoom,      setZoom]     = useState(1.0);
+  const [selected,  setSelected] = useState<string|null>(null);
+  const [search,    setSearch]   = useState("");
+  const [showLib,   setShowLib]  = useState(true);
   const [activeCategory, setActiveCategory] = useState<Category>("trigger");
   const [focusedField, setFocusedField] = useState<{ blockId: string; fieldId: string } | null>(null);
   /** インテリアテーマ — Phase 1 では切替トグルのみ、永続化は未実装（後で store に移す） */
-  const [interiorTheme, setInteriorTheme] = useState<"workshop" | "cyber">("workshop");
+  const [interiorTheme, setInteriorTheme] = useState<"workshop"|"cyber">("workshop");
   // armed 接続（タップ→タップ）用の状態
   const [wireDrag, setWireDrag] = useState<{ sourceBlockId: string; slot: string; armed: boolean; accepts: Category[] } | null>(null);
   // マウスのキャンバス上の座標（ドラッグ中のワイヤー追従用）
@@ -1396,27 +1485,27 @@ export default function LogicPanel() {
 
   const searching = search.trim().length > 0;
   const filtered = searching
-    ? TEMPLATES.filter(t => t.label.includes(search) || t.sublabel.includes(search))
-    : TEMPLATES.filter(t => t.category === activeCategory);
-  const [showCode, setShowCode] = useState(false);
-  const [showHelp, setShowHelp] = useState(true);
-  const [genCode, setGenCode] = useState("");
-  const [snapHint, setSnapHint] = useState<{ targetId: string; slot: string; pos: { x: number; y: number } } | null>(null);
-  const [eating, setEating] = useState<string | null>(null);
-  const [chomping, setChomping] = useState<string | null>(null);
-  const [snapAnim, setSnapAnim] = useState<string | null>(null);   // スナップ時バウンス
-  const [addAnim, setAddAnim] = useState<string | null>(null);   // 追加時スライドイン
-  const [deleteAnim, setDeleteAnim] = useState<string | null>(null);   // 削除時フェードアウト
-  const [shakeAnim, setShakeAnim] = useState<string | null>(null);   // エラー時ブルブル
+    ? TEMPLATES.filter(t=>t.label.includes(search)||t.sublabel.includes(search))
+    : TEMPLATES.filter(t=>t.category===activeCategory);
+  const [showCode,  setShowCode] = useState(false);
+  const [showHelp,  setShowHelp] = useState(true);
+  const [genCode,   setGenCode]  = useState("");
+  const [snapHint,  setSnapHint] = useState<{targetId:string;slot:string;pos:{x:number;y:number}}|null>(null);
+  const [eating,       setEating]      = useState<string|null>(null);
+  const [chomping,     setChomping]    = useState<string|null>(null);
+  const [snapAnim,     setSnapAnim]    = useState<string|null>(null);   // スナップ時バウンス
+  const [addAnim,      setAddAnim]     = useState<string|null>(null);   // 追加時スライドイン
+  const [deleteAnim,   setDeleteAnim]  = useState<string|null>(null);   // 削除時フェードアウト
+  const [shakeAnim,    setShakeAnim]   = useState<string|null>(null);   // エラー時ブルブル
 
   // パーティクルバースト (スクリーン座標)
-  const [particles, setParticles] = useState<{ id: string; x: number; y: number; color: string }[]>([]);
+  const [particles, setParticles] = useState<{id:string;x:number;y:number;color:string}[]>([]);
   // 着地時の衝撃リング / 光フラッシュ
-  const [impacts, setImpacts] = useState<{ id: string; x: number; y: number; color: string }[]>([]);
+  const [impacts,  setImpacts]  = useState<{id:string;x:number;y:number;color:string}[]>([]);
   // 紙吹雪（co_if など特別ブロック用）
-  const [confetti, setConfetti] = useState<{ id: string; x: number; y: number }[]>([]);
-  const [showProjects, setShowProjects] = useState(false);
-  const [showTemplates, setShowTemplates] = useState(false);
+  const [confetti, setConfetti] = useState<{id:string;x:number;y:number}[]>([]);
+  const [showProjects, setShowProjects]= useState(false);
+  const [showTemplates,setShowTemplates]=useState(false);
   const [toast, setToast] = useState<{ message: string; level: "success" | "error" | "warning" } | null>(null);
 
   // ─── 床（content Y=660）を画面底辺に揃える ───
@@ -1436,72 +1525,72 @@ export default function LogicPanel() {
   }, []);
 
   // ─── Undo / Redo ───
-  const historyRef = useRef<string[]>([JSON.stringify(blocks)]);
-  const historyIdx = useRef(0);
-  const skipHistory = useRef(false);
+  const historyRef    = useRef<string[]>([JSON.stringify(blocks)]);
+  const historyIdx    = useRef(0);
+  const skipHistory   = useRef(false);
 
-  useEffect(() => {
-    if (skipHistory.current) { skipHistory.current = false; return; }
-    const timer = setTimeout(() => {
-      const json = JSON.stringify(blocks);
-      if (json === historyRef.current[historyIdx.current]) return;
-      historyRef.current = historyRef.current.slice(0, historyIdx.current + 1);
+  useEffect(()=>{
+    if(skipHistory.current){ skipHistory.current=false; return; }
+    const timer=setTimeout(()=>{
+      const json=JSON.stringify(blocks);
+      if(json===historyRef.current[historyIdx.current])return;
+      historyRef.current=historyRef.current.slice(0,historyIdx.current+1);
       historyRef.current.push(json);
-      if (historyRef.current.length > 60) historyRef.current.shift();
-      historyIdx.current = historyRef.current.length - 1;
-    }, 350);
-    return () => clearTimeout(timer);
-  }, [blocks]);
+      if(historyRef.current.length>60)historyRef.current.shift();
+      historyIdx.current=historyRef.current.length-1;
+    },350);
+    return()=>clearTimeout(timer);
+  },[blocks]);
 
-  const undo = useCallback(() => {
-    if (historyIdx.current <= 0) return;
+  const undo=useCallback(()=>{
+    if(historyIdx.current<=0)return;
     historyIdx.current--;
-    skipHistory.current = true;
+    skipHistory.current=true;
     setBlocks(JSON.parse(historyRef.current[historyIdx.current]));
-  }, []);
+  },[]);
 
-  const redo = useCallback(() => {
-    if (historyIdx.current >= historyRef.current.length - 1) return;
+  const redo=useCallback(()=>{
+    if(historyIdx.current>=historyRef.current.length-1)return;
     historyIdx.current++;
-    skipHistory.current = true;
+    skipHistory.current=true;
     setBlocks(JSON.parse(historyRef.current[historyIdx.current]));
-  }, []);
+  },[]);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const live = useRef({ pan, zoom, blocks, selected, snapHint, wireDrag });
-  live.current = { pan, zoom, blocks, selected, snapHint, wireDrag };
+  const live = useRef({pan,zoom,blocks,selected,snapHint,wireDrag});
+  live.current={pan,zoom,blocks,selected,snapHint,wireDrag};
 
-  const panDrag = useRef({ active: false, sx: 0, sy: 0, sp: { x: 0, y: 0 } });
-  const blockDrag = useRef({ active: false, id: "", offX: 0, offY: 0 });
+  const panDrag  = useRef({active:false,sx:0,sy:0,sp:{x:0,y:0}});
+  const blockDrag = useRef({active:false,id:"",offX:0,offY:0});
 
-  const handleWheel = useCallback((e: React.WheelEvent) => {
+  const handleWheel=useCallback((e:React.WheelEvent)=>{
     e.preventDefault();
-    const rect = containerRef.current!.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const fac = e.deltaY < 0 ? 1.1 : 1 / 1.1;
-    setZoom(z => {
-      const nz = Math.min(2.5, Math.max(0.2, z * fac));
-      setPan(p => ({
+    const rect=containerRef.current!.getBoundingClientRect();
+    const mx=e.clientX-rect.left;
+    const fac=e.deltaY<0?1.1:1/1.1;
+    setZoom(z=>{
+      const nz=Math.min(2.5,Math.max(0.2,z*fac));
+      setPan(p=>({
         // X: マウス位置を画面上で固定（カーソルへ向かってズーム）
-        x: mx - (mx - p.x) * (nz / z),
+        x: mx - (mx - p.x) * (nz/z),
         // Y: キャンバスの底辺を画面上で固定（rect.height を不動点に）
-        y: rect.height - (rect.height - p.y) * (nz / z),
+        y: rect.height - (rect.height - p.y) * (nz/z),
       }));
       return nz;
     });
-  }, []);
+  },[]);
 
-  const handleBgDown = useCallback((e: React.MouseEvent) => {
-    if (e.button !== 0 && e.button !== 1) return;
-    if (live.current.wireDrag) {
+  const handleBgDown=useCallback((e:React.MouseEvent)=>{
+    if(e.button!==0&&e.button!==1)return;
+    if(live.current.wireDrag) {
       setWireDrag(null);
       return;
     }
-    panDrag.current = { active: true, sx: e.clientX, sy: e.clientY, sp: { ...live.current.pan } };
-    setSelected(null); e.preventDefault();
-  }, []);
+    panDrag.current={active:true,sx:e.clientX,sy:e.clientY,sp:{...live.current.pan}};
+    setSelected(null);e.preventDefault();
+  },[]);
 
-  const handleBlockDown = useCallback((e: React.MouseEvent, id: string) => {
+  const handleBlockDown=useCallback((e:React.MouseEvent,id:string)=>{
     e.stopPropagation();
     const { wireDrag, blocks, zoom, pan } = live.current;
     if (wireDrag && wireDrag.armed) {
@@ -1511,12 +1600,12 @@ export default function LogicPanel() {
         if (isAccept && wireDrag.sourceBlockId !== id) {
           setBlocks(prev => attach(id, wireDrag.sourceBlockId, wireDrag.slot, prev));
           playSnapSound();
-
+          
           const pos = getPos(id, blocks);
           const screenX = pos.x * zoom + pan.x;
           const screenY = pos.y * zoom + pan.y;
           burstParticles(screenX, screenY, CAT[b.category].bg);
-
+          
           setWireDrag(null);
           return;
         } else {
@@ -1530,18 +1619,18 @@ export default function LogicPanel() {
     }
 
     playClickSound(); // 拾った瞬間のカチッ感触
-    const rect = containerRef.current!.getBoundingClientRect();
-    const pos = getPos(id, blocks);
-    const visX = pos.x, visY = pos.y;
-    setBlocks(prev => {
-      const detached = detach(id, prev);
-      return detached.map(b => b.id === id ? { ...b, x: visX, y: visY } : b);
+    const rect=containerRef.current!.getBoundingClientRect();
+    const pos=getPos(id,blocks);
+    const visX=pos.x, visY=pos.y;
+    setBlocks(prev=>{
+      const detached=detach(id,prev);
+      return detached.map(b=>b.id===id?{...b,x:visX,y:visY}:b);
     });
-    const mx = (e.clientX - rect.left) / zoom - pan.x / zoom;
-    const my = (e.clientY - rect.top) / zoom - pan.y / zoom;
-    blockDrag.current = { active: true, id, offX: mx - visX, offY: my - visY };
+    const mx=(e.clientX-rect.left)/zoom - pan.x/zoom;
+    const my=(e.clientY-rect.top)/zoom  - pan.y/zoom;
+    blockDrag.current={active:true,id,offX:mx-visX,offY:my-visY};
     setSelected(id);
-  }, []);
+  },[]);
 
   const handleSlotClick = useCallback((blockId: string, slot: string) => {
     const accepts: Category[] = slot === "inner"
@@ -1556,107 +1645,107 @@ export default function LogicPanel() {
     });
   }, []);
 
-  const handleFieldChange = useCallback((id: string, fid: string, val: string) => {
-    setBlocks(prev => prev.map(b => b.id === id ? { ...b, fields: b.fields.map(f => f.id === fid ? { ...f, value: val } : f) } : b));
-  }, []);
+  const handleFieldChange=useCallback((id:string,fid:string,val:string)=>{
+    setBlocks(prev=>prev.map(b=>b.id===id?{...b,fields:b.fields.map(f=>f.id===fid?{...f,value:val}:f)}:b));
+  },[]);
 
-  const handleDelete = useCallback((id: string) => {
+  const handleDelete=useCallback((id:string)=>{
     playDeleteSound();
     setDeleteAnim(id);
-    setTimeout(() => {
-      setBlocks(prev => { const d = detach(id, prev); return d.filter(b => !getFamily(id, d).includes(b.id)); });
+    setTimeout(()=>{
+      setBlocks(prev=>{const d=detach(id,prev);return d.filter(b=>!getFamily(id,d).includes(b.id));});
       setSelected(null);
       setDeleteAnim(null);
     }, 320);
-  }, []);
+  },[]);
 
-  const handleEjectInner = useCallback((donutId: string) => {
-    setBlocks(prev => {
-      const donut = prev.find(b => b.id === donutId);
-      if (!donut?.innerId) return prev;
-      const innerId = donut.innerId;
-      const dp = getPos(donutId, prev);
-      return prev.map(b => {
-        if (b.id === donutId) return { ...b, innerId: null };
-        if (b.id === innerId) return { ...b, x: dp.x + BW + GAP * 2, y: dp.y };
+  const handleEjectInner=useCallback((donutId:string)=>{
+    setBlocks(prev=>{
+      const donut=prev.find(b=>b.id===donutId);
+      if(!donut?.innerId)return prev;
+      const innerId=donut.innerId;
+      const dp=getPos(donutId,prev);
+      return prev.map(b=>{
+        if(b.id===donutId)return{...b,innerId:null};
+        if(b.id===innerId)return{...b,x:dp.x+BW+GAP*2,y:dp.y};
         return b;
       });
     });
-  }, []);
+  },[]);
 
-  useEffect(() => {
-    function onMove(e: MouseEvent) {
-      const rect = containerRef.current?.getBoundingClientRect(); if (!rect) return;
-      const { pan, zoom, blocks } = live.current;
-
+  useEffect(()=>{
+    function onMove(e:MouseEvent){
+      const rect=containerRef.current?.getBoundingClientRect(); if(!rect)return;
+      const{pan,zoom,blocks}=live.current;
+      
       const mx = (e.clientX - rect.left) / zoom - pan.x / zoom;
       const my = (e.clientY - rect.top) / zoom - pan.y / zoom;
       setMouseCanvasPos({ x: mx, y: my });
 
-      if (panDrag.current.active) {
+      if(panDrag.current.active){
         // Y は固定（底辺ロック）。X のみ自由パン。
-        setPan(p => ({ x: panDrag.current.sp.x + (e.clientX - panDrag.current.sx), y: p.y }));
+        setPan(p=>({x:panDrag.current.sp.x+(e.clientX-panDrag.current.sx), y: p.y}));
         return;
       }
-      if (!blockDrag.current.active) return;
-      const cx = (e.clientX - rect.left) / zoom - pan.x / zoom - blockDrag.current.offX;
-      const cy = (e.clientY - rect.top) / zoom - pan.y / zoom - blockDrag.current.offY;
-      const id = blockDrag.current.id;
-      setBlocks(prev => prev.map(b => b.id === id ? { ...b, x: cx, y: cy } : b));
+      if(!blockDrag.current.active)return;
+      const cx=(e.clientX-rect.left)/zoom - pan.x/zoom - blockDrag.current.offX;
+      const cy=(e.clientY-rect.top)/zoom  - pan.y/zoom - blockDrag.current.offY;
+      const id=blockDrag.current.id;
+      setBlocks(prev=>prev.map(b=>b.id===id?{...b,x:cx,y:cy}:b));
 
       // スナップ検知
-      const center = { x: cx + BW / 2, y: cy + BH / 2 };
-      const snap = findSnap(id, center, blocks);
-      if (snap) {
-        const tp = getPos(snap.targetId, blocks);
-        const td = blockH(blocks.find(b => b.id === snap.targetId) ?? blocks[0]);
-        let hx = tp.x, hy = tp.y;
-        if (snap.slot === "next") {
+      const center={x:cx+BW/2,y:cy+BH/2};
+      const snap=findSnap(id,center,blocks);
+      if(snap){
+        const tp=getPos(snap.targetId,blocks);
+        const td=blockH(blocks.find(b=>b.id===snap.targetId)??blocks[0]);
+        let hx=tp.x,hy=tp.y;
+        if(snap.slot==="next"){
           const target = blocks.find(bl => bl.id === snap.targetId);
           if (target && (target.type === "co_if" || target.type === "ct_rep")) {
             const thenH = target.thenId ? getStackHeight(target.thenId, blocks) : 40;
             const elseH = target.type === "co_if" && target.elseId ? getStackHeight(target.elseId, blocks) : 0;
             const maxArmH = Math.max(thenH, elseH);
-            hx = tp.x; hy = tp.y - maxArmH - 45;
+            hx=tp.x; hy=tp.y - maxArmH - 45;
           } else {
-            hx = tp.x; hy = tp.y - td - GAP;
+            hx=tp.x; hy=tp.y-td-GAP;
           }
         }
-        else if (snap.slot === "inner") { hx = tp.x + BW + GAP; hy = tp.y; }
-        else if (snap.slot === "then") { hx = tp.x; hy = tp.y - td - GAP; }
-        else if (snap.slot === "else") { hx = tp.x + BW + GAP + 120; hy = tp.y; }
-        const screenX = (hx + BW / 2) * zoom + pan.x, screenY = (hy + BH / 2) * zoom + pan.y;
-        setSnapHint({ targetId: snap.targetId, slot: snap.slot, pos: { x: screenX, y: screenY } });
+        else if(snap.slot==="inner"){hx=tp.x+BW+GAP;hy=tp.y;}
+        else if(snap.slot==="then"){hx=tp.x;hy=tp.y-td-GAP;}
+        else if(snap.slot==="else"){hx=tp.x+BW+GAP+120;hy=tp.y;}
+        const screenX=(hx+BW/2)*zoom+pan.x, screenY=(hy+BH/2)*zoom+pan.y;
+        setSnapHint({targetId:snap.targetId,slot:snap.slot,pos:{x:screenX,y:screenY}});
       } else {
         setSnapHint(null);
       }
     }
-    function onUp() {
-      if (panDrag.current.active) { panDrag.current.active = false; return; }
-      if (!blockDrag.current.active) return;
-      const { blocks } = live.current;
-      const id = blockDrag.current.id;
-      const b = blocks.find(b => b.id === id)!;
-      const center = { x: b.x + BW / 2, y: b.y + BH / 2 };
-      const snap = findSnap(id, center, blocks);
-      if (snap) {
-        setBlocks(prev => attach(id, snap.targetId, snap.slot, prev));
+    function onUp(){
+      if(panDrag.current.active){panDrag.current.active=false;return;}
+      if(!blockDrag.current.active)return;
+      const{blocks}=live.current;
+      const id=blockDrag.current.id;
+      const b=blocks.find(b=>b.id===id)!;
+      const center={x:b.x+BW/2,y:b.y+BH/2};
+      const snap=findSnap(id,center,blocks);
+      if(snap){
+        setBlocks(prev=>attach(id,snap.targetId,snap.slot,prev));
         playSnapSound();
         setSnapAnim(snap.targetId);
-        setTimeout(() => setSnapAnim(null), 150);
-        const { pan, zoom } = live.current;
-        const tp = getPos(snap.targetId, blocks);
-        const td = BW;
-        const sx = (tp.x + td / 2) * zoom + pan.x;
-        const sy = (tp.y + BH / 2) * zoom + pan.y;
-        const color = CAT[blocks.find(bl => bl.id === snap.targetId)?.category || "action"].bg;
-        burstParticles(sx, sy, color);
-        if (snap.slot === "inner") {
+        setTimeout(()=>setSnapAnim(null), 150);
+        const{pan,zoom}=live.current;
+        const tp=getPos(snap.targetId,blocks);
+        const td=BW;
+        const sx=(tp.x+td/2)*zoom+pan.x;
+        const sy=(tp.y+BH/2)*zoom+pan.y;
+        const color=CAT[blocks.find(bl=>bl.id===snap.targetId)?.category||"action"].bg;
+        burstParticles(sx,sy,color);
+        if(snap.slot==="inner"){
           setEating(id);
           setChomping(snap.targetId);
           playEatSound();
-          setTimeout(() => setEating(null), 580);
-          setTimeout(() => setChomping(null), 580);
+          setTimeout(()=>setEating(null),  580);
+          setTimeout(()=>setChomping(null), 580);
         }
         setSnapHint(null);
       } else {
@@ -1687,56 +1776,56 @@ export default function LogicPanel() {
         setSnapHint(null);
         return;
       }
-      blockDrag.current.active = false;
+      blockDrag.current.active=false;
       setSnapHint(null);
     }
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("mouseup", onUp);
-    return () => { document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp); };
-  }, []);
+    document.addEventListener("mousemove",onMove);
+    document.addEventListener("mouseup",onUp);
+    return()=>{document.removeEventListener("mousemove",onMove);document.removeEventListener("mouseup",onUp);};
+  },[]);
 
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        if (live.current.wireDrag) {
+  useEffect(()=>{
+    function onKey(e:KeyboardEvent){
+      if(e.key==="Escape"){
+        if(live.current.wireDrag) {
           setWireDrag(null);
           return;
         }
       }
-      const tag = (e.target as HTMLElement).tagName;
-      if ((e.ctrlKey || e.metaKey) && e.key === "z" && tag !== "INPUT") { e.preventDefault(); undo(); return; }
-      if ((e.ctrlKey || e.metaKey) && (e.key === "y" || (e.shiftKey && e.key === "Z")) && tag !== "INPUT") { e.preventDefault(); redo(); return; }
-      if ((e.ctrlKey || e.metaKey) && e.key === "s" && tag !== "INPUT") { e.preventDefault(); setShowProjects(true); return; }
-      if (tag === "INPUT" || !live.current.selected) return;
-      if (e.key === "Delete" || e.key === "Backspace") {
-        const id = live.current.selected;
-        setBlocks(prev => { const d = detach(id, prev); return d.filter(b => !getFamily(id, d).includes(b.id)); });
+      const tag=(e.target as HTMLElement).tagName;
+      if((e.ctrlKey||e.metaKey)&&e.key==="z"&&tag!=="INPUT"){e.preventDefault();undo();return;}
+      if((e.ctrlKey||e.metaKey)&&(e.key==="y"||(e.shiftKey&&e.key==="Z"))&&tag!=="INPUT"){e.preventDefault();redo();return;}
+      if((e.ctrlKey||e.metaKey)&&e.key==="s"&&tag!=="INPUT"){e.preventDefault();setShowProjects(true);return;}
+      if(tag==="INPUT"||!live.current.selected)return;
+      if(e.key==="Delete"||e.key==="Backspace"){
+        const id=live.current.selected;
+        setBlocks(prev=>{const d=detach(id,prev);return d.filter(b=>!getFamily(id,d).includes(b.id));});
         setSelected(null);
       }
-      if ((e.ctrlKey || e.metaKey) && e.key === "d") {
+      if((e.ctrlKey||e.metaKey)&&e.key==="d"){
         e.preventDefault();
-        const src = live.current.blocks.find(b => b.id === live.current.selected);
-        if (src) { const cl = { ...src, id: uid(), x: src.x + 20, y: src.y + 20, nextId: null, innerId: null, thenId: null, elseId: null, fields: src.fields.map(f => ({ ...f })) }; setBlocks(p => [...p, cl]); setSelected(cl.id); }
+        const src=live.current.blocks.find(b=>b.id===live.current.selected);
+        if(src){const cl={...src,id:uid(),x:src.x+20,y:src.y+20,nextId:null,innerId:null,thenId:null,elseId:null,fields:src.fields.map(f=>({...f}))};setBlocks(p=>[...p,cl]);setSelected(cl.id);}
       }
     }
-    document.addEventListener("keydown", onKey); return () => document.removeEventListener("keydown", onKey);
-  }, [undo, redo]);
+    document.addEventListener("keydown",onKey);return()=>document.removeEventListener("keydown",onKey);
+  },[undo,redo]);
 
-  const burstParticles = useCallback((sx: number, sy: number, color: string) => {
+  const burstParticles = useCallback((sx:number, sy:number, color:string) => {
     const id = uid();
     const sparkId = id + "_spark";
-    setParticles(prev => [
+    setParticles(prev=>[
       ...prev,
-      { id, x: sx, y: sy, color },
-      { id: sparkId, x: sx, y: sy, color: "#ffffff" } // 白いカチッと衝撃火花
+      {id, x:sx, y:sy, color},
+      {id: sparkId, x:sx, y:sy, color: "#ffffff"} // 白いカチッと衝撃火花
     ]);
-    setTimeout(() => setParticles(prev => prev.filter(p => p.id !== id && p.id !== sparkId)), 400); // 400ms で素早く消えるように
-  }, []);
+    setTimeout(()=>setParticles(prev=>prev.filter(p=>p.id!==id && p.id!==sparkId)), 400); // 400ms で素早く消えるように
+  },[]);
 
-  const addBlock = useCallback((t: Tmpl) => {
-    const { pan, zoom, blocks } = live.current;
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
+  const addBlock=useCallback((t:Tmpl)=>{
+    const{pan,zoom,blocks}=live.current;
+    const rect=containerRef.current?.getBoundingClientRect();
+    if(!rect)return;
 
     // 自動積み上げ配置
     let targetX = 200;
@@ -1794,61 +1883,61 @@ export default function LogicPanel() {
     // 着地タイミング (アニメの 50% = 0.6s × 0.5 = 300ms) に演出を集約
     setTimeout(() => {
       const sx = (targetX + BW / 2) * zoom + pan.x;
-      const sy = (targetY + BH) * zoom + pan.y;
+      const sy = (targetY + BH)     * zoom + pan.y;
       // 横方向の土煙バースト
-      burstParticles(sx - BW / 2, sy, "#c8c4b8");
-      burstParticles(sx + BW / 2, sy, "#c8c4b8");
+      burstParticles(sx - BW/2, sy, "#c8c4b8");
+      burstParticles(sx + BW/2, sy, "#c8c4b8");
       // 衝撃リング（地面に広がる楕円）+ 光フラッシュ
       const impactId = uid();
-      setImpacts(prev => [...prev, { id: impactId, x: sx, y: sy, color: catColor }]);
+      setImpacts(prev => [...prev, {id: impactId, x: sx, y: sy, color: catColor}]);
       setTimeout(() => setImpacts(prev => prev.filter(p => p.id !== impactId)), 700);
       // co_if（条件分岐ドーナツ）だけは紙吹雪で特別扱い
       if (t.type === "co_if") {
         const confId = uid();
-        setConfetti(prev => [...prev, { id: confId, x: sx, y: sy - BH / 2 }]);
+        setConfetti(prev => [...prev, {id: confId, x: sx, y: sy - BH/2}]);
         setTimeout(() => setConfetti(prev => prev.filter(p => p.id !== confId)), 900);
       }
     }, 300);
 
-    setTimeout(() => setAddAnim(null), 620);
-  }, [burstParticles]);
+    setTimeout(()=>setAddAnim(null), 620);
+  },[burstParticles]);
 
-  const zoomToFit = useCallback(() => {
-    const { blocks } = live.current; const rect = containerRef.current?.getBoundingClientRect(); if (!rect || !blocks.length) return;
-    const pad = 80;
-    const positions = blocks.map(b => { const p = getPos(b.id, blocks); const d = blockH(b); return { x1: p.x, y1: p.y, x2: p.x + BW, y2: p.y + d }; });
-    const minX = Math.min(...positions.map(p => p.x1)) - pad, minY = Math.min(...positions.map(p => p.y1)) - pad;
-    const maxX = Math.max(...positions.map(p => p.x2)) + pad, maxY = Math.max(...positions.map(p => p.y2)) + pad;
-    const nz = Math.min(2, Math.max(0.2, Math.min(rect.width / (maxX - minX), rect.height / (maxY - minY))));
-    setZoom(nz); setPan({ x: -minX * nz + (rect.width - (maxX - minX) * nz) / 2, y: -minY * nz + (rect.height - (maxY - minY) * nz) / 2 });
-  }, []);
+  const zoomToFit=useCallback(()=>{
+    const{blocks}=live.current;const rect=containerRef.current?.getBoundingClientRect();if(!rect||!blocks.length)return;
+    const pad=80;
+    const positions=blocks.map(b=>{const p=getPos(b.id,blocks);const d=blockH(b);return{x1:p.x,y1:p.y,x2:p.x+BW,y2:p.y+d};});
+    const minX=Math.min(...positions.map(p=>p.x1))-pad, minY=Math.min(...positions.map(p=>p.y1))-pad;
+    const maxX=Math.max(...positions.map(p=>p.x2))+pad, maxY=Math.max(...positions.map(p=>p.y2))+pad;
+    const nz=Math.min(2,Math.max(0.2,Math.min(rect.width/(maxX-minX),rect.height/(maxY-minY))));
+    setZoom(nz);setPan({x:-minX*nz+(rect.width-(maxX-minX)*nz)/2,y:-minY*nz+(rect.height-(maxY-minY)*nz)/2});
+  },[]);
 
-  useEffect(() => {
-    const code = buildCode(blocks);
-    setGenCode(code); setGeneratedJsCode(code);
-    setLogicGraphJson(JSON.stringify({ blocks }));
+  useEffect(()=>{
+    const code=buildCode(blocks);
+    setGenCode(code);setGeneratedJsCode(code);
+    setLogicGraphJson(JSON.stringify({blocks}));
     try {
-      if (typeof window !== "undefined") {
-        localStorage.setItem("mmc-autosave-logic", JSON.stringify({ blocks }));
+      if(typeof window !== "undefined") {
+        localStorage.setItem("mmc-autosave-logic", JSON.stringify({blocks}));
       }
-    } catch { }
-  }, [blocks, setGeneratedJsCode, setLogicGraphJson]);
+    } catch {}
+  },[blocks,setGeneratedJsCode,setLogicGraphJson]);
 
-  const connectors: { x: number; y: number; color: string }[] = [];
+  const connectors: {x:number;y:number;color:string}[] = [];
   const cables: { x1: number; y1: number; x2: number; y2: number; color: string }[] = [];
 
-  for (const b of blocks) {
-    if (b.nextId) {
-      const pp = getPos(b.id, blocks);
+  for(const b of blocks){
+    if(b.nextId){
+      const pp=getPos(b.id,blocks);
       const nextBlock = blocks.find(x => x.id === b.nextId);
       const nextH = nextBlock ? blockH(nextBlock) : BH;
       if (b.type === "co_if" || b.type === "ct_rep") {
         const thenH = b.thenId ? getStackHeight(b.thenId, blocks) : 40;
         const elseH = b.type === "co_if" && b.elseId ? getStackHeight(b.elseId, blocks) : 0;
         const maxArmH = Math.max(thenH, elseH);
-        connectors.push({ x: pp.x + BW / 2, y: pp.y - maxArmH - 45, color: CAT[b.category].bg });
+        connectors.push({x:pp.x+BW/2, y:pp.y - maxArmH - 45, color: CAT[b.category].bg});
       } else {
-        connectors.push({ x: pp.x + BW / 2, y: pp.y - nextH - GAP, color: CAT[b.category].bg });
+        connectors.push({x:pp.x+BW/2, y:pp.y - nextH - GAP, color: CAT[b.category].bg});
       }
     }
 
@@ -1862,7 +1951,7 @@ export default function LogicPanel() {
           x1: pp.x + BW - 20, // 右側のボタン位置付近から出る
           y1: pp.y + 60,
           x2: tp.x + 0,       // ターゲットの左端へ接続
-          y2: tp.y + th / 2,
+          y2: tp.y + th/2,
           color: SLOT_BADGE.inner.color
         });
       }
@@ -1877,7 +1966,7 @@ export default function LogicPanel() {
           x1: pp.x + BW - 20,
           y1: pp.y + 80,
           x2: tp.x + 0,
-          y2: tp.y + th / 2,
+          y2: tp.y + th/2,
           color: SLOT_BADGE.then.color
         });
       }
@@ -1892,7 +1981,7 @@ export default function LogicPanel() {
           x1: pp.x + BW - 20,
           y1: pp.y + 100,
           x2: tp.x + 0,
-          y2: tp.y + th / 2,
+          y2: tp.y + th/2,
           color: SLOT_BADGE.else.color
         });
       }
@@ -1908,7 +1997,7 @@ export default function LogicPanel() {
       if (wireDrag.slot === "inner") sY = ppos.y + 60;
       else if (wireDrag.slot === "then") sY = ppos.y + 80;
       else if (wireDrag.slot === "else") sY = ppos.y + 100;
-
+      
       cables.push({
         x1: ppos.x + BW - 20,
         y1: sY,
@@ -1924,7 +2013,7 @@ export default function LogicPanel() {
   /* ════ レンダー ════ */
 
   return (
-    <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", overflow: "hidden", background: "#23211e" }}>
+    <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",overflow:"hidden",background:"#23211e"}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@800;900&family=Nunito:wght@800;900&display=swap');
         
@@ -2068,7 +2157,7 @@ export default function LogicPanel() {
           50% { transform: scale(1.2); opacity: 0.55; filter: blur(25px); }
         }
       `}</style>
-
+      
       {/* 1. 最上部ヘッダー（すべての操作を1行に集約 ＆ ブロックトレイ） */}
       <div className="mc-bevel" style={{
         background: "#2a2924",
@@ -2092,7 +2181,7 @@ export default function LogicPanel() {
             const isActive = !searching && cat === activeCategory;
             const borderBottomSize = isActive ? "4px" : "3px";
             return (
-              <button key={cat} onClick={() => { setActiveCategory(cat); if (searching) setSearch(""); }}
+              <button key={cat} onClick={() => { setActiveCategory(cat); if(searching) setSearch(""); }}
                 style={{
                   display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", borderRadius: 12,
                   background: isActive ? `linear-gradient(135deg, ${c.top}, ${c.bg})` : "#3a3833",
@@ -2106,13 +2195,13 @@ export default function LogicPanel() {
                   transition: "all 0.08s ease"
                 }}
                 onMouseEnter={e => {
-                  if (!isActive) {
+                  if(!isActive) {
                     e.currentTarget.style.transform = "translateY(-1px)";
                     e.currentTarget.style.boxShadow = "3px 3px 0 rgba(0,0,0,0.2)";
                   }
                 }}
                 onMouseLeave={e => {
-                  if (!isActive) {
+                  if(!isActive) {
                     e.currentTarget.style.transform = "none";
                     e.currentTarget.style.boxShadow = "2px 2px 0 rgba(0,0,0,0.15)";
                   }
@@ -2129,9 +2218,9 @@ export default function LogicPanel() {
           <McButton size="sm" onClick={() => { setPan({ x: 60, y: 60 }); setZoom(1.0); }} title="ズーム＆位置をリセット">⊙</McButton>
           <McButton size="sm" onClick={undo} title="元に戻す (Ctrl+Z)">↩</McButton>
           <McButton size="sm" onClick={redo} title="やり直す (Ctrl+Y)">↪</McButton>
-
+          
           <div style={{ width: 2, height: 16, background: "#4a4842", margin: "0 2px" }} />
-
+          
           <McButton size="sm" variant={showProjects ? "grape" : "default"} onClick={() => setShowProjects(v => !v)} active={showProjects} title="プロジェクトの保存・読み込み">
             💾 保存/読込
           </McButton>
@@ -2215,40 +2304,40 @@ export default function LogicPanel() {
       </div>
 
       {/* 2. 下部：メインキャンバス領域 */}
-      <div style={{ flex: 1, position: "relative", overflow: "hidden", backgroundColor: "#252320" }}>
-        {showProjects && (
+      <div style={{flex:1,position:"relative",overflow:"hidden",backgroundColor:"#252320"}}>
+        {showProjects&&(
           <ProjectPanel
             blocks={blocks}
-            onLoad={b => { setBlocks(b); }}
-            onClose={() => setShowProjects(false)}
+            onLoad={b=>{setBlocks(b);}}
+            onClose={()=>setShowProjects(false)}
           />
         )}
-        {showTemplates && (
+        {showTemplates&&(
           <TemplateGallery
-            onSelect={b => { setBlocks(prev => [...prev, ...b]); }}
-            onClose={() => setShowTemplates(false)}
+            onSelect={b=>{setBlocks(prev=>[...prev,...b]);}}
+            onClose={()=>setShowTemplates(false)}
           />
         )}
 
-        {showHelp && (
-          <div className="mc-panel" style={{ position: "absolute", top: 10, right: 10, zIndex: 40, width: 250, background: "var(--surface)", overflow: "hidden" }}>
-            <div style={{ padding: "10px 14px 8px", borderBottom: "2px solid var(--border-color)", background: "var(--panel)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        {showHelp&&(
+          <div className="mc-panel" style={{position:"absolute",top:10,right:10,zIndex:40,width:250,background:"var(--surface)",overflow:"hidden"}}>
+            <div style={{padding:"10px 14px 8px",borderBottom:"2px solid var(--border-color)",background:"var(--panel)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <span className="font-pixel text-[11px] text-accent">🎮 HOW TO PLAY</span>
-              <button onClick={() => setShowHelp(false)} className="mc-btn mc-btn--sm" style={{ padding: "2px 6px" }}>✕</button>
+              <button onClick={()=>setShowHelp(false)} className="mc-btn mc-btn--sm" style={{padding:"2px 6px"}}>✕</button>
             </div>
-            <div style={{ padding: "12px 14px" }}>
+            <div style={{padding:"12px 14px"}}>
               {[
-                { icon: "🧩", s: "1", t: "上部のトレイからブロックをクリックして追加" },
-                { icon: "🔗", s: "2", t: "ブロックをドラッグして別のブロックの近くで離すとつながる" },
-                { icon: "🍩", s: "3", t: "「もしも」はドーナツ！穴に条件ブロックをいれる" },
-                { icon: "🗑️", s: "4", t: "ブロックを選んでDeleteキーで削除" },
-                { icon: "⌨️", s: "⌨", t: "Ctrl+D でコピー" },
-              ].map((s, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 12 }}>
-                  <span className="mc-bevel-inset" style={{ width: 24, height: 24, background: "var(--panel)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, flexShrink: 0 }}>{s.icon}</span>
+                {icon:"🧩",s:"1",t:"上部のトレイからブロックをクリックして追加"},
+                {icon:"🔗",s:"2",t:"ブロックをドラッグして別のブロックの近くで離すとつながる"},
+                {icon:"🍩",s:"3",t:"「もしも」はドーナツ！穴に条件ブロックをいれる"},
+                {icon:"🗑️",s:"4",t:"ブロックを選んでDeleteキーで削除"},
+                {icon:"⌨️",s:"⌨",t:"Ctrl+D でコピー"},
+              ].map((s,i)=>(
+                <div key={i} style={{display:"flex",alignItems:"flex-start",gap:8,marginBottom:12}}>
+                  <span className="mc-bevel-inset" style={{width:24,height:24,background:"var(--panel)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,flexShrink:0}}>{s.icon}</span>
                   <div>
-                    <span className="mc-badge mc-badge--sm" style={{ marginBottom: 4, fontSize: 9 }}>STEP {s.s}</span>
-                    <div style={{ fontSize: 11, color: "var(--foreground)", fontWeight: 600, lineHeight: 1.4 }}>{s.t}</div>
+                    <span className="mc-badge mc-badge--sm" style={{marginBottom:4,fontSize:9}}>STEP {s.s}</span>
+                    <div style={{fontSize:11,color:"var(--foreground)",fontWeight:600,lineHeight:1.4}}>{s.t}</div>
                   </div>
                 </div>
               ))}
@@ -2277,13 +2366,13 @@ export default function LogicPanel() {
             <span style={{
               fontFamily: "monospace", letterSpacing: "0.02em",
               color: blocks.length >= MAX_BLOCKS ? "#ff6b6b"
-                : blocks.length >= MAX_BLOCKS * 0.85 ? "#ffd93d"
+                  : blocks.length >= MAX_BLOCKS * 0.85 ? "#ffd93d"
                   : "#00cec9"
             }}>{blocks.length}/{MAX_BLOCKS}</span>
           </div>
 
           {/* ズーム倍率 */}
-          <div title={`表示ズーム ${Math.round(zoom * 100)}%`} style={{
+          <div title={`表示ズーム ${Math.round(zoom*100)}%`} style={{
             background: "rgba(25, 25, 28, 0.82)",
             backdropFilter: "blur(4px)",
             border: "1px solid rgba(255,255,255,0.12)",
@@ -2295,7 +2384,7 @@ export default function LogicPanel() {
             fontSize: 11, fontWeight: 800,
           }}>
             <span style={{ fontSize: 12 }}>🔍</span>
-            <span style={{ fontFamily: "monospace", letterSpacing: "0.02em", color: "#00b4d8" }}>{Math.round(zoom * 100)}%</span>
+            <span style={{ fontFamily: "monospace", letterSpacing: "0.02em", color: "#00b4d8" }}>{Math.round(zoom*100)}%</span>
           </div>
         </div>
 
@@ -2307,8 +2396,8 @@ export default function LogicPanel() {
             padding: "10px 18px",
             borderRadius: 10,
             background: toast.level === "error" ? "rgba(220,53,69,0.96)"
-              : toast.level === "warning" ? "rgba(255,193,7,0.96)"
-                : "rgba(13,110,253,0.96)",
+                      : toast.level === "warning" ? "rgba(255,193,7,0.96)"
+                      : "rgba(13,110,253,0.96)",
             color: toast.level === "warning" ? "#1a1a1a" : "#ffffff",
             fontSize: 13, fontWeight: 900,
             border: "2px solid rgba(0,0,0,0.4)",
@@ -2318,7 +2407,7 @@ export default function LogicPanel() {
             textAlign: "center",
             animation: "toastSlideDown 0.25s cubic-bezier(0.2,0.8,0.2,1)",
           }}>
-            <span style={{ fontSize: 15, marginRight: 6 }}>
+            <span style={{fontSize:15, marginRight:6}}>
               {toast.level === "error" ? "⚠️" : toast.level === "warning" ? "⚡" : "💡"}
             </span>
             {toast.message}
@@ -2326,11 +2415,11 @@ export default function LogicPanel() {
         )}
 
         {/* 空キャンバス・ヒント */}
-        {blocks.length === 0 && (
+        {blocks.length===0 && (
           <div style={{
-            position: "absolute", inset: 0, display: "flex", flexDirection: "column",
-            alignItems: "center", justifyContent: "center",
-            pointerEvents: "none", zIndex: 5,
+            position:"absolute",inset:0,display:"flex",flexDirection:"column",
+            alignItems:"center",justifyContent:"center",
+            pointerEvents:"none",zIndex:5,
           }}>
             {/* 黄金のオーラ効果 */}
             <div style={{
@@ -2362,12 +2451,12 @@ export default function LogicPanel() {
                 <path d="M 44,34 H 56 V 46 H 44 Z" fill="#00cec9" />
                 <path d="M 46,36 H 54 V 44 H 46 Z" fill="#81ecec" />
                 <path d="M 46,36 H 49 V 39 H 46 Z" fill="#ffffff" />
-
+                
                 {/* 軸 */}
                 <path d="M 45,58 H 55 V 88 H 45 Z" fill="#78350f" />
                 <path d="M 47,58 H 53 V 86 H 47 Z" fill="#d97706" />
                 <path d="M 47,58 H 50 V 86 H 47 Z" fill="#fbbf24" />
-
+                
                 {/* 鍵歯 */}
                 <path d="M 55,66 H 69 V 74 H 55 Z M 55,78 H 69 V 86 H 55 Z" fill="#78350f" />
                 <path d="M 55,68 H 66 V 72 H 55 Z M 55,80 H 66 V 84 H 55 Z" fill="#f59e0b" />
@@ -2405,96 +2494,96 @@ export default function LogicPanel() {
         )}
 
         {/* コードプレビュー */}
-        {showCode && (
-          <div className="mc-panel" style={{ position: "absolute", bottom: 10, left: 8, right: 8, zIndex: 40, maxHeight: 240, background: "var(--panel)", display: "flex", flexDirection: "column" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 14px", borderBottom: "2px solid var(--border-color)" }}>
+        {showCode&&(
+          <div className="mc-panel" style={{position:"absolute",bottom:10,left:8,right:8,zIndex:40,maxHeight:240,background:"var(--panel)",display:"flex",flexDirection:"column"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 14px",borderBottom:"2px solid var(--border-color)"}}>
               <span className="font-pixel text-[11px] text-accent">⚡ GENERATED CODE</span>
-              <button onClick={() => setShowCode(false)} className="mc-btn mc-btn--sm">✕</button>
+              <button onClick={()=>setShowCode(false)} className="mc-btn mc-btn--sm">✕</button>
             </div>
-            <pre style={{ flex: 1, overflowY: "auto", margin: 0, padding: "10px 14px", fontSize: 10, color: "#a3e635", fontFamily: "monospace", lineHeight: 1.6, whiteSpace: "pre-wrap", wordBreak: "break-all", background: "#12110e" }}>
+            <pre style={{flex:1,overflowY:"auto",margin:0,padding:"10px 14px",fontSize:10,color:"#a3e635",fontFamily:"monospace",lineHeight:1.6,whiteSpace:"pre-wrap",wordBreak:"break-all",background:"#12110e"}}>
               {genCode}
             </pre>
           </div>
         )}
 
         {/* スナップインジケーター */}
-        {snapHint && (
+        {snapHint&&(
           <SnapIndicator x={snapHint.pos.x} y={snapHint.pos.y} zoom={zoom} slot={snapHint.slot}
-            color={snapHint.slot === "inner" ? "#6c5ce7" : snapHint.slot === "then" ? "#00b894" : snapHint.slot === "else" ? "#e17055" : "#0984e3"} />
+            color={snapHint.slot==="inner"?"#6c5ce7":snapHint.slot==="then"?"#00b894":snapHint.slot==="else"?"#e17055":"#0984e3"}/>
         )}
 
         {/* パーティクルバースト（土煙：粒のサイズと飛距離をランダム化で派手に） */}
-        {particles.map(p => (
-          <div key={p.id} style={{ position: "absolute", left: p.x, top: p.y, pointerEvents: "none", zIndex: 200 }}>
-            {[0, 45, 90, 135, 180, 225, 270, 315].map((deg, i) => {
-              const size = 6 + ((i * 37) % 6);                  // 6〜11px
-              const reach = 36 + ((i * 53) % 24);               // 36〜59px
-              const yBias = deg > 180 ? -8 : 0;               // 上方向にバイアス（土煙っぽく）
+        {particles.map(p=>(
+          <div key={p.id} style={{position:"absolute",left:p.x,top:p.y,pointerEvents:"none",zIndex:200}}>
+            {[0,45,90,135,180,225,270,315].map((deg,i)=>{
+              const size = 6 + ((i*37)%6);                  // 6〜11px
+              const reach = 36 + ((i*53)%24);               // 36〜59px
+              const yBias = deg>180 ? -8 : 0;               // 上方向にバイアス（土煙っぽく）
               return (
                 <div key={deg} style={{
-                  position: "absolute", width: size, height: size, borderRadius: "50%",
-                  background: p.color,
-                  pointerEvents: "none",
+                  position:"absolute",width:size,height:size,borderRadius:"50%",
+                  background:p.color,
+                  pointerEvents:"none",
                   // @ts-ignore
-                  "--dx": `${Math.cos(deg * Math.PI / 180) * reach}px`,
+                  "--dx":`${Math.cos(deg*Math.PI/180)*reach}px`,
                   // @ts-ignore
-                  "--dy": `${Math.sin(deg * Math.PI / 180) * reach + yBias}px`,
-                  animation: `particle ${0.28 + i * 0.012}s cubic-bezier(0.1, 0.8, 0.3, 1) forwards`,
-                  boxShadow: `0 0 6px ${p.color}`,
-                  opacity: 0.85,
-                }} />
+                  "--dy":`${Math.sin(deg*Math.PI/180)*reach + yBias}px`,
+                  animation:`particle ${0.28+i*0.012}s cubic-bezier(0.1, 0.8, 0.3, 1) forwards`,
+                  boxShadow:`0 0 6px ${p.color}`,
+                  opacity:0.85,
+                }}/>
               );
             })}
           </div>
         ))}
 
         {/* 着地の衝撃リング + 光フラッシュ */}
-        {impacts.map(p => (
-          <div key={p.id} style={{ position: "absolute", left: p.x, top: p.y, pointerEvents: "none", zIndex: 199 }}>
+        {impacts.map(p=>(
+          <div key={p.id} style={{position:"absolute",left:p.x,top:p.y,pointerEvents:"none",zIndex:199}}>
             {/* 地面に広がる楕円リング（カテゴリ色） */}
             <div style={{
-              position: "absolute", left: "50%", top: "50%",
-              transform: "translate(-50%,-50%)",
-              border: `3px solid ${p.color}`,
-              borderRadius: "50%",
-              animation: "impactRing 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards",
-              boxShadow: `0 0 18px ${p.color}99`,
-            }} />
+              position:"absolute",left:"50%",top:"50%",
+              transform:"translate(-50%,-50%)",
+              border:`3px solid ${p.color}`,
+              borderRadius:"50%",
+              animation:"impactRing 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+              boxShadow:`0 0 18px ${p.color}99`,
+            }}/>
             {/* 同時にカテゴリ色の柔らかい光フラッシュ */}
             <div style={{
-              position: "absolute", left: "50%", top: "50%",
-              transform: "translate(-50%,-50%)",
-              borderRadius: "50%",
-              background: `radial-gradient(circle, ${p.color}80 0%, ${p.color}20 50%, transparent 70%)`,
-              animation: "impactFlash 0.5s ease-out forwards",
-            }} />
+              position:"absolute",left:"50%",top:"50%",
+              transform:"translate(-50%,-50%)",
+              borderRadius:"50%",
+              background:`radial-gradient(circle, ${p.color}80 0%, ${p.color}20 50%, transparent 70%)`,
+              animation:"impactFlash 0.5s ease-out forwards",
+            }}/>
           </div>
         ))}
 
         {/* 紙吹雪（co_if 専用のお祝い演出） */}
-        {confetti.map(c => (
-          <div key={c.id} style={{ position: "absolute", left: c.x, top: c.y, pointerEvents: "none", zIndex: 201 }}>
-            {Array.from({ length: 14 }).map((_, i) => {
-              const ang = (i / 14) * 360 + (i * 17) % 30;
-              const reach = 60 + (i % 4) * 22;
-              const colors = ["#ec4899", "#a855f7", "#06b6d4", "#fbbf24", "#10b981"];
-              const col = colors[i % colors.length];
-              const shapes = ["50%", "2px", "20% 80% 20% 80% / 80% 20% 80% 20%"]; // 円・四角・葉っぱ
-              const shape = shapes[i % shapes.length];
+        {confetti.map(c=>(
+          <div key={c.id} style={{position:"absolute",left:c.x,top:c.y,pointerEvents:"none",zIndex:201}}>
+            {Array.from({length:14}).map((_,i)=>{
+              const ang = (i/14)*360 + (i*17)%30;
+              const reach = 60 + (i%4)*22;
+              const colors = ["#ec4899","#a855f7","#06b6d4","#fbbf24","#10b981"];
+              const col = colors[i%colors.length];
+              const shapes = ["50%","2px","20% 80% 20% 80% / 80% 20% 80% 20%"]; // 円・四角・葉っぱ
+              const shape = shapes[i%shapes.length];
               return (
                 <div key={i} style={{
-                  position: "absolute", width: 7, height: 11,
-                  background: col,
-                  borderRadius: shape,
+                  position:"absolute",width:7,height:11,
+                  background:col,
+                  borderRadius:shape,
                   // @ts-ignore
-                  "--dx": `${Math.cos(ang * Math.PI / 180) * reach}px`,
+                  "--dx":`${Math.cos(ang*Math.PI/180)*reach}px`,
                   // @ts-ignore
-                  "--dy": `${Math.sin(ang * Math.PI / 180) * reach - 30}px`, // 上方向にバイアス
+                  "--dy":`${Math.sin(ang*Math.PI/180)*reach - 30}px`, // 上方向にバイアス
                   // @ts-ignore
-                  "--rot": `${(i % 2 ? 1 : -1) * (180 + i * 30)}deg`,
-                  animation: `confettiBurst ${0.75 + (i % 5) * 0.06}s cubic-bezier(0.1, 0.7, 0.3, 1) forwards`,
-                  boxShadow: `0 0 4px ${col}88`,
-                }} />
+                  "--rot":`${(i%2?1:-1)*(180+i*30)}deg`,
+                  animation:`confettiBurst ${0.75+(i%5)*0.06}s cubic-bezier(0.1, 0.7, 0.3, 1) forwards`,
+                  boxShadow:`0 0 4px ${col}88`,
+                }}/>
               );
             })}
           </div>
@@ -2502,10 +2591,8 @@ export default function LogicPanel() {
 
         {/* キャンバス背景（テーマ背景レイヤー — pan/zoom 影響なし） */}
         <div ref={containerRef} onMouseDown={handleBgDown} onWheel={handleWheel}
-          style={{
-            position: "absolute", inset: 0, cursor: "grab", backgroundColor: "#161513",
-            zIndex: 0
-          }}>
+          style={{position:"absolute",inset:0,cursor:"grab",backgroundColor:"#161513",
+            zIndex:0}}>
 
           {/* インテリア背景（screen 座標固定） — workshop / cyberpunk */}
           <ThemeBackdrop theme={interiorTheme} />
@@ -2513,19 +2600,19 @@ export default function LogicPanel() {
           {/* 床 — pan/zoom の影響を受けない screen 座標。ブロックが1個以上ある時だけ出現。
               ロジック画面の最下端に完全固定（床がある演出）。zIndex は world transform より上。 */}
           {blocks.length > 0 && (
-            <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 6, pointerEvents: "none" }}>
+            <div style={{position:"absolute",left:0,right:0,bottom:0,zIndex:6,pointerEvents:"none"}}>
               <ToyFloor />
             </div>
           )}
 
           {/* ブロックコンテナ */}
-          <div style={{ position: "absolute", inset: 0, transform: `translate(${pan.x}px,${pan.y}px) scale(${zoom})`, transformOrigin: "0 0" }}>
+          <div style={{position:"absolute",inset:0,transform:`translate(${pan.x}px,${pan.y}px) scale(${zoom})`,transformOrigin:"0 0"}}>
 
             {mounted && (
               <>
                 {/* 接続シームライン */}
-                {connectors.map((c, i) => (
-                  <Connector key={i} x={c.x} y={c.y} color={c.color} />
+                {connectors.map((c,i)=>(
+                  <Connector key={i} x={c.x} y={c.y} color={c.color}/>
                 ))}
 
                 {/* コンセントコード（ケーブル）の描画レイヤー */}
@@ -2552,41 +2639,41 @@ export default function LogicPanel() {
                 </svg>
 
                 {/* ブロック */}
-                {blocks.map(b => {
-                  const pos = getPos(b.id, blocks);
-                  const isCond = b.type === "co_if";
-                  const inner = isCond && b.innerId ? blocks.find(x => x.id === b.innerId) ?? null : null;
-
-                  return <ToyCubeBlock key={b.id} b={b} pos={pos} selected={selected === b.id}
-                    snapSlot={snapHint?.targetId === b.id ? snapHint.slot : null}
-                    innerBlock={inner} blocks={blocks}
-                    isEating={isCond && chomping === b.id}
-                    isSnapping={snapAnim === b.id}
-                    isAdding={addAnim === b.id}
-                    isDeleting={deleteAnim === b.id}
+                {blocks.map(b=>{
+                  const pos=getPos(b.id,blocks);
+                  const isCond = b.type==="co_if";
+                  const inner = isCond && b.innerId ? blocks.find(x=>x.id===b.innerId)??null : null;
+                  
+                  return <ToyCubeBlock key={b.id} b={b} pos={pos} selected={selected===b.id}
+                    snapSlot={snapHint?.targetId===b.id?snapHint.slot:null}
+                    innerBlock={inner} blocks={blocks} 
+                    isEating={isCond && chomping===b.id}
+                    isSnapping={snapAnim===b.id}
+                    isAdding={addAnim===b.id}
+                    isDeleting={deleteAnim===b.id}
                     onDown={handleBlockDown} onDelete={handleDelete}
-                    onEjectInner={isCond ? handleEjectInner : undefined}
+                    onEjectInner={isCond ? handleEjectInner : undefined} 
                     onFieldChange={handleFieldChange}
                     focusedField={focusedField}
                     setFocusedField={setFocusedField}
                     wireDrag={wireDrag}
                     onSlotClick={handleSlotClick}
-                    isShaking={shakeAnim === b.id}
-                    isDragging={blockDrag.current.active && blockDrag.current.id === b.id} />;
+                    isShaking={shakeAnim===b.id}
+                    isDragging={blockDrag.current.active && blockDrag.current.id===b.id}/>;
                 })}
 
                 {/* 食べられアニメーション（ToyCubeBlock用に合わせて修正） */}
-                {eating && (() => {
-                  const eb = blocks.find(b => b.id === eating);
-                  const condBlock = eb ? blocks.find(d => d.innerId === eating) : null;
-                  if (!eb || !condBlock) return null;
-                  const dp = getPos(condBlock.id, blocks);
+                {eating && (()=>{
+                  const eb=blocks.find(b=>b.id===eating);
+                  const condBlock=eb ? blocks.find(d=>d.innerId===eating) : null;
+                  if(!eb||!condBlock)return null;
+                  const dp=getPos(condBlock.id,blocks);
                   return <ToyCubeBlock key={`eat-${eating}`} b={eb}
-                    pos={{ x: dp.x + BW + GAP, y: dp.y }}
+                    pos={{x:dp.x+BW+GAP, y:dp.y}}
                     selected={false} snapSlot={null} isEating={true}
                     blocks={blocks}
-                    onDown={() => { }} onDelete={() => { }} onFieldChange={() => { }}
-                    wireDrag={null} onSlotClick={() => { }} />;
+                    onDown={()=>{}} onDelete={()=>{}} onFieldChange={()=>{}}
+                    wireDrag={null} onSlotClick={()=>{}}/>;
                 })()}
               </>
             )}
@@ -2596,4 +2683,3 @@ export default function LogicPanel() {
     </div>
   );
 }
-
