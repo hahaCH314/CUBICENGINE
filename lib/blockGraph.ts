@@ -1,7 +1,22 @@
 import { CBlock } from '../app/editor/_types';
 import { GAP, BW, BH, SNAP } from '../app/editor/_constants';
 
-function blockH(b: CBlock): number { return BH + (b.fields.length > 0 ? b.fields.length * 26 + 6 : 0); }
+function blockH(b: CBlock): number {
+  if (b.type === "co_if") return 125;
+  if (b.type === "ct_rep") return 70;
+  
+  let baseH = 48;
+  if (b.category === "trigger") baseH = 48;
+  else if (b.category === "action") baseH = 50;
+  else if (b.category === "calc") baseH = 44;
+  else if (b.category === "value") baseH = 40;
+  else if (b.category === "variable") baseH = 40;
+  
+  if (b.fields && b.fields.length > 0) {
+    return baseH + b.fields.length * 26 + 6;
+  }
+  return baseH;
+}
 
 function getStackHeight(id: string | null, blocks: CBlock[]): number {
   if (!id) return 0;

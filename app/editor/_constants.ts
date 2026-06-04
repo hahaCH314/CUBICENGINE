@@ -2,14 +2,20 @@
    レイアウト・サイズ定数 — LogicPanel から抽出
    ══════════════════════════════════════════════════════════ */
 
-/** ブロック幅 (160 → 180 に広げて文字領域を確保) */
-export const BW   = 180;
+/** ブロック幅 */
+export const BW   = 140;
 
 /** ブロックの基本高さ */
-export const BH   = 60;
+export const BH   = 95;
 
 /** ブロック間ギャップ（0 = 密着積み） */
 export const GAP  = 0;
 
 /** スナップ検知距離（content 座標） */
 export const SNAP = 60;
+
+/** 3Dアームの幅 */
+export const AW   = 90;
+
+/** 配置ブロックの上限数 */
+export const MAX_BLOCKS = 60;
