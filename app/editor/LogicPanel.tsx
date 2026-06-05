@@ -259,7 +259,7 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
               : isDragging ? "blockDragHover 0.55s ease-in-out infinite"
                 : "none";
 
-  let contentW = b.label.length * 16;
+  let contentW = b.label.length * 20; // 大きめ刻印フォントが1行で収まる幅
   b.fields.forEach(f => {
     let d = f.value || "";
     if (d.startsWith("minecraft:")) {
@@ -280,8 +280,9 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
         contentW = Math.max(contentW, 110);
       }
     });
+    contentW = Math.max(contentW, 240); // 条件分岐/繰り返しは横長(landscape)に
   }
-  const w = Math.max(BW, contentW + 40);
+  const w = Math.max(BW, contentW + 52); // ✕ボタン(18)+左右padding(28)分の余白を確保し文字を切らさない
   const h = blockH(b);
   const R = 8;
 
@@ -305,10 +306,10 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
         }}
         style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          width: "100%", height: 20, padding: "0 4px", marginTop: 2,
+          width: "100%", height: 30, padding: "0 8px", marginTop: 4,
           background: badge.color,
           border: isArmedThis ? "2px solid #ffffff" : `2px solid rgba(0,0,0,0.3)`,
-          borderRadius: 4, color: "#ffffff", fontSize: 9, fontWeight: 900,
+          borderRadius: 6, color: "#ffffff", fontSize: 14, fontWeight: 900,
           cursor: "pointer",
           boxShadow: isArmedThis
             ? `0 0 12px ${badge.color}, inset 0 2px 0 rgba(255,255,255,0.4)`
@@ -420,15 +421,18 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
           paddingRight: 18, // ✕ボタン(14px+余白)の展限回避
         }}>
           <div style={{
-            fontSize: b.label.length > 10 ? 9 : b.label.length > 8 ? 10 : b.label.length > 6 ? 12 : 14,
+            fontSize: b.label.length > 10 ? 13 : b.label.length > 8 ? 14 : b.label.length > 6 ? 15 : 17,
+            fontFamily: "'DotGothic16', sans-serif",
             fontWeight: 900,
             color: cat.text,
-            lineHeight: 1.1,
+            lineHeight: 1.15,
+            letterSpacing: "0.02em",
             textAlign: "center",
             width: "100%",
+            // 石板に彫り込む(engraved): 浮かせない。上に暗い溝影＋下に削れた光の縁で「刻まれた」見た目。
             textShadow: cat.text === "#ffffff"
-              ? "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000"
-              : "1px 1px 0 rgba(255,255,255,0.7), -1px 1px 0 rgba(255,255,255,0.7), 1px -1px 0 rgba(255,255,255,0.7), -1px -1px 0 rgba(255,255,255,0.7)",
+              ? "0 -1px 1px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.18)"
+              : "0 -1px 1px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.5)",
             overflow: "hidden",
             whiteSpace: "nowrap",
             textOverflow: "ellipsis",
@@ -441,8 +445,8 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
           color: cat.text === "#ffffff" ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.7)",
           textAlign: "center",
           textShadow: cat.text === "#ffffff"
-            ? "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000"
-            : "1px 1px 0 rgba(255,255,255,0.5), -1px 1px 0 rgba(255,255,255,0.5), 1px -1px 0 rgba(255,255,255,0.5), -1px -1px 0 rgba(255,255,255,0.5)",
+            ? "0 -1px 1px rgba(0,0,0,0.5)"
+            : "0 1px 0 rgba(255,255,255,0.45)",
           fontWeight: 800, marginTop: 4, letterSpacing: "0.04em"
         }}>
           {cat.icon} {cat.label}

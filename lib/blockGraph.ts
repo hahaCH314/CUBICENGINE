@@ -43,16 +43,16 @@ function getPos(id: string, blocks: CBlock[]): { x: number; y: number } {
         const thenH = p.thenId ? getStackHeight(p.thenId, blocks) : 40;
         const elseH = p.type === "co_if" && p.elseId ? getStackHeight(p.elseId, blocks) : 0;
         const maxArmH = Math.max(thenH, elseH);
-        return { 
-          x: getPos(p.id, blocks).x, 
-          y: getPos(p.id, blocks).y - maxArmH - 45 - blockH(b) - GAP 
+        return {
+          x: getPos(p.id, blocks).x,
+          y: getPos(p.id, blocks).y - maxArmH - 45 - blockH(b) - GAP
         };
       }
       return { x: getPos(p.id, blocks).x, y: getPos(p.id, blocks).y - blockH(b) - GAP };
     }
     if (p.innerId === id) return { x: getPos(p.id, blocks).x + BW + GAP, y: getPos(p.id, blocks).y };
-    if (p.thenId === id)  return { x: getPos(p.id, blocks).x, y: getPos(p.id, blocks).y - blockH(b) - GAP };
-    if (p.elseId === id)  return { x: getPos(p.id, blocks).x + BW + GAP + 120, y: getPos(p.id, blocks).y };
+    if (p.thenId === id) return { x: getPos(p.id, blocks).x, y: getPos(p.id, blocks).y - blockH(b) - GAP };
+    if (p.elseId === id) return { x: getPos(p.id, blocks).x + BW + GAP + 120, y: getPos(p.id, blocks).y };
   }
   return { x: b.x, y: b.y };
 }
@@ -69,10 +69,10 @@ function getFamily(id: string, blocks: CBlock[]): string[] {
 function detach(id: string, blocks: CBlock[]): CBlock[] {
   return blocks.map(b => ({
     ...b,
-    nextId:  b.nextId  === id ? null : b.nextId,
+    nextId: b.nextId === id ? null : b.nextId,
     innerId: b.innerId === id ? null : b.innerId,
-    thenId:  b.thenId  === id ? null : b.thenId,
-    elseId:  b.elseId  === id ? null : b.elseId,
+    thenId: b.thenId === id ? null : b.thenId,
+    elseId: b.elseId === id ? null : b.elseId,
   }));
 }
 
@@ -80,14 +80,14 @@ function detach(id: string, blocks: CBlock[]): CBlock[] {
 function attach(id: string, targetId: string, slot: string, blocks: CBlock[]): CBlock[] {
   return blocks.map(b => b.id !== targetId ? b : {
     ...b,
-    nextId:  slot === "next"  ? id : b.nextId,
+    nextId: slot === "next" ? id : b.nextId,
     innerId: slot === "inner" ? id : b.innerId,
-    thenId:  slot === "then"  ? id : b.thenId,
-    elseId:  slot === "else"  ? id : b.elseId,
+    thenId: slot === "then" ? id : b.thenId,
+    elseId: slot === "else" ? id : b.elseId,
   });
 }
 
-function dist(a: {x:number;y:number}, b: {x:number;y:number}): number {
+function dist(a: { x: number; y: number }, b: { x: number; y: number }): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
@@ -128,7 +128,7 @@ function findSnap(
           return { targetId: target.id, slot: "then" };
       } else {
         // 条件分岐
-        if (!target.innerId && dist(center, { x: tp.x + BW + GAP + BW/2, y: tp.y + BH/2 }) < SNAP)
+        if (!target.innerId && dist(center, { x: tp.x + BW + GAP + BW / 2, y: tp.y + BH / 2 }) < SNAP)
           return { targetId: target.id, slot: "inner" };
         if (!target.thenId && dist(center, { x: tp.x + BW / 2, y: tp.y - GAP - dh / 2 }) < SNAP)
           return { targetId: target.id, slot: "then" };
