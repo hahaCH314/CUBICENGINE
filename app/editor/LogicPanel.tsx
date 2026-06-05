@@ -258,7 +258,14 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
               : isDragging ? "blockDragHover 0.55s ease-in-out infinite"
                 : "none";
 
-  const w = BW;
+  let contentW = b.label.length * 16;
+  b.fields.forEach(f => {
+    let disp = f.value || "";
+    if (disp.startsWith("minecraft:")) disp = disp.replace("minecraft:", "").replace(/_/g, " ");
+    const flen = f.label.length + disp.length + 4; // Add some space for icons/margins
+    contentW = Math.max(contentW, flen * 8.5);
+  });
+  const w = Math.max(BW, contentW + 40);
   const h = blockH(b);
   const R = 8;
 
@@ -271,7 +278,6 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
     const targetBlock = targetId ? blocks.find(x => x.id === targetId) : null;
     const isArmedThis = wireDrag && wireDrag.sourceBlockId === b.id && wireDrag.slot === slotKey && wireDrag.armed;
 
-    // 「何を繋ぐか」バッジ
     const acceptBadge = slotKey === "inner" ? "[💎条件/値]" : "[⚡動作]";
 
     return (
@@ -282,45 +288,40 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
           onSlotClick(b.id, slotKey);
         }}
         style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          width: "100%",
-          height: 18,
-          padding: "0 6px",
-          marginTop: 3,
-          background: isArmedThis ? badge.color : "rgba(0,0,0,0.15)",
-          border: isArmedThis ? "2px solid #ffffff" : `1px solid ${badge.color}`,
-          borderRadius: 4,
-          color: "#ffffff",
-          fontSize: 9,
-          fontWeight: 900,
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          width: "100%", height: 20, padding: "0 4px", marginTop: 2,
+          background: badge.color,
+          border: isArmedThis ? "2px solid #ffffff" : `2px solid rgba(0,0,0,0.3)`,
+          borderRadius: 4, color: "#ffffff", fontSize: 9, fontWeight: 900,
           cursor: "pointer",
-          boxShadow: isArmedThis
-            ? `0 0 10px ${badge.color}, inset 0 1px 0 rgba(255,255,255,0.4)`
-            : "inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 2px rgba(0,0,0,0.2)",
+          boxShadow: isArmedThis 
+            ? `0 0 12px ${badge.color}, inset 0 2px 0 rgba(255,255,255,0.4)`
+            : "inset 0 2px 0 rgba(255,255,255,0.2), inset 0 -2px 0 rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.3)",
           animation: isArmedThis ? "slotPulse 1.0s ease-in-out infinite" : "none",
-          textShadow: "1px 1px 0 rgba(0,0,0,0.8)",
-          transition: "all 0.1s ease"
+          textShadow: "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 0 2px 0 #000",
+          transition: "all 0.1s ease",
+          whiteSpace: "nowrap"
         }}
       >
-        <span style={{ display: "flex", alignItems: "center", gap: 3, color: isArmedThis ? "#fff" : badge.color }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
           <span>{badge.icon}</span>
           <span>{head.jp}</span>
         </span>
 
         {targetBlock ? (
           <span style={{
-            maxWidth: 50, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-            fontSize: 8, background: "rgba(0,0,0,0.4)", padding: "1px 4px", borderRadius: 3, color: "#ccc"
+            maxWidth: 60, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            fontSize: 9, background: "rgba(0,0,0,0.6)", padding: "2px 6px", borderRadius: 4, color: "#fff",
+            textShadow: "none"
           }}>
             {targetBlock.label}
           </span>
         ) : (
           <span style={{
-            fontSize: 8, color: isArmedThis ? "#fff" : "rgba(255,255,255,0.5)",
-            background: isArmedThis ? "rgba(0,0,0,0.2)" : "transparent",
-            padding: "1px 3px", borderRadius: 3, letterSpacing: "-0.5px"
+            fontSize: 9, color: "rgba(255,255,255,0.8)",
+            background: "rgba(0,0,0,0.3)",
+            padding: "2px 5px", borderRadius: 4, letterSpacing: "-0.5px",
+            textShadow: "none"
           }}>
             {acceptBadge}
           </span>
@@ -473,7 +474,17 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
                         fontSize: 12, background: "#2c2c2c", border: `2px solid #57606f`, borderRadius: 6, color: "#fff", padding: "2px", outline: "none", fontWeight: 800,
                         boxShadow: "inset 1.5px 1.5px 0 rgba(0,0,0,0.5)", fontFamily: "inherit"
                       }}>
-                      {f.options.map(o => <option key={o} value={o}>{o}</option>)}
+                      {f.options.map(o => {
+                        let disp = o;
+                        if (disp.startsWith("minecraft:")) {
+                          const n = disp.replace("minecraft:", "").replace(/_/g, " ");
+                          disp = (n.includes("sword")||n.includes("pickaxe")||n.includes("axe")||n.includes("shovel")||n.includes("hoe")) ? `⚔️ ${n}`
+                            : (n.includes("helmet")||n.includes("chestplate")||n.includes("leggings")||n.includes("boots")) ? `🛡️ ${n}`
+                            : (n.includes("stone")||n.includes("block")||n.includes("planks")||n.includes("log")||n.includes("dirt")) ? `🧱 ${n}`
+                            : `💎 ${n}`;
+                        }
+                        return <option key={o} value={o}>{disp}</option>;
+                      })}
                     </select>
                   ) : (
                     <input value={f.value} onChange={e => onFieldChange(b.id, f.id, e.target.value)}
