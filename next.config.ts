@@ -18,6 +18,14 @@ const CSP = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  // Pin the Turbopack workspace root to this project directory.
+  // Without this, `next dev` mis-resolved `@import "tailwindcss"` from the
+  // parent folder (e:\MMC) instead of this project's node_modules, which
+  // triggered a resolve-error → recompile loop → JS heap OOM crash on /editor.
+  // `next build` was unaffected, so this is dev-specific. See AGENTS.md / Next 16 docs.
+  turbopack: {
+    root: process.cwd(),
+  },
   async headers() {
     return [
       {
