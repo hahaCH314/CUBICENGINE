@@ -260,12 +260,23 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
 
   let contentW = b.label.length * 16;
   b.fields.forEach(f => {
-    let disp = f.value || "";
-    if (disp.startsWith("minecraft:")) disp = disp.replace("minecraft:", "").replace(/_/g, " ");
-    const flen = f.label.length + disp.length + 4; // Add some space for icons/margins
-    contentW = Math.max(contentW, flen * 8.5);
+    const vLen = f.value ? f.value.length : 0;
+    const flen = f.label.length + vLen;
+    contentW = Math.max(contentW, flen * 9 + 40);
   });
-  const w = Math.max(BW, contentW + 40);
+  if (b.type === "co_if" || b.type === "ct_rep") {
+    const slots = ["inner", "then", "else"] as const;
+    slots.forEach(slot => {
+      const targetId = slot === "inner" ? b.innerId : slot === "then" ? b.thenId : b.elseId;
+      if (targetId) {
+        const tb = blocks.find(x => x.id === targetId);
+        if (tb) contentW = Math.max(contentW, tb.label.length * 11 + 70);
+      } else {
+        contentW = Math.max(contentW, 130);
+      }
+    });
+  }
+  const w = Math.max(120, contentW + 36);
   const h = blockH(b);
   const R = 8;
 
@@ -289,10 +300,10 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
         }}
         style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          width: "100%", height: 20, padding: "0 4px", marginTop: 2,
+          width: "100%", height: 26, padding: "0 6px", marginTop: 4,
           background: badge.color,
           border: isArmedThis ? "2px solid #ffffff" : `2px solid rgba(0,0,0,0.3)`,
-          borderRadius: 4, color: "#ffffff", fontSize: 9, fontWeight: 900,
+          borderRadius: 6, color: "#ffffff", fontSize: 11, fontWeight: 900,
           cursor: "pointer",
           boxShadow: isArmedThis 
             ? `0 0 12px ${badge.color}, inset 0 2px 0 rgba(255,255,255,0.4)`
@@ -310,9 +321,9 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
 
         {targetBlock ? (
           <span style={{
-            maxWidth: 60, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-            fontSize: 9, background: "rgba(0,0,0,0.6)", padding: "2px 6px", borderRadius: 4, color: "#fff",
-            textShadow: "none"
+            flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            fontSize: 10, background: "rgba(0,0,0,0.6)", padding: "2px 6px", borderRadius: 4, color: "#fff",
+            textShadow: "none", textAlign: "right", marginLeft: 8
           }}>
             {targetBlock.label}
           </span>
@@ -404,20 +415,22 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
           paddingRight: 18, // ✕ボタン(14px+余白)の展限回避
         }}>
           <div style={{
-            fontSize: b.label.length > 10 ? 9 : b.label.length > 8 ? 10 : b.label.length > 6 ? 12 : 14,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 4,
+            fontSize: 14,
             fontWeight: 900,
             color: cat.text,
             lineHeight: 1.1,
-            textAlign: "center",
             width: "100%",
             textShadow: cat.text === "#ffffff"
-              ? "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000"
+              ? "1.5px 1.5px 0 #000, -1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 0 2px 0 #000"
               : "1px 1px 0 rgba(255,255,255,0.7), -1px 1px 0 rgba(255,255,255,0.7), 1px -1px 0 rgba(255,255,255,0.7), -1px -1px 0 rgba(255,255,255,0.7)",
-            overflow: "hidden",
             whiteSpace: "nowrap",
-            textOverflow: "ellipsis",
           }}>
-            {b.label}
+            <span style={{ fontSize: 16, filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.4))" }}>{b.emoji}</span>
+            <span>{b.label}</span>
           </div>
         </div>
         <div style={{
@@ -514,19 +527,25 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
           onMouseDown={e => { e.stopPropagation(); onDelete(b.id); }}
           title="削除"
           style={{
-            position: "absolute", top: 3, right: 4,
-            width: 14, height: 14, borderRadius: 3,
+            position: "absolute", top: 4, right: 6,
+            width: 20, height: 20, borderRadius: 4,
             background: "rgba(0,0,0,0.25)",
             border: `1px solid ${cat.border}`,
-            color: cat.text, fontSize: 8, fontWeight: 900,
+            color: cat.text, fontSize: 12, fontWeight: 900,
             cursor: "pointer", zIndex: 30, display: "flex", alignItems: "center", justifyContent: "center",
-            opacity: 0.45,
+            opacity: 0.5,
             padding: 0,
             lineHeight: 1,
-            transition: "opacity 0.15s",
+            transition: "opacity 0.15s, transform 0.1s",
           }}
-          onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-          onMouseLeave={e => (e.currentTarget.style.opacity = "0.45")}
+          onMouseEnter={e => {
+            e.currentTarget.style.opacity = "1";
+            e.currentTarget.style.transform = "scale(1.05)";
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.opacity = "0.5";
+            e.currentTarget.style.transform = "scale(1)";
+          }}
         >✕</button>
       )}
     </div>
