@@ -8,6 +8,7 @@ import { Category, FieldDef, CBlock, Tmpl, CalcSubCat, CatDef } from "./_types";
 import { BW, BH, GAP, SNAP, MAX_BLOCKS } from "./_constants";
 import { CAT } from "../../data/categories";
 import { TEMPLATES, CALC_SUBTABS, getCalcSubCat } from "../../data/templates";
+import { ITEM_NAMES } from "../../data/itemNames";
 import { blockH, getStackHeight, getDepth, getPos, getFamily, detach, attach, dist, findSnap } from "../../lib/blockGraph";
 import { escStr, escId, gf, sanitizeVarName, genChain, genBlock, genExpr, genCond, genTrigger } from "../../lib/codegen";
 let _uid = 6000;
@@ -260,9 +261,13 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
 
   let contentW = b.label.length * 16;
   b.fields.forEach(f => {
-    const vLen = f.value ? f.value.length : 0;
-    const flen = f.label.length + vLen;
-    contentW = Math.max(contentW, flen * 9 + 40);
+    let d = f.value || "";
+    if (d.startsWith("minecraft:")) {
+      const item = ITEM_NAMES[d];
+      if (item) d = `${item.icon} ${item.jp}`;
+    }
+    const flen = f.label.length + d.length;
+    contentW = Math.max(contentW, flen * 15 + 60);
   });
   if (b.type === "co_if" || b.type === "ct_rep") {
     const slots = ["inner", "then", "else"] as const;
@@ -270,13 +275,13 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
       const targetId = slot === "inner" ? b.innerId : slot === "then" ? b.thenId : b.elseId;
       if (targetId) {
         const tb = blocks.find(x => x.id === targetId);
-        if (tb) contentW = Math.max(contentW, tb.label.length * 11 + 70);
+        if (tb) contentW = Math.max(contentW, tb.label.length * 12 + 80);
       } else {
-        contentW = Math.max(contentW, 130);
+        contentW = Math.max(contentW, 110);
       }
     });
   }
-  const w = Math.max(120, contentW + 36);
+  const w = Math.max(BW, contentW + 40);
   const h = blockH(b);
   const R = 8;
 
@@ -300,12 +305,12 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
         }}
         style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          width: "100%", height: 26, padding: "0 6px", marginTop: 4,
+          width: "100%", height: 20, padding: "0 4px", marginTop: 2,
           background: badge.color,
           border: isArmedThis ? "2px solid #ffffff" : `2px solid rgba(0,0,0,0.3)`,
-          borderRadius: 6, color: "#ffffff", fontSize: 11, fontWeight: 900,
+          borderRadius: 4, color: "#ffffff", fontSize: 9, fontWeight: 900,
           cursor: "pointer",
-          boxShadow: isArmedThis 
+          boxShadow: isArmedThis
             ? `0 0 12px ${badge.color}, inset 0 2px 0 rgba(255,255,255,0.4)`
             : "inset 0 2px 0 rgba(255,255,255,0.2), inset 0 -2px 0 rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.3)",
           animation: isArmedThis ? "slotPulse 1.0s ease-in-out infinite" : "none",
@@ -322,8 +327,8 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
         {targetBlock ? (
           <span style={{
             flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-            fontSize: 10, background: "rgba(0,0,0,0.6)", padding: "2px 6px", borderRadius: 4, color: "#fff",
-            textShadow: "none", textAlign: "right", marginLeft: 8
+            fontSize: 9, background: "rgba(0,0,0,0.6)", padding: "2px 6px", borderRadius: 4, color: "#fff",
+            textShadow: "none", textAlign: "right"
           }}>
             {targetBlock.label}
           </span>
@@ -415,32 +420,30 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
           paddingRight: 18, // ✕ボタン(14px+余白)の展限回避
         }}>
           <div style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 4,
-            fontSize: 14,
+            fontSize: b.label.length > 10 ? 9 : b.label.length > 8 ? 10 : b.label.length > 6 ? 12 : 14,
             fontWeight: 900,
             color: cat.text,
             lineHeight: 1.1,
+            textAlign: "center",
             width: "100%",
             textShadow: cat.text === "#ffffff"
-              ? "1.5px 1.5px 0 #000, -1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 0 2px 0 #000"
+              ? "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000"
               : "1px 1px 0 rgba(255,255,255,0.7), -1px 1px 0 rgba(255,255,255,0.7), 1px -1px 0 rgba(255,255,255,0.7), -1px -1px 0 rgba(255,255,255,0.7)",
+            overflow: "hidden",
             whiteSpace: "nowrap",
+            textOverflow: "ellipsis",
           }}>
-            <span style={{ fontSize: 16, filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.4))" }}>{b.emoji}</span>
-            <span>{b.label}</span>
+            {b.label}
           </div>
         </div>
         <div style={{
-          fontSize: 8,
-          color: cat.text === "#ffffff" ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.55)",
+          fontSize: 11,
+          color: cat.text === "#ffffff" ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.7)",
           textAlign: "center",
           textShadow: cat.text === "#ffffff"
             ? "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000"
             : "1px 1px 0 rgba(255,255,255,0.5), -1px 1px 0 rgba(255,255,255,0.5), 1px -1px 0 rgba(255,255,255,0.5), -1px -1px 0 rgba(255,255,255,0.5)",
-          fontWeight: 700, marginTop: 1, letterSpacing: "0.04em"
+          fontWeight: 800, marginTop: 4, letterSpacing: "0.04em"
         }}>
           {cat.icon} {cat.label}
         </div>
@@ -491,30 +494,37 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
                         let disp = o;
                         if (disp.startsWith("minecraft:")) {
                           const n = disp.replace("minecraft:", "").replace(/_/g, " ");
-                          disp = (n.includes("sword")||n.includes("pickaxe")||n.includes("axe")||n.includes("shovel")||n.includes("hoe")) ? `⚔️ ${n}`
-                            : (n.includes("helmet")||n.includes("chestplate")||n.includes("leggings")||n.includes("boots")) ? `🛡️ ${n}`
-                            : (n.includes("stone")||n.includes("block")||n.includes("planks")||n.includes("log")||n.includes("dirt")) ? `🧱 ${n}`
-                            : `💎 ${n}`;
+                          disp = (n.includes("sword") || n.includes("pickaxe") || n.includes("axe") || n.includes("shovel") || n.includes("hoe")) ? `⚔️ ${n}`
+                            : (n.includes("helmet") || n.includes("chestplate") || n.includes("leggings") || n.includes("boots")) ? `🛡️ ${n}`
+                              : (n.includes("stone") || n.includes("block") || n.includes("planks") || n.includes("log") || n.includes("dirt")) ? `🧱 ${n}`
+                                : `💎 ${n}`;
                         }
                         return <option key={o} value={o}>{disp}</option>;
                       })}
                     </select>
-                  ) : (
-                    <input value={f.value} onChange={e => onFieldChange(b.id, f.id, e.target.value)}
-                      onMouseDown={e => e.stopPropagation()}
-                      onFocus={() => setFocusedField?.({ blockId: b.id, fieldId: f.id })}
-                      onBlur={() => setFocusedField?.(null)}
-                      style={{
-                        flex: isFocused ? "none" : 1,
-                        position: isFocused ? "absolute" : "relative",
-                        left: isFocused ? 38 : "auto",
-                        width: isFocused ? 220 : "100%",
-                        zIndex: isFocused ? 999 : 1,
-                        transition: "width 0.25s ease, z-index 0.25s",
-                        fontSize: 12, background: "#2c2c2c", border: `2px solid #57606f`, borderRadius: 6, color: "#fff", padding: "2px 4px", outline: "none", fontWeight: 800,
-                        boxShadow: "inset 1.5px 1.5px 0 rgba(0,0,0,0.5)", fontFamily: "inherit"
-                      }} />
-                  )}
+                  ) : (() => {
+                    let disp = f.value || "";
+                    if (!isFocused && disp.startsWith("minecraft:")) {
+                      const item = ITEM_NAMES[disp];
+                      if (item) disp = `${item.icon} ${item.jp}`;
+                    }
+                    return (
+                      <input value={isFocused ? (f.value || "") : disp} onChange={e => onFieldChange(b.id, f.id, e.target.value)}
+                        onMouseDown={e => e.stopPropagation()}
+                        onFocus={() => setFocusedField?.({ blockId: b.id, fieldId: f.id })}
+                        onBlur={() => setFocusedField?.(null)}
+                        style={{
+                          flex: isFocused ? "none" : 1,
+                          position: isFocused ? "absolute" : "relative",
+                          left: isFocused ? 38 : "auto",
+                          width: isFocused ? 220 : "100%",
+                          zIndex: isFocused ? 999 : 1,
+                          transition: "width 0.25s ease, z-index 0.25s",
+                          fontSize: 12, background: "#2c2c2c", border: `2px solid #57606f`, borderRadius: 6, color: "#fff", padding: "2px 4px", outline: "none", fontWeight: 800,
+                          boxShadow: "inset 1.5px 1.5px 0 rgba(0,0,0,0.5)", fontFamily: "inherit"
+                        }} />
+                    );
+                  })()}
                 </div>
               );
             })}
