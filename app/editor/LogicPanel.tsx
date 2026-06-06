@@ -934,7 +934,7 @@ function BlockTray({
                   borderTop: `2px solid rgba(0,0,0,0.22)`,
                   cursor: "pointer",
                   transition: "transform 0.1s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.1s ease, filter 0.1s ease",
-                  boxShadow: `${innerBorder}, 0 3px 0 rgba(0,0,0,0.25)`,
+                  boxShadow: `${innerBorder}, 0 2px 0 rgba(0,0,0,0.12)`,
                   flexShrink: 0,
                   position: "relative",
                   overflow: "visible",
@@ -943,13 +943,13 @@ function BlockTray({
                 onMouseEnter={e => {
                   const el = e.currentTarget;
                   el.style.transform = "translateY(-3px)";
-                  el.style.boxShadow = `${hoverInnerBorder}, 0 6px 0 rgba(0,0,0,0.28), 0 8px 14px rgba(0,0,0,0.3)`;
+                  el.style.boxShadow = `${hoverInnerBorder}, 0 3px 0 rgba(0,0,0,0.14), 0 5px 8px rgba(0,0,0,0.18)`;
                   el.style.filter = "brightness(1.06)";
                 }}
                 onMouseLeave={e => {
                   const el = e.currentTarget;
                   el.style.transform = "";
-                  el.style.boxShadow = `${innerBorder}, 0 3px 0 rgba(0,0,0,0.25)`;
+                  el.style.boxShadow = `${innerBorder}, 0 2px 0 rgba(0,0,0,0.12)`;
                   el.style.filter = "";
                 }}
                 onMouseDown={e => {
@@ -960,7 +960,7 @@ function BlockTray({
                 onMouseUp={e => {
                   const el = e.currentTarget;
                   el.style.transform = "translateY(-3px)";
-                  el.style.boxShadow = `${hoverInnerBorder}, 0 6px 0 rgba(0,0,0,0.28), 0 8px 14px rgba(0,0,0,0.3)`;
+                  el.style.boxShadow = `${hoverInnerBorder}, 0 3px 0 rgba(0,0,0,0.14), 0 5px 8px rgba(0,0,0,0.18)`;
                 }}
               >
                 {/* 3D 上面 — キャンバスブロックと同じ skewX 形状（角丸厚みアップ） */}
