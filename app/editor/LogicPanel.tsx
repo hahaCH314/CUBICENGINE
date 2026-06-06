@@ -305,10 +305,10 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
         }}
         style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          width: "100%", height: 20, padding: "0 4px", marginTop: 2,
+          width: "100%", height: 28, padding: "0 7px", marginTop: 3,
           background: badge.color,
           border: isArmedThis ? "2px solid #ffffff" : `2px solid rgba(0,0,0,0.3)`,
-          borderRadius: 4, color: "#ffffff", fontSize: 9, fontWeight: 900,
+          borderRadius: 5, color: "#ffffff", fontSize: 13, fontWeight: 900,
           cursor: "pointer",
           boxShadow: isArmedThis
             ? `0 0 12px ${badge.color}, inset 0 2px 0 rgba(255,255,255,0.4)`
@@ -327,14 +327,14 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
         {targetBlock ? (
           <span style={{
             flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-            fontSize: 9, background: "rgba(0,0,0,0.6)", padding: "2px 6px", borderRadius: 4, color: "#fff",
+            fontSize: 12, background: "rgba(0,0,0,0.6)", padding: "2px 6px", borderRadius: 4, color: "#fff",
             textShadow: "none", textAlign: "right"
           }}>
             {targetBlock.label}
           </span>
         ) : (
           <span style={{
-            fontSize: 9, color: "rgba(255,255,255,0.8)",
+            fontSize: 12, color: "rgba(255,255,255,0.8)",
             background: "rgba(0,0,0,0.3)",
             padding: "2px 5px", borderRadius: 4, letterSpacing: "-0.5px",
             textShadow: "none"
@@ -468,7 +468,7 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
             {b.fields.map(f => {
               const isFocused = focusedField?.blockId === b.id && focusedField?.fieldId === f.id;
               return (
-                <div key={f.id} style={{ display: "flex", alignItems: "center", gap: 6, position: "relative", minHeight: 24 }}>
+                <div key={f.id} style={{ display: "flex", alignItems: "center", gap: 6, position: "relative", minHeight: 32 }}>
                   <span style={{
                     fontSize: 12, color: cat.text, fontWeight: 900, minWidth: 32,
                     textShadow: cat.text === "#ffffff"
@@ -487,7 +487,7 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
                         width: isFocused ? 220 : "100%",
                         zIndex: isFocused ? 999 : 1,
                         transition: "width 0.25s ease, z-index 0.25s",
-                        fontSize: 12, background: "#2c2c2c", border: `2px solid #57606f`, borderRadius: 6, color: "#fff", padding: "2px", outline: "none", fontWeight: 800,
+                        fontSize: 15, background: "#2c2c2c", border: `2px solid #57606f`, borderRadius: 6, color: "#fff", padding: "5px 6px", outline: "none", fontWeight: 800,
                         boxShadow: "inset 1.5px 1.5px 0 rgba(0,0,0,0.5)", fontFamily: "inherit"
                       }}>
                       {f.options.map(o => {
@@ -520,7 +520,7 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
                           width: isFocused ? 220 : "100%",
                           zIndex: isFocused ? 999 : 1,
                           transition: "width 0.25s ease, z-index 0.25s",
-                          fontSize: 12, background: "#2c2c2c", border: `2px solid #57606f`, borderRadius: 6, color: "#fff", padding: "2px 4px", outline: "none", fontWeight: 800,
+                          fontSize: 15, background: "#2c2c2c", border: `2px solid #57606f`, borderRadius: 6, color: "#fff", padding: "5px 8px", outline: "none", fontWeight: 800,
                           boxShadow: "inset 1.5px 1.5px 0 rgba(0,0,0,0.5)", fontFamily: "inherit"
                         }} />
                     );
