@@ -370,8 +370,8 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
         transformOrigin: "bottom left",
         borderTop: `4px solid ${cat.border}`,
         borderLeft: `4px solid ${cat.border}`,
-        borderRight: `2px solid rgba(0,0,0,0.22)`,
-        borderBottom: `2px solid rgba(0,0,0,0.22)`,
+        borderRight: `2px solid rgba(0,0,0,0.08)`,
+        borderBottom: `2px solid rgba(0,0,0,0.08)`,
         boxSizing: "border-box",
         zIndex: 1,
       }} />
@@ -385,10 +385,10 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
         borderRadius: `0 ${R}px ${R}px 0`,
         transform: "skewY(-45deg)",
         transformOrigin: "top left",
-        borderTop: `2px solid rgba(0,0,0,0.22)`,
+        borderTop: `2px solid rgba(0,0,0,0.08)`,
         borderRight: `4px solid ${cat.border}`,
         borderBottom: `4px solid ${cat.border}`,
-        borderLeft: `2px solid rgba(0,0,0,0.22)`,
+        borderLeft: `2px solid rgba(0,0,0,0.08)`,
         boxSizing: "border-box",
         zIndex: 1,
       }} />
@@ -399,8 +399,8 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
         borderRadius: R,
         borderLeft: `4px solid ${cat.border}`,
         borderBottom: `4px solid ${cat.border}`,
-        borderRight: `2px solid rgba(0,0,0,0.22)`,
-        borderTop: `2px solid rgba(0,0,0,0.22)`,
+        borderRight: `2px solid rgba(0,0,0,0.08)`,
+        borderTop: `2px solid rgba(0,0,0,0.08)`,
         boxShadow: selected
           ? `${innerBorder}, 0 0 0 3px #ffffff, 0 0 0 7px ${cat.border}`
           : hl
@@ -930,8 +930,8 @@ function BlockTray({
                   background: `linear-gradient(135deg, ${c.top}, ${c.bg})`,
                   borderLeft: `4px solid ${c.border}`,
                   borderBottom: `4px solid ${c.border}`,
-                  borderRight: `2px solid rgba(0,0,0,0.22)`,
-                  borderTop: `2px solid rgba(0,0,0,0.22)`,
+                  borderRight: `2px solid rgba(0,0,0,0.08)`,
+                  borderTop: `2px solid rgba(0,0,0,0.08)`,
                   cursor: "pointer",
                   transition: "transform 0.1s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.1s ease, filter 0.1s ease",
                   boxShadow: `${innerBorder}, 0 2px 0 rgba(0,0,0,0.12)`,
