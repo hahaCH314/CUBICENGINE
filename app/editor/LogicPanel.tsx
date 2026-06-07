@@ -2122,7 +2122,7 @@ export default function LogicPanel() {
               }}
             >
               <span style={{ width: 8, height: 8, borderRadius: "50%", background: "linear-gradient(135deg,#e0a85a,#7a4f23)", boxShadow: "0 0 0 1px rgba(0,0,0,0.4)", display: "inline-block" }} />
-              🛠️ <span>工房</span>
+              📻 <span>アナログ</span>
             </button>
             <button
               onClick={() => setInteriorTheme("cyber")}
@@ -2141,7 +2141,7 @@ export default function LogicPanel() {
               }}
             >
               <span style={{ width: 8, height: 8, borderRadius: "50%", background: "linear-gradient(135deg,#ec4899,#06b6d4)", boxShadow: "0 0 0 1px rgba(0,0,0,0.4)", display: "inline-block" }} />
-              🌐 <span>電脳</span>
+              📡 <span>デジタル</span>
             </button>
           </div>
 
