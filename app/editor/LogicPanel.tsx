@@ -5,7 +5,7 @@ import { useEditorStore } from "./store";
 import { McButton, McBadge } from "../_mc";
 
 import { Category, FieldDef, CBlock, Tmpl, CalcSubCat, CatDef } from "./_types";
-import { BW, BH, GAP, SNAP } from "./_constants";
+import { BW, BH, GAP, SNAP, BASE_ZOOM } from "./_constants";
 import { CAT } from "../../data/categories";
 import { TEMPLATES, CALC_SUBTABS, getCalcSubCat } from "../../data/templates";
 import { ITEM_NAMES } from "../../data/itemNames";
@@ -1277,7 +1277,7 @@ export default function LogicPanel() {
   });
   const [pan, setPan] = useState({ x: 60, y: 60 });
   // ズーム機能（復活）：縦に積んだ時の全体俯瞰用。0.4 〜 1.0 の範囲。
-  const [zoom, setZoom] = useState(1.0);
+  const [zoom, setZoom] = useState(BASE_ZOOM);
   const [selected, setSelected] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [showLib, setShowLib] = useState(true);
@@ -1364,13 +1364,14 @@ export default function LogicPanel() {
   }, []);
 
   const resetPanZoom = useCallback(() => {
-    setZoom(1.0);
+    setZoom(BASE_ZOOM);
     const { blocks } = live.current;
     const rect = containerRef.current?.getBoundingClientRect();
     if (blocks.length === 0) {
       if (rect) {
+        // ズーム基準を掛けて、初期ブロック(content≈200,600)を画面下・中央寄りに置く
         const groundY = 600 + BH;
-        setPan({ x: rect.width / 2 - 200, y: rect.height - groundY });
+        setPan({ x: rect.width / 2 - 200 * BASE_ZOOM, y: rect.height - groundY * BASE_ZOOM });
       } else {
         setPan({ x: 60, y: 60 });
       }
@@ -2223,7 +2224,7 @@ export default function LogicPanel() {
           </div>
 
           {/* ズーム倍率 */}
-          <div title={`表示ズーム ${Math.round(zoom * 100)}%`} style={{
+          <div title={`表示ズーム ${Math.round(zoom / BASE_ZOOM * 100)}%`} style={{
             background: "rgba(25, 25, 28, 0.82)",
             backdropFilter: "blur(4px)",
             border: "1px solid rgba(255,255,255,0.12)",
@@ -2235,7 +2236,7 @@ export default function LogicPanel() {
             fontSize: 11, fontWeight: 800,
           }}>
             <span style={{ fontSize: 12 }}>🔍</span>
-            <span style={{ fontFamily: "monospace", letterSpacing: "0.02em", color: "#00b4d8" }}>{Math.round(zoom * 100)}%</span>
+            <span style={{ fontFamily: "monospace", letterSpacing: "0.02em", color: "#00b4d8" }}>{Math.round(zoom / BASE_ZOOM * 100)}%</span>
           </div>
         </div>
 

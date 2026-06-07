@@ -19,3 +19,6 @@ export const AW   = 90;
 
 /** 配置ブロックの上限数 */
 export const MAX_BLOCKS = 60;
+
+/** 基準ズーム。これを「表示100%」とする＝ブロックが大きすぎ問題の解(旧68%の見えを既定に) */
+export const BASE_ZOOM = 0.68;
