@@ -2091,9 +2091,9 @@ export default function LogicPanel() {
 
           <div style={{ width: 2, height: 16, background: "#4a4842", margin: "0 2px" }} />
 
-          {/* インテリアテーマ切替（Phase 1：工房 ⇄ 電脳） */}
+          {/* インテリアテーマ切替（Phase 1：工房 ⇄ 電脳） P9: 背景が変わると分かるUI */}
           <div
-            title="インテリアテーマを切替（アナログ ⇄ デジタル）"
+            title="このボタンで背景の雰囲気が変わる（工房=アナログ ⇄ 電脳=デジタル）"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -2104,6 +2104,7 @@ export default function LogicPanel() {
               boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
             }}
           >
+            <span style={{ fontSize: 10, fontWeight: 900, color: "#a59c8a", padding: "0 6px 0 5px", letterSpacing: "0.03em", whiteSpace: "nowrap" }}>🎨 背景</span>
             <button
               onClick={() => setInteriorTheme("workshop")}
               aria-pressed={interiorTheme === "workshop"}
@@ -2120,6 +2121,7 @@ export default function LogicPanel() {
                   : "none",
               }}
             >
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "linear-gradient(135deg,#e0a85a,#7a4f23)", boxShadow: "0 0 0 1px rgba(0,0,0,0.4)", display: "inline-block" }} />
               🛠️ <span>工房</span>
             </button>
             <button
@@ -2138,6 +2140,7 @@ export default function LogicPanel() {
                   : "none",
               }}
             >
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "linear-gradient(135deg,#ec4899,#06b6d4)", boxShadow: "0 0 0 1px rgba(0,0,0,0.4)", display: "inline-block" }} />
               🌐 <span>電脳</span>
             </button>
           </div>
