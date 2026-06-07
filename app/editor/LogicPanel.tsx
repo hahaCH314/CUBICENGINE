@@ -928,12 +928,13 @@ function BlockTray({
                 style={{
                   display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1,
                   width: bw_w, height: bw_h, padding: "4px 3px",
-                  borderRadius: R,
+                  // 融合: 正面(=このボタン)を独立カードに見せない。継ぎ目側(上/右)の角丸と縁を消す。
+                  borderRadius: `${R}px 0 0 ${R}px`,
                   background: `linear-gradient(135deg, ${c.top}, ${c.bg})`,
                   borderLeft: `4px solid ${c.border}`,
                   borderBottom: `4px solid ${c.border}`,
-                  borderRight: `2px solid rgba(0,0,0,0.08)`,
-                  borderTop: `2px solid rgba(0,0,0,0.08)`,
+                  borderRight: `2px solid transparent`,
+                  borderTop: `2px solid transparent`,
                   cursor: "pointer",
                   transition: "transform 0.1s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.1s ease, filter 0.1s ease",
                   boxShadow: `${innerBorder}, 0 2px 0 rgba(0,0,0,0.12)`,
