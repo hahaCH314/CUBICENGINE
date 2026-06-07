@@ -1383,9 +1383,10 @@ export default function LogicPanel() {
     const minY = Math.min(...positions.map(p => p.y));
     const maxY = Math.max(...positions.map(p => p.y + BH));
     const cx = (minX + maxX) / 2;
-    const cy = (minY + Math.max(minY + 100, maxY)) / 2;
+    const cy = (minY + maxY) / 2;
     if (rect) {
-      setPan({ x: rect.width / 2 - cx, y: rect.height / 2 - cy });
+      // 中央寄せは zoom を掛ける（基準ズーム0.68でも画面中央に来るように）
+      setPan({ x: rect.width / 2 - cx * BASE_ZOOM, y: rect.height / 2 - cy * BASE_ZOOM });
     } else {
       setPan({ x: 60, y: 60 });
     }
@@ -1396,6 +1397,12 @@ export default function LogicPanel() {
       resetPanZoom();
     }
   }, [blocks.length, resetPanZoom]);
+
+  // 初回マウント時、既存ブロックがあれば画面中央に寄せる（100%=真ん中）
+  useEffect(() => {
+    resetPanZoom();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const live = useRef({ pan, zoom, blocks, selected, snapHint, wireDrag });
