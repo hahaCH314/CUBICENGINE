@@ -1380,13 +1380,11 @@ export default function LogicPanel() {
     const positions = blocks.map(b => getPos(b.id, blocks));
     const minX = Math.min(...positions.map(p => p.x));
     const maxX = Math.max(...positions.map(p => p.x + BW));
-    const minY = Math.min(...positions.map(p => p.y));
     const maxY = Math.max(...positions.map(p => p.y + BH));
     const cx = (minX + maxX) / 2;
-    const cy = (minY + maxY) / 2;
     if (rect) {
-      // 中央寄せは zoom を掛ける（基準ズーム0.68でも画面中央に来るように）
-      setPan({ x: rect.width / 2 - cx * BASE_ZOOM, y: rect.height / 2 - cy * BASE_ZOOM });
+      // 横=画面中央 / 縦=一番下に接地(床に落ちる)。縦中央にすると浮いて見えるため下寄せ。
+      setPan({ x: rect.width / 2 - cx * BASE_ZOOM, y: rect.height - maxY * BASE_ZOOM - 60 });
     } else {
       setPan({ x: 60, y: 60 });
     }
