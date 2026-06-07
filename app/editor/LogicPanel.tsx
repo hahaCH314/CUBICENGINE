@@ -2181,11 +2181,11 @@ export default function LogicPanel() {
             </div>
             <div style={{ padding: "12px 14px" }}>
               {[
-                { icon: "🧩", s: "1", t: "上部のトレイからブロックをクリックして追加" },
-                { icon: "🔗", s: "2", t: "ブロックをドラッグして別のブロックの近くで離すとつながる" },
-                { icon: "🍩", s: "3", t: "「もしも」はドーナツ！穴に条件ブロックをいれる" },
-                { icon: "🗑️", s: "4", t: "ブロックを選んでDeleteキーで削除" },
-                { icon: "⌨️", s: "⌨", t: "Ctrl+D でコピー" },
+                { icon: "🧩", s: "1", t: "上部トレイのブロックをクリックで追加" },
+                { icon: "👆", s: "2", t: "条件のスロット（もしも/そうなら）をタップ → つなげる相手が光る" },
+                { icon: "✨", s: "3", t: "光った相手をタップで接続（カチッ！）" },
+                { icon: "🗑️", s: "4", t: "ブロックを選んで Delete で削除 / Ctrl+D でコピー" },
+                { icon: "⎋", s: "⎋", t: "Esc で接続をキャンセル" },
               ].map((s, i) => (
                 <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 12 }}>
                   <span className="mc-bevel-inset" style={{ width: 24, height: 24, background: "var(--panel)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, flexShrink: 0 }}>{s.icon}</span>
