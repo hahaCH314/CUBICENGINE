@@ -275,9 +275,11 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
       const targetId = slot === "inner" ? b.innerId : slot === "then" ? b.thenId : b.elseId;
       if (targetId) {
         const tb = blocks.find(x => x.id === targetId);
-        if (tb) contentW = Math.max(contentW, tb.label.length * 12 + 80);
+        // 2行スロット(見出し上/値下)。値は単独行なので幅は控えめでOK
+        if (tb) contentW = Math.max(contentW, tb.label.length * 12 + 100);
       } else {
-        contentW = Math.max(contentW, 110);
+        // 空スロット: 2行目の受け入れバッジ([💎条件/値])が1行で収まる幅
+        contentW = Math.max(contentW, 140);
       }
     });
   }
@@ -299,45 +301,49 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
     return (
       <button
         key={slotKey}
+        className={isArmedThis ? "slot-btn slot-btn--armed" : "slot-btn"}
         onMouseDown={e => {
           e.stopPropagation();
           onSlotClick(b.id, slotKey);
         }}
         style={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          width: "100%", height: 28, padding: "0 7px", marginTop: 3,
+          // 改行2行レイアウト: 見出し(上) / 値・受け入れバッジ(下・全幅)。横に詰めず縦で見せる＝見切れ防止
+          display: "flex", flexDirection: "column", alignItems: "stretch", gap: 3,
+          width: "100%", minHeight: 42, padding: "5px 8px", marginTop: 4,
           background: badge.color,
-          border: isArmedThis ? "2px solid #ffffff" : `2px solid rgba(0,0,0,0.3)`,
-          borderRadius: 5, color: "#ffffff", fontSize: 13, fontWeight: 900,
+          border: isArmedThis ? "2px solid #ffffff" : `2px solid rgba(0,0,0,0.28)`,
+          borderRadius: 7, color: "#ffffff", fontSize: 13, fontWeight: 900,
           cursor: "pointer",
+          // 凸ボタン: 上に光・下に影＋足元の段差(0 3px 0)で「押せる」立体感
           boxShadow: isArmedThis
-            ? `0 0 12px ${badge.color}, inset 0 2px 0 rgba(255,255,255,0.4)`
-            : "inset 0 2px 0 rgba(255,255,255,0.2), inset 0 -2px 0 rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.3)",
+            ? `0 0 12px ${badge.color}, inset 0 2px 0 rgba(255,255,255,0.45)`
+            : "inset 0 2px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.28), 0 3px 0 rgba(0,0,0,0.3), 0 4px 5px rgba(0,0,0,0.25)",
           animation: isArmedThis ? "slotPulse 1.0s ease-in-out infinite" : "none",
-          textShadow: "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 0 2px 0 #000",
-          transition: "all 0.1s ease",
-          whiteSpace: "nowrap"
+          fontFamily: "'M PLUS Rounded 1c', 'Nunito', sans-serif",
+          textShadow: "0px -1px 1px rgba(0,0,0,0.55), 0px 1px 1px rgba(255,255,255,0.2)",
+          transition: "transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s ease",
         }}
       >
-        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <span>{badge.icon}</span>
+        <span style={{ display: "flex", alignItems: "center", gap: 5, lineHeight: 1 }}>
+          <span style={{ fontSize: 14 }}>{badge.icon}</span>
           <span>{head.jp}</span>
         </span>
 
         {targetBlock ? (
           <span style={{
-            flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-            fontSize: 12, background: "rgba(0,0,0,0.6)", padding: "2px 6px", borderRadius: 4, color: "#fff",
-            textShadow: "none", textAlign: "right"
+            width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            fontSize: 12, background: "rgba(0,0,0,0.55)", padding: "3px 7px", borderRadius: 5, color: "#fff",
+            textShadow: "none", textAlign: "left", lineHeight: 1.25, boxShadow: "inset 0 1px 2px rgba(0,0,0,0.35)"
           }}>
             {targetBlock.label}
           </span>
         ) : (
           <span style={{
-            fontSize: 12, color: "rgba(255,255,255,0.8)",
-            background: "rgba(0,0,0,0.3)",
-            padding: "2px 5px", borderRadius: 4, letterSpacing: "-0.5px",
-            textShadow: "none"
+            width: "100%", fontSize: 12, color: "rgba(255,255,255,0.85)",
+            background: "rgba(0,0,0,0.28)",
+            padding: "3px 7px", borderRadius: 5,
+            textShadow: "none", textAlign: "left", lineHeight: 1.25, whiteSpace: "nowrap",
+            overflow: "hidden", textOverflow: "ellipsis", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.3)"
           }}>
             {acceptBadge}
           </span>
@@ -1853,11 +1859,19 @@ export default function LogicPanel() {
   return (
     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", overflow: "hidden", background: "#23211e" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@800;900&family=Nunito:wght@800;900&display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@800;900&family=Nunito:wght@800;900&family=M+PLUS+Rounded+1c:wght@800;900&display=swap');
+
         * {
           font-family: 'Outfit', 'Nunito', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif !important;
         }
+
+        /* スロット=押すボタン(凸)。ホバーで浮く・押すと沈む */
+        .slot-btn:hover { filter: brightness(1.08); }
+        .slot-btn:active {
+          transform: translateY(3px);
+          box-shadow: inset 0 2px 3px rgba(0,0,0,0.35), 0 0px 0 rgba(0,0,0,0.3) !important;
+        }
+        .slot-btn--armed:active { transform: none; }
 
         @keyframes pulse   { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.7;transform:scale(1.15)} }
         @keyframes swallow { 0%{transform:scale(1)rotate(0deg);opacity:1} 30%{transform:scale(1.15)rotate(6deg);opacity:1} 70%{transform:scale(0.3)rotate(-8deg);opacity:0.6} 100%{transform:scale(0)rotate(0deg);opacity:0} }

@@ -4,7 +4,8 @@ import { GAP, BW, BH, SNAP } from '../app/editor/_constants';
 function blockH(b: CBlock): number {
   // 削除ボタン (top:3+22=25) を避けて label を marginTop:26 で下げる + 4px 隙間。
   // 各ブロック高さは +26 して下部のフィールド切れを防ぐ。
-  if (b.type === "co_if") return 226; // 200 + 26
+  if (b.type === "co_if") return 248; // 2行スロット×3が収まる高さ(旧226)
+  if (b.type === "ct_rep") return BH + 10 + b.fields.length * 26 + 10 + 26 + 24; // 2行スロット分を加算
   if (b.fields.length === 0) return 101; // 75 + 26（フィールド無しコンパクト）
   return BH + 10 + b.fields.length * 26 + 10 + 26;
 }
