@@ -2233,8 +2233,8 @@ export default function LogicPanel() {
             }}>{blocks.length}<span style={{ fontSize: 9, marginLeft: 1 }}>個</span></span>
           </div>
 
-          {/* ズーム倍率 */}
-          <div title={`表示ズーム ${Math.round(zoom / BASE_ZOOM * 100)}%`} style={{
+          {/* ズーム倍率（クリックで100%＋中央へ戻る） */}
+          <button onClick={resetPanZoom} title="クリックで 100% + 画面中央に戻る" style={{
             background: "rgba(25, 25, 28, 0.82)",
             backdropFilter: "blur(4px)",
             border: "1px solid rgba(255,255,255,0.12)",
@@ -2243,11 +2243,12 @@ export default function LogicPanel() {
             display: "inline-flex", alignItems: "center", gap: 4,
             boxShadow: "0 1px 4px rgba(0,0,0,0.35)",
             color: "#fff",
-            fontSize: 11, fontWeight: 800,
+            fontSize: 11, fontWeight: 800, cursor: "pointer",
           }}>
-            <span style={{ fontSize: 12 }}>🔍</span>
+            <span style={{ fontSize: 12 }}>🎯</span>
             <span style={{ fontFamily: "monospace", letterSpacing: "0.02em", color: "#00b4d8" }}>{Math.round(zoom / BASE_ZOOM * 100)}%</span>
-          </div>
+            <span style={{ fontSize: 9, color: "#888", marginLeft: 1 }}>↺戻る</span>
+          </button>
         </div>
 
         {/* トースト通知（画面上部中央） */}
