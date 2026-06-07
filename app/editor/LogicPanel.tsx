@@ -396,11 +396,13 @@ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAddi
         position: "absolute",
         left: 0, top: 0, width: w, height: h,
         background: `linear-gradient(135deg, ${cat.top}, ${cat.bg})`,
-        borderRadius: R,
+        // 融合: 正面は独立カードに見せない。継ぎ目側(上・右)の角丸と縁を消す。
+        // 折れ目(立体の角)は上面のborderBottom/横面のborderLeftが1本だけ担う(消さない)。
+        borderRadius: `${R}px 0 0 ${R}px`,
         borderLeft: `4px solid ${cat.border}`,
         borderBottom: `4px solid ${cat.border}`,
-        borderRight: `2px solid rgba(0,0,0,0.08)`,
-        borderTop: `2px solid rgba(0,0,0,0.08)`,
+        borderRight: `2px solid transparent`,
+        borderTop: `2px solid transparent`,
         boxShadow: selected
           ? `${innerBorder}, 0 0 0 3px #ffffff, 0 0 0 7px ${cat.border}`
           : hl
