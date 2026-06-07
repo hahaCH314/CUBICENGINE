@@ -5,7 +5,7 @@ import { useEditorStore } from "./store";
 import { McButton, McBadge } from "../_mc";
 
 import { Category, FieldDef, CBlock, Tmpl, CalcSubCat, CatDef } from "./_types";
-import { BW, BH, GAP, SNAP, MAX_BLOCKS } from "./_constants";
+import { BW, BH, GAP, SNAP } from "./_constants";
 import { CAT } from "../../data/categories";
 import { TEMPLATES, CALC_SUBTABS, getCalcSubCat } from "../../data/templates";
 import { ITEM_NAMES } from "../../data/itemNames";
@@ -2204,8 +2204,8 @@ export default function LogicPanel() {
           position: "absolute", top: 8, left: 8, zIndex: 20,
           display: "flex", gap: 5
         }}>
-          {/* ブロック数 */}
-          <div title={`配置ブロック ${blocks.length}/${MAX_BLOCKS}`} style={{
+          {/* ブロック数（P5: 上限なし・個数のみ表示） */}
+          <div title={`配置ブロック ${blocks.length}個`} style={{
             background: "rgba(25, 25, 28, 0.82)",
             backdropFilter: "blur(4px)",
             border: "1px solid rgba(255,255,255,0.12)",
@@ -2218,11 +2218,8 @@ export default function LogicPanel() {
           }}>
             <span style={{ fontSize: 12 }}>📦</span>
             <span style={{
-              fontFamily: "monospace", letterSpacing: "0.02em",
-              color: blocks.length >= MAX_BLOCKS ? "#ff6b6b"
-                : blocks.length >= MAX_BLOCKS * 0.85 ? "#ffd93d"
-                  : "#00cec9"
-            }}>{blocks.length}/{MAX_BLOCKS}</span>
+              fontFamily: "monospace", letterSpacing: "0.02em", color: "#00cec9"
+            }}>{blocks.length}<span style={{ fontSize: 9, marginLeft: 1 }}>個</span></span>
           </div>
 
           {/* ズーム倍率 */}
