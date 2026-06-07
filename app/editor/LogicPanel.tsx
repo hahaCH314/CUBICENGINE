@@ -1392,9 +1392,8 @@ export default function LogicPanel() {
       if (!rect || rect.height <= 0) return;
       const groundY = 408 + BH; // = 473（ToyFloor の content Y）
       const desiredPanY = rect.height - groundY * live.current.zoom;
-      // 画面の左端にぴったり合わせるため pan.x を 0 に固定する
-      const desiredPanX = 0;
-      setPan({ x: desiredPanX, y: desiredPanY });
+      // 床合わせは Y のみ。X は中央寄せ(resetPanZoom が設定)を維持する
+      setPan((p) => ({ x: p.x, y: desiredPanY }));
     };
     alignFloor();                                  // 初回
     window.addEventListener("resize", alignFloor); // ウィンドウサイズ変動時
@@ -1439,21 +1438,23 @@ export default function LogicPanel() {
     const rect = containerRef.current?.getBoundingClientRect();
     if (blocks.length === 0) {
       if (rect) {
-        // 初期ブロック(content≈60,408)が画面左端・床に接地するように pan を置く
         const groundY = 408 + BH;
-        setPan({ x: 0, y: rect.height - groundY * BASE_ZOOM });
+        setPan({ x: rect.width / 2 - 200 * BASE_ZOOM, y: rect.height - groundY * BASE_ZOOM });
       } else {
-        setPan({ x: 0, y: 60 });
+        setPan({ x: 60, y: 60 });
       }
       return;
     }
     const positions = blocks.map(b => getPos(b.id, blocks));
+    const minX = Math.min(...positions.map(p => p.x));
+    const maxX = Math.max(...positions.map(p => p.x + BW));
     const maxY = Math.max(...positions.map(p => p.y + BH));
+    const cx = (minX + maxX) / 2;
     if (rect) {
-      // 横=画面左端(0)固定 / 縦=一番下に接地(床に落ちる)
-      setPan({ x: 0, y: rect.height - maxY * BASE_ZOOM - 60 });
+      // 横=画面中央 / 縦=一番下に接地(床)
+      setPan({ x: rect.width / 2 - cx * BASE_ZOOM, y: rect.height - maxY * BASE_ZOOM - 60 });
     } else {
-      setPan({ x: 0, y: 60 });
+      setPan({ x: 60, y: 60 });
     }
   }, []);
 
@@ -1667,7 +1668,7 @@ export default function LogicPanel() {
     function onUp() {
       if (panDrag.current.active) { panDrag.current.active = false; return; }
       if (!blockDrag.current.active) return;
-      const { blocks } = live.current;
+      const { blocks, pan, zoom } = live.current;
       const id = blockDrag.current.id;
       const b = blocks.find(b => b.id === id)!;
       const dragH = blockH(b);
@@ -1708,8 +1709,9 @@ export default function LogicPanel() {
         const droppedBlock = blocks.find(bl => bl.id === id)!;
         const dragH = blockH(droppedBlock);
 
-        // 1. 落下先の X 座標は常に画面左端（X = 60）
-        const targetLandX = 60;
+        // 1. 落下先の X = ユーザーが見ている画面の「右端」（ビューポート右端を content 座標へ変換）
+        const _rect = containerRef.current?.getBoundingClientRect();
+        const targetLandX = _rect ? Math.round((_rect.width - 40 - pan.x) / zoom) - BW : 60;
 
         // 2. 自分（と自分のファミリー）以外の親なしブロックをすべて取得
         const myFamily = getFamily(id, blocks);
@@ -1859,12 +1861,15 @@ export default function LogicPanel() {
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
 
+    // 落下先の基準 X = ユーザーが見ている画面の「右端」（ビューポート右端を content 座標へ変換）
+    const baseX = Math.round((rect.width - 40 - pan.x) / zoom) - BW;
+
     // まず y = 0 でブロックを生成し、その高さを取得する
-    const nb = spawnBlock(t, 60, 0);
+    const nb = spawnBlock(t, baseX, 0);
     const nbH = blockH(nb);
 
     // 自動積み上げ配置
-    let targetX = 60;
+    let targetX = baseX;
     let targetY = 408 + BH - nbH; // 基本の床接地位置 (下面が 408 + BH になる位置)
 
     if (t.category !== "trigger") {
@@ -1883,12 +1888,12 @@ export default function LogicPanel() {
           targetY = pos.y - nbH - GAP; // current の上にピッタリ積む
         }
       } else {
-        targetX = 60;
+        targetX = baseX;
         targetY = 408 - nbH - GAP; // トリガー用スペースの上に積む
       }
     } else {
-      // トリガー（イベント）ブロックも常に画面左端（X = 60）に落とし、既存ブロックを右へ押し出す
-      targetX = 60;
+      // トリガー（イベント）ブロックも画面右端（baseX）に落とす
+      targetX = baseX;
       targetY = 408 + BH - nbH; // 床に接地
     }
 
