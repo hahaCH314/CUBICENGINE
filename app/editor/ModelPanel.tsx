@@ -346,7 +346,7 @@ const PRESETS = [
 /* ═══════════════════════════════════════════
    プロパティパネル（変形・色）
    ═══════════════════════════════════════════ */
-function PropertiesPanel({ mode = "blocks" }: { mode?: "blocks" | "items" }) {
+function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" | "items"; simple?: boolean }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [bounceY, setBounceY] = useState(0);
 
@@ -507,6 +507,43 @@ function PropertiesPanel({ mode = "blocks" }: { mode?: "blocks" | "items" }) {
               />
             </div>
 
+            {/* ── かんたんモード: 直感コントロール ── */}
+            {simple && (
+              <>
+                <div>
+                  <label className="text-[11px] text-foreground/90 block mb-1">📏 おおきさ</label>
+                  <div className="flex gap-1.5">
+                    {([["S", 0.5], ["M", 1], ["L", 2]] as const).map(([lbl, s]) => (
+                      <button key={lbl} onClick={() => updateFn(sel.id, { scale: [s, s, s] })}
+                        className="flex-1 py-2 rounded-lg bg-surface-active border border-border hover:brightness-110 active:translate-y-[1px] text-sm font-bold text-foreground/80">{lbl}</button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[11px] text-foreground/90 block mb-1">🔄 むき</label>
+                  <div className="flex gap-1.5">
+                    <button onClick={() => { const r = sel.rotation ?? [0, 0, 0]; updateFn(sel.id, { rotation: [r[0], r[1] - 90, r[2]] }); }}
+                      className="flex-1 py-2 rounded-lg bg-surface-active border border-border hover:brightness-110 active:translate-y-[1px] text-sm font-bold text-foreground/80">↺ ひだり</button>
+                    <button onClick={() => { const r = sel.rotation ?? [0, 0, 0]; updateFn(sel.id, { rotation: [r[0], r[1] + 90, r[2]] }); }}
+                      className="flex-1 py-2 rounded-lg bg-surface-active border border-border hover:brightness-110 active:translate-y-[1px] text-sm font-bold text-foreground/80">みぎ ↻</button>
+                    <button onClick={() => { const r = sel.rotation ?? [0, 0, 0]; updateFn(sel.id, { rotation: [r[0] + 90, r[1], r[2]] }); }}
+                      className="flex-1 py-2 rounded-lg bg-surface-active border border-border hover:brightness-110 active:translate-y-[1px] text-sm font-bold text-foreground/80">⤴ たおす</button>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[11px] text-foreground/90 block mb-1">📍 うごかす</label>
+                  <div className="grid grid-cols-3 gap-1 text-[11px]">
+                    {([["←", 0, -1], ["うえ ↑", 1, 1], ["→", 0, 1], ["おく", 2, -1], ["した ↓", 1, -1], ["まえ", 2, 1]] as const).map(([lbl, idx, d], i) => (
+                      <button key={i} onClick={() => { const p = [...sel.position] as [number, number, number]; p[idx] += d; updateFn(sel.id, { position: p }); }}
+                        className="py-1.5 rounded-md bg-surface-active border border-border hover:brightness-110 active:translate-y-[1px] text-foreground/80">{lbl}</button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* ── プロモード: 数値トランスフォーム等 ── */}
+            {!simple && (<>
             {/* グリッドスナップ */}
             <div>
               <label className="text-[11px] text-foreground/90 block mb-1">グリッドスナップ</label>
@@ -593,6 +630,8 @@ function PropertiesPanel({ mode = "blocks" }: { mode?: "blocks" | "items" }) {
               </div>
             </div>
 
+            </>)}
+
             {/* 削除ボタン */}
             <button
               onClick={() => removeFn(sel.id)}
@@ -624,7 +663,8 @@ function PropertiesPanel({ mode = "blocks" }: { mode?: "blocks" | "items" }) {
         </div>
       </div>
 
-      {/* ── 表示設定 ── */}
+      {/* ── 表示設定（プロのみ） ── */}
+      {!simple && (
       <div>
         <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2">表示設定</div>
         {[
@@ -642,6 +682,7 @@ function PropertiesPanel({ mode = "blocks" }: { mode?: "blocks" | "items" }) {
           </label>
         ))}
       </div>
+      )}
 
       {/* ── 最下部の岩盤（スクロール終端の遊び心） ── */}
       <div className="mt-4 pt-4 border-t border-dashed border-border/40 flex flex-col items-center justify-center opacity-35 select-none shrink-0 pb-4">
@@ -742,6 +783,15 @@ export default function ModelPanel() {
   const [paintMode, setPaintMode] = useState(false);
   const [mode, setMode] = useState<"blocks" | "items">("blocks");
   const [showHelp, setShowHelp] = useState(false);
+  const [simple, setSimple] = useState(true); // かんたん(true) / プロ(false)
+  useEffect(() => {
+    const s = localStorage.getItem("mmc-model-mode");
+    if (s === "simple" || s === "pro") setSimple(s === "simple");
+  }, []);
+  const switchSimple = (v: boolean) => {
+    setSimple(v);
+    localStorage.setItem("mmc-model-mode", v ? "simple" : "pro");
+  };
 
   // Escキーでヘルプモーダルを閉じる処理
   useEffect(() => {
@@ -775,6 +825,14 @@ export default function ModelPanel() {
         >
           ✨ アイテム
         </McButton>
+
+        {/* かんたん / プロ 切替 */}
+        <div className="ml-auto inline-flex items-center bg-[#1f1e1a] border-2 border-[#0e0d0a] rounded-lg p-0.5 text-xs font-bold">
+          <button onClick={() => switchSimple(true)}
+            className={`px-3 py-1 rounded-md transition-colors ${simple ? "bg-emerald-500 text-white" : "text-muted hover:text-foreground/70"}`}>🟢 かんたん</button>
+          <button onClick={() => switchSimple(false)}
+            className={`px-3 py-1 rounded-md transition-colors ${!simple ? "bg-gradient-to-r from-cyan-500 to-violet-500 text-white" : "text-muted hover:text-foreground/70"}`}>⚡ プロ</button>
+        </div>
       </div>
 
       <div className="flex h-full flex-1">
@@ -794,7 +852,7 @@ export default function ModelPanel() {
             ❓ 操作ガイド
           </button>
 
-          <div className="absolute bottom-4 left-4 flex items-center gap-2 pointer-events-none">
+          <div className={`absolute bottom-4 left-4 flex items-center gap-2 pointer-events-none ${simple ? "hidden" : ""}`}>
             <div className="w-8 h-8 flex items-center justify-center bg-[#1e1d1a] mc-bevel-inset text-xs font-pixel text-rose-500 font-bold" style={{ textShadow: "1px 1px 0px #5f131a" }}>
               X
             </div>
@@ -884,7 +942,7 @@ export default function ModelPanel() {
             </div>
           )}
         </div>
-        <PropertiesPanel mode={mode} />
+        <PropertiesPanel mode={mode} simple={simple} />
       </div>
     </div>
   );
