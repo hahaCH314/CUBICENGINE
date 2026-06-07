@@ -943,7 +943,8 @@ function BlockTray({
                   borderTop: `2px solid transparent`,
                   cursor: "pointer",
                   transition: "transform 0.1s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.1s ease, filter 0.1s ease",
-                  boxShadow: `${innerBorder}, 0 2px 0 rgba(0,0,0,0.12)`,
+                  // ブロックの体: 浮く"ボタン影"は出さず、キャンバスブロックと同じ斜めオフセット影で地に置く
+                  boxShadow: `${innerBorder}, 3px 3px 0 rgba(0,0,0,0.18)`,
                   flexShrink: 0,
                   position: "relative",
                   overflow: "visible",
@@ -951,25 +952,26 @@ function BlockTray({
                 }}
                 onMouseEnter={e => {
                   const el = e.currentTarget;
-                  el.style.transform = "translateY(-3px)";
-                  el.style.boxShadow = `${hoverInnerBorder}, 0 3px 0 rgba(0,0,0,0.14), 0 5px 8px rgba(0,0,0,0.18)`;
-                  el.style.filter = "brightness(1.06)";
+                  // 持ち上げない。ブロックが"光る"だけ
+                  el.style.boxShadow = `${hoverInnerBorder}, 3px 3px 0 rgba(0,0,0,0.2)`;
+                  el.style.filter = "brightness(1.09)";
                 }}
                 onMouseLeave={e => {
                   const el = e.currentTarget;
                   el.style.transform = "";
-                  el.style.boxShadow = `${innerBorder}, 0 2px 0 rgba(0,0,0,0.12)`;
+                  el.style.boxShadow = `${innerBorder}, 3px 3px 0 rgba(0,0,0,0.18)`;
                   el.style.filter = "";
                 }}
                 onMouseDown={e => {
                   const el = e.currentTarget;
-                  el.style.transform = "translateY(2px)";
-                  el.style.boxShadow = `${pressInnerBorder}, 0 1px 0 rgba(0,0,0,0.2)`;
+                  // ブロックが地面に"押し込まれる"(沈む＝影を畳む)。ボタンの上下移動ではない
+                  el.style.transform = "scale(0.95)";
+                  el.style.boxShadow = `${pressInnerBorder}, 1px 1px 0 rgba(0,0,0,0.2)`;
                 }}
                 onMouseUp={e => {
                   const el = e.currentTarget;
-                  el.style.transform = "translateY(-3px)";
-                  el.style.boxShadow = `${hoverInnerBorder}, 0 3px 0 rgba(0,0,0,0.14), 0 5px 8px rgba(0,0,0,0.18)`;
+                  el.style.transform = "";
+                  el.style.boxShadow = `${hoverInnerBorder}, 3px 3px 0 rgba(0,0,0,0.2)`;
                 }}
               >
                 {/* 3D 上面 — キャンバスブロックと同じ skewX 形状（角丸厚みアップ） */}
