@@ -2,12 +2,11 @@ import { CBlock } from '../app/editor/_types';
 import { GAP, BW, BH, SNAP } from '../app/editor/_constants';
 
 function blockH(b: CBlock): number {
-  // 削除ボタン (top:3+22=25) を避けて label を marginTop:26 で下げる + 4px 隙間。
-  // 各ブロック高さは +26 して下部のフィールド切れを防ぐ。
-  if (b.type === "co_if") return 248; // 2行スロット×3が収まる高さ(旧226)
-  if (b.type === "ct_rep") return BH + 10 + b.fields.length * 26 + 10 + 26 + 24; // 2行スロット分を加算
-  if (b.fields.length === 0) return 101; // 75 + 26（フィールド無しコンパクト）
-  return BH + 10 + b.fields.length * 26 + 10 + 26;
+  // 削除ボタンを避けて label を下げる + 隙間。
+  if (b.type === "co_if") return 168; // 2行スロット×3が収まる高さ
+  if (b.type === "ct_rep") return BH + 7 + b.fields.length * 18 + 7 + 18 + 16; // 2行スロット分を加算
+  if (b.fields.length === 0) return 69; // フィールド無しコンパクト
+  return BH + 7 + b.fields.length * 18 + 7 + 18;
 }
 
 function getStackHeight(id: string | null, blocks: CBlock[]): number {
@@ -16,10 +15,10 @@ function getStackHeight(id: string | null, blocks: CBlock[]): number {
   if (!b) return 0;
   const h = blockH(b);
   if (b.type === "co_if" || b.type === "ct_rep") {
-    const thenH = b.thenId ? getStackHeight(b.thenId, blocks) : 40;
+    const thenH = b.thenId ? getStackHeight(b.thenId, blocks) : 27;
     const elseH = b.type === "co_if" && b.elseId ? getStackHeight(b.elseId, blocks) : 0;
     const maxArmH = Math.max(thenH, elseH);
-    return h + maxArmH + 45 + getStackHeight(b.nextId, blocks);
+    return h + maxArmH + 31 + getStackHeight(b.nextId, blocks);
   }
   return h + GAP + getStackHeight(b.nextId, blocks);
 }
@@ -41,19 +40,19 @@ function getPos(id: string, blocks: CBlock[]): { x: number; y: number } {
     if (p.nextId === id) {
       if (p.type === "co_if" || p.type === "ct_rep") {
         // 条件分岐または繰り返しの親の場合、アームの最大高さ分だけ上に押し上げる
-        const thenH = p.thenId ? getStackHeight(p.thenId, blocks) : 40;
+        const thenH = p.thenId ? getStackHeight(p.thenId, blocks) : 27;
         const elseH = p.type === "co_if" && p.elseId ? getStackHeight(p.elseId, blocks) : 0;
         const maxArmH = Math.max(thenH, elseH);
         return {
           x: getPos(p.id, blocks).x,
-          y: getPos(p.id, blocks).y - maxArmH - 45 - blockH(b) - GAP
+          y: getPos(p.id, blocks).y - maxArmH - 31 - blockH(b) - GAP
         };
       }
       return { x: getPos(p.id, blocks).x, y: getPos(p.id, blocks).y - blockH(b) - GAP };
     }
     if (p.innerId === id) return { x: getPos(p.id, blocks).x + BW + GAP, y: getPos(p.id, blocks).y };
     if (p.thenId === id) return { x: getPos(p.id, blocks).x, y: getPos(p.id, blocks).y - blockH(b) - GAP };
-    if (p.elseId === id) return { x: getPos(p.id, blocks).x + BW + GAP + 120, y: getPos(p.id, blocks).y };
+    if (p.elseId === id) return { x: getPos(p.id, blocks).x + BW + GAP + 82, y: getPos(p.id, blocks).y };
   }
   return { x: b.x, y: b.y };
 }
@@ -92,6 +91,19 @@ function dist(a: { x: number; y: number }, b: { x: number; y: number }): number 
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
+/** 縦積み方向のスナップ判定（上空高めからの落下対応） */
+function canSnapVertical(
+  center: { x: number; y: number },
+  snap: { x: number; y: number },
+  limitX = 65,
+  limitYUp = 260,
+  limitYDown = 45
+): boolean {
+  const dx = Math.abs(center.x - snap.x);
+  const dy = center.y - snap.y; // center.y < snap.y の時 dy はマイナス（上空にある状態）
+  return dx <= limitX && dy >= -limitYUp && dy <= limitYDown;
+}
+
 /** スナップ候補を探す（dragging ブロックのキャンバス中心座標から） */
 function findSnap(
   draggingId: string,
@@ -109,14 +121,14 @@ function findSnap(
     // "next" スナップ（ターゲットの真上）
     if (!target.nextId) {
       if (target.type === "co_if" || target.type === "ct_rep") {
-        const thenH = target.thenId ? getStackHeight(target.thenId, blocks) : 40;
+        const thenH = target.thenId ? getStackHeight(target.thenId, blocks) : 27;
         const elseH = target.type === "co_if" && target.elseId ? getStackHeight(target.elseId, blocks) : 0;
         const maxArmH = Math.max(thenH, elseH);
-        const snap = { x: tp.x + BW / 2, y: tp.y - maxArmH - 45 - dh / 2 };
-        if (dist(center, snap) < SNAP) return { targetId: target.id, slot: "next" };
+        const snap = { x: tp.x + BW / 2, y: tp.y - maxArmH - 31 - dh / 2 };
+        if (canSnapVertical(center, snap)) return { targetId: target.id, slot: "next" };
       } else {
         const snap = { x: tp.x + BW / 2, y: tp.y - GAP - dh / 2 };
-        if (dist(center, snap) < SNAP) return { targetId: target.id, slot: "next" };
+        if (canSnapVertical(center, snap)) return { targetId: target.id, slot: "next" };
       }
     }
 
@@ -125,15 +137,20 @@ function findSnap(
       const isLoop = target.type === "ct_rep";
       if (isLoop) {
         // 繰り返しアームの中身は then スロットへ
-        if (!target.thenId && dist(center, { x: tp.x + BW / 2, y: tp.y - GAP - dh / 2 }) < SNAP)
+        const snap = { x: tp.x + BW / 2, y: tp.y - GAP - dh / 2 };
+        if (!target.thenId && canSnapVertical(center, snap))
           return { targetId: target.id, slot: "then" };
       } else {
         // 条件分岐
         if (!target.innerId && dist(center, { x: tp.x + BW + GAP + BW / 2, y: tp.y + BH / 2 }) < SNAP)
           return { targetId: target.id, slot: "inner" };
-        if (!target.thenId && dist(center, { x: tp.x + BW / 2, y: tp.y - GAP - dh / 2 }) < SNAP)
+        
+        const thenSnap = { x: tp.x + BW / 2, y: tp.y - GAP - dh / 2 };
+        if (!target.thenId && canSnapVertical(center, thenSnap))
           return { targetId: target.id, slot: "then" };
-        if (!target.elseId && dist(center, { x: tp.x + BW + GAP + 120 + BW / 2, y: tp.y - GAP - dh / 2 }) < SNAP)
+          
+        const elseSnap = { x: tp.x + BW + GAP + 82 + BW / 2, y: tp.y - GAP - dh / 2 };
+        if (!target.elseId && canSnapVertical(center, elseSnap))
           return { targetId: target.id, slot: "else" };
       }
     }

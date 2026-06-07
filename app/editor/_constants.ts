@@ -3,22 +3,23 @@
    ══════════════════════════════════════════════════════════ */
 
 /** ブロック幅 */
-export const BW   = 140;
+export const BW   = 96;
 
 /** ブロックの基本高さ */
-export const BH   = 95;
+export const BH   = 65;
 
 /** ブロック間ギャップ（0 = 密着積み） */
 export const GAP  = 0;
 
 /** スナップ検知距離（content 座標） */
-export const SNAP = 60;
+export const SNAP = 55;
 
 /** 3Dアームの幅 */
-export const AW   = 90;
+export const AW   = 60;
 
 /** 配置ブロックの上限数 */
 export const MAX_BLOCKS = 60;
 
-/** 基準ズーム。これを「表示100%」とする＝ブロックが大きすぎ問題の解(旧68%の見えを既定に) */
-export const BASE_ZOOM = 0.68;
+/** 基準ズーム。これを「表示100%」とする＝1.0 */
+export const BASE_ZOOM = 1.0;
+
