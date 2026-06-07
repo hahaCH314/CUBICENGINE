@@ -528,15 +528,15 @@ function PropertiesPanel({ mode = "blocks" }: { mode?: "blocks" | "items" }) {
             </div>
 
             {/* 位置 */}
-            <Vec3Editor label="位置 (X / Y / Z)" values={sel.position}
+            <Vec3Editor label="📍 ばしょ（よこ / たて / おく）" values={sel.position}
               onChange={(v) => updateFn(sel.id, { position: v })} snap={gridSnapEnabled} />
 
             {/* スケール */}
-            <Vec3Editor label="大きさ (X / Y / Z)" values={sel.scale ?? [1,1,1]}
+            <Vec3Editor label="📏 おおきさ（よこ / たて / おく）" values={sel.scale ?? [1,1,1]}
               onChange={(v) => updateFn(sel.id, { scale: v })} step={0.1} />
 
             {/* 回転 */}
-            <Vec3Editor label="回転 (度)" values={sel.rotation ?? [0,0,0]}
+            <Vec3Editor label="🔄 むき（かたむき・度）" values={sel.rotation ?? [0,0,0]}
               onChange={(v) => updateFn(sel.id, { rotation: v })} step={5}
               colors={["text-orange-400","text-yellow-400","text-pink-400"]} />
 
@@ -609,7 +609,7 @@ function PropertiesPanel({ mode = "blocks" }: { mode?: "blocks" | "items" }) {
       {/* ── テクスチャプリセット ── */}
       <div>
         <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2">
-          テクスチャプリセット
+          🎨 いろ・がら（ワンタッチ）
         </div>
         <div className="grid grid-cols-2 gap-1.5">
           {PRESETS.map((p) => (
@@ -782,7 +782,7 @@ export default function ModelPanel() {
         <div className="flex-1 relative">
           <ThreeViewport paintMode={paintMode} setPaintMode={setPaintMode} mode={mode} />
           <div className="absolute top-3 left-3 px-3 py-1.5 mc-panel bg-panel text-[10px] text-foreground/85 font-pixel pointer-events-none">
-            [ Perspective View ] — {paintMode ? "PAINT MODE" : "SELECT MODE"}
+            🧊 3Dプレビュー ・ {paintMode ? "🎨 ぬりモード" : "👆 えらぶモード"}（ドラッグでまわす）
           </div>
 
           {/* 操作ガイドボタン */}
