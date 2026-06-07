@@ -274,6 +274,19 @@ export default function SettingsPanel() {
   const [gridSnap, setGridSnap] = useState(true);
   const [autoUuid, setAutoUuid] = useState(true);
 
+  // エディターテーマ（CSS変数を data-theme で切替・localStorage記憶）
+  const [theme, setTheme] = useState("dark");
+  useEffect(() => {
+    const t = localStorage.getItem("mmc-theme") || "dark";
+    setTheme(t);
+    document.documentElement.setAttribute("data-theme", t);
+  }, []);
+  const applyTheme = (t: string) => {
+    setTheme(t);
+    localStorage.setItem("mmc-theme", t);
+    document.documentElement.setAttribute("data-theme", t);
+  };
+
   // かんたん / プロ モード（localStorage 記憶）
   const [mode, setMode] = useState<"simple" | "pro">("pro");
   useEffect(() => {
@@ -372,10 +385,10 @@ export default function SettingsPanel() {
               <Row label="自動保存"><Toggle value={autoSave} onChange={setAutoSave} /></Row>
               <Row label="グリッドスナップ"><Toggle value={gridSnap} onChange={setGridSnap} /></Row>
               <Row label="テーマ">
-                <select defaultValue="dark" className={inputCls}>
-                  <option value="dark">Dark</option>
-                  <option value="midnight">Midnight</option>
-                  <option value="abyss">Abyss</option>
+                <select value={theme} onChange={(e) => applyTheme(e.target.value)} title="エディターの配色テーマ" className={inputCls}>
+                  <option value="dark">🪨 Dark（石）</option>
+                  <option value="midnight">🌃 Midnight（紺）</option>
+                  <option value="abyss">🕳️ Abyss（漆黒）</option>
                 </select>
               </Row>
             </div>

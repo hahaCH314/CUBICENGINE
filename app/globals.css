@@ -47,6 +47,36 @@
   --panel-hover: #2a2924;
 }
 
+/* ── テーマ: Midnight（寒色の紺ダーク） ── */
+:root[data-theme="midnight"] {
+  --background: #161a29;
+  --foreground: #e8ecf7;
+  --surface: #232840;
+  --surface-hover: #2c3250;
+  --surface-active: #3a4166;
+  --border-color: #353c59;
+  --card: #232840;
+  --card-hover: #2c3250;
+  --muted: #8b91ac;
+  --panel: #0f1220;
+  --panel-hover: #161a29;
+}
+
+/* ── テーマ: Abyss（漆黒の深層） ── */
+:root[data-theme="abyss"] {
+  --background: #0b0b0d;
+  --foreground: #e6e6ea;
+  --surface: #151517;
+  --surface-hover: #1d1d20;
+  --surface-active: #29292e;
+  --border-color: #29292e;
+  --card: #151517;
+  --card-hover: #1d1d20;
+  --muted: #7a7a82;
+  --panel: #050506;
+  --panel-hover: #0b0b0d;
+}
+
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--surface-active) transparent;
