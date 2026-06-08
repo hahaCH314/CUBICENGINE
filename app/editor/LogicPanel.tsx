@@ -1709,9 +1709,9 @@ export default function LogicPanel() {
         const droppedBlock = blocks.find(bl => bl.id === id)!;
         const dragH = blockH(droppedBlock);
 
-        // 1. 落下先の X = ユーザーが見ている画面の「右端」（ビューポート右端を content 座標へ変換）
+        // 1. 落下先の X = プレイヤーが見ている画面の「左端」（ビューポート左下に落とす）
         const _rect = containerRef.current?.getBoundingClientRect();
-        const targetLandX = _rect ? Math.round((_rect.width - 40 - pan.x) / zoom) - BW : 60;
+        const targetLandX = _rect ? Math.round((40 - pan.x) / zoom) : 60;
 
         // 2. 自分（と自分のファミリー）以外の親なしブロックをすべて取得
         const myFamily = getFamily(id, blocks);
@@ -1861,8 +1861,8 @@ export default function LogicPanel() {
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
 
-    // 落下先の基準 X = ユーザーが見ている画面の「右端」（ビューポート右端を content 座標へ変換）
-    const baseX = Math.round((rect.width - 40 - pan.x) / zoom) - BW;
+    // 落下先の基準 X = プレイヤーが見ている画面の「左端」（ビューポート左下に落とす）
+    const baseX = Math.round((40 - pan.x) / zoom);
 
     // まず y = 0 でブロックを生成し、その高さを取得する
     const nb = spawnBlock(t, baseX, 0);
@@ -1892,7 +1892,7 @@ export default function LogicPanel() {
         targetY = 408 - nbH - GAP; // トリガー用スペースの上に積む
       }
     } else {
-      // トリガー（イベント）ブロックも画面右端（baseX）に落とす
+      // トリガー（イベント）ブロックも画面左端（baseX）に落とす
       targetX = baseX;
       targetY = 408 + BH - nbH; // 床に接地
     }
