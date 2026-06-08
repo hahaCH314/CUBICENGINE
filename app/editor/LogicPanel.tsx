@@ -1723,82 +1723,18 @@ export default function LogicPanel() {
           return !hasParent;
         });
 
-        // 3. 画面左端（targetLandX = 60）の直下にある着地候補のブロックを探す
-        let landY = 408 + BH - dragH; // デフォルトは床の上面
-        let highestLandY = 999999;
+        // 3. 床に接地（常に床の上面。縦に積み上げない）
+        const landY = 408 + BH - dragH;
 
-        for (const root of otherRoots) {
-          const members = getFamily(root.id, blocks);
-          for (const m of members) {
-            const mPos = getPos(m, blocks);
-            // X軸が画面左端（targetLandX = 60）と重なっているか判定
-            const overlapX = targetLandX < mPos.x + BW && targetLandX + BW > mPos.x;
-            if (overlapX) {
-              // X=60のツリーの最も上にあるブロックの頭の上に着地させる
-              if (mPos.y < highestLandY) {
-                highestLandY = mPos.y;
-                landY = mPos.y - dragH - GAP;
-              }
-            }
-          }
-        }
+        // 4. 左右回避: 既存の床ブロック(親なしroot)と横で重ならない空きXを、左→右へ探す
+        const occupiedX = otherRoots.map(r => getPos(r.id, blocks).x);
+        const gapX = 16;
+        const overlapsX = (x: number) => occupiedX.some(ox => x < ox + BW + gapX && x + BW + gapX > ox);
+        let landX = targetLandX;
+        let guard = 0;
+        while (overlapsX(landX) && guard++ < 300) landX += BW + gapX; // 埋まってたら右へよけて空きへ並ぶ
 
-        // 4. 計算した落下先座標 (X=60, Y=landY) に配置し、重なりがあればバンプする
-        setBlocks(prev => {
-          const nextPrev = prev.map(bl => bl.id === id ? { ...bl, x: targetLandX, y: landY } : bl);
-          
-          const positions = new Map<string, number>();
-          nextPrev.forEach(b => positions.set(b.id, b.x));
-          
-          const finalDropped = nextPrev.find(bl => bl.id === id)!;
-          const finalTargetX = finalDropped.x;
-          const finalTargetY = finalDropped.y;
-
-          const activeRoots = nextPrev.filter(bl => {
-            if (bl.id === id) return false;
-            const hasParent = nextPrev.some(p =>
-              p.nextId === bl.id || p.innerId === bl.id || p.thenId === bl.id || p.elseId === bl.id
-            );
-            return !hasParent;
-          });
-
-          let checkAgain = true;
-          while (checkAgain) {
-            checkAgain = false;
-            for (const bl of activeRoots) {
-              const currentX = positions.get(bl.id)!;
-              const bPos = getPos(bl.id, nextPrev);
-              const actualX = currentX;
-              const actualY = bPos.y;
-
-              const overlapWithDropped = (finalTargetX < actualX + BW && finalTargetX + BW > actualX) &&
-                                         (finalTargetY < actualY + (BH - 5) && finalTargetY + (BH - 5) > actualY);
-
-              let overlapWithOther = false;
-              for (const other of activeRoots) {
-                if (other.id === bl.id) continue;
-                const otherX = positions.get(other.id)!;
-                const otherPos = getPos(other.id, nextPrev);
-                const otherY = otherPos.y;
-
-                const overlap = (otherX < actualX + BW && otherX + BW > actualX) &&
-                                (finalTargetY < actualY + (BH - 5) && finalTargetY + (BH - 5) > actualY);
-
-                if (overlap && otherX <= actualX && Math.abs(otherX - actualX) < BW) {
-                  overlapWithOther = true;
-                  break;
-                }
-              }
-
-              if (overlapWithDropped || overlapWithOther) {
-                positions.set(bl.id, actualX + BW + 20);
-                checkAgain = true;
-              }
-            }
-          }
-
-          return nextPrev.map(bl => positions.has(bl.id) ? { ...bl, x: positions.get(bl.id)! } : bl);
-        });
+        setBlocks(prev => prev.map(bl => bl.id === id ? { ...bl, x: landX, y: landY } : bl));
 
         blockDrag.current.active = false;
         setSnapHint(null);
