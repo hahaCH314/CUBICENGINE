@@ -229,6 +229,28 @@ function buildCode(blocks: CBlock[]): string {
    ブロック描画コンポーネント
    ══════════════════════════════════════════════════════════ */
 
+/** ブロックの実描画幅（ToyCubeBlockのwと一致。落下の左右回避でも使う） */
+function blockWidth(b: CBlock, blocks: CBlock[]): number {
+  const titleSize = b.label.length > 10 ? 11 : b.label.length > 8 ? 12 : b.label.length > 6 ? 13 : 15;
+  const titleW = b.label.length * titleSize;
+  let contentW = 0;
+  b.fields.forEach(f => {
+    let d = f.value || "";
+    if (d.startsWith("minecraft:")) { const item = ITEM_NAMES[d]; if (item) d = `${item.icon} ${item.jp}`; }
+    const flen = f.label.length + d.length;
+    contentW = Math.max(contentW, flen * 10 + 40);
+  });
+  if (b.type === "co_if" || b.type === "ct_rep") {
+    (["inner", "then", "else"] as const).forEach(slot => {
+      const targetId = slot === "inner" ? b.innerId : slot === "then" ? b.thenId : b.elseId;
+      const tb = targetId ? blocks.find(x => x.id === targetId) : null;
+      if (tb) contentW = Math.max(contentW, tb.label.length * 8 + 68);
+      else contentW = Math.max(contentW, 95);
+    });
+  }
+  return Math.max(BW, Math.max(titleW + 48, contentW + 28));
+}
+
  function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAdding, isDeleting, innerBlock, blocks, onDown, onDelete, onFieldChange, onEjectInner, focusedField, setFocusedField, wireDrag, onSlotClick, isShaking, isDragging, isPopping, isRolling, rollFrom }: {
   b: CBlock; pos: { x: number; y: number }; selected: boolean; snapSlot: string | null;
   isEating?: boolean; isSnapping?: boolean; isAdding?: boolean; isDeleting?: boolean;
@@ -277,35 +299,8 @@ function buildCode(blocks: CBlock[]): string {
   const hasEventRoot = rootBlock && rootBlock.category === "trigger";
   const groupColor = hasEventRoot ? CAT[rootBlock.category].bg : null;
 
-  // 文字サイズ判定（大きめにはっきり）
   const titleSize = b.label.length > 10 ? 11 : b.label.length > 8 ? 12 : b.label.length > 6 ? 13 : 15;
-  const titleW = b.label.length * titleSize;
-
-  let contentW = 0;
-  b.fields.forEach(f => {
-    let d = f.value || "";
-    if (d.startsWith("minecraft:")) {
-      const item = ITEM_NAMES[d];
-      if (item) d = `${item.icon} ${item.jp}`;
-    }
-    const flen = f.label.length + d.length;
-    contentW = Math.max(contentW, flen * 10 + 40);
-  });
-  if (b.type === "co_if" || b.type === "ct_rep") {
-    const slots = ["inner", "then", "else"] as const;
-    slots.forEach(slot => {
-      const targetId = slot === "inner" ? b.innerId : slot === "then" ? b.thenId : b.elseId;
-      const tb = targetId ? blocks.find(x => x.id === targetId) : null;
-      if (tb) {
-        contentW = Math.max(contentW, tb.label.length * 8 + 68);
-      } else {
-        // 空スロット: 2行目の受け入れバッジ
-        contentW = Math.max(contentW, 95);
-      }
-    });
-  }
-  // 削除ボタン(18px)とパディング(計20px)+隙間を確保し、短い文字でもellipsisで省略されないようにする
-  const w = Math.max(BW, Math.max(titleW + 48, contentW + 28));
+  const w = blockWidth(b, blocks);
   const h = blockH(b);
   const R = 5;
 
@@ -1728,16 +1723,22 @@ export default function LogicPanel() {
           return !hasParent;
         });
 
-        // 3. 床に接地（常に床の上面。縦に積み上げない）
-        const landY = 408 + BH - dragH;
+        // 3. 床に接地: いま画面に見えてる床ライン(screen下端)にブロック下面を合わせる(pan/zoom追従＝浮かない)
+        const landY = _rect
+          ? (_rect.height - 8 - pan.y) / zoom - dragH
+          : 408 + BH - dragH;
 
-        // 4. 左右回避: 既存の床ブロック(親なしroot)と横で重ならない空きXを、左→右へ探す
-        const occupiedX = otherRoots.map(r => getPos(r.id, blocks).x);
-        const gapX = 16;
-        const overlapsX = (x: number) => occupiedX.some(ox => x < ox + BW + gapX && x + BW + gapX > ox);
+        // 4. 左右回避: 既存の床ブロック(親なしroot)と「実際の幅」で重ならない空きXを左→右へ
+        const myW = blockWidth(droppedBlock, blocks);
+        const occupied = otherRoots.map(r => ({ x: getPos(r.id, blocks).x, w: blockWidth(r, blocks) }));
+        const gapX = 12;
         let landX = targetLandX;
         let guard = 0;
-        while (overlapsX(landX) && guard++ < 300) landX += BW + gapX; // 埋まってたら右へよけて空きへ並ぶ
+        while (guard++ < 300) {
+          const hit = occupied.find(o => landX < o.x + o.w + gapX && landX + myW + gapX > o.x);
+          if (!hit) break;
+          landX = hit.x + hit.w + gapX; // ぶつかった相手の右隣へピタリ
+        }
 
         setBlocks(prev => prev.map(bl => bl.id === id ? { ...bl, x: landX, y: landY } : bl));
 
