@@ -1448,11 +1448,11 @@ export default function LogicPanel() {
     const positions = blocks.map(b => getPos(b.id, blocks));
     const minX = Math.min(...positions.map(p => p.x));
     const maxX = Math.max(...positions.map(p => p.x + BW));
-    const maxY = Math.max(...positions.map(p => p.y + BH));
     const cx = (minX + maxX) / 2;
     if (rect) {
-      // 横=画面中央 / 縦=一番下に接地(床)
-      setPan({ x: rect.width / 2 - cx * BASE_ZOOM, y: rect.height - maxY * BASE_ZOOM - 60 });
+      // 横=画面中央 / 縦=床(groundY=473)を画面下端にピタリ合わせる(alignFloorと一致・浮かせない)
+      const groundY = 408 + BH;
+      setPan({ x: rect.width / 2 - cx * BASE_ZOOM, y: rect.height - groundY * BASE_ZOOM });
     } else {
       setPan({ x: 60, y: 60 });
     }
