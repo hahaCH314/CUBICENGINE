@@ -229,7 +229,7 @@ function buildCode(blocks: CBlock[]): string {
    ブロック描画コンポーネント
    ══════════════════════════════════════════════════════════ */
 
- function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAdding, isDeleting, innerBlock, blocks, onDown, onDelete, onFieldChange, onEjectInner, focusedField, setFocusedField, wireDrag, onSlotClick, isShaking, isDragging, isPopping }: {
+ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAdding, isDeleting, innerBlock, blocks, onDown, onDelete, onFieldChange, onEjectInner, focusedField, setFocusedField, wireDrag, onSlotClick, isShaking, isDragging, isPopping, isRolling, rollFrom }: {
   b: CBlock; pos: { x: number; y: number }; selected: boolean; snapSlot: string | null;
   isEating?: boolean; isSnapping?: boolean; isAdding?: boolean; isDeleting?: boolean;
   innerBlock?: CBlock | null; blocks: CBlock[];
@@ -244,6 +244,8 @@ function buildCode(blocks: CBlock[]): string {
   isShaking?: boolean;
   isDragging?: boolean;
   isPopping?: boolean;
+  isRolling?: boolean;
+  rollFrom?: number;
 }) {
   const cat = CAT[b.category];
   const hl = snapSlot !== null;
@@ -260,6 +262,7 @@ function buildCode(blocks: CBlock[]): string {
   const anim = isEating ? "swallow 0.55s ease-in forwards"
     : isDeleting ? "blockDelete 0.6s cubic-bezier(0.36,0.07,0.19,0.97) forwards"
       : isAdding ? "blockAdd 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards"
+        : isRolling ? "blockRoll 0.5s cubic-bezier(0.3,0.85,0.4,1) forwards" // ぶつかって右へ転がる→正面で着地
         : isPopping ? "blockPop 0.4s cubic-bezier(0.25, 1.5, 0.5, 1)" // ポップ！
           : isSnapping ? "blockSnap 0.12s ease-out"
             : isShaking ? "blockShake 0.3s ease-in-out" // Error shake
@@ -375,7 +378,8 @@ function buildCode(blocks: CBlock[]): string {
       width: w, height: h,
       cursor: isDragging ? "grabbing" : "grab", userSelect: "none",
       animation: anim,
-      transformOrigin: isAdding ? "bottom center" : "center center",
+      transformOrigin: (isAdding || isRolling) ? "bottom center" : "center center",
+      ...(isRolling ? { ["--roll-from" as never]: `${-(rollFrom ?? 0)}px`, ["--roll-rot" as never]: `${-((rollFrom ?? 0) / BW) * 360}deg` } : {}),
       transform: selected && !isDragging ? "translate(-3px, -3px)" : "none", // 選択中はわずかに浮き上がる
       zIndex: isDragging ? 9999 : (selected ? 1000 : 20) + depth * 10,
       opacity: isDimmed ? 0.35 : 1.0,
@@ -1334,6 +1338,7 @@ export default function LogicPanel() {
   const [chomping, setChomping] = useState<string | null>(null);
   const [snapAnim, setSnapAnim] = useState<string | null>(null);   // スナップ時バウンス
   const [addAnim, setAddAnim] = useState<string | null>(null);   // 追加時スライドイン
+  const [rollAnim, setRollAnim] = useState<{ id: string; from: number } | null>(null); // ぶつかって右へ転がる
   const [deleteAnim, setDeleteAnim] = useState<string | null>(null);   // 削除時フェードアウト
   const [shakeAnim, setShakeAnim] = useState<string | null>(null);   // エラー時ブルブル
   const [popBlocks, setPopBlocks] = useState<Record<string, boolean>>({}); // 接続成立時のバウンスブロック
@@ -1736,6 +1741,13 @@ export default function LogicPanel() {
 
         setBlocks(prev => prev.map(bl => bl.id === id ? { ...bl, x: landX, y: landY } : bl));
 
+        // ぶつかって右へよけた分があれば「転がって正面で着地」アニメを発火
+        const rolledRight = landX - targetLandX;
+        if (rolledRight > 4) {
+          setRollAnim({ id, from: rolledRight });
+          setTimeout(() => setRollAnim(null), 520);
+        }
+
         blockDrag.current.active = false;
         setSnapHint(null);
         return;
@@ -2061,6 +2073,13 @@ export default function LogicPanel() {
           83%  { transform: translateY(0) scaleY(0.95) scaleX(1.03); }
           92%  { transform: translateY(-2px) scaleY(1.02) scaleX(0.99); }
           100% { transform: translateY(0) scaleY(1) scaleX(1); opacity: 1; }
+        }
+        /* ぶつかって右へ転がる → 必ず正面で着地（ヒマワリ調整OK: 速さ/ぽよん/転がり量） */
+        @keyframes blockRoll {
+          0%   { transform: translateX(var(--roll-from,0px)) rotate(var(--roll-rot,0deg)); }
+          78%  { transform: translateX(0) rotate(0deg); }
+          88%  { transform: translateX(0) rotate(6deg) scaleY(0.96); }   /* 着地のぽよん */
+          100% { transform: translateX(0) rotate(0deg) scaleY(1); }      /* 正面で静止 */
         }
         @keyframes impactRing {
           0%   { width: 18px; height: 6px; opacity: 0.85; border-width: 4px; }
@@ -2702,7 +2721,9 @@ export default function LogicPanel() {
                     onSlotClick={handleSlotClick}
                     isShaking={shakeAnim === b.id}
                     isDragging={blockDrag.current.active && blockDrag.current.id === b.id}
-                    isPopping={popBlocks[b.id]} />;
+                    isPopping={popBlocks[b.id]}
+                    isRolling={rollAnim?.id === b.id}
+                    rollFrom={rollAnim?.id === b.id ? rollAnim.from : 0} />;
                 })}
 
                 {/* 食べられアニメーション（ToyCubeBlock用に合わせて修正） */}
