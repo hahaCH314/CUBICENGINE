@@ -12,7 +12,7 @@ import { ITEM_NAMES } from "../../data/itemNames";
 import { blockH, getStackHeight, getDepth, getPos, getFamily, detach, attach, dist, findSnap } from "../../lib/blockGraph";
 import { escStr, escId, gf, sanitizeVarName, genChain, genBlock, genExpr, genCond, genTrigger } from "../../lib/codegen";
 let _uid = 6000;
-const uid = () => `b${_uid++}`;
+const uid = () => `b${Date.now().toString(36)}${Math.random().toString(36).substring(2, 6)}`;
 
 /* ══════════════════════════════════════════════════════════
    スロット定義 — 条件分岐 / 繰り返しの差込口が受け付けるカテゴリと色
@@ -251,7 +251,7 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
   return Math.max(BW, Math.max(titleW + 48, contentW + 28));
 }
 
- function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAdding, isDeleting, innerBlock, blocks, onDown, onDelete, onFieldChange, onEjectInner, focusedField, setFocusedField, wireDrag, onSlotClick, isShaking, isDragging, isPopping, isRolling, rollFrom }: {
+ function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAdding, isDeleting, innerBlock, blocks, onDown, onDelete, onFieldChange, onEjectInner, focusedField, setFocusedField, wireDrag, onSlotClick, isShaking, isDragging, isPopping, isRolling, rollFrom, rollRot, rollDur }: {
   b: CBlock; pos: { x: number; y: number }; selected: boolean; snapSlot: string | null;
   isEating?: boolean; isSnapping?: boolean; isAdding?: boolean; isDeleting?: boolean;
   innerBlock?: CBlock | null; blocks: CBlock[];
@@ -268,6 +268,8 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
   isPopping?: boolean;
   isRolling?: boolean;
   rollFrom?: number;
+  rollRot?: number;
+  rollDur?: number;
 }) {
   const cat = CAT[b.category];
   const hl = snapSlot !== null;
@@ -284,7 +286,7 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
   const anim = isEating ? "swallow 0.55s ease-in forwards"
     : isDeleting ? "blockDelete 0.6s cubic-bezier(0.36,0.07,0.19,0.97) forwards"
       : isAdding ? "blockAdd 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards"
-        : isRolling ? "blockRoll 0.5s cubic-bezier(0.3,0.85,0.4,1) forwards" // ぶつかって右へ転がる→正面で着地
+        : isRolling ? `blockRoll ${rollDur || 0.5}s cubic-bezier(0.25, 0.85, 0.4, 1.1) forwards` // ぶつかって右へ転がる→正面で着地
         : isPopping ? "blockPop 0.4s cubic-bezier(0.25, 1.5, 0.5, 1)" // ポップ！
           : isSnapping ? "blockSnap 0.12s ease-out"
             : isShaking ? "blockShake 0.3s ease-in-out" // Error shake
@@ -374,7 +376,11 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
       cursor: isDragging ? "grabbing" : "grab", userSelect: "none",
       animation: anim,
       transformOrigin: (isAdding || isRolling) ? "bottom center" : "center center",
-      ...(isRolling ? { ["--roll-from" as never]: `${-(rollFrom ?? 0)}px`, ["--roll-rot" as never]: `${-((rollFrom ?? 0) / BW) * 360}deg` } : {}),
+      ...(isRolling ? { 
+        ["--roll-from" as never]: `${-(rollFrom ?? 0)}px`, 
+        ["--roll-rot" as never]: `${-((rollFrom ?? 0) / BW) * 360}deg`,
+        ["--bounce-rot" as never]: `${rollRot ?? 6}deg`
+      } : {}),
       transform: selected && !isDragging ? "translate(-3px, -3px)" : "none", // 選択中はわずかに浮き上がる
       zIndex: isDragging ? 9999 : (selected ? 1000 : 20) + depth * 10,
       opacity: isDimmed ? 0.35 : 1.0,
@@ -1269,9 +1275,9 @@ export default function LogicPanel() {
   const setGeneratedJsCode = useEditorStore(s => s.setGeneratedJsCode);
   const setLogicGraphJson = useEditorStore(s => s.setLogicGraphJson);
 
-  // 古い記憶（過去のセーブデータ）を最新の仕様に浄化（絵文字分離・ラベル統一）
+  // 古い記憶（過去のセーブデータ）を最新の仕様に浄化（絵文字分離・ラベル統一）＋ ルートブロックを床に接地させる
   const migrateBlocks = (blocks: any[]): CBlock[] => {
-    return blocks.map(b => {
+    const migrated = blocks.map(b => {
       const tmpl = TEMPLATES.find(t => t.type === b.type);
       if (!tmpl) return b;
       return {
@@ -1281,6 +1287,19 @@ export default function LogicPanel() {
         sublabel: tmpl.sublabel,
         category: tmpl.category,
       };
+    });
+
+    // 既存(読み込み済み)ブロックも床に接地（最初からある root ブロックが浮くのを防ぐ）
+    const rootBlocks = migrated.filter(bl => {
+      const hasParent = migrated.some(p => p.nextId === bl.id || p.innerId === bl.id || p.thenId === bl.id || p.elseId === bl.id);
+      return !hasParent;
+    });
+
+    return migrated.map(bl => {
+      if (rootBlocks.includes(bl)) {
+        return { ...bl, y: 408 + BH - blockH(bl) };
+      }
+      return bl;
     });
   };
 
@@ -1333,7 +1352,7 @@ export default function LogicPanel() {
   const [chomping, setChomping] = useState<string | null>(null);
   const [snapAnim, setSnapAnim] = useState<string | null>(null);   // スナップ時バウンス
   const [addAnim, setAddAnim] = useState<string | null>(null);   // 追加時スライドイン
-  const [rollAnim, setRollAnim] = useState<{ id: string; from: number } | null>(null); // ぶつかって右へ転がる
+  const [rollAnim, setRollAnim] = useState<{ id: string; from: number; rot?: number; dur?: number } | null>(null); // ぶつかって右へ転がる
   const [deleteAnim, setDeleteAnim] = useState<string | null>(null);   // 削除時フェードアウト
   const [shakeAnim, setShakeAnim] = useState<string | null>(null);   // エラー時ブルブル
   const [popBlocks, setPopBlocks] = useState<Record<string, boolean>>({}); // 接続成立時のバウンスブロック
@@ -1745,8 +1764,10 @@ export default function LogicPanel() {
         // ぶつかって右へよけた分があれば「転がって正面で着地」アニメを発火
         const rolledRight = landX - targetLandX;
         if (rolledRight > 4) {
-          setRollAnim({ id, from: rolledRight });
-          setTimeout(() => setRollAnim(null), 520);
+          const bounceRot = (Math.random() > 0.5 ? 1 : -1) * (3 + Math.random() * 5); // ランダムな傾きで個体差
+          const dur = 0.45 + Math.random() * 0.12; // 0.45〜0.57s の個体差
+          setRollAnim({ id, from: rolledRight, rot: bounceRot, dur });
+          setTimeout(() => setRollAnim(null), dur * 1000 + 20);
         }
 
         blockDrag.current.active = false;
@@ -2075,12 +2096,13 @@ export default function LogicPanel() {
           92%  { transform: translateY(-2px) scaleY(1.02) scaleX(0.99); }
           100% { transform: translateY(0) scaleY(1) scaleX(1); opacity: 1; }
         }
-        /* ぶつかって右へ転がる → 必ず正面で着地（ヒマワリ調整OK: 速さ/ぽよん/転がり量） */
+        /* ぶつかって右へ転がる → 必ず正面で着地（ヒマワリ調整：速さ/ぽよん/転がり量/個体差） */
         @keyframes blockRoll {
           0%   { transform: translateX(var(--roll-from,0px)) rotate(var(--roll-rot,0deg)); }
-          78%  { transform: translateX(0) rotate(0deg); }
-          88%  { transform: translateX(0) rotate(6deg) scaleY(0.96); }   /* 着地のぽよん */
-          100% { transform: translateX(0) rotate(0deg) scaleY(1); }      /* 正面で静止 */
+          55%  { transform: translateX(0) rotate(0deg); }
+          70%  { transform: translateX(0) rotate(var(--bounce-rot, 6deg)) scaleY(0.92) scaleX(1.05); }
+          85%  { transform: translateX(0) rotate(calc(var(--bounce-rot, 6deg) * -0.3)) scaleY(1.02) scaleX(0.98); }
+          100% { transform: translateX(0) rotate(0deg) scaleY(1) scaleX(1); }
         }
         @keyframes impactRing {
           0%   { width: 18px; height: 6px; opacity: 0.85; border-width: 4px; }
@@ -2403,7 +2425,7 @@ export default function LogicPanel() {
         {showProjects && (
           <ProjectPanel
             blocks={blocks}
-            onLoad={b => { setBlocks(b); }}
+            onLoad={b => { setBlocks(migrateBlocks(b)); }}
             onClose={() => setShowProjects(false)}
           />
         )}
@@ -2470,7 +2492,7 @@ export default function LogicPanel() {
             <span style={{ fontSize: 12 }}>📦</span>
             <span style={{
               fontFamily: "monospace", letterSpacing: "0.02em", color: "#00cec9"
-            }}>{blocks.length}<span style={{ fontSize: 9, marginLeft: 1 }}>個</span></span>
+            }}>{mounted ? blocks.length : 0}<span style={{ fontSize: 9, marginLeft: 1 }}>個</span></span>
           </div>
 
           {/* ズーム倍率（クリックで100%＋中央へ戻る） */}
@@ -2724,7 +2746,9 @@ export default function LogicPanel() {
                     isDragging={blockDrag.current.active && blockDrag.current.id === b.id}
                     isPopping={popBlocks[b.id]}
                     isRolling={rollAnim?.id === b.id}
-                    rollFrom={rollAnim?.id === b.id ? rollAnim.from : 0} />;
+                    rollFrom={rollAnim?.id === b.id ? rollAnim.from : 0}
+                    rollRot={rollAnim?.id === b.id ? rollAnim.rot : undefined}
+                    rollDur={rollAnim?.id === b.id ? rollAnim.dur : undefined} />;
                 })}
 
                 {/* 食べられアニメーション（ToyCubeBlock用に合わせて修正） */}
