@@ -537,7 +537,10 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
         <div>
           <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2 flex items-center justify-between">
             <span>🧱 本物のブロックにする</span>
-            <Toggle value={!!sel.registered} onChange={(v) => updateFn(sel.id, { registered: v })} />
+            <button onClick={() => updateFn(sel.id, { registered: !sel.registered })}
+              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-colors ${sel.registered ? "bg-accent text-white" : "bg-surface-active text-muted hover:text-foreground/70"}`}>
+              {sel.registered ? "ON" : "OFF"}
+            </button>
           </div>
           {sel.registered ? (
             <div className="space-y-2 bg-surface-active/30 rounded-lg p-2 border border-border">

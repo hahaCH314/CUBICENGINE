@@ -56,6 +56,10 @@ export interface VoxelItem {
   groupId?: string;
   animations?: Animation[];
   playingAnimation?: string;
+  registered?: boolean;
+  displayName?: string;
+  hardness?: number;
+  lightLevel?: number;
 }
 
 export interface EditorState {
