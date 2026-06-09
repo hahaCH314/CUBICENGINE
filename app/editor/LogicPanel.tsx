@@ -1289,13 +1289,21 @@ export default function LogicPanel() {
       };
     });
 
+    // 重複キーの削除 (過去のバグでIDが被っていた場合へのフェイルセーフ)
+    const seenIds = new Set<string>();
+    const deduplicated = migrated.filter(b => {
+      if (seenIds.has(b.id)) return false;
+      seenIds.add(b.id);
+      return true;
+    });
+
     // 既存(読み込み済み)ブロックも床に接地（最初からある root ブロックが浮くのを防ぐ）
-    const rootBlocks = migrated.filter(bl => {
-      const hasParent = migrated.some(p => p.nextId === bl.id || p.innerId === bl.id || p.thenId === bl.id || p.elseId === bl.id);
+    const rootBlocks = deduplicated.filter(bl => {
+      const hasParent = deduplicated.some(p => p.nextId === bl.id || p.innerId === bl.id || p.thenId === bl.id || p.elseId === bl.id);
       return !hasParent;
     });
 
-    return migrated.map(bl => {
+    return deduplicated.map(bl => {
       if (rootBlocks.includes(bl)) {
         return { ...bl, y: 408 + BH - blockH(bl) };
       }
