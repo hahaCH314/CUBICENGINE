@@ -31,6 +31,12 @@ const VOLS    = ["0.25","0.5","1","1.5","2"];
 const EFFECTS = ["speed","slowness","haste","mining_fatigue","strength","instant_health","instant_damage","jump_boost","nausea","regeneration","resistance","fire_resistance","water_breathing","invisibility","blindness","night_vision","hunger","weakness","poison","wither","health_boost","absorption","saturation","glowing","levitation","slow_falling","conduit_power","dolphins_grace","bad_omen","hero_of_the_village"];
 const ITEMS   = ["minecraft:diamond","minecraft:gold_ingot","minecraft:iron_ingot","minecraft:emerald","minecraft:netherite_ingot","minecraft:coal","minecraft:apple","minecraft:golden_apple","minecraft:enchanted_golden_apple","minecraft:bread","minecraft:cooked_beef","minecraft:cake","minecraft:diamond_sword","minecraft:diamond_pickaxe","minecraft:diamond_axe","minecraft:bow","minecraft:arrow","minecraft:shield","minecraft:torch","minecraft:tnt","minecraft:oak_log","minecraft:stone","minecraft:dirt","minecraft:obsidian","minecraft:ender_pearl","minecraft:elytra","minecraft:totem_of_undying"];
 const SOUNDS  = ["random.orb","random.levelup","random.pop","random.explode","random.anvil_land","random.toast","note.pling","note.harp","mob.villager.yes","mob.villager.no","ui.button.click","random.glass"];
+const CMDS      = ["say こんにちは","time set day","time set night","weather clear","weather thunder","gamemode creative @s","gamemode survival @s","difficulty peaceful","tp @s 0 100 0","effect @s clear"];
+const SCORE_OBJ = ["points","kills","deaths","money","level","coins","wins"];
+const TAGS      = ["vip","admin","team_red","team_blue","cleared","new"];
+const REASONS   = ["ルール違反","不正行為","暴言","スパム","AFK"];
+const MSGS      = ["こんにちは！","ようこそ！","クリア！","がんばれ！","ゲームオーバー","スタート！"];
+const COORDS    = ["0","64","100","128","256","-64"];
 
 const TEMPLATES: Tmpl[] = [
   // ─── イベント ───
@@ -42,16 +48,16 @@ const TEMPLATES: Tmpl[] = [
   {type:"ev_hurt",  emoji:"💥",label:"ダメージ受信",        sublabel:"プレイヤーが被ダメージ",   category:"trigger",fields:[]},
   {type:"ev_place", emoji:"🧱",label:"ブロック設置",        sublabel:"ブロックを置いたとき",     category:"trigger",fields:[]},
   // ─── アクション ───
-  {type:"ac_msg",   emoji:"📢",label:"メッセージ送信",      sublabel:"全員または特定のプレイヤーへ",category:"action",fields:[fv("msg","メッセージ","こんにちは！"),fv("target","対象","@a",TARGETS)]},
+  {type:"ac_msg",   emoji:"📢",label:"メッセージ送信",      sublabel:"全員または特定のプレイヤーへ",category:"action",fields:[fv("msg","メッセージ","こんにちは！",MSGS),fv("target","対象","@a",TARGETS)]},
   {type:"ac_give",  emoji:"🎁",label:"アイテム付与",        sublabel:"プレイヤーにアイテムを渡す",category:"action",fields:[fv("item","アイテム","minecraft:diamond",ITEMS),fv("count","個数","1",COUNTS)]},
-  {type:"ac_tp",    emoji:"✨",label:"テレポート",          sublabel:"指定座標へ瞬間移動",       category:"action",fields:[fv("x","X","0"),fv("y","Y","64"),fv("z","Z","0")]},
-  {type:"ac_cmd",   emoji:"⚡",label:"コマンド実行",        sublabel:"/コマンドを実行",          category:"action",fields:[fv("cmd","コマンド","say こんにちは")]},
+  {type:"ac_tp",    emoji:"✨",label:"テレポート",          sublabel:"指定座標へ瞬間移動",       category:"action",fields:[fv("x","X","0",COORDS),fv("y","Y","64",COORDS),fv("z","Z","0",COORDS)]},
+  {type:"ac_cmd",   emoji:"⚡",label:"コマンド実行",        sublabel:"/コマンドを実行",          category:"action",fields:[fv("cmd","コマンド","say こんにちは",CMDS)]},
   {type:"ac_sound", emoji:"🎵",label:"サウンド再生",        sublabel:"効果音を鳴らす",           category:"action",fields:[fv("snd","サウンド","random.orb",SOUNDS),fv("vol","音量","1",VOLS)]},
-  {type:"ac_title", emoji:"📺",label:"タイトル表示",        sublabel:"画面中央に大きく表示",     category:"action",fields:[fv("title","タイトル","こんにちは"),fv("sub","サブタイトル","")]},
+  {type:"ac_title", emoji:"📺",label:"タイトル表示",        sublabel:"画面中央に大きく表示",     category:"action",fields:[fv("title","タイトル","こんにちは",MSGS),fv("sub","サブタイトル","",MSGS)]},
   {type:"ac_effect",emoji:"🌟",label:"エフェクト付与",      sublabel:"ポーション効果を与える",   category:"action",fields:[fv("eff","エフェクト","speed",EFFECTS),fv("dur","秒数","10",DURS)]},
-  {type:"ac_score", emoji:"🏆",label:"スコア操作",          sublabel:"スコアボードの値を変更",   category:"action",fields:[fv("op","操作","加算",["加算","減算","セット","リセット"]),fv("obj","目標名","points"),fv("val","値","1")]},
-  {type:"ac_tag",   emoji:"🏷️",label:"タグ操作",            sublabel:"プレイヤーにタグを付ける",category:"action",fields:[fv("op","操作","追加",["追加","削除"]),fv("tag","タグ名","vip")]},
-  {type:"ac_kick",  emoji:"🚫",label:"キック",              sublabel:"プレイヤーをサーバーから追い出す",category:"action",fields:[fv("msg","理由","ルール違反")]},
+  {type:"ac_score", emoji:"🏆",label:"スコア操作",          sublabel:"スコアボードの値を変更",   category:"action",fields:[fv("op","操作","加算",["加算","減算","セット","リセット"]),fv("obj","目標名","points",SCORE_OBJ),fv("val","値","1",COUNTS)]},
+  {type:"ac_tag",   emoji:"🏷️",label:"タグ操作",            sublabel:"プレイヤーにタグを付ける",category:"action",fields:[fv("op","操作","追加",["追加","削除"]),fv("tag","タグ名","vip",TAGS)]},
+  {type:"ac_kick",  emoji:"🚫",label:"キック",              sublabel:"プレイヤーをサーバーから追い出す",category:"action",fields:[fv("msg","理由","ルール違反",REASONS)]},
   // ─── 条件 ───
   {type:"co_if",    emoji:"🔀",label:"条件分岐",            sublabel:"条件によって処理を分ける（ドーナツ）",category:"ifelse",fields:[]},
   {type:"co_tag",   emoji:"🏷️",label:"タグを持っているか",  sublabel:"指定タグの確認",           category:"ifelse",fields:[fv("tag","タグ名","vip")]},

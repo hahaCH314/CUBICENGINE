@@ -515,54 +515,41 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
                       ? "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000"
                       : "none"
                   }}>{f.label}</span>
-                  {f.options ? (
-                    <select value={f.value} onChange={e => onFieldChange(b.id, f.id, e.target.value)}
-                      onMouseDown={e => e.stopPropagation()}
-                      onFocus={() => setFocusedField?.({ blockId: b.id, fieldId: f.id })}
-                      onBlur={() => setFocusedField?.(null)}
-                      style={{
-                        flex: isFocused ? "none" : 1,
-                        position: isFocused ? "absolute" : "relative",
-                        left: isFocused ? 26 : "auto",
-                        width: isFocused ? 150 : "100%",
-                        zIndex: isFocused ? 999 : 1,
-                        transition: "width 0.25s ease, z-index 0.25s",
-                        fontSize: 11, background: "#2c2c2c", border: `1.5px solid #57606f`, borderRadius: 4, color: "#fff", padding: "3px 4px", outline: "none", fontWeight: 800,
-                        boxShadow: "inset 1px 1px 0 rgba(0,0,0,0.5)", fontFamily: "inherit"
-                      }}>
-                      {f.options.map(o => {
-                        let disp = o;
-                        if (disp.startsWith("minecraft:")) {
-                          const n = disp.replace("minecraft:", "").replace(/_/g, " ");
-                          disp = (n.includes("sword") || n.includes("pickaxe") || n.includes("axe") || n.includes("shovel") || n.includes("hoe")) ? `⚔️ ${n}`
-                            : (n.includes("helmet") || n.includes("chestplate") || n.includes("leggings") || n.includes("boots")) ? `🛡️ ${n}`
-                              : (n.includes("stone") || n.includes("block") || n.includes("planks") || n.includes("log") || n.includes("dirt")) ? `🧱 ${n}`
-                                : `💎 ${n}`;
-                        }
-                        return <option key={o} value={o}>{disp}</option>;
-                      })}
-                    </select>
-                  ) : (() => {
+                  {(() => {
+                    // コンボボックス: 候補(datalist)から「選べる」＋「自由入力もできる」両対応
                     let disp = f.value || "";
                     if (!isFocused && disp.startsWith("minecraft:")) {
                       const item = ITEM_NAMES[disp];
                       if (item) disp = `${item.icon} ${item.jp}`;
                     }
+                    const dlId = f.options ? `dl-${b.id}-${f.id}` : undefined;
                     return (
-                      <input value={isFocused ? (f.value || "") : disp} onChange={e => onFieldChange(b.id, f.id, e.target.value)}
-                        onMouseDown={e => e.stopPropagation()}
-                        onFocus={() => setFocusedField?.({ blockId: b.id, fieldId: f.id })}
-                        onBlur={() => setFocusedField?.(null)}
-                        style={{
-                          flex: isFocused ? "none" : 1,
-                          position: isFocused ? "absolute" : "relative",
-                          left: isFocused ? 26 : "auto",
-                          width: isFocused ? 150 : "100%",
-                          zIndex: isFocused ? 999 : 1,
-                          transition: "width 0.25s ease, z-index 0.25s",
-                          fontSize: 11, background: "#2c2c2c", border: `1.5px solid #57606f`, borderRadius: 4, color: "#fff", padding: "3px 4px", outline: "none", fontWeight: 800,
-                          boxShadow: "inset 1px 1px 0 rgba(0,0,0,0.5)", fontFamily: "inherit"
-                        }} />
+                      <>
+                        <input value={isFocused ? (f.value || "") : disp} onChange={e => onFieldChange(b.id, f.id, e.target.value)}
+                          list={dlId}
+                          onMouseDown={e => e.stopPropagation()}
+                          onFocus={() => setFocusedField?.({ blockId: b.id, fieldId: f.id })}
+                          onBlur={() => setFocusedField?.(null)}
+                          style={{
+                            flex: isFocused ? "none" : 1,
+                            position: isFocused ? "absolute" : "relative",
+                            left: isFocused ? 26 : "auto",
+                            width: isFocused ? 150 : "100%",
+                            zIndex: isFocused ? 999 : 1,
+                            transition: "width 0.25s ease, z-index 0.25s",
+                            fontSize: 11, background: "#2c2c2c", border: `1.5px solid #57606f`, borderRadius: 4, color: "#fff", padding: "3px 4px", outline: "none", fontWeight: 800,
+                            boxShadow: "inset 1px 1px 0 rgba(0,0,0,0.5)", fontFamily: "inherit"
+                          }} />
+                        {f.options && (
+                          <datalist id={dlId}>
+                            {f.options.map(o => {
+                              let od = o;
+                              if (od.startsWith("minecraft:")) { const item = ITEM_NAMES[od]; if (item) od = `${item.icon} ${item.jp}`; }
+                              return <option key={o} value={o} label={od !== o ? od : undefined} />;
+                            })}
+                          </datalist>
+                        )}
+                      </>
                     );
                   })()}
                 </div>
