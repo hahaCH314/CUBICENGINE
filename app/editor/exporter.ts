@@ -221,6 +221,22 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
     bp.file("pack_icon.png", iconBytes);
 
     for (const block of state.blocks) {
+      const components: Record<string, unknown> = {
+        // unit_cube = 標準の1×1×1キューブ（カスタムジオメトリ不要）
+        "minecraft:unit_cube": {},
+        "minecraft:material_instances": {
+          "*": { texture: `mmc_${block.name}`, render_method: "opaque" },
+        },
+      };
+      // 本格モード(registered)のブロックは設定を反映
+      if (block.registered) {
+        if (typeof block.hardness === "number") {
+          components["minecraft:destructible_by_mining"] = { seconds_to_destroy: Math.max(0, block.hardness) };
+        }
+        if (block.lightLevel && block.lightLevel > 0) {
+          components["minecraft:light_emission"] = Math.min(15, Math.max(0, Math.round(block.lightLevel)));
+        }
+      }
       bp.file(
         `blocks/${block.name}.json`,
         JSON.stringify(
@@ -231,13 +247,7 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
                 identifier: `mmc:${block.name}`,
                 menu_category: { category: "construction" },
               },
-              components: {
-                // unit_cube = 標準の1×1×1キューブ（カスタムジオメトリ不要）
-                "minecraft:unit_cube": {},
-                "minecraft:material_instances": {
-                  "*": { texture: `mmc_${block.name}`, render_method: "opaque" },
-                },
-              },
+              components,
             },
           },
           null,
@@ -292,6 +302,13 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
       ),
     );
     rp.file("blocks.json", JSON.stringify(blocksJson, null, 2));
+
+    // 表示名(lang): 本格ブロックは displayName を、それ以外はブロック名をゲーム内名に
+    const langLines = state.blocks
+      .map((b) => `tile.mmc:${b.name}.name=${(b.registered && b.displayName) ? b.displayName : b.name}`)
+      .join("\n");
+    rp.file("texts/en_US.lang", langLines + "\n");
+    rp.file("texts/languages.json", JSON.stringify(["en_US"], null, 2));
 
     for (const block of state.blocks) {
       const tex = await createColoredTexture(block.faces.top.color);
