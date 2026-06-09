@@ -23,6 +23,15 @@ const CALC_SUBTABS: { key: CalcSubCat; icon: string; label: string }[] = [
 ];
 const fv=(id:string,label:string,value:string,opts?:string[]):FieldDef=>({id,label,value,options:opts});
 
+// ドロップダウン共通リスト（アクション等で「選べる」フィールドに使う）
+const TARGETS = ["@a","@p","@r","@s","@e"];
+const DURS    = ["1","3","5","10","20","30","60","120","300"];
+const COUNTS  = ["1","2","4","8","16","32","64"];
+const VOLS    = ["0.25","0.5","1","1.5","2"];
+const EFFECTS = ["speed","slowness","haste","mining_fatigue","strength","instant_health","instant_damage","jump_boost","nausea","regeneration","resistance","fire_resistance","water_breathing","invisibility","blindness","night_vision","hunger","weakness","poison","wither","health_boost","absorption","saturation","glowing","levitation","slow_falling","conduit_power","dolphins_grace","bad_omen","hero_of_the_village"];
+const ITEMS   = ["minecraft:diamond","minecraft:gold_ingot","minecraft:iron_ingot","minecraft:emerald","minecraft:netherite_ingot","minecraft:coal","minecraft:apple","minecraft:golden_apple","minecraft:enchanted_golden_apple","minecraft:bread","minecraft:cooked_beef","minecraft:cake","minecraft:diamond_sword","minecraft:diamond_pickaxe","minecraft:diamond_axe","minecraft:bow","minecraft:arrow","minecraft:shield","minecraft:torch","minecraft:tnt","minecraft:oak_log","minecraft:stone","minecraft:dirt","minecraft:obsidian","minecraft:ender_pearl","minecraft:elytra","minecraft:totem_of_undying"];
+const SOUNDS  = ["random.orb","random.levelup","random.pop","random.explode","random.anvil_land","random.toast","note.pling","note.harp","mob.villager.yes","mob.villager.no","ui.button.click","random.glass"];
+
 const TEMPLATES: Tmpl[] = [
   // ─── イベント ───
   {type:"ev_join",  emoji:"👋",label:"参加したとき",        sublabel:"プレイヤーがワールドに参加",category:"trigger",fields:[]},
@@ -33,13 +42,13 @@ const TEMPLATES: Tmpl[] = [
   {type:"ev_hurt",  emoji:"💥",label:"ダメージ受信",        sublabel:"プレイヤーが被ダメージ",   category:"trigger",fields:[]},
   {type:"ev_place", emoji:"🧱",label:"ブロック設置",        sublabel:"ブロックを置いたとき",     category:"trigger",fields:[]},
   // ─── アクション ───
-  {type:"ac_msg",   emoji:"📢",label:"メッセージ送信",      sublabel:"全員または特定のプレイヤーへ",category:"action",fields:[fv("msg","メッセージ","こんにちは！"),fv("target","対象","@a")]},
-  {type:"ac_give",  emoji:"🎁",label:"アイテム付与",        sublabel:"プレイヤーにアイテムを渡す",category:"action",fields:[fv("item","アイテム","minecraft:diamond"),fv("count","個数","1")]},
+  {type:"ac_msg",   emoji:"📢",label:"メッセージ送信",      sublabel:"全員または特定のプレイヤーへ",category:"action",fields:[fv("msg","メッセージ","こんにちは！"),fv("target","対象","@a",TARGETS)]},
+  {type:"ac_give",  emoji:"🎁",label:"アイテム付与",        sublabel:"プレイヤーにアイテムを渡す",category:"action",fields:[fv("item","アイテム","minecraft:diamond",ITEMS),fv("count","個数","1",COUNTS)]},
   {type:"ac_tp",    emoji:"✨",label:"テレポート",          sublabel:"指定座標へ瞬間移動",       category:"action",fields:[fv("x","X","0"),fv("y","Y","64"),fv("z","Z","0")]},
   {type:"ac_cmd",   emoji:"⚡",label:"コマンド実行",        sublabel:"/コマンドを実行",          category:"action",fields:[fv("cmd","コマンド","say こんにちは")]},
-  {type:"ac_sound", emoji:"🎵",label:"サウンド再生",        sublabel:"効果音を鳴らす",           category:"action",fields:[fv("snd","サウンド","random.orb"),fv("vol","音量","1")]},
+  {type:"ac_sound", emoji:"🎵",label:"サウンド再生",        sublabel:"効果音を鳴らす",           category:"action",fields:[fv("snd","サウンド","random.orb",SOUNDS),fv("vol","音量","1",VOLS)]},
   {type:"ac_title", emoji:"📺",label:"タイトル表示",        sublabel:"画面中央に大きく表示",     category:"action",fields:[fv("title","タイトル","こんにちは"),fv("sub","サブタイトル","")]},
-  {type:"ac_effect",emoji:"🌟",label:"エフェクト付与",      sublabel:"ポーション効果を与える",   category:"action",fields:[fv("eff","エフェクト","speed"),fv("dur","秒数","10")]},
+  {type:"ac_effect",emoji:"🌟",label:"エフェクト付与",      sublabel:"ポーション効果を与える",   category:"action",fields:[fv("eff","エフェクト","speed",EFFECTS),fv("dur","秒数","10",DURS)]},
   {type:"ac_score", emoji:"🏆",label:"スコア操作",          sublabel:"スコアボードの値を変更",   category:"action",fields:[fv("op","操作","加算",["加算","減算","セット","リセット"]),fv("obj","目標名","points"),fv("val","値","1")]},
   {type:"ac_tag",   emoji:"🏷️",label:"タグ操作",            sublabel:"プレイヤーにタグを付ける",category:"action",fields:[fv("op","操作","追加",["追加","削除"]),fv("tag","タグ名","vip")]},
   {type:"ac_kick",  emoji:"🚫",label:"キック",              sublabel:"プレイヤーをサーバーから追い出す",category:"action",fields:[fv("msg","理由","ルール違反")]},
