@@ -439,6 +439,8 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
   const createGroup = useEditorStore((s) => s.createGroup);
   const assignToGroup = useEditorStore((s) => s.assignToGroup);
   const groups = useEditorStore((s) => s.groups);
+  const projectName = useEditorStore((s) => s.projectName);
+  const nsSlug = (projectName || "my_addon").replace(/\s+/g, "_").toLowerCase().replace(/[^a-z0-9_]/g, "") || "my_addon";
 
   const sel = workingBlocks.find((b) => b.id === selectedIds[0]);
 
@@ -529,6 +531,51 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
           ＋ 新しい{mode === "items" ? "アイテム" : "ブロック"}
         </button>
       </div>
+
+      {/* ── 本物のマイクラブロックにする ── */}
+      {sel && mode !== "items" && (
+        <div>
+          <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2 flex items-center justify-between">
+            <span>🧱 本物のブロックにする</span>
+            <Toggle value={!!sel.registered} onChange={(v) => updateFn(sel.id, { registered: v })} />
+          </div>
+          {sel.registered ? (
+            <div className="space-y-2 bg-surface-active/30 rounded-lg p-2 border border-border">
+              <div>
+                <label className="text-[10px] text-muted block mb-0.5">識別子 (ID)</label>
+                <div className="text-[11px] font-mono text-cyan-300/90 px-2 py-1 bg-[#1e1d1a] rounded truncate">{nsSlug}:{sel.name}</div>
+              </div>
+              <div>
+                <label className="text-[10px] text-foreground/80 block mb-0.5">表示名（ゲーム内・日本語OK）</label>
+                <input value={sel.displayName ?? ""} placeholder={sel.name}
+                  onChange={(e) => updateFn(sel.id, { displayName: e.target.value })}
+                  className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-foreground/85 focus:outline-none focus:border-accent/50" />
+              </div>
+              <div>
+                <label className="text-[10px] text-foreground/80 block mb-0.5">かたさ（壊れにくさ）</label>
+                <select value={sel.hardness ?? 1.5} title="かたさ" onChange={(e) => updateFn(sel.id, { hardness: parseFloat(e.target.value) })}
+                  className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-foreground/85 focus:outline-none focus:border-accent/50">
+                  <option value={0}>やわらかい（0・葉っぱ）</option>
+                  <option value={0.5}>土レベル（0.5）</option>
+                  <option value={1.5}>石レベル（1.5）</option>
+                  <option value={3}>鉄レベル（3）</option>
+                  <option value={5}>ダイヤレベル（5）</option>
+                  <option value={50}>オブシディアン級（50）</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[10px] text-foreground/80 block mb-0.5">光レベル（0〜15）</label>
+                <select value={sel.lightLevel ?? 0} title="光レベル" onChange={(e) => updateFn(sel.id, { lightLevel: parseInt(e.target.value) })}
+                  className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-foreground/85 focus:outline-none focus:border-accent/50">
+                  {Array.from({ length: 16 }, (_, i) => i).map(n => <option key={n} value={n}>{n}{n === 0 ? "（光らない）" : n === 15 ? "（最大）" : ""}</option>)}
+                </select>
+              </div>
+            </div>
+          ) : (
+            <p className="text-[10px] text-muted/60 italic">ONにすると、ID・表示名・かたさ・光を設定して「本物のブロック」として書き出せます</p>
+          )}
+        </div>
+      )}
 
       {/* ── グループ管理 ── */}
       {selectedIds.length > 0 && (

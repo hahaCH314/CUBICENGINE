@@ -35,6 +35,11 @@ export interface VoxelBlock {
   groupId?: string;
   animations?: Animation[];
   playingAnimation?: string;
+  // ── 本物のマイクラブロック設定（registered=ONで出力に反映） ──
+  registered?: boolean;
+  displayName?: string;   // ゲーム内表示名（日本語OK）
+  hardness?: number;      // かたさ（壊れにくさ）
+  lightLevel?: number;    // 発光レベル 0〜15
 }
 
 export interface VoxelItem {
