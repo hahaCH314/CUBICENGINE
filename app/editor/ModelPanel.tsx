@@ -392,12 +392,43 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
   const updateItem   = useEditorStore((s) => s.updateItem);
   const removeBlock   = useEditorStore((s) => s.removeBlock);
   const removeItem   = useEditorStore((s) => s.removeItem);
+  const addBlock      = useEditorStore((s) => s.addBlock);
+  const addItem       = useEditorStore((s) => s.addItem);
+  const selectBlock   = useEditorStore((s) => s.selectBlock);
+  const selectItem    = useEditorStore((s) => s.selectItem);
+  const duplicateBlock = useEditorStore((s) => s.duplicateBlock);
+  const duplicateItem  = useEditorStore((s) => s.duplicateItem);
 
   // Mode-based data
   const workingBlocks = mode === "items" ? items : blocks;
   const selectedIds = mode === "items" ? selectedItemIds : selectedBlockIds;
   const updateFn = mode === "items" ? updateItem : updateBlock;
   const removeFn = mode === "items" ? removeItem : removeBlock;
+  const addFn = mode === "items" ? addItem : addBlock;
+  const selectFn = mode === "items" ? selectItem : selectBlock;
+  const duplicateFn = mode === "items" ? duplicateItem : duplicateBlock;
+
+  // 新しいブロック/アイテムを作る（一覧の「＋」用）
+  const handleAddNew = useCallback(() => {
+    const id = mode === "items" ? `item-${Date.now()}` : `block-${Date.now()}`;
+    const idx = workingBlocks.length;
+    const x = (idx % 5) - 2;
+    const z = Math.floor(idx / 5) - 2;
+    const sc: [number, number, number] = mode === "items" ? [0.5, 0.5, 0.5] : [1, 1, 1];
+    const col = mode === "items"
+      ? { top: "#fbbf24", bottom: "#f59e0b", side: "#fcd34d" }
+      : { top: "#7dd3fc", bottom: "#0284c7", side: "#38bdf8" };
+    addFn({
+      id, name: mode === "items" ? `item_${idx + 1}` : `block_${idx + 1}`,
+      position: [x, sc[1] / 2, z], scale: sc, rotation: [0, 0, 0],
+      faces: {
+        top: { color: col.top }, bottom: { color: col.bottom },
+        front: { color: col.side }, back: { color: col.side },
+        left: { color: col.bottom }, right: { color: col.bottom },
+      },
+    });
+    selectFn(id);
+  }, [mode, workingBlocks.length, addFn, selectFn]);
   const showGrid      = useEditorStore((s) => s.showGrid);
   const setShowGrid   = useEditorStore((s) => s.setShowGrid);
   const showWireframe = useEditorStore((s) => s.showWireframe);
@@ -468,6 +499,36 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
         transition: bounceY === 0 ? "transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)" : "none"
       }}
     >
+
+      {/* ── ブロック一覧（何個でも作れる） ── */}
+      <div>
+        <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2">
+          🧱 {mode === "items" ? "アイテム" : "ブロック"}一覧（{workingBlocks.length}）
+        </div>
+        <div className="flex flex-col gap-1 max-h-48 overflow-y-auto pr-0.5">
+          {workingBlocks.map((b) => {
+            const isSel = selectedIds.includes(b.id);
+            const sw = b.faces.front?.color || b.faces.top?.color || "#888";
+            return (
+              <div key={b.id} onClick={() => selectFn(b.id)}
+                className={`flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer border transition-colors ${isSel ? "bg-accent/20 border-accent/50" : "bg-surface-active/40 border-border hover:bg-surface-active"}`}>
+                <span className="w-4 h-4 rounded-sm border border-black/30 shrink-0" style={{ background: sw }} />
+                <input value={b.name} onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => updateFn(b.id, { name: e.target.value })}
+                  className="flex-1 min-w-0 bg-transparent text-xs text-foreground/85 font-mono focus:outline-none" />
+                <button onClick={(e) => { e.stopPropagation(); duplicateFn(b.id); }} title="複製"
+                  className="text-[11px] text-muted hover:text-accent shrink-0">⧉</button>
+                <button onClick={(e) => { e.stopPropagation(); removeFn(b.id); }} title="削除"
+                  className="text-[11px] text-muted hover:text-rose-400 shrink-0">🗑️</button>
+              </div>
+            );
+          })}
+        </div>
+        <button onClick={handleAddNew}
+          className="mt-1.5 w-full py-2 rounded-md bg-accent/15 border border-accent/40 text-accent text-xs font-bold hover:bg-accent/25 transition-colors">
+          ＋ 新しい{mode === "items" ? "アイテム" : "ブロック"}
+        </button>
+      </div>
 
       {/* ── グループ管理 ── */}
       {selectedIds.length > 0 && (
