@@ -251,8 +251,8 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
   return Math.max(BW, Math.max(titleW + 48, contentW + 28));
 }
 
- function ToyCubeBlock({ b, pos, pal, selected, snapSlot, isEating, isSnapping, isAdding, isDeleting, innerBlock, blocks, onDown, onDelete, onFieldChange, onEjectInner, focusedField, setFocusedField, wireDrag, onSlotClick, isShaking, isDragging, isPopping, isRolling, rollFrom, rollRot, rollDur }: {
-  b: CBlock; pos: { x: number; y: number }; pal: Record<Category, CatDef>; selected: boolean; snapSlot: string | null;
+ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnapping, isAdding, isDeleting, innerBlock, blocks, onDown, onDelete, onFieldChange, onEjectInner, focusedField, setFocusedField, wireDrag, onSlotClick, isShaking, isDragging, isPopping, isRolling, rollFrom, rollRot, rollDur }: {
+  b: CBlock; pos: { x: number; y: number }; pal: Record<Category, CatDef>; cyber: boolean; selected: boolean; snapSlot: string | null;
   isEating?: boolean; isSnapping?: boolean; isAdding?: boolean; isDeleting?: boolean;
   innerBlock?: CBlock | null; blocks: CBlock[];
   onDown: (e: React.MouseEvent, id: string) => void;
@@ -389,8 +389,12 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
         : isDragging 
           ? "brightness(1.08) drop-shadow(0 8px 16px rgba(0,0,0,0.45)) drop-shadow(0 3px 6px rgba(0,0,0,0.3))" 
           : selected
-            ? `brightness(1.06) drop-shadow(0 0 10px ${cat.bg}88) drop-shadow(0 6px 12px rgba(0,0,0,0.4))` // 選択中：発光強め＋影
-            : `drop-shadow(0 0 6px ${cat.bg}66) drop-shadow(0 2px 4px rgba(0,0,0,0.3))`, // 通常：カテゴリ色でほんのり発光
+            ? (cyber
+                ? `brightness(1.1) drop-shadow(0 0 18px ${cat.bg}) drop-shadow(0 0 7px ${cat.bg}) drop-shadow(0 6px 12px rgba(0,0,0,0.4))` // デジタル選択：強ネオン
+                : `brightness(1.06) drop-shadow(0 0 10px ${cat.bg}88) drop-shadow(0 6px 12px rgba(0,0,0,0.4))`) // アナログ選択
+            : (cyber
+                ? `drop-shadow(0 0 14px ${cat.bg}dd) drop-shadow(0 0 5px ${cat.bg}) drop-shadow(0 2px 4px rgba(0,0,0,0.35))` // デジタル通常：強めネオン発光
+                : `drop-shadow(0 0 6px ${cat.bg}66) drop-shadow(0 2px 4px rgba(0,0,0,0.3))`), // アナログ通常：控えめ発光
       transition: "opacity 0.25s ease, filter 0.15s, transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1)",
     }}>
       {/* 3D上面 - 0.68倍スケール */}
@@ -3031,7 +3035,7 @@ export default function LogicPanel() {
                   const isCond = b.type === "co_if";
                   const inner = isCond && b.innerId ? blocks.find(x => x.id === b.innerId) ?? null : null;
 
-                  return <ToyCubeBlock key={b.id} b={b} pos={pos} pal={CAT} selected={selected === b.id}
+                  return <ToyCubeBlock key={b.id} b={b} pos={pos} pal={CAT} cyber={interiorTheme === "cyber"} selected={selected === b.id}
                     snapSlot={snapHint?.targetId === b.id ? snapHint.slot : null}
                     innerBlock={inner} blocks={blocks}
                     isEating={isCond && chomping === b.id}
@@ -3060,7 +3064,7 @@ export default function LogicPanel() {
                   const condBlock = eb ? blocks.find(d => d.innerId === eating) : null;
                   if (!eb || !condBlock) return null;
                   const dp = getPos(condBlock.id, blocks);
-                  return <ToyCubeBlock key={`eat-${eating}`} b={eb} pal={CAT}
+                  return <ToyCubeBlock key={`eat-${eating}`} b={eb} pal={CAT} cyber={interiorTheme === "cyber"}
                     pos={{ x: dp.x + BW + GAP, y: dp.y }}
                     selected={false} snapSlot={null} isEating={true}
                     blocks={blocks}
