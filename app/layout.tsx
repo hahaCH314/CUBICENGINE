@@ -82,7 +82,7 @@ export default function RootLayout({
             textShadow: "0 1px 2px rgba(0,0,0,0.65), 0 0 8px rgba(251,146,60,0.45)",
           }}
         >
-          © 2026 伊波さん ・ 開発マネージャー：なつとうさいだー
+          © 2026 伊波さん ・ 開発マネージャー：なっとうサイダー
         </div>
       </body>
     </html>
