@@ -68,20 +68,21 @@ export default function RootLayout({
           style={{
             position: "fixed",
             left: "50%",
-            bottom: 1,
+            bottom: 3,
             transform: "translateX(-50%)",
             zIndex: 99999,
-            fontSize: 9,
+            fontSize: 12,
+            fontWeight: 800,
             lineHeight: 1,
-            color: "rgba(245,240,225,0.32)",
+            color: "#fb923c",
             pointerEvents: "none",
             whiteSpace: "nowrap",
-            letterSpacing: "0.03em",
+            letterSpacing: "0.04em",
             fontFamily: "var(--font-sans), system-ui, sans-serif",
-            textShadow: "0 1px 1px rgba(0,0,0,0.5)",
+            textShadow: "0 1px 2px rgba(0,0,0,0.65), 0 0 8px rgba(251,146,60,0.45)",
           }}
         >
-          © 伊波さん ・ 開発マネージャー：なっとうサイダー
+          © 2026 伊波さん ・ 開発マネージャー：なつとうさいだー
         </div>
       </body>
     </html>
