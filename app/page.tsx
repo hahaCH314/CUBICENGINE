@@ -67,9 +67,33 @@ export default function HomePage() {
           アドオン・MODを設計・構築・エクスポート。
         </p>
 
-        <Link href="/editor" id="cta-create-now" className="mc-btn mc-btn--lg mc-btn--coral px-10 py-5 text-xl">
-          開発する ➔
-        </Link>
+        <div className="flex flex-wrap gap-5 justify-center">
+          {/* 統合版＝積み木＝アドオン */}
+          <Link href="/editor?mode=tsumiki" id="cta-create-now"
+            className="group"
+            style={{
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
+              minWidth: 210, padding: "18px 26px", borderRadius: 16, textDecoration: "none",
+              background: "linear-gradient(135deg, #fb7185, #b54a3a)", color: "#fff",
+              boxShadow: "0 6px 18px rgba(181,74,58,0.45), inset 0 1px 0 rgba(255,255,255,0.35)",
+            }}>
+            <span style={{ fontSize: 30 }}>🧱</span>
+            <span style={{ fontSize: 18, fontWeight: 900 }}>積み木で作る</span>
+            <span style={{ fontSize: 11, fontWeight: 800, opacity: 0.9 }}>統合版・アドオン</span>
+          </Link>
+          {/* JAVA＝ぶどう＝MOD（新） */}
+          <Link href="/editor?mode=grape"
+            style={{
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
+              minWidth: 210, padding: "18px 26px", borderRadius: 16, textDecoration: "none",
+              background: "linear-gradient(135deg, #5fe0b8, #2f8f73)", color: "#08322a",
+              boxShadow: "0 6px 18px rgba(47,143,115,0.45), inset 0 1px 0 rgba(255,255,255,0.45)",
+            }}>
+            <span style={{ fontSize: 30 }}>🍇</span>
+            <span style={{ fontSize: 18, fontWeight: 900 }}>ぶどうで作る</span>
+            <span style={{ fontSize: 11, fontWeight: 800, opacity: 0.85 }}>JAVA・MOD（新）</span>
+          </Link>
+        </div>
 
         <p className="mt-6 text-[11px] text-muted/50 font-sans">
           ローカル/オフラインで動く・アカウント不要

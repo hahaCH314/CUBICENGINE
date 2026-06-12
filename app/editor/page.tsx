@@ -199,6 +199,15 @@ function StatusBar() {
 export default function EditorPage() {
   const [activeTab, setActiveTab] = useState<Tab>("logic");
   const [logicView, setLogicView] = useState<"tsumiki" | "grape">("tsumiki");
+
+  // スタート画面の選択（?mode=tsumiki|grape）で初期モードを決める（Next固有APIを避け window から取得）
+  useEffect(() => {
+    const mode = new URLSearchParams(window.location.search).get("mode");
+    if (mode === "grape" || mode === "tsumiki") {
+      setLogicView(mode);
+      setActiveTab("logic");
+    }
+  }, []);
   const [openMenu, setOpenMenu] = useState<MenuKey | null>(null);
   const menuItems = useMenuItems();
 
