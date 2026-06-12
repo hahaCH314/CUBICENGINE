@@ -113,7 +113,7 @@ export default function GrapePanel() {
           fontWeight: 900, fontSize: 13, color: "#d3f0e2", letterSpacing: "0.08em",
           display: "flex", alignItems: "center", gap: 8, textShadow: "0 1px 3px rgba(0,0,0,0.4)",
         }}>
-          <span style={{ fontSize: 18 }}>🍇</span> モッド製造機
+          <span style={{ fontSize: 18 }}>🍇</span> MOD製造機 <span style={{ fontSize: 10, opacity: 0.8 }}>JAVA</span>
           <span style={{ fontSize: 11, fontWeight: 700, color: "#93c4b1" }}>（選ぶと実がなる）</span>
         </div>
 
