@@ -71,15 +71,15 @@ export default function RootLayout({
             bottom: 3,
             transform: "translateX(-50%)",
             zIndex: 99999,
-            fontSize: 12,
-            fontWeight: 800,
+            fontSize: 13,
+            fontWeight: 700,
             lineHeight: 1,
             color: "#fb923c",
             pointerEvents: "none",
             whiteSpace: "nowrap",
-            letterSpacing: "0.04em",
-            fontFamily: "var(--font-sans), system-ui, sans-serif",
-            textShadow: "0 1px 2px rgba(0,0,0,0.65), 0 0 8px rgba(251,146,60,0.45)",
+            letterSpacing: "0.02em",
+            fontFamily: "'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', 'Noto Sans JP', system-ui, sans-serif",
+            textShadow: "0 1px 2px rgba(0,0,0,0.9)",
           }}
         >
           © 2026 伊波さん ・ 開発マネージャー：なっとうサイダー
