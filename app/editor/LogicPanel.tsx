@@ -593,34 +593,6 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
   );
 }
 
-/* ══════════════════════════════════════════════════════════
-   3Dトイスペース背景（床と壁の奥行き空間）
-   ══════════════════════════════════════════════════════════ */
-
-function ToyWall(_props: { pan: { x: number; y: number }; zoom: number }) {
-  // シンプルな縦方向の "奥行き" 表現のみ。
-  // - 上端：奥から差し込む光（やや明るい）
-  // - 下端：床に向かって暗くなる
-  // 四隅は内側シャドウで軽くビネット。
-  return (
-    <div style={{
-      position: "absolute",
-      inset: 0,
-      overflow: "hidden",
-      zIndex: 0,
-      pointerEvents: "none",
-      background: "linear-gradient(to bottom, #2a262d 0%, #1d1c20 50%, #14131a 100%)",
-      boxShadow: "inset 0 0 180px rgba(0,0,0,0.55)",
-    }} />
-  );
-}
-
-/**
- * "床" のミニマル版 — screen 座標で画面最下端に固定された薄いネオンライン1本だけ。
- * 旧版（24000×4000 の content 座標巨大ブロック + ドット3層 + 深い影）は撤去し、
- * 縦方向のスペース消費を 100px → 3px に圧縮（ノートPC/タブレット対応）。
- * "床" の演出は最小限、ブロックがここに着地することだけを示す。
- */
 function ToyFloor() {
   return (
     <div
@@ -637,74 +609,217 @@ function ToyFloor() {
   );
 }
 
-/* ══════════════════════════════════════════════════════════
-   インテリアテーマ — Phase 1: 背景レイヤーのみ
-   ──────────────────────────────────────────────────────────
-   E. WorkshopBackdrop : レトロ電器店（屋内・夜・真鍮＋暖色）
-   S. SatoyamaBackdrop : 里山（屋外・昼・遠山＋田んぼ＋雑木林）
-   ══════════════════════════════════════════════════════════ */
-
-function WorkshopBackdrop() {
+function WorkshopBackdrop({ zoom }: { zoom: number }) {
   return (
     <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
-      {/* 地下っぽい暗い暖色グラデーション */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes workshop-sway {
+          0% { transform: rotate(-3deg); }
+          100% { transform: rotate(3deg); }
+        }
+        @keyframes bulb-glow {
+          0% { box-shadow: 0 0 20px #ff9f43, 0 0 40px rgba(255,159,67,0.5), inset 0 2px 4px rgba(255,255,255,0.6); }
+          100% { box-shadow: 0 0 35px #ffb84d, 0 0 70px rgba(255,184,77,0.7), inset 0 2px 4px rgba(255,255,255,0.8); }
+        }
+      `}} />
+      
+      {/* 暖かい地下室的グラデーション */}
       <div style={{
         position: "absolute", inset: 0,
-        background: "radial-gradient(circle at center 30%, #2a2015 0%, #0d0a08 100%)",
+        background: "radial-gradient(circle at center 40%, #291c13 0%, #0d0805 100%)",
       }} />
-      {/* 吊りランプの暖かいグロー */}
+
+      {/* ズームに合わせてスケールする親コンテナ（天井中央起点） */}
       <div style={{
-        position: "absolute", top: -50, left: "50%", transform: "translateX(-50%)", width: 400, height: 300,
-        background: "radial-gradient(ellipse at center top, rgba(255,180,100,0.12) 0%, transparent 70%)",
-        filter: "blur(15px)",
-      }} />
-      {/* 極薄の木目テクスチャ */}
+        position: "absolute",
+        top: 0,
+        left: "50%",
+        transformOrigin: "top center",
+        transform: `translateX(-50%) scale(${zoom})`,
+        width: 1,
+        height: 1,
+        zIndex: 2,
+      }}>
+        {/* 揺れるランプ ＆ ついてくる光のグループ（内側で揺らす） */}
+        <div style={{
+          transformOrigin: "top center",
+          animation: "workshop-sway 6.5s ease-in-out infinite alternate",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          width: 1,
+          height: 1,
+        }}>
+          {/* 天井固定カバー */}
+          <div style={{
+            width: 24,
+            height: 8,
+            background: "#3e3227",
+            border: "1px solid #291f16",
+            borderRadius: "0 0 12px 12px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.5)",
+            flexShrink: 0,
+          }} />
+
+          {/* プレーンな細めの吊りコード */}
+          <div style={{
+            width: 3,
+            height: 170,
+            background: "#1e1712",
+            boxShadow: "0 0 2px rgba(0,0,0,0.6)",
+            flexShrink: 0,
+          }} />
+          
+          {/* レトロな真鍮製ソケット */}
+          <div style={{
+            width: 16,
+            height: 22,
+            background: "linear-gradient(to right, #8a6f4a, #b0976d, #8a6f4a)",
+            border: "1px solid #57462e",
+            borderRadius: "3px 3px 0 0",
+            position: "relative",
+            marginTop: -1,
+            flexShrink: 0,
+            boxShadow: "0 3px 5px rgba(0,0,0,0.4)",
+          }}>
+            {/* ソケットの金属溝 */}
+            <div style={{
+              position: "absolute",
+              bottom: 4,
+              left: 0,
+              right: 0,
+              height: 3,
+              background: "#57462e",
+            }} />
+          </div>
+
+          {/* 大きなまん丸裸電球 */}
+          <div style={{
+            width: 36,
+            height: 36,
+            background: "radial-gradient(circle at 50% 30%, rgba(255,238,190,0.98) 0%, rgba(255,160,30,0.85) 65%)",
+            borderRadius: "50%",
+            marginTop: -2,
+            position: "relative",
+            zIndex: 1,
+            animation: "bulb-glow 3s ease-in-out infinite alternate",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexShrink: 0,
+          }}>
+            {/* フィラメントの光る細い線 */}
+            <div style={{
+              width: 6,
+              height: 12,
+              border: "1.5px solid #ffffff",
+              borderBottom: "none",
+              borderRadius: "3px 3px 0 0",
+              opacity: 0.95,
+              boxShadow: "0 0 6px #fff, 0 0 2px #ffb84d",
+            }} />
+          </div>
+
+          {/* 電球から放たれる、揺れに完全についてくる暖かい光だまり（境界線をぼんやり滑らかにフェード） */}
+          <div style={{
+            position: "absolute",
+            top: 180,
+            left: -450,
+            width: 900,
+            height: 700,
+            background: "radial-gradient(ellipse at center top, rgba(255,155,45,0.12) 0%, rgba(255,135,35,0.05) 25%, rgba(255,115,20,0.01) 55%, transparent 100%)",
+            pointerEvents: "none",
+            zIndex: -1,
+          }} />
+        </div>
+      </div>
+
+      {/* 木目の極薄スリットテクスチャ */}
       <div style={{
         position: "absolute", inset: 0,
-        backgroundImage: "repeating-linear-gradient(90deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 16px)",
+        backgroundImage: "repeating-linear-gradient(90deg, rgba(255,255,255,0.005) 0px, rgba(255,255,255,0.005) 1px, transparent 1px, transparent 28px)",
         opacity: 0.15,
       }} />
-      {/* 中央ビネット */}
+
+      {/* 周辺ビネット */}
       <div style={{
         position: "absolute", inset: 0,
-        boxShadow: "inset 0 0 150px rgba(0,0,0,0.85)",
+        boxShadow: "inset 0 0 220px rgba(0,0,0,0.95)",
       }} />
     </div>
   );
 }
 
-function CyberBackdrop() {
+function CyberBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: number } }) {
   return (
     <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
-      {/* 黒紺ベース */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes cyber-scan {
+          0% { transform: translateY(-10%); }
+          100% { transform: translateY(110%); }
+        }
+        @keyframes cyber-pulse {
+          0% { opacity: 0.04; }
+          100% { opacity: 0.09; }
+        }
+      `}} />
+      
+      {/* 電脳グリーンをベースにした漆黒の闇背景 */}
       <div style={{
         position: "absolute", inset: 0,
-        background: "radial-gradient(circle at center, #0a1120 0%, #03060d 100%)",
+        background: "radial-gradient(circle at center, #020b04 0%, #000301 100%)",
       }} />
-      {/* ホログラム1色の細いグリッド */}
+
+      {/* スキャンライン（走査線）風ストライプ */}
       <div style={{
         position: "absolute", inset: 0,
-        backgroundImage: "linear-gradient(rgba(6,182,212,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(6,182,212,0.08) 1px, transparent 1px)",
-        backgroundSize: "60px 60px",
-        opacity: 0.4,
+        backgroundImage: "linear-gradient(rgba(0,0,0,0.2) 50%, transparent 50%)",
+        backgroundSize: "100% 4px",
+        zIndex: 1,
       }} />
-      {/* シアンの柔らかいグロー */}
-      <div style={{
-        position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 600, height: 600,
-        background: "radial-gradient(circle, rgba(6,182,212,0.04) 0%, transparent 60%)",
-        filter: "blur(40px)",
-      }} />
-      {/* 中央ビネット */}
+
+      {/* ホログラム1色の細いグリッド（ズームとパンに同期！） */}
       <div style={{
         position: "absolute", inset: 0,
-        boxShadow: "inset 0 0 180px rgba(0,0,0,0.9)",
+        backgroundImage: "linear-gradient(rgba(0, 255, 102, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 102, 0.035) 1px, transparent 1px)",
+        backgroundSize: `${50 * zoom}px ${50 * zoom}px`,
+        backgroundPosition: `${pan.x}px ${pan.y}px`,
+        opacity: 0.5,
+        zIndex: 2,
+      }} />
+
+      {/* 柔らかい電脳グロー（中央） */}
+      <div style={{
+        position: "absolute", top: "15%", left: "50%", transform: "translateX(-50%)", width: 700, height: 700,
+        background: "radial-gradient(circle, rgba(0, 255, 102, 0.05) 0%, transparent 70%)",
+        filter: "blur(50px)",
+        animation: "cyber-pulse 6s ease-in-out infinite alternate",
+        zIndex: 3,
+      }} />
+
+      {/* ゆっくり上から下へ流れる水平スキャンスイープ */}
+      <div style={{
+        position: "absolute",
+        left: 0,
+        right: 0,
+        height: 120,
+        background: "linear-gradient(to bottom, transparent, rgba(0, 255, 102, 0.03) 50%, transparent)",
+        animation: "cyber-scan 8s linear infinite",
+        zIndex: 4,
+      }} />
+
+      {/* 周辺ビネット */}
+      <div style={{
+        position: "absolute", inset: 0,
+        boxShadow: "inset 0 0 220px rgba(0,0,0,0.95)",
+        zIndex: 5,
       }} />
     </div>
   );
 }
 
-function ThemeBackdrop({ theme }: { theme: "workshop" | "cyber" }) {
-  return theme === "cyber" ? <CyberBackdrop /> : <WorkshopBackdrop />;
+function ThemeBackdrop({ theme, zoom, pan }: { theme: "workshop" | "cyber"; zoom: number; pan: { x: number; y: number } }) {
+  return theme === "cyber" ? <CyberBackdrop zoom={zoom} pan={pan} /> : <WorkshopBackdrop zoom={zoom} />;
 }
 
 /* ══════════════════════════════════════════════════════════

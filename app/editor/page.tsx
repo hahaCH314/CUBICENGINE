@@ -175,6 +175,7 @@ function EditorAuthButton() {
 
 /* ─── Status Bar ─── */
 function StatusBar() {
+  const blocksCount = useEditorStore((s) => s.blocks.length);
   return (
     <div className="h-7 bg-panel border-t-2 border-[#121210] flex items-center justify-between px-3 text-[10px] text-muted font-sans" style={{ textShadow: "1px 1px 0px #1e1208" }}>
       <div className="flex items-center gap-4">
@@ -182,7 +183,7 @@ function StatusBar() {
           <span className="w-2.5 h-2.5 bg-emerald-500 shadow-[0_0_4px_#10b981]" />
           準備完了
         </span>
-        <span>ブロック: 3</span>
+        <span>ブロック: {blocksCount}</span>
         <span>グリッド: 16×16</span>
       </div>
       <div className="flex items-center gap-4">
