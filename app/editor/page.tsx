@@ -9,6 +9,7 @@ import { McButton } from "../_mc";
 
 // Electron 環境でのチャンクロード失敗を防ぐため静的インポートに変更
 import LogicPanel  from "./LogicPanel";
+import GrapePanel  from "./GrapePanel";
 import LaunchPanel from "./LaunchPanel";
 const ModelPanel   = dynamic(() => import("./ModelPanel"),   { ssr: false });  // Three.js は SSR 不可のため dynamic 維持
 
@@ -197,6 +198,7 @@ function StatusBar() {
 /* ─── Main Editor Page ─── */
 export default function EditorPage() {
   const [activeTab, setActiveTab] = useState<Tab>("logic");
+  const [logicView, setLogicView] = useState<"tsumiki" | "grape">("tsumiki");
   const [openMenu, setOpenMenu] = useState<MenuKey | null>(null);
   const menuItems = useMenuItems();
 
@@ -302,8 +304,25 @@ export default function EditorPage() {
 
       {/* ─ Tab Content ─ */}
       {/* display で切り替えて常にマウント維持 → state が消えない */}
-      <div className="flex-1 overflow-hidden relative" style={{ display: activeTab === "logic" ? "block" : "none" }}>
-        <LogicPanel />
+      <div className="flex-1 overflow-hidden relative flex flex-col" style={{ display: activeTab === "logic" ? "flex" : "none" }}>
+        {/* 作り方の切替：積み木(従来) / 🍇ハブ(新・実験) */}
+        <div style={{ display: "flex", gap: 6, alignItems: "center", padding: "6px 10px", background: "#1b1a17", borderBottom: "1px solid #2a2924", flexShrink: 0 }}>
+          <span style={{ fontSize: 11, fontWeight: 800, color: "#8a857a" }}>作り方:</span>
+          <button type="button" onClick={() => setLogicView("tsumiki")}
+            style={{ fontSize: 12, fontWeight: 800, padding: "4px 12px", borderRadius: 8, cursor: "pointer", border: "none",
+              background: logicView === "tsumiki" ? "#facc15" : "#2a2924", color: logicView === "tsumiki" ? "#3a2c05" : "#a59c8a" }}>
+            🧱 積み木
+          </button>
+          <button type="button" onClick={() => setLogicView("grape")}
+            style={{ fontSize: 12, fontWeight: 800, padding: "4px 12px", borderRadius: 8, cursor: "pointer", border: "none",
+              background: logicView === "grape" ? "#5fe0b8" : "#2a2924", color: logicView === "grape" ? "#0a3a2c" : "#a59c8a" }}>
+            🍇 ハブ（新）
+          </button>
+        </div>
+        <div className="flex-1 relative overflow-hidden">
+          <div style={{ position: "absolute", inset: 0, display: logicView === "tsumiki" ? "block" : "none" }}><LogicPanel /></div>
+          <div style={{ position: "absolute", inset: 0, display: logicView === "grape" ? "block" : "none" }}><GrapePanel /></div>
+        </div>
       </div>
       <div className="flex-1 overflow-hidden relative" style={{ display: activeTab === "model" ? "block" : "none" }}>
         <ModelPanel />
