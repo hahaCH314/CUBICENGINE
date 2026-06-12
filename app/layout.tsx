@@ -62,6 +62,27 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ServiceWorkerRegistration />
         {children}
+        {/* 全ページ共通クレジット（クリック透過・控えめ表示） */}
+        <div
+          aria-label="credit"
+          style={{
+            position: "fixed",
+            left: "50%",
+            bottom: 1,
+            transform: "translateX(-50%)",
+            zIndex: 99999,
+            fontSize: 9,
+            lineHeight: 1,
+            color: "rgba(245,240,225,0.32)",
+            pointerEvents: "none",
+            whiteSpace: "nowrap",
+            letterSpacing: "0.03em",
+            fontFamily: "var(--font-sans), system-ui, sans-serif",
+            textShadow: "0 1px 1px rgba(0,0,0,0.5)",
+          }}
+        >
+          © 伊波さん ・ 開発マネージャー：なっとうサイダー
+        </div>
       </body>
     </html>
   );
