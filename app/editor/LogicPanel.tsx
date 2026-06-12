@@ -2785,7 +2785,7 @@ export default function LogicPanel() {
           }}>
 
           {/* インテリア背景（screen 座標固定） — workshop / cyberpunk */}
-          <ThemeBackdrop theme={interiorTheme} />
+          <ThemeBackdrop theme={interiorTheme} zoom={zoom} pan={pan} />
 
           {/* 床 — pan/zoom の影響を受けない screen 座標。ブロックが1個以上ある時だけ出現。
               ロジック画面の最下端に完全固定（床がある演出）。zIndex は world transform より上。 */}
