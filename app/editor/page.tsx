@@ -169,64 +169,8 @@ const SettingsPanel = dynamic(() => import("./SettingsPanel"), { ssr: false });
 
 /* ─── ログインボタン（右上） ─── */
 function EditorAuthButton() {
-  const [user, setUser] = useState<{ username: string; avatar_url?: string } | null>(null);
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/auth/me").then(r => r.json()).then(d => { if (d.user) setUser(d.user); }).catch(() => {});
-  }, []);
-
-  const logout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    setUser(null); setOpen(false);
-  };
-
-  if (!user) {
-    return (
-      <a
-        href="/api/auth/google"
-        className="mc-btn mc-btn--sm"
-        style={{ padding: "4px 8px" }}
-      >
-        Googleでログイン
-      </a>
-    );
-  }
-
-  return (
-    <div style={{ position: "relative" }}>
-      <button
-        onClick={() => setOpen(v => !v)}
-        className="mc-btn mc-btn--sm"
-        style={{ padding: "4px 8px", display: "flex", alignItems: "center", gap: "6px" }}
-      >
-        {user.avatar_url
-          ? <img src={user.avatar_url} alt="" className="w-4 h-4 rounded-none" />
-          : <span className="w-4 h-4 bg-accent flex items-center justify-center text-white" style={{ fontSize: 9 }}>{user.username[0].toUpperCase()}</span>
-        }
-        {user.username}
-        <span style={{ fontSize: 8, opacity: 0.6 }}>▼</span>
-      </button>
-      {open && (
-        <div className="mc-panel" style={{
-          position: "absolute", top: "calc(100% + 4px)", right: 0, zIndex: 200,
-          background: "var(--surface)", minWidth: 160,
-          padding: "6px 0",
-        }}>
-          <div style={{ padding: "6px 14px 8px", borderBottom: "2px solid var(--border-color)", color: "var(--muted)", fontSize: 10 }} className="font-pixel text-[9px]">
-            {user.username}
-          </div>
-          <button
-            onClick={logout}
-            className="w-full text-left hover:bg-black/40 text-rose-400 font-pixel text-[10px]"
-            style={{ width: "100%", padding: "8px 14px", border: "none", background: "none", cursor: "pointer" }}
-          >
-            ログアウト
-          </button>
-        </div>
-      )}
-    </div>
-  );
+  // ローカル/オフライン運営（アカウント機能なし・決定事項）: ログインUIは表示しない
+  return null;
 }
 
 /* ─── Status Bar ─── */
