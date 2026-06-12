@@ -955,71 +955,7 @@ function CyberBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: numbe
         }} />
       </div>
 
-      {/* 主役ホログラム：奥中央に浮かぶ、蔓の絡む発光ワイヤーフレーム立方体（アナログの電球に対応する電脳の光源／中心） */}
-      <div style={{
-        position: "absolute", left: "50%", top: "40%",
-        transform: `translate(calc(-50% + ${pan.x * 0.18}px), calc(-50% + ${pan.y * 0.15}px)) scale(${1 + (zoom - 1) * 0.25})`,
-        zIndex: 3,
-      }}>
-        {/* 背後の緑グロー */}
-        <div style={{
-          position: "absolute", left: "50%", top: "50%", width: 360, height: 360,
-          transform: "translate(-50%,-50%)",
-          background: "radial-gradient(circle, rgba(79,217,138,0.18) 0%, rgba(79,217,138,0.06) 40%, transparent 70%)",
-          filter: "blur(22px)",
-          animation: "cyber-pulse 6s ease-in-out infinite alternate",
-        }} />
-        {/* ゆっくり浮遊する蔓付きワイヤーフレーム立方体 */}
-        <div style={{ animation: "holo-float 5s ease-in-out infinite alternate" }}>
-          <svg viewBox="0 0 120 120" style={{ width: 240, height: 240, overflow: "visible", display: "block", transform: "translate(-50%,-50%)", marginLeft: "50%", marginTop: "50%", animation: "holo-glow 4s ease-in-out infinite alternate" }}>
-            <defs>
-              {/* 微細な光のにじみを表現するホログラムフィルター */}
-              <filter id="holo-glow-filter" x="-30%" y="-30%" width="160%" height="160%">
-                <feGaussianBlur stdDeviation="1.2" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-
-            {/* 立方体・葉は不使用。アバター(パンドラ)的なバイオ発光体：光る核＋有機的に伸びる発光の筋＋種子の光 */}
-            {/* 投影リング（ホログラムの気配） */}
-            <g fill="none">
-              <ellipse cx="60" cy="60" rx="48" ry="17" transform="rotate(-16 60 60)" stroke="#5fe3a0" strokeWidth="0.5" opacity="0.4" />
-              <ellipse cx="60" cy="60" rx="30" ry="44" transform="rotate(22 60 60)" stroke="#5fe3a0" strokeWidth="0.4" opacity="0.28" />
-            </g>
-
-            {/* コアから有機的に伸びる発光の筋（枝分かれ＝生命の流れ） */}
-            <g filter="url(#holo-glow-filter)">
-              <path d="M 60,60 C 44,50 34,30 26,12" stroke="#9ff0c8" strokeWidth="1.1" fill="none" opacity="0.6" />
-              <path d="M 60,60 C 80,52 96,58 114,46" stroke="#9ff0c8" strokeWidth="1.1" fill="none" opacity="0.6" />
-              <path d="M 60,60 C 52,80 38,92 28,110" stroke="#9ff0c8" strokeWidth="1.0" fill="none" opacity="0.55" />
-              <path d="M 60,60 C 74,78 92,84 104,102" stroke="#9ff0c8" strokeWidth="0.9" fill="none" opacity="0.5" />
-              <path d="M 60,60 C 40,64 24,60 8,68" stroke="#9ff0c8" strokeWidth="0.8" fill="none" opacity="0.45" />
-              {/* 細い枝 */}
-              <path d="M 34,30 C 26,28 20,34 12,32" stroke="#9ff0c8" strokeWidth="0.6" fill="none" opacity="0.4" />
-              <path d="M 96,58 C 102,66 100,76 108,82" stroke="#9ff0c8" strokeWidth="0.6" fill="none" opacity="0.4" />
-            </g>
-
-            {/* 発光コア（派手め・バイオルミネッセンスの心臓） */}
-            <circle cx="60" cy="60" r="14" fill="#5fe3a0" opacity="0.16" filter="url(#holo-glow-filter)" />
-            <circle cx="60" cy="60" r="6.5" fill="#aef7df" opacity="0.55" filter="url(#holo-glow-filter)" />
-            <circle cx="60" cy="60" r="3.2" fill="#eafff5" opacity="0.95" filter="url(#holo-glow-filter)" />
-
-            {/* 種子ノード（筋の先でふわっと光る点） */}
-            <g fill="#cffbe4" filter="url(#holo-glow-filter)">
-              <circle cx="26" cy="12" r="2.2" opacity="0.9" />
-              <circle cx="114" cy="46" r="2.0" opacity="0.85" />
-              <circle cx="28" cy="110" r="1.9" opacity="0.8" />
-              <circle cx="104" cy="102" r="1.7" opacity="0.75" />
-              <circle cx="8" cy="68" r="1.5" opacity="0.7" />
-              <circle cx="12" cy="32" r="1.2" opacity="0.6" />
-              <circle cx="108" cy="82" r="1.2" opacity="0.6" />
-            </g>
-          </svg>
-        </div>
-      </div>
+      {/* 中央の発光体は撤去（きもい/不要との判断）。デジタルは"緑の空間＋漂う光の粒"の静かな世界に。 */}
 
 
 
