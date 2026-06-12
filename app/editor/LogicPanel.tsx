@@ -971,7 +971,7 @@ function CyberBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: numbe
         }} />
         {/* ゆっくり浮遊する蔓付きワイヤーフレーム立方体 */}
         <div style={{ animation: "holo-float 5s ease-in-out infinite alternate" }}>
-          <svg viewBox="0 0 120 120" style={{ width: 340, height: 340, overflow: "visible", display: "block", transform: "translate(-50%,-50%)", marginLeft: "50%", marginTop: "50%", animation: "holo-glow 4s ease-in-out infinite alternate" }}>
+          <svg viewBox="0 0 120 120" style={{ width: 240, height: 240, overflow: "visible", display: "block", transform: "translate(-50%,-50%)", marginLeft: "50%", marginTop: "50%", animation: "holo-glow 4s ease-in-out infinite alternate" }}>
             <defs>
               {/* 微細な光のにじみを表現するホログラムフィルター */}
               <filter id="holo-glow-filter" x="-30%" y="-30%" width="160%" height="160%">
@@ -983,59 +983,40 @@ function CyberBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: numbe
               </filter>
             </defs>
 
-            {/* 1. 外側のメイン立方体（発光ワイヤーフレーム、大きく描画） */}
+            {/* 立方体・葉は不使用。アバター(パンドラ)的なバイオ発光体：光る核＋有機的に伸びる発光の筋＋種子の光 */}
+            {/* 投影リング（ホログラムの気配） */}
+            <g fill="none">
+              <ellipse cx="60" cy="60" rx="48" ry="17" transform="rotate(-16 60 60)" stroke="#5fe3a0" strokeWidth="0.5" opacity="0.4" />
+              <ellipse cx="60" cy="60" rx="30" ry="44" transform="rotate(22 60 60)" stroke="#5fe3a0" strokeWidth="0.4" opacity="0.28" />
+            </g>
+
+            {/* コアから有機的に伸びる発光の筋（枝分かれ＝生命の流れ） */}
             <g filter="url(#holo-glow-filter)">
-              {/* 上面 */}
-              <polygon points="60,10 108,38 60,66 12,38" stroke="#5fe3a0" strokeWidth="1.1" fill="none" opacity="0.45" />
-              {/* 左側面 */}
-              <polygon points="12,38 60,66 60,114 12,86" stroke="#5fe3a0" strokeWidth="1.1" fill="none" opacity="0.45" />
-              {/* 右側面 */}
-              <polygon points="60,66 108,38 108,86 60,114" stroke="#5fe3a0" strokeWidth="1.1" fill="none" opacity="0.45" />
+              <path d="M 60,60 C 44,50 34,30 26,12" stroke="#9ff0c8" strokeWidth="1.1" fill="none" opacity="0.6" />
+              <path d="M 60,60 C 80,52 96,58 114,46" stroke="#9ff0c8" strokeWidth="1.1" fill="none" opacity="0.6" />
+              <path d="M 60,60 C 52,80 38,92 28,110" stroke="#9ff0c8" strokeWidth="1.0" fill="none" opacity="0.55" />
+              <path d="M 60,60 C 74,78 92,84 104,102" stroke="#9ff0c8" strokeWidth="0.9" fill="none" opacity="0.5" />
+              <path d="M 60,60 C 40,64 24,60 8,68" stroke="#9ff0c8" strokeWidth="0.8" fill="none" opacity="0.45" />
+              {/* 細い枝 */}
+              <path d="M 34,30 C 26,28 20,34 12,32" stroke="#9ff0c8" strokeWidth="0.6" fill="none" opacity="0.4" />
+              <path d="M 96,58 C 102,66 100,76 108,82" stroke="#9ff0c8" strokeWidth="0.6" fill="none" opacity="0.4" />
             </g>
 
-            {/* 2. 奥の透明エッジ（奥行き、大きく描画） */}
-            <g stroke="#3fae7d" strokeWidth="0.8" fill="none" opacity="0.35">
-              <line x1="60" y1="10" x2="60" y2="66" />
-              <line x1="12" y1="86" x2="60" y2="66" />
-              <line x1="108" y1="86" x2="60" y2="66" />
+            {/* 発光コア（派手め・バイオルミネッセンスの心臓） */}
+            <circle cx="60" cy="60" r="14" fill="#5fe3a0" opacity="0.16" filter="url(#holo-glow-filter)" />
+            <circle cx="60" cy="60" r="6.5" fill="#aef7df" opacity="0.55" filter="url(#holo-glow-filter)" />
+            <circle cx="60" cy="60" r="3.2" fill="#eafff5" opacity="0.95" filter="url(#holo-glow-filter)" />
+
+            {/* 種子ノード（筋の先でふわっと光る点） */}
+            <g fill="#cffbe4" filter="url(#holo-glow-filter)">
+              <circle cx="26" cy="12" r="2.2" opacity="0.9" />
+              <circle cx="114" cy="46" r="2.0" opacity="0.85" />
+              <circle cx="28" cy="110" r="1.9" opacity="0.8" />
+              <circle cx="104" cy="102" r="1.7" opacity="0.75" />
+              <circle cx="8" cy="68" r="1.5" opacity="0.7" />
+              <circle cx="12" cy="32" r="1.2" opacity="0.6" />
+              <circle cx="108" cy="82" r="1.2" opacity="0.6" />
             </g>
-
-            {/* 3. 内側のホログラムコア（大きく描画） */}
-            <g stroke="#5fe3a0" strokeWidth="0.6" fill="none" opacity="0.2">
-              <polygon points="60,32 88,46 60,60 32,46" />
-              <polygon points="32,46 60,60 60,84 32,70" />
-              <polygon points="60,60 88,46 88,70 60,84" />
-            </g>
-
-            {/* 4. 有機的な蔓と葉（よりダイナミックに巻き付く） */}
-            {/* メインの蔓ライン 1 */}
-            <path d="M 16,84 C 30,90 50,75 60,66 C 72,56 94,62 104,46 C 110,36 100,18 80,14 C 70,12 58,22 62,32" stroke="#85ebba" strokeWidth="1.3" fill="none" opacity="0.5" filter="url(#holo-glow-filter)" />
-            {/* 補助の蔓ライン 2（巻きひげ付き） */}
-            <path d="M 98,34 C 84,20 62,28 42,40 C 22,52 18,74 28,86 C 34,92 48,90 50,96 C 51,100 44,106 48,110" stroke="#85ebba" strokeWidth="0.9" fill="none" opacity="0.4" />
-
-            {/* 葉っぱたち（アウトラインと半透明の塗りつぶし、葉脈も描写） */}
-            {/* 葉 1 (左下) */}
-            <path d="M 14,82 C 6,80 8,70 16,68 C 22,66 20,78 14,82 Z" stroke="#85ebba" strokeWidth="0.9" fill="rgba(133,235,186,0.18)" opacity="0.5" />
-            <line x1="15" y1="75" x2="11.5" y2="78" stroke="#85ebba" strokeWidth="0.6" opacity="0.3" />
-
-            {/* 葉 2 (右中) */}
-            <path d="M 94,58 C 102,60 106,52 100,46 C 94,40 90,50 94,58 Z" stroke="#85ebba" strokeWidth="0.9" fill="rgba(133,235,186,0.18)" opacity="0.5" />
-            <line x1="97" y1="52" x2="100.5" y2="54" stroke="#85ebba" strokeWidth="0.6" opacity="0.3" />
-
-            {/* 葉 3 (上面中央) */}
-            <path d="M 72,22 C 70,12 80,8 84,14 C 88,20 80,24 72,22 Z" stroke="#85ebba" strokeWidth="0.9" fill="rgba(133,235,186,0.18)" opacity="0.5" />
-            <line x1="78.5" y1="17" x2="81.5" y2="12" stroke="#85ebba" strokeWidth="0.6" opacity="0.3" />
-
-            {/* 葉 4 (左上) */}
-            <path d="M 38,36 C 36,26 46,22 50,28 C 54,34 44,38 38,36 Z" stroke="#85ebba" strokeWidth="0.9" fill="rgba(133,235,186,0.18)" opacity="0.5" />
-            <line x1="44" y1="31.5" x2="47" y2="27" stroke="#85ebba" strokeWidth="0.6" opacity="0.3" />
-
-            {/* 葉 5 (中央下) */}
-            <path d="M 35,92 C 40,100 48,96 46,88 C 44,80 34,84 35,92 Z" stroke="#85ebba" strokeWidth="0.9" fill="rgba(133,235,186,0.18)" opacity="0.5" />
-            <line x1="40.5" y1="89" x2="42.5" y2="92.5" stroke="#85ebba" strokeWidth="0.6" opacity="0.3" />
-
-            {/* 葉 6 (右下) */}
-            <path d="M 76,78 C 84,78 88,86 82,90 C 76,94 74,84 76,78 Z" stroke="#85ebba" strokeWidth="0.9" fill="rgba(133,235,186,0.15)" opacity="0.45" />
           </svg>
         </div>
       </div>
