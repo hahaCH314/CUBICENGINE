@@ -142,22 +142,22 @@ export default function LaunchPanel() {
 
   /* ═══════ レンダー ═══════ */
   return (
-    <div style={{ height: "100%", overflowY: "auto", padding: "28px 32px", background: "#f8f9ff" }}>
-      <div style={{ maxWidth: 640, margin: "0 auto" }}>
+    <div style={{ height: "100%", overflow: "hidden", padding: "16px 24px", background: "#f8f9ff", display: "flex", flexDirection: "column" }}>
+      <div style={{ maxWidth: 780, margin: "0 auto", width: "100%", flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
 
         {/* ヘッダー */}
-        <div style={{ marginBottom: 28 }}>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: "#222", marginBottom: 6 }}>
+        <div style={{ marginBottom: 10, flexShrink: 0 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: "#222" }}>
             ☕ Java Minecraft ランチャー
           </h2>
-          <p style={{ fontSize: 13, color: "#888" }}>
-            作成した Mod をワンクリックでビルド・インストール・起動できます。
+          <p style={{ fontSize: 12, color: "#888" }}>
+            作成した Mod をワンクリックでビルド・インストール・起動。
           </p>
         </div>
 
-        {/* ステップ表示 */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 28,
-          padding: "18px 20px", background: "#fff", borderRadius: 16,
+        {/* ステップ表示（横並び・コンパクト） */}
+        <div style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 10, flexShrink: 0,
+          padding: "12px 14px", background: "#fff", borderRadius: 14,
           border: "2px solid #e8eaf0", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
           <Step n={1} label="Minecraft 環境を検出"
             done={phase !== "idle" && phase !== "detecting"}
@@ -173,7 +173,8 @@ export default function LaunchPanel() {
             active={phase === "done"} />
         </div>
 
-        {/* 状態 UI */}
+        {/* 状態 UI（必要時のみ内部スクロール） */}
+        <div style={{ flex: 1, minHeight: 0, overflowY: "auto", paddingRight: 4 }}>
         {phase === "idle" && (
           <button onClick={detect} style={primaryBtn}>
             🔍 環境を検出する
@@ -341,6 +342,7 @@ export default function LaunchPanel() {
             🔄 再検出
           </button>
         )}
+        </div>
       </div>
     </div>
   );
