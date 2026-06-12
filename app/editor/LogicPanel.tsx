@@ -306,7 +306,7 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
   const h = blockH(b);
   const R = 5;
 
-  const innerBorder = "inset 2.7px 2.7px 0 rgba(255,255,255,0.22), inset -2.7px -2.7px 0 rgba(0,0,0,0.15)";
+  const innerBorder = "inset 1.5px 1.5px 0 rgba(255,255,255,0.10), inset -1.5px -1.5px 0 rgba(0,0,0,0.24)";
 
   const renderSlotButton = (slotKey: "inner" | "then" | "else") => {
     const badge = SLOT_BADGE[slotKey];
@@ -408,8 +408,8 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
         borderRadius: `${R}px ${R}px 0 0`,
         transform: "skewX(-45deg)",
         transformOrigin: "bottom left",
-        borderTop: `2.7px solid ${cat.border}`,
-        borderLeft: `2.7px solid ${cat.border}`,
+        borderTop: `1.8px solid ${cat.border}`,
+        borderLeft: `1.8px solid ${cat.border}`,
         borderRight: `1.5px solid rgba(0,0,0,0.08)`,
         borderBottom: `1.5px solid rgba(0,0,0,0.08)`,
         boxSizing: "border-box",
@@ -427,8 +427,8 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
         transform: "skewY(-45deg)",
         transformOrigin: "top left",
         borderTop: `1.5px solid rgba(0,0,0,0.08)`,
-        borderRight: `2.7px solid ${cat.border}`,
-        borderBottom: `2.7px solid ${cat.border}`,
+        borderRight: `1.8px solid ${cat.border}`,
+        borderBottom: `1.8px solid ${cat.border}`,
         borderLeft: `1.5px solid rgba(0,0,0,0.08)`,
         boxSizing: "border-box",
         zIndex: 1,
@@ -439,8 +439,8 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
         left: 0, top: 0, width: w, height: h,
         background: `linear-gradient(135deg, ${cat.top}, ${cat.bg})`,
         borderRadius: `${R}px 0 0 ${R}px`,
-        borderLeft: `2.7px solid ${cat.border}`,
-        borderBottom: `2.7px solid ${cat.border}`,
+        borderLeft: `1.8px solid ${cat.border}`,
+        borderBottom: `1.8px solid ${cat.border}`,
         borderRight: `1.5px solid transparent`,
         borderTop: `1.5px solid transparent`,
         boxShadow: selected
@@ -450,8 +450,8 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
             : isAcceptable
               ? `${innerBorder}, 0 0 0 2.7px #ffffff, 0 0 11px ${badgeColor}`
               : groupColor
-                ? `${innerBorder}, 2.7px 2.7px 0px rgba(0,0,0,0.15), 0 0 10px ${groupColor}55`
-                : `${innerBorder}, 2.7px 2.7px 0px rgba(0,0,0,0.15)`,
+                ? `${innerBorder}, 0 2px 6px rgba(0,0,0,0.35), 0 0 10px ${groupColor}55`
+                : `${innerBorder}, 0 2px 6px rgba(0,0,0,0.35)`,
         transition: "box-shadow 0.15s, transform 0.1s",
         display: "flex", flexDirection: "column", padding: "3px 10px", boxSizing: "border-box",
         overflow: "hidden",
@@ -1248,7 +1248,7 @@ function BlockTray({
             const c = pal[t.category];
 
             // キャンバスのブロックと統一した 3D キューブの内側ベベル
-            const innerBorder = "inset 2px 2px 0 rgba(255,255,255,0.32), inset -2px -2px 0 rgba(0,0,0,0.22)";
+            const innerBorder = "inset 1.5px 1.5px 0 rgba(255,255,255,0.12), inset -1.5px -1.5px 0 rgba(0,0,0,0.24)";
             const hoverInnerBorder = "inset 2px 2px 0 rgba(255,255,255,0.45), inset -2px -2px 0 rgba(0,0,0,0.26)";
             const pressInnerBorder = "inset 2px 2px 0 rgba(0,0,0,0.32), inset -2px -2px 0 rgba(255,255,255,0.20)";
             const bw_w = 86;
