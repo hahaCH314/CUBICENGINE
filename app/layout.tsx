@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Press_Start_2P, Yusei_Magic } from "next/font/google";
+import { Geist, Geist_Mono, Press_Start_2P, M_PLUS_Rounded_1c } from "next/font/google";
 import "./globals.css";
 import ServiceWorkerRegistration from "./ServiceWorkerRegistration";
 
@@ -20,10 +20,10 @@ const pressStart = Press_Start_2P({
   subsets: ["latin"],
 });
 
-// 油性マジック手書き風日本語フォント
-const yusei = Yusei_Magic({
-  variable: "--font-yusei",
-  weight: "400",
+// 子供が読みやすい丸ゴシック（手書き風フォントはやめた）
+const rounded = M_PLUS_Rounded_1c({
+  variable: "--font-yusei", // 既存の --font-sans 参照を活かすため変数名は据え置き
+  weight: ["400", "700", "800"],
   subsets: ["latin"],
 });
 
@@ -57,7 +57,7 @@ export default function RootLayout({
   return (
     <html
       lang="ja"
-      className={`${geistSans.variable} ${geistMono.variable} ${pressStart.variable} ${yusei.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${pressStart.variable} ${rounded.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ServiceWorkerRegistration />
