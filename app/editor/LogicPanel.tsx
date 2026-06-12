@@ -6,7 +6,7 @@ import { McButton, McBadge } from "../_mc";
 
 import { Category, FieldDef, CBlock, Tmpl, CalcSubCat, CatDef } from "./_types";
 import { BW, BH, GAP, SNAP, BASE_ZOOM } from "./_constants";
-import { CAT } from "../../data/categories";
+import { CAT_WORKSHOP, CAT_CYBER } from "../../data/categories";
 import { TEMPLATES, CALC_SUBTABS, getCalcSubCat } from "../../data/templates";
 import { ITEM_NAMES } from "../../data/itemNames";
 import { blockH, getStackHeight, getDepth, getPos, getFamily, detach, attach, dist, findSnap } from "../../lib/blockGraph";
@@ -251,8 +251,8 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
   return Math.max(BW, Math.max(titleW + 48, contentW + 28));
 }
 
- function ToyCubeBlock({ b, pos, selected, snapSlot, isEating, isSnapping, isAdding, isDeleting, innerBlock, blocks, onDown, onDelete, onFieldChange, onEjectInner, focusedField, setFocusedField, wireDrag, onSlotClick, isShaking, isDragging, isPopping, isRolling, rollFrom, rollRot, rollDur }: {
-  b: CBlock; pos: { x: number; y: number }; selected: boolean; snapSlot: string | null;
+ function ToyCubeBlock({ b, pos, pal, selected, snapSlot, isEating, isSnapping, isAdding, isDeleting, innerBlock, blocks, onDown, onDelete, onFieldChange, onEjectInner, focusedField, setFocusedField, wireDrag, onSlotClick, isShaking, isDragging, isPopping, isRolling, rollFrom, rollRot, rollDur }: {
+  b: CBlock; pos: { x: number; y: number }; pal: Record<Category, CatDef>; selected: boolean; snapSlot: string | null;
   isEating?: boolean; isSnapping?: boolean; isAdding?: boolean; isDeleting?: boolean;
   innerBlock?: CBlock | null; blocks: CBlock[];
   onDown: (e: React.MouseEvent, id: string) => void;
@@ -271,7 +271,7 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
   rollRot?: number;
   rollDur?: number;
 }) {
-  const cat = CAT[b.category];
+  const cat = pal[b.category];
   const hl = snapSlot !== null;
   const isCond = b.type === "co_if";
   const isLoop = b.type === "ct_rep";
@@ -299,7 +299,7 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
   const rootId = getRootBlockId(b.id, blocks);
   const rootBlock = blocks.find(x => x.id === rootId);
   const hasEventRoot = rootBlock && rootBlock.category === "trigger";
-  const groupColor = hasEventRoot ? CAT[rootBlock.category].bg : null;
+  const groupColor = hasEventRoot ? pal[rootBlock.category].bg : null;
 
   const titleSize = b.label.length > 10 ? 11 : b.label.length > 8 ? 12 : b.label.length > 6 ? 13 : 15;
   const w = blockWidth(b, blocks);
@@ -389,8 +389,8 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
         : isDragging 
           ? "brightness(1.08) drop-shadow(0 8px 16px rgba(0,0,0,0.45)) drop-shadow(0 3px 6px rgba(0,0,0,0.3))" 
           : selected
-            ? "brightness(1.04) drop-shadow(0 6px 12px rgba(0,0,0,0.4)) drop-shadow(0 2px 4px rgba(0,0,0,0.25))" // 選択中の影
-            : "none",
+            ? `brightness(1.06) drop-shadow(0 0 10px ${cat.bg}88) drop-shadow(0 6px 12px rgba(0,0,0,0.4))` // 選択中：発光強め＋影
+            : `drop-shadow(0 0 6px ${cat.bg}66) drop-shadow(0 2px 4px rgba(0,0,0,0.3))`, // 通常：カテゴリ色でほんのり発光
       transition: "opacity 0.25s ease, filter 0.15s, transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1)",
     }}>
       {/* 3D上面 - 0.68倍スケール */}
@@ -878,6 +878,14 @@ function CyberBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: numbe
           50% { transform: translate(-20px, -80px) scale(1.0); opacity: 0.40; }
           100% { transform: translate(-40px, -160px) scale(0.8); opacity: 0; }
         }
+        @keyframes holo-float {
+          0% { transform: translateY(0px); }
+          100% { transform: translateY(-10px); }
+        }
+        @keyframes holo-glow {
+          0% { opacity: 0.5; }
+          100% { opacity: 0.85; }
+        }
       `}} />
       
       {/* 電脳グリーンをベースにした漆黒の闇背景 */}
@@ -894,69 +902,146 @@ function CyberBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: numbe
         zIndex: 1,
       }} />
 
-      {/* レイヤー1: ホログラム1色の細いグリッド (ズームとパンに同期！パララックス小) */}
+      {/* レイヤー1: 電脳の"空間"＝一点透視の緑ワイヤーフレーム部屋（フラット床→奥へ伸びる空間に。アナログ工房と同じ奥行き構造で色だけ冷たい緑） */}
       <div style={{
-        position: "absolute",
-        inset: "-60px",
-        backgroundImage: "linear-gradient(rgba(79, 217, 138, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(79, 217, 138, 0.025) 1px, transparent 1px)",
-        backgroundSize: `${60 * zoom}px ${60 * zoom}px`,
-        backgroundPosition: `${pan.x * 0.15}px ${pan.y * 0.12}px`,
-        opacity: 0.6,
-        zIndex: 2,
-      }} />
-
-      {/* レイヤー2: 奥にうっすら浮かぶホログラム立方体 (ワイヤーフレーム、パララックス中) */}
-      <div style={{
-        position: "absolute",
-        inset: 0,
-        transform: `translate(${pan.x * 0.2}px, ${pan.y * 0.15}px) scale(${1 + (zoom - 1) * 0.2})`,
+        position: "absolute", inset: 0, overflow: "hidden",
+        transform: `translate(${pan.x * 0.12}px, ${pan.y * 0.1}px) scale(${1 + (zoom - 1) * 0.3})`,
         transformOrigin: "center center",
+        zIndex: 2,
+      }}>
+        {/* 天井（奥へ収束する薄い緑グリッド） */}
+        <div style={{
+          position: "absolute", top: "-4%", left: "-25%", right: "-25%", height: "46%",
+          transform: "perspective(440px) rotateX(-48deg)",
+          transformOrigin: "top center",
+          backgroundImage: "linear-gradient(rgba(79,217,138,0.10) 1px, transparent 1px), linear-gradient(90deg, rgba(79,217,138,0.10) 1px, transparent 1px)",
+          backgroundSize: "54px 54px",
+          boxShadow: "inset 0 -50px 70px rgba(0,2,1,0.6)",
+        }} />
+        {/* 左の壁（消失点へ収束） */}
+        <div style={{
+          position: "absolute", left: "-3%", top: "-25%", bottom: "-25%", width: "36%",
+          transform: "perspective(440px) rotateY(48deg)",
+          transformOrigin: "left center",
+          backgroundImage: "linear-gradient(rgba(79,217,138,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(79,217,138,0.08) 1px, transparent 1px)",
+          backgroundSize: "54px 54px",
+          boxShadow: "inset -40px 0 60px rgba(0,2,1,0.6)",
+        }} />
+        {/* 右の壁（消失点へ収束） */}
+        <div style={{
+          position: "absolute", right: "-3%", top: "-25%", bottom: "-25%", width: "36%",
+          transform: "perspective(440px) rotateY(-48deg)",
+          transformOrigin: "right center",
+          backgroundImage: "linear-gradient(rgba(79,217,138,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(79,217,138,0.08) 1px, transparent 1px)",
+          backgroundSize: "54px 54px",
+          boxShadow: "inset 40px 0 60px rgba(0,2,1,0.6)",
+        }} />
+        {/* 奥の壁（遠く・最も薄い緑グリッド） */}
+        <div style={{
+          position: "absolute", left: "50%", top: "33%", width: "58%", height: "34%",
+          transform: "translateX(-50%)",
+          backgroundImage: "linear-gradient(rgba(79,217,138,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(79,217,138,0.07) 1px, transparent 1px)",
+          backgroundSize: "30px 30px",
+          boxShadow: "inset 0 0 70px rgba(0,2,1,0.85)",
+        }} />
+        {/* 床（手前広く→奥へ収束する緑グリッド＝立っている地面。一番明るい＝手前） */}
+        <div style={{
+          position: "absolute", bottom: "-4%", left: "-25%", right: "-25%", height: "56%",
+          transform: "perspective(440px) rotateX(50deg)",
+          transformOrigin: "bottom center",
+          backgroundImage: "linear-gradient(rgba(79,217,138,0.18) 1px, transparent 1px), linear-gradient(90deg, rgba(79,217,138,0.18) 1px, transparent 1px)",
+          backgroundSize: "54px 54px",
+          boxShadow: "inset 0 60px 90px rgba(0,2,1,0.55)",
+        }} />
+      </div>
+
+      {/* 主役ホログラム：奥中央に浮かぶ、蔓の絡む発光ワイヤーフレーム立方体（アナログの電球に対応する電脳の光源／中心） */}
+      <div style={{
+        position: "absolute", left: "50%", top: "40%",
+        transform: `translate(calc(-50% + ${pan.x * 0.18}px), calc(-50% + ${pan.y * 0.15}px)) scale(${1 + (zoom - 1) * 0.25})`,
         zIndex: 3,
       }}>
-        {/* 立方体1 (左上) */}
-        <div style={{ position: "absolute", left: "20%", top: "25%", transformOrigin: "center center", animation: "cyber-rotate 35s linear infinite" }}>
-          <svg viewBox="0 0 100 100" style={{ width: 110, height: 110, opacity: 0.028, stroke: "#4fd98a", strokeWidth: 1.2, fill: "none" }}>
-            <polygon points="50,20 80,35 50,50 20,35" />
-            <polygon points="20,35 50,50 50,80 20,65" />
-            <polygon points="50,50 80,35 80,65 50,80" />
-          </svg>
-        </div>
-        {/* 立方体2 (右下) */}
-        <div style={{ position: "absolute", right: "18%", bottom: "20%", transformOrigin: "center center", animation: "cyber-rotate 45s linear infinite reverse" }}>
-          <svg viewBox="0 0 100 100" style={{ width: 140, height: 140, opacity: 0.022, stroke: "#4fd98a", strokeWidth: 1.0, fill: "none" }}>
-            <polygon points="50,20 80,35 50,50 20,35" />
-            <polygon points="20,35 50,50 50,80 20,65" />
-            <polygon points="50,50 80,35 80,65 50,80" />
+        {/* 背後の緑グロー */}
+        <div style={{
+          position: "absolute", left: "50%", top: "50%", width: 360, height: 360,
+          transform: "translate(-50%,-50%)",
+          background: "radial-gradient(circle, rgba(79,217,138,0.18) 0%, rgba(79,217,138,0.06) 40%, transparent 70%)",
+          filter: "blur(22px)",
+          animation: "cyber-pulse 6s ease-in-out infinite alternate",
+        }} />
+        {/* ゆっくり浮遊する蔓付きワイヤーフレーム立方体 */}
+        <div style={{ animation: "holo-float 5s ease-in-out infinite alternate" }}>
+          <svg viewBox="0 0 120 120" style={{ width: 340, height: 340, overflow: "visible", display: "block", transform: "translate(-50%,-50%)", marginLeft: "50%", marginTop: "50%", animation: "holo-glow 4s ease-in-out infinite alternate" }}>
+            <defs>
+              {/* 微細な光のにじみを表現するホログラムフィルター */}
+              <filter id="holo-glow-filter" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="1.2" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            {/* 1. 外側のメイン立方体（発光ワイヤーフレーム、大きく描画） */}
+            <g filter="url(#holo-glow-filter)">
+              {/* 上面 */}
+              <polygon points="60,10 108,38 60,66 12,38" stroke="#5fe3a0" strokeWidth="1.1" fill="none" opacity="0.45" />
+              {/* 左側面 */}
+              <polygon points="12,38 60,66 60,114 12,86" stroke="#5fe3a0" strokeWidth="1.1" fill="none" opacity="0.45" />
+              {/* 右側面 */}
+              <polygon points="60,66 108,38 108,86 60,114" stroke="#5fe3a0" strokeWidth="1.1" fill="none" opacity="0.45" />
+            </g>
+
+            {/* 2. 奥の透明エッジ（奥行き、大きく描画） */}
+            <g stroke="#3fae7d" strokeWidth="0.8" fill="none" opacity="0.35">
+              <line x1="60" y1="10" x2="60" y2="66" />
+              <line x1="12" y1="86" x2="60" y2="66" />
+              <line x1="108" y1="86" x2="60" y2="66" />
+            </g>
+
+            {/* 3. 内側のホログラムコア（大きく描画） */}
+            <g stroke="#5fe3a0" strokeWidth="0.6" fill="none" opacity="0.2">
+              <polygon points="60,32 88,46 60,60 32,46" />
+              <polygon points="32,46 60,60 60,84 32,70" />
+              <polygon points="60,60 88,46 88,70 60,84" />
+            </g>
+
+            {/* 4. 有機的な蔓と葉（よりダイナミックに巻き付く） */}
+            {/* メインの蔓ライン 1 */}
+            <path d="M 16,84 C 30,90 50,75 60,66 C 72,56 94,62 104,46 C 110,36 100,18 80,14 C 70,12 58,22 62,32" stroke="#85ebba" strokeWidth="1.3" fill="none" opacity="0.5" filter="url(#holo-glow-filter)" />
+            {/* 補助の蔓ライン 2（巻きひげ付き） */}
+            <path d="M 98,34 C 84,20 62,28 42,40 C 22,52 18,74 28,86 C 34,92 48,90 50,96 C 51,100 44,106 48,110" stroke="#85ebba" strokeWidth="0.9" fill="none" opacity="0.4" />
+
+            {/* 葉っぱたち（アウトラインと半透明の塗りつぶし、葉脈も描写） */}
+            {/* 葉 1 (左下) */}
+            <path d="M 14,82 C 6,80 8,70 16,68 C 22,66 20,78 14,82 Z" stroke="#85ebba" strokeWidth="0.9" fill="rgba(133,235,186,0.18)" opacity="0.5" />
+            <line x1="15" y1="75" x2="11.5" y2="78" stroke="#85ebba" strokeWidth="0.6" opacity="0.3" />
+
+            {/* 葉 2 (右中) */}
+            <path d="M 94,58 C 102,60 106,52 100,46 C 94,40 90,50 94,58 Z" stroke="#85ebba" strokeWidth="0.9" fill="rgba(133,235,186,0.18)" opacity="0.5" />
+            <line x1="97" y1="52" x2="100.5" y2="54" stroke="#85ebba" strokeWidth="0.6" opacity="0.3" />
+
+            {/* 葉 3 (上面中央) */}
+            <path d="M 72,22 C 70,12 80,8 84,14 C 88,20 80,24 72,22 Z" stroke="#85ebba" strokeWidth="0.9" fill="rgba(133,235,186,0.18)" opacity="0.5" />
+            <line x1="78.5" y1="17" x2="81.5" y2="12" stroke="#85ebba" strokeWidth="0.6" opacity="0.3" />
+
+            {/* 葉 4 (左上) */}
+            <path d="M 38,36 C 36,26 46,22 50,28 C 54,34 44,38 38,36 Z" stroke="#85ebba" strokeWidth="0.9" fill="rgba(133,235,186,0.18)" opacity="0.5" />
+            <line x1="44" y1="31.5" x2="47" y2="27" stroke="#85ebba" strokeWidth="0.6" opacity="0.3" />
+
+            {/* 葉 5 (中央下) */}
+            <path d="M 35,92 C 40,100 48,96 46,88 C 44,80 34,84 35,92 Z" stroke="#85ebba" strokeWidth="0.9" fill="rgba(133,235,186,0.18)" opacity="0.5" />
+            <line x1="40.5" y1="89" x2="42.5" y2="92.5" stroke="#85ebba" strokeWidth="0.6" opacity="0.3" />
+
+            {/* 葉 6 (右下) */}
+            <path d="M 76,78 C 84,78 88,86 82,90 C 76,94 74,84 76,78 Z" stroke="#85ebba" strokeWidth="0.9" fill="rgba(133,235,186,0.15)" opacity="0.45" />
           </svg>
         </div>
       </div>
 
-      {/* レイヤー3: 蔓・葉の有機的カーブ (人工×自然の融合、パララックス中〜大) */}
-      <div style={{
-        position: "absolute",
-        inset: 0,
-        transform: `translate(${pan.x * 0.28}px, ${pan.y * 0.22}px) scale(${1 + (zoom - 1) * 0.28})`,
-        transformOrigin: "center center",
-        zIndex: 4,
-      }}>
-        {/* 左から伸びる蔓 */}
-        <div style={{ position: "absolute", left: "5%", top: "40%" }}>
-          <svg viewBox="0 0 100 100" style={{ width: 240, height: 240, opacity: 0.035, stroke: "#4fd98a", strokeWidth: 1.5, fill: "none" }}>
-            <path d="M 0,80 C 30,70 50,30 90,40 C 95,41 90,48 85,50 C 70,55 50,75 80,95" />
-            {/* 葉っぱ */}
-            <path d="M 33,52 C 30,46 22,48 20,54 C 19,59 27,57 29,53 Z" fill="rgba(79, 217, 138, 0.01)" />
-            <path d="M 62,43 C 63,36 71,36 74,42 C 75,47 67,48 65,44 Z" fill="rgba(79, 217, 138, 0.01)" />
-          </svg>
-        </div>
-        {/* 右から伸びる蔓 */}
-        <div style={{ position: "absolute", right: "8%", top: "15%", transform: "scaleX(-1)" }}>
-          <svg viewBox="0 0 100 100" style={{ width: 280, height: 280, opacity: 0.028, stroke: "#4fd98a", strokeWidth: 1.2, fill: "none" }}>
-            <path d="M 0,90 C 40,80 50,20 95,30 C 98,31 93,42 88,44 C 75,49 55,80 75,98" />
-            <path d="M 38,62 C 37,55 28,54 26,60 C 25,66 33,67 35,63 Z" fill="rgba(79, 217, 138, 0.01)" />
-            <path d="M 68,48 C 69,41 78,43 79,49 C 79,54 71,54 70,50 Z" fill="rgba(79, 217, 138, 0.01)" />
-          </svg>
-        </div>
-      </div>
+
+
 
       {/* 柔らかい電脳グロー（中央、パララックス中） */}
       <div style={{
@@ -1103,12 +1188,14 @@ function BlockTray({
   filtered,
   onAdd,
   searching,
-  activeCategory
+  activeCategory,
+  pal
 }: {
   filtered: Tmpl[];
   onAdd: (t: Tmpl) => void;
   searching: boolean;
   activeCategory: Category;
+  pal: Record<Category, CatDef>;
 }) {
   // 演算カテゴリ専用のサブタブ状態
   const [calcSub, setCalcSub] = useState<CalcSubCat>("arith");
@@ -1237,7 +1324,7 @@ function BlockTray({
           scrollbarColor: "#4a4842 #2a2924"
         }}>
           {visibleTemplates.map(t => {
-            const c = CAT[t.category];
+            const c = pal[t.category];
 
             // キャンバスのブロックと統一した 3D キューブの内側ベベル
             const innerBorder = "inset 2px 2px 0 rgba(255,255,255,0.32), inset -2px -2px 0 rgba(0,0,0,0.22)";
@@ -1625,6 +1712,8 @@ export default function LogicPanel() {
   const [focusedField, setFocusedField] = useState<{ blockId: string; fieldId: string } | null>(null);
   /** インテリアテーマ — Phase 1 では切替トグルのみ、永続化は未実装（後で store に移す） */
   const [interiorTheme, setInteriorTheme] = useState<"workshop" | "cyber">("workshop");
+  // テーマ連動パレット：アナログ=暖色 / デジタル=蛍光。子(ToyCubeBlock/BlockTray)へ pal で渡す
+  const CAT = interiorTheme === "cyber" ? CAT_CYBER : CAT_WORKSHOP;
   // armed 接続（タップ→タップ）用の状態
   const [wireDrag, setWireDrag] = useState<{ sourceBlockId: string; slot: string; armed: boolean; accepts: Category[] } | null>(null);
   // マウスのキャンバス上の座標（ドラッグ中のワイヤー追従用）
@@ -2702,7 +2791,7 @@ export default function LogicPanel() {
 
         {/* 2行目：ブロックトレイ */}
         {showLib && (
-          <BlockTray filtered={filtered} onAdd={addBlock} searching={searching} activeCategory={activeCategory} />
+          <BlockTray filtered={filtered} onAdd={addBlock} searching={searching} activeCategory={activeCategory} pal={CAT} />
         )}
       </div>
 
@@ -3025,7 +3114,7 @@ export default function LogicPanel() {
                   const isCond = b.type === "co_if";
                   const inner = isCond && b.innerId ? blocks.find(x => x.id === b.innerId) ?? null : null;
 
-                  return <ToyCubeBlock key={b.id} b={b} pos={pos} selected={selected === b.id}
+                  return <ToyCubeBlock key={b.id} b={b} pos={pos} pal={CAT} selected={selected === b.id}
                     snapSlot={snapHint?.targetId === b.id ? snapHint.slot : null}
                     innerBlock={inner} blocks={blocks}
                     isEating={isCond && chomping === b.id}
@@ -3054,7 +3143,7 @@ export default function LogicPanel() {
                   const condBlock = eb ? blocks.find(d => d.innerId === eating) : null;
                   if (!eb || !condBlock) return null;
                   const dp = getPos(condBlock.id, blocks);
-                  return <ToyCubeBlock key={`eat-${eating}`} b={eb}
+                  return <ToyCubeBlock key={`eat-${eating}`} b={eb} pal={CAT}
                     pos={{ x: dp.x + BW + GAP, y: dp.y }}
                     selected={false} snapSlot={null} isEating={true}
                     blocks={blocks}
