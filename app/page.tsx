@@ -31,7 +31,7 @@ export default function HomePage() {
               CUBICENGINE<span className="text-accent ml-1">Studio</span>
             </span>
           </Link>
-          <span className="font-pixel text-[10px] text-muted/70">LOCAL EDITION</span>
+          <span className="font-pixel text-[10px]" style={{ color: "#f0a818", opacity: 0.9 }}>LOCAL EDITION</span>
         </div>
       </nav>
 
@@ -67,8 +67,8 @@ export default function HomePage() {
           アドオン・MODを設計・構築・エクスポート。
         </p>
 
-        <Link href="/editor" id="cta-create-now" className="mc-btn mc-btn--lg mc-btn--primary px-10 py-5 text-xl">
-          今すぐ作る ➔
+        <Link href="/editor" id="cta-create-now" className="mc-btn mc-btn--lg mc-btn--coral px-10 py-5 text-xl">
+          開発する ➔
         </Link>
 
         <p className="mt-6 text-[11px] text-muted/50 font-sans">

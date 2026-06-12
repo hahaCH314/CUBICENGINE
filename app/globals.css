@@ -31,12 +31,15 @@
   --surface-hover: #46443d;
   --surface-active: #5a574e;
   --border-color: #4a4842;      /* 石の継ぎ目風ボーダー */
-  --accent: #fb7185;            /* ヒーリング・ポーションピンク */
-  --accent-hover: #fda4af;
-  --accent-glow: rgba(251, 113, 133, 0.5);
+  --accent: #facc15;            /* テーマカラー：イエロー（黄鉱石/灯り） */
+  --accent-hover: #fde047;
+  --accent-glow: rgba(250, 204, 21, 0.5);
   --accent-aqua: #22d3ee;       /* ダイヤ・シアン（暗背景で明るめに） */
   --accent-sun: #fbbf24;        /* 金鉱石（暗背景で明るめに） */
   --accent-grape: #c084fc;      /* アメジスト（暗背景で明るめに） */
+  /* ── 確定パレット：基本=黄色 / 差し色=コーラルピンク / 深み=山吹色 ── */
+  --accent-coral: #fb7185;      /* 差し色：コーラルピンク */
+  --accent-gold: #f0a818;       /* 深み：山吹色 */
   --gradient-spectrum: linear-gradient(135deg, #fb7185 0%, #c084fc 33%, #22d3ee 66%, #fbbf24 100%);
   --gradient-warm:     linear-gradient(135deg, #fb7185 0%, #fbbf24 100%);
   --gradient-cool:     linear-gradient(135deg, #c084fc 0%, #22d3ee 100%);
@@ -116,8 +119,8 @@ button, a, input, select, textarea {
 
 /* Glowing animation for accent elements */
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px var(--accent-glow), 0 0 40px rgba(236, 72, 153, 0.12); }
-  50% { box-shadow: 0 0 30px var(--accent-glow), 0 0 60px rgba(236, 72, 153, 0.22); }
+  0%, 100% { box-shadow: 0 0 20px var(--accent-glow), 0 0 40px rgba(250, 204, 21, 0.12); }
+  50% { box-shadow: 0 0 30px var(--accent-glow), 0 0 60px rgba(250, 204, 21, 0.22); }
 }
 
 @keyframes float {
@@ -275,7 +278,8 @@ button, a, input, select, textarea {
 }
 
 /* バリエーション（色違い・白文字には黒影でマイクラ風 1px シャドウ） */
-.mc-btn--primary { --mc-btn-bg:#fb7185; --mc-btn-edge:#fecdd3; --mc-btn-shadow:#be123c; --mc-btn-text:#fff; --mc-btn-text-shadow:#be123c; }
+.mc-btn--primary { --mc-btn-bg:#facc15; --mc-btn-edge:#fde68a; --mc-btn-shadow:#a16207; --mc-btn-text:#3a2c05; --mc-btn-text-shadow:rgba(255,245,210,0.45); }
+.mc-btn--coral   { --mc-btn-bg:#fb7185; --mc-btn-edge:#fecdd3; --mc-btn-shadow:#a83a36; --mc-btn-text:#fff; --mc-btn-text-shadow:#7a2724; }
 .mc-btn--success { --mc-btn-bg:#10b981; --mc-btn-edge:#6ee7b7; --mc-btn-shadow:#064e3b; --mc-btn-text:#fff; --mc-btn-text-shadow:#064e3b; }
 .mc-btn--warning { --mc-btn-bg:#f59e0b; --mc-btn-edge:#fcd34d; --mc-btn-shadow:#7c2d12; --mc-btn-text:#fff; --mc-btn-text-shadow:#7c2d12; }
 .mc-btn--danger  { --mc-btn-bg:#dc2626; --mc-btn-edge:#fca5a5; --mc-btn-shadow:#7f1d1d; --mc-btn-text:#fff; --mc-btn-text-shadow:#7f1d1d; }

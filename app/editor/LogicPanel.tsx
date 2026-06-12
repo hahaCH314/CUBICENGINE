@@ -285,7 +285,7 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
 
   const anim = isEating ? "swallow 0.55s ease-in forwards"
     : isDeleting ? "blockDelete 0.6s cubic-bezier(0.36,0.07,0.19,0.97) forwards"
-      : isAdding ? "blockAdd 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards"
+      : isAdding ? "blockAdd 0.34s cubic-bezier(0.2, 0.8, 0.3, 1) forwards"
         : isRolling ? `blockRoll ${rollDur || 0.5}s cubic-bezier(0.25, 0.85, 0.4, 1.1) forwards` // ぶつかって右へ転がる→正面で着地
         : isPopping ? "blockPop 0.4s cubic-bezier(0.25, 1.5, 0.5, 1)" // ポップ！
           : isSnapping ? "blockSnap 0.12s ease-out"
@@ -609,7 +609,7 @@ function ToyFloor() {
   );
 }
 
-function WorkshopBackdrop({ zoom }: { zoom: number }) {
+function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: number } }) {
   return (
     <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
       <style dangerouslySetInnerHTML={{ __html: `
@@ -621,6 +621,21 @@ function WorkshopBackdrop({ zoom }: { zoom: number }) {
           0% { box-shadow: 0 0 20px #ff9f43, 0 0 40px rgba(255,159,67,0.5), inset 0 2px 4px rgba(255,255,255,0.6); }
           100% { box-shadow: 0 0 35px #ffb84d, 0 0 70px rgba(255,184,77,0.7), inset 0 2px 4px rgba(255,255,255,0.8); }
         }
+        @keyframes dust-float-1 {
+          0% { transform: translate(0, 0) scale(0.8); opacity: 0; }
+          50% { transform: translate(25px, -45px) scale(1.2); opacity: 0.35; }
+          100% { transform: translate(45px, -90px) scale(0.8); opacity: 0; }
+        }
+        @keyframes dust-float-2 {
+          0% { transform: translate(0, 0) scale(1.1); opacity: 0; }
+          50% { transform: translate(-30px, -60px) scale(0.7); opacity: 0.40; }
+          100% { transform: translate(-15px, -120px) scale(1.0); opacity: 0; }
+        }
+        @keyframes dust-float-3 {
+          0% { transform: translate(0, 0) scale(0.9); opacity: 0; }
+          50% { transform: translate(15px, -70px) scale(1.0); opacity: 0.30; }
+          100% { transform: translate(-10px, -140px) scale(0.7); opacity: 0; }
+        }
       `}} />
       
       {/* 暖かい地下室的グラデーション */}
@@ -629,18 +644,82 @@ function WorkshopBackdrop({ zoom }: { zoom: number }) {
         background: "radial-gradient(circle at center 40%, #291c13 0%, #0d0805 100%)",
       }} />
 
-      {/* ズームに合わせてスケールする親コンテナ（天井中央起点） */}
+      {/* 工房という"部屋"＝一点透視の空間（壁画ではなく、奥行きのある箱の中にいる） */}
+      <div style={{
+        position: "absolute", inset: 0, overflow: "hidden",
+        transform: `translate(${pan.x * 0.12}px, ${pan.y * 0.1}px) scale(${1 + (zoom - 1) * 0.3})`,
+        transformOrigin: "center center",
+        zIndex: 1,
+      }}>
+        {/* 天井（奥へ収束） */}
+        <div style={{
+          position: "absolute", top: "-4%", left: "-25%", right: "-25%", height: "48%",
+          transform: "perspective(440px) rotateX(-48deg)",
+          transformOrigin: "top center",
+          background: `
+            repeating-linear-gradient(90deg, rgba(0,0,0,0.16) 0px, rgba(0,0,0,0.16) 1px, transparent 1px, transparent 48px),
+            linear-gradient(to top, #1a110b 0%, #0c0704 100%)
+          `,
+          boxShadow: "inset 0 -50px 70px rgba(0,0,0,0.6)",
+        }} />
+
+        {/* 左の壁（消失点へ収束） */}
+        <div style={{
+          position: "absolute", left: "-3%", top: "-25%", bottom: "-25%", width: "36%",
+          transform: "perspective(440px) rotateY(48deg)",
+          transformOrigin: "left center",
+          background: "linear-gradient(to right, #0a0603 0%, #1c120b 100%)",
+          boxShadow: "inset -40px 0 60px rgba(0,0,0,0.55)",
+        }} />
+        {/* 右の壁（消失点へ収束） */}
+        <div style={{
+          position: "absolute", right: "-3%", top: "-25%", bottom: "-25%", width: "36%",
+          transform: "perspective(440px) rotateY(-48deg)",
+          transformOrigin: "right center",
+          background: "linear-gradient(to left, #0a0603 0%, #1c120b 100%)",
+          boxShadow: "inset 40px 0 60px rgba(0,0,0,0.55)",
+        }} />
+
+        {/* 奥の壁（遠く・小さく・暗い／横張りの板） */}
+        <div style={{
+          position: "absolute", left: "50%", top: "33%", width: "58%", height: "34%",
+          transform: "translateX(-50%)",
+          background: `
+            repeating-linear-gradient(to bottom, #1d130c 0px, #1d130c 20px, #150d08 20px, #150d08 22px),
+            linear-gradient(to bottom, #22150d, #110a05)
+          `,
+          boxShadow: "inset 0 0 70px rgba(0,0,0,0.75), 0 0 0 1px rgba(0,0,0,0.4)",
+        }} />
+
+        {/* 床（手前広く→奥へ収束＝立っている地面。板の継ぎ目が消失点へ） */}
+        <div style={{
+          position: "absolute", bottom: "-4%", left: "-25%", right: "-25%", height: "56%",
+          transform: "perspective(440px) rotateX(50deg)",
+          transformOrigin: "bottom center",
+          background: `
+            repeating-linear-gradient(90deg, rgba(0,0,0,0.30) 0px, rgba(0,0,0,0.30) 1.5px, transparent 1.5px, transparent 56px),
+            repeating-linear-gradient(to top, rgba(255,198,120,0.035) 0px, rgba(255,198,120,0.035) 1px, transparent 1px, transparent 42px),
+            linear-gradient(to top, #2c1d12 0%, #160e08 65%, #0d0805 100%)
+          `,
+          boxShadow: "inset 0 50px 90px rgba(0,0,0,0.5)",
+        }} />
+      </div>
+
+      {/* （配管バーは一旦撤去：全幅の棒が浮いて見えるため。工房の作り込みは後日まとめて） */}
+
+      {/* ズームに合わせてスケールする親コンテナ（天井中央起点、パララックス中） */}
       <div style={{
         position: "absolute",
         top: 0,
         left: "50%",
         transformOrigin: "top center",
-        transform: `translateX(-50%) scale(${zoom})`,
+        /* 奥の部屋の備品＝背景プレーン：パンもズームもブロックより小さく反応＝奥行き。常に頭上に居る */
+        transform: `translateX(calc(-50% + ${pan.x * 0.18}px)) translateY(${pan.y * 0.18}px) scale(${1 + (zoom - 1) * 0.45})`,
         width: 1,
         height: 1,
-        zIndex: 2,
+        zIndex: 3,
       }}>
-        {/* 揺れるランプ ＆ ついてくる光のグループ（内側で揺らす） */}
+        {/* 揺れるランプ ＆ ついてくる光（内側で揺らす） */}
         <div style={{
           transformOrigin: "top center",
           animation: "workshop-sway 6.5s ease-in-out infinite alternate",
@@ -650,22 +729,13 @@ function WorkshopBackdrop({ zoom }: { zoom: number }) {
           width: 1,
           height: 1,
         }}>
-          {/* 天井固定カバー */}
-          <div style={{
-            width: 24,
-            height: 8,
-            background: "#3e3227",
-            border: "1px solid #291f16",
-            borderRadius: "0 0 12px 12px",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.5)",
-            flexShrink: 0,
-          }} />
+          {/* 天井カバーは撤去（天井が見えると不自然なため）。コードは上の闇から降りてくる */}
 
-          {/* プレーンな細めの吊りコード */}
+          {/* プレーンな細めの吊りコード（上端は闇へ溶ける） */}
           <div style={{
             width: 3,
             height: 170,
-            background: "#1e1712",
+            background: "linear-gradient(to bottom, rgba(30,23,18,0) 0%, #1e1712 22%)",
             boxShadow: "0 0 2px rgba(0,0,0,0.6)",
             flexShrink: 0,
           }} />
@@ -720,31 +790,63 @@ function WorkshopBackdrop({ zoom }: { zoom: number }) {
             }} />
           </div>
 
-          {/* 電球から放たれる、揺れに完全についてくる暖かい光だまり（境界線をぼんやり滑らかにフェード） */}
+          {/* 芯のブルーム：電球そのものが空気ににじむ（郷愁の核）。電球中心(≈207)に重ねる */}
           <div style={{
             position: "absolute",
-            top: 180,
-            left: -450,
-            width: 900,
-            height: 700,
-            background: "radial-gradient(ellipse at center top, rgba(255,155,45,0.12) 0%, rgba(255,135,35,0.05) 25%, rgba(255,115,20,0.01) 55%, transparent 100%)",
+            top: 37,
+            left: -170,
+            width: 340,
+            height: 340,
+            background: "radial-gradient(circle at center, rgba(255,196,104,0.34) 0%, rgba(255,168,70,0.16) 28%, rgba(255,140,44,0.05) 55%, transparent 78%)",
+            filter: "blur(14px)",
             pointerEvents: "none",
             zIndex: -1,
           }} />
+          {/* 広い光だまり：電球起点に地面方向へ長く落ち、多段グラデで境目を闇に溶かす */}
+          <div style={{
+            position: "absolute",
+            top: 185,
+            left: -560,
+            width: 1120,
+            height: 920,
+            background: "radial-gradient(ellipse 48% 56% at center top, rgba(255,162,58,0.17) 0%, rgba(255,148,44,0.115) 16%, rgba(255,132,32,0.07) 32%, rgba(255,118,24,0.035) 52%, rgba(255,106,18,0.013) 72%, rgba(255,100,14,0.004) 88%, transparent 100%)",
+            filter: "blur(10px)",
+            pointerEvents: "none",
+            zIndex: -1,
+          }} />
+
+          {/* ホコリ粒子 (光の輪の中でゆっくり漂う) */}
+          <div style={{ position: "absolute", top: 190, left: -150, width: 300, height: 300, pointerEvents: "none", zIndex: 0 }}>
+            <div style={{ position: "absolute", left: "45%", top: "20%", width: 3, height: 3, borderRadius: "50%", background: "#ffeaa7", filter: "blur(0.5px)", animation: "dust-float-1 8s infinite ease-in-out" }} />
+            <div style={{ position: "absolute", left: "30%", top: "45%", width: 2.5, height: 2.5, borderRadius: "50%", background: "#ffb84d", filter: "blur(0.5px)", animation: "dust-float-2 11s infinite ease-in-out" }} />
+            <div style={{ position: "absolute", left: "60%", top: "35%", width: 3.5, height: 3.5, borderRadius: "50%", background: "#ffeaa7", filter: "blur(0.5px)", animation: "dust-float-3 9s infinite ease-in-out" }} />
+            <div style={{ position: "absolute", left: "50%", top: "60%", width: 2, height: 2, borderRadius: "50%", background: "#ffb84d", filter: "blur(0.5px)", animation: "dust-float-1 13s infinite ease-in-out" }} />
+          </div>
         </div>
       </div>
 
-      {/* 木目の極薄スリットテクスチャ */}
+      {/* レイヤー3: 手前の作業台／棚の縁 (パララックス大、画面最下部) */}
       <div style={{
-        position: "absolute", inset: 0,
-        backgroundImage: "repeating-linear-gradient(90deg, rgba(255,255,255,0.005) 0px, rgba(255,255,255,0.005) 1px, transparent 1px, transparent 28px)",
-        opacity: 0.15,
-      }} />
+        position: "absolute",
+        left: "-80px",
+        right: "-80px",
+        bottom: "-30px",
+        height: "70px",
+        background: "linear-gradient(to bottom, #1d140e 0%, #0d0805 100%)",
+        borderTop: "3px solid #2d1e15",
+        boxShadow: "0 -8px 24px rgba(0,0,0,0.9)",
+        transform: `translate(${pan.x * 0.42}px, ${pan.y * 0.35}px) scale(${1 + (zoom - 1) * 0.42})`,
+        transformOrigin: "center bottom",
+        zIndex: 4,
+      }}>
+        {/* 抽象的なツールの影は撤去（高ズームで謎の黒箱に見えるため） */}
+      </div>
 
-      {/* 周辺ビネット */}
+      {/* 周辺ビネット（やや緩めて光が闇へ滑らかに溶けるように） */}
       <div style={{
         position: "absolute", inset: 0,
-        boxShadow: "inset 0 0 220px rgba(0,0,0,0.95)",
+        boxShadow: "inset 0 0 300px rgba(0,0,0,0.82)",
+        zIndex: 5,
       }} />
     </div>
   );
@@ -762,64 +864,143 @@ function CyberBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: numbe
           0% { opacity: 0.04; }
           100% { opacity: 0.09; }
         }
+        @keyframes cyber-rotate {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes cyber-sparkle-1 {
+          0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+          50% { transform: translate(15px, -60px) scale(1.3); opacity: 0.45; }
+          100% { transform: translate(5px, -120px) scale(0.5); opacity: 0; }
+        }
+        @keyframes cyber-sparkle-2 {
+          0% { transform: translate(0, 0) scale(0.8); opacity: 0; }
+          50% { transform: translate(-20px, -80px) scale(1.0); opacity: 0.40; }
+          100% { transform: translate(-40px, -160px) scale(0.8); opacity: 0; }
+        }
       `}} />
       
       {/* 電脳グリーンをベースにした漆黒の闇背景 */}
       <div style={{
         position: "absolute", inset: 0,
-        background: "radial-gradient(circle at center, #020b04 0%, #000301 100%)",
+        background: "radial-gradient(circle at center, #010803 0%, #000201 100%)",
       }} />
 
       {/* スキャンライン（走査線）風ストライプ */}
       <div style={{
         position: "absolute", inset: 0,
-        backgroundImage: "linear-gradient(rgba(0,0,0,0.2) 50%, transparent 50%)",
+        backgroundImage: "linear-gradient(rgba(0,0,0,0.25) 50%, transparent 50%)",
         backgroundSize: "100% 4px",
         zIndex: 1,
       }} />
 
-      {/* ホログラム1色の細いグリッド（ズームとパンに同期！） */}
+      {/* レイヤー1: ホログラム1色の細いグリッド (ズームとパンに同期！パララックス小) */}
       <div style={{
-        position: "absolute", inset: 0,
-        backgroundImage: "linear-gradient(rgba(0, 255, 102, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 102, 0.035) 1px, transparent 1px)",
-        backgroundSize: `${50 * zoom}px ${50 * zoom}px`,
-        backgroundPosition: `${pan.x}px ${pan.y}px`,
-        opacity: 0.5,
+        position: "absolute",
+        inset: "-60px",
+        backgroundImage: "linear-gradient(rgba(79, 217, 138, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(79, 217, 138, 0.025) 1px, transparent 1px)",
+        backgroundSize: `${60 * zoom}px ${60 * zoom}px`,
+        backgroundPosition: `${pan.x * 0.15}px ${pan.y * 0.12}px`,
+        opacity: 0.6,
         zIndex: 2,
       }} />
 
-      {/* 柔らかい電脳グロー（中央） */}
+      {/* レイヤー2: 奥にうっすら浮かぶホログラム立方体 (ワイヤーフレーム、パララックス中) */}
       <div style={{
-        position: "absolute", top: "15%", left: "50%", transform: "translateX(-50%)", width: 700, height: 700,
-        background: "radial-gradient(circle, rgba(0, 255, 102, 0.05) 0%, transparent 70%)",
+        position: "absolute",
+        inset: 0,
+        transform: `translate(${pan.x * 0.2}px, ${pan.y * 0.15}px) scale(${1 + (zoom - 1) * 0.2})`,
+        transformOrigin: "center center",
+        zIndex: 3,
+      }}>
+        {/* 立方体1 (左上) */}
+        <div style={{ position: "absolute", left: "20%", top: "25%", transformOrigin: "center center", animation: "cyber-rotate 35s linear infinite" }}>
+          <svg viewBox="0 0 100 100" style={{ width: 110, height: 110, opacity: 0.028, stroke: "#4fd98a", strokeWidth: 1.2, fill: "none" }}>
+            <polygon points="50,20 80,35 50,50 20,35" />
+            <polygon points="20,35 50,50 50,80 20,65" />
+            <polygon points="50,50 80,35 80,65 50,80" />
+          </svg>
+        </div>
+        {/* 立方体2 (右下) */}
+        <div style={{ position: "absolute", right: "18%", bottom: "20%", transformOrigin: "center center", animation: "cyber-rotate 45s linear infinite reverse" }}>
+          <svg viewBox="0 0 100 100" style={{ width: 140, height: 140, opacity: 0.022, stroke: "#4fd98a", strokeWidth: 1.0, fill: "none" }}>
+            <polygon points="50,20 80,35 50,50 20,35" />
+            <polygon points="20,35 50,50 50,80 20,65" />
+            <polygon points="50,50 80,35 80,65 50,80" />
+          </svg>
+        </div>
+      </div>
+
+      {/* レイヤー3: 蔓・葉の有機的カーブ (人工×自然の融合、パララックス中〜大) */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        transform: `translate(${pan.x * 0.28}px, ${pan.y * 0.22}px) scale(${1 + (zoom - 1) * 0.28})`,
+        transformOrigin: "center center",
+        zIndex: 4,
+      }}>
+        {/* 左から伸びる蔓 */}
+        <div style={{ position: "absolute", left: "5%", top: "40%" }}>
+          <svg viewBox="0 0 100 100" style={{ width: 240, height: 240, opacity: 0.035, stroke: "#4fd98a", strokeWidth: 1.5, fill: "none" }}>
+            <path d="M 0,80 C 30,70 50,30 90,40 C 95,41 90,48 85,50 C 70,55 50,75 80,95" />
+            {/* 葉っぱ */}
+            <path d="M 33,52 C 30,46 22,48 20,54 C 19,59 27,57 29,53 Z" fill="rgba(79, 217, 138, 0.01)" />
+            <path d="M 62,43 C 63,36 71,36 74,42 C 75,47 67,48 65,44 Z" fill="rgba(79, 217, 138, 0.01)" />
+          </svg>
+        </div>
+        {/* 右から伸びる蔓 */}
+        <div style={{ position: "absolute", right: "8%", top: "15%", transform: "scaleX(-1)" }}>
+          <svg viewBox="0 0 100 100" style={{ width: 280, height: 280, opacity: 0.028, stroke: "#4fd98a", strokeWidth: 1.2, fill: "none" }}>
+            <path d="M 0,90 C 40,80 50,20 95,30 C 98,31 93,42 88,44 C 75,49 55,80 75,98" />
+            <path d="M 38,62 C 37,55 28,54 26,60 C 25,66 33,67 35,63 Z" fill="rgba(79, 217, 138, 0.01)" />
+            <path d="M 68,48 C 69,41 78,43 79,49 C 79,54 71,54 70,50 Z" fill="rgba(79, 217, 138, 0.01)" />
+          </svg>
+        </div>
+      </div>
+
+      {/* 柔らかい電脳グロー（中央、パララックス中） */}
+      <div style={{
+        position: "absolute", top: "15%", left: "50%", transform: `translateX(calc(-50% + ${pan.x * 0.2}px)) translateY(${pan.y * 0.15}px)`, width: 700, height: 700,
+        background: "radial-gradient(circle, rgba(79, 217, 138, 0.04) 0%, transparent 70%)",
         filter: "blur(50px)",
         animation: "cyber-pulse 6s ease-in-out infinite alternate",
-        zIndex: 3,
+        zIndex: 5,
       }} />
 
-      {/* ゆっくり上から下へ流れる水平スキャンスイープ */}
+      {/* ラメ・スパークル粒子層 (ホログラム線上をゆっくり漂う) */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 6 }}>
+        {/* ミント色スパークル */}
+        <div style={{ position: "absolute", left: "15%", bottom: "25%", width: 2, height: 2, borderRadius: "50%", background: "#cffbe4", boxShadow: "0 0 4px #cffbe4", animation: "cyber-sparkle-1 9s infinite ease-in-out" }} />
+        <div style={{ position: "absolute", left: "45%", bottom: "45%", width: 2.5, height: 2.5, borderRadius: "50%", background: "#cffbe4", boxShadow: "0 0 6px #cffbe4", animation: "cyber-sparkle-2 12s infinite ease-in-out" }} />
+        <div style={{ position: "absolute", left: "75%", bottom: "15%", width: 1.8, height: 1.8, borderRadius: "50%", background: "#cffbe4", boxShadow: "0 0 3px #cffbe4", animation: "cyber-sparkle-1 14s infinite ease-in-out" }} />
+        <div style={{ position: "absolute", left: "30%", bottom: "60%", width: 2, height: 2, borderRadius: "50%", background: "#cffbe4", boxShadow: "0 0 4px #cffbe4", animation: "cyber-sparkle-2 8s infinite ease-in-out" }} />
+        {/* ごく稀に金の微粒子を1粒だけ */}
+        <div style={{ position: "absolute", left: "60%", bottom: "35%", width: 3, height: 3, borderRadius: "50%", background: "#ffd700", boxShadow: "0 0 8px #ffd700", animation: "cyber-sparkle-1 16s infinite ease-in-out" }} />
+      </div>
+
+      {/* ゆっくり上から下へ流れる水平スキャンスイープ (画面固定) */}
       <div style={{
         position: "absolute",
         left: 0,
         right: 0,
         height: 120,
-        background: "linear-gradient(to bottom, transparent, rgba(0, 255, 102, 0.03) 50%, transparent)",
+        background: "linear-gradient(to bottom, transparent, rgba(79, 217, 138, 0.025) 50%, transparent)",
         animation: "cyber-scan 8s linear infinite",
-        zIndex: 4,
+        zIndex: 7,
       }} />
 
       {/* 周辺ビネット */}
       <div style={{
         position: "absolute", inset: 0,
-        boxShadow: "inset 0 0 220px rgba(0,0,0,0.95)",
-        zIndex: 5,
+        boxShadow: "inset 0 0 220px rgba(0,0,0,0.96)",
+        zIndex: 8,
       }} />
     </div>
   );
 }
 
 function ThemeBackdrop({ theme, zoom, pan }: { theme: "workshop" | "cyber"; zoom: number; pan: { x: number; y: number } }) {
-  return theme === "cyber" ? <CyberBackdrop zoom={zoom} pan={pan} /> : <WorkshopBackdrop zoom={zoom} />;
+  return theme === "cyber" ? <CyberBackdrop zoom={zoom} pan={pan} /> : <WorkshopBackdrop zoom={zoom} pan={pan} />;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -2196,15 +2377,10 @@ export default function LogicPanel() {
           100%{ transform: translateY(0) scaleY(1); filter: brightness(1); }
         }
         @keyframes blockAdd {
-          /* 高所から落下 → 着地でぐにゃっと潰れる → 跳ね返り → 微振動 → 静止 */
-          0%   { transform: translateY(-90px) scaleY(1.18) scaleX(0.92); opacity: 0; filter: drop-shadow(0 30px 6px rgba(0,0,0,0)); }
-          15%  { opacity: 1; }
-          50%  { transform: translateY(0) scaleY(1.18) scaleX(0.92); filter: drop-shadow(0 4px 10px rgba(0,0,0,0.45)); }
-          60%  { transform: translateY(0) scaleY(0.68) scaleX(1.20); filter: drop-shadow(0 1px 8px rgba(0,0,0,0.35)); }
-          72%  { transform: translateY(-9px) scaleY(1.08) scaleX(0.95); }
-          83%  { transform: translateY(0) scaleY(0.95) scaleX(1.03); }
-          92%  { transform: translateY(-2px) scaleY(1.02) scaleX(0.99); }
-          100% { transform: translateY(0) scaleY(1) scaleX(1); opacity: 1; }
+          /* 落下 → スッと静止（跳ねさせない・潰さない） */
+          0%   { transform: translateY(-44px); opacity: 0; }
+          30%  { opacity: 1; }
+          100% { transform: translateY(0); opacity: 1; }
         }
         /* ぶつかって右へ転がる → 必ず正面で着地（ヒマワリ調整：速さ/ぽよん/転がり量/個体差） */
         @keyframes blockRoll {
@@ -2547,35 +2723,46 @@ export default function LogicPanel() {
         )}
 
         {showHelp && (
-          <div className="mc-panel" style={{ position: "absolute", top: 10, right: 10, zIndex: 40, width: 250, background: "var(--surface)", overflow: "hidden" }}>
-            <div style={{ padding: "10px 14px 8px", borderBottom: "2px solid var(--border-color)", background: "var(--panel)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span className="font-pixel text-[11px] text-accent">🎮 HOW TO PLAY</span>
-              <button onClick={() => setShowHelp(false)} className="mc-btn mc-btn--sm" style={{ padding: "2px 6px" }}>✕</button>
+          <div style={{
+            position: "absolute", top: 10, right: 10, zIndex: 40, width: 244,
+            background: "rgba(22, 18, 14, 0.92)",
+            backdropFilter: "blur(8px)",
+            border: "1px solid rgba(212, 175, 110, 0.22)",
+            borderRadius: 12,
+            boxShadow: "0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)",
+            overflow: "hidden",
+          }}>
+            <div style={{
+              padding: "11px 14px",
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              borderBottom: "1px solid rgba(212,175,110,0.15)",
+            }}>
+              <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "#d8b46a", textTransform: "uppercase" }}>How to play</span>
+              <button onClick={() => setShowHelp(false)} style={{
+                width: 20, height: 20, borderRadius: 6, border: "none",
+                background: "rgba(255,255,255,0.06)", color: "#a59c8a", cursor: "pointer",
+                fontSize: 12, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center",
+              }}>✕</button>
             </div>
-            <div style={{ padding: "12px 14px" }}>
+            <div style={{ padding: "12px 14px 6px" }}>
               {[
-                { icon: "🧩", s: "1", t: "上部トレイのブロックをクリックで追加" },
-                { icon: "👆", s: "2", t: "条件のスロット（もしも/そうなら）をタップ → つなげる相手が光る" },
-                { icon: "✨", s: "3", t: "光った相手をタップで接続（カチッ！）" },
-                { icon: "🗑️", s: "4", t: "ブロックを選んで Delete で削除 / Ctrl+D でコピー" },
-                { icon: "⎋", s: "⎋", t: "Esc で接続をキャンセル" },
+                { s: "1", t: "上部トレイのブロックをクリックで追加" },
+                { s: "2", t: "条件のスロット（もしも/そうなら）をタップ → つなげる相手が光る" },
+                { s: "3", t: "光った相手をタップで接続（カチッ！）" },
+                { s: "4", t: "ブロックを選んで Delete で削除 / Ctrl+D でコピー" },
+                { s: "Esc", t: "Esc で接続をキャンセル" },
               ].map((s, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 12 }}>
-                  <span className="mc-bevel-inset" style={{ width: 24, height: 24, background: "var(--panel)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, flexShrink: 0 }}>{s.icon}</span>
-                  <div>
-                    <span className="mc-badge mc-badge--sm" style={{
-                      marginBottom: 4,
-                      fontSize: 9,
-                      background: "#3e3b35",
-                      color: "#e5c060",
-                      borderTopColor: "#4a4842",
-                      borderLeftColor: "#4a4842",
-                      borderRightColor: "#1f1e1a",
-                      borderBottomColor: "#1f1e1a",
-                      boxShadow: "0 2px 0 #1f1e1a",
-                    }}>STEP {s.s}</span>
-                    <div style={{ fontSize: 11, color: "var(--foreground)", fontWeight: 600, lineHeight: 1.4 }}>{s.t}</div>
-                  </div>
+                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 12 }}>
+                  <span style={{
+                    flexShrink: 0, width: 22, height: 22, borderRadius: "50%",
+                    background: "linear-gradient(160deg, #8a6f4a, #5b4730)",
+                    border: "1px solid rgba(212,175,110,0.5)",
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.25), 0 1px 2px rgba(0,0,0,0.4)",
+                    color: "#f3e3c0", fontSize: s.s.length > 1 ? 9 : 11, fontWeight: 800,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontFamily: "monospace",
+                  }}>{s.s}</span>
+                  <div style={{ fontSize: 11.5, color: "rgba(245,240,232,0.9)", fontWeight: 500, lineHeight: 1.45, paddingTop: 2 }}>{s.t}</div>
                 </div>
               ))}
             </div>
