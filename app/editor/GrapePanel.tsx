@@ -182,8 +182,8 @@ export default function GrapePanel() {
         {/* 空状態：シンプルな案内（前の版に戻す） */}
         {fruits.length === 0 && (
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-            <div style={{ padding: "16px 24px", borderRadius: 24, border: "2px dashed rgba(150,235,200,0.45)", color: "#cdeede", fontWeight: 800, fontSize: 14, textAlign: "center", background: "rgba(255,255,255,0.06)", animation: "grape-breathe 3s ease-in-out infinite" }}>
-              🌱 どこかをタップして木をはやそう
+            <div style={{ padding: "16px 28px", borderRadius: 24, border: "2px dashed rgba(150,235,200,0.45)", color: "#cdeede", fontWeight: 900, fontSize: 16, letterSpacing: "0.18em", textAlign: "center", background: "rgba(255,255,255,0.06)", animation: "grape-breathe 3s ease-in-out infinite" }}>
+              🌳 TAP
             </div>
           </div>
         )}
