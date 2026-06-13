@@ -65,14 +65,13 @@ function ItemGlyph({ type, size }: { type: string; size: number }) {
   return Ic ? <Ic size={size} style={{ display: "block", flexShrink: 0 }} /> : null;
 }
 
-interface Fruit { id: string; item: ItemDef; text: string; born: number; }
+interface Fruit { id: string; item: ItemDef; text: string; born: number; x: number; y: number; }
 interface Spawn { x: number; y: number; phase: "pick" | "type"; item?: ItemDef; editId?: string; }
 let _gid = 1;
 
 export default function GrapePanel() {
   const [fruits, setFruits] = useState<Fruit[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [pump, setPump] = useState(0);
   const [sending, setSending] = useState(false);
   const [spawn, setSpawn] = useState<Spawn | null>(null);
   const [draft, setDraft] = useState("");
@@ -103,27 +102,27 @@ export default function GrapePanel() {
     setSpawn({ ...coords(e), phase: "pick" });
   }, [sending]);
 
-  const doGenerate = (item: ItemDef, text: string) => {
+  // 植えた場所(x,y)に実が生る
+  const doGenerate = (item: ItemDef, text: string, x: number, y: number) => {
     const id = `g${_gid++}`;
-    setFruits((f) => [...f, { id, item, text, born: Date.now() }]);
+    setFruits((f) => [...f, { id, item, text, born: Date.now(), x, y }]);
     setSelectedId(id);
     playPop();
-    if (item.cat !== "trigger") setPump((p) => p + 1);
   };
 
   const pickItem = (item: ItemDef) => {
     if (!spawn) return;
     if (item.needsText) {
-      setDraft(item.placeholder ? "" : "");
+      setDraft("");
       setSpawn({ ...spawn, phase: "type", item });
       setTimeout(() => inputRef.current?.focus(), 20);
-    } else { doGenerate(item, ""); setSpawn(null); }
+    } else { doGenerate(item, "", spawn.x, spawn.y); setSpawn(null); }
   };
 
   const confirmType = () => {
     if (!spawn?.item) return;
     if (spawn.editId) setFruits((f) => f.map((x) => x.id === spawn.editId ? { ...x, text: draft } : x));
-    else doGenerate(spawn.item, draft);
+    else doGenerate(spawn.item, draft, spawn.x, spawn.y);
     setSpawn(null);
   };
 
@@ -146,9 +145,6 @@ export default function GrapePanel() {
     setShown(0); setReveal(fruitsToCode(h, sp)); setSending(true); playSend();
   }, [fruits]);
 
-  const hub = fruits.find((x) => x.item.cat === "trigger") || null;
-  const spokes = fruits.filter((x) => x !== hub);
-  const hubGrow = 1 + Math.min(spokes.length * 0.05, 0.32);
 
   return (
     <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
@@ -190,52 +186,37 @@ export default function GrapePanel() {
           <span style={{ fontSize: 18 }}>🌿</span> GROVE <span style={{ fontSize: 10, fontWeight: 800, opacity: 0.7, letterSpacing: "0.1em" }}>JAVA</span>
         </div>
 
-        {/* 房（ハブ＋スポーク） */}
-        <div style={{ minHeight: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "70px 20px 40px" }}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", animation: sending ? "suck-to-mc 0.62s cubic-bezier(0.55,0,0.85,0.35) forwards" : undefined, transformOrigin: "center bottom" }}>
-            {hub ? (
-              <div style={{ position: "relative", transform: `scale(${hubGrow})`, transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)" }}>
-                {pump > 0 && <span key={`ring${pump}`} style={{ position: "absolute", inset: -8, borderRadius: 30, pointerEvents: "none", animation: "hub-pump 0.55s ease-out", boxShadow: "0 0 0 2px #aef7df, 0 0 22px #5fe0b8" }} />}
-                <Grape fr={hub} isHub selected={hub.id === selectedId} onSelect={openEdit} onDelete={() => removeFruit(hub.id)} />
-              </div>
-            ) : (
-              <div style={{ padding: "16px 24px", borderRadius: 24, border: "2px dashed rgba(150,235,200,0.45)", color: "#cdeede", fontWeight: 800, fontSize: 14, textAlign: "center", background: "rgba(255,255,255,0.06)", pointerEvents: "none", animation: "grape-breathe 3s ease-in-out infinite" }}>
-                🌱 どこかをタップして種をまこう
-              </div>
-            )}
-
-            {spokes.length > 0 && (
-              <>
-                <div style={{ position: "relative", width: 3, height: 18, background: "linear-gradient(to bottom,#4a9c6e,#3c7d59)", borderRadius: 2 }}>
-                  {pump > 0 && <span key={`pulse${pump}`} style={{ position: "absolute", left: -2.5, bottom: 0, width: 8, height: 8, borderRadius: "50%", background: "#cffbe4", boxShadow: "0 0 10px #5fe0b8, 0 0 4px #aef7df", animation: "stem-pulse 0.5s ease-out", pointerEvents: "none" }} />}
-                </div>
-                <div style={{ position: "relative", display: "flex", gap: 16, paddingTop: 14, flexWrap: "wrap", justifyContent: "center", maxWidth: 760 }}>
-                  {spokes.length > 1 && <div style={{ position: "absolute", top: 0, left: "12%", right: "12%", height: 3, background: "#4a9c6e", borderRadius: 2 }} />}
-                  {spokes.map((s) => (
-                    <div key={s.id} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                      <div style={{ width: 3, height: 14, background: "#4a9c6e", borderRadius: 2 }} />
-                      <Grape fr={s} selected={s.id === selectedId} onSelect={openEdit} onDelete={() => removeFruit(s.id)} />
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
+        {/* 空ならヒント */}
+        {fruits.length === 0 && (
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+            <div style={{ padding: "16px 24px", borderRadius: 24, border: "2px dashed rgba(150,235,200,0.45)", color: "#cdeede", fontWeight: 800, fontSize: 14, textAlign: "center", background: "rgba(255,255,255,0.06)", animation: "grape-breathe 3s ease-in-out infinite" }}>
+              🌱 どこかをタップして木をはやそう
+            </div>
           </div>
+        )}
 
-          {fruits.length > 0 && (
-            <>
-              <div style={{ width: 3, height: 26, background: "linear-gradient(to bottom,#3c7d59,transparent)", borderRadius: 2, marginTop: 14 }} />
-              <button type="button" onClick={(e) => { e.stopPropagation(); sendToMc(); }} disabled={sending} style={{
-                padding: "9px 18px", borderRadius: 12, border: "none", cursor: sending ? "default" : "pointer",
-                background: "linear-gradient(135deg,#5aa0e0,#3d7ec0)", color: "#fff", fontWeight: 900, fontSize: 13,
-                boxShadow: "0 4px 16px rgba(61,126,192,0.5), inset 0 1px 0 rgba(255,255,255,0.4)",
-                display: "flex", alignItems: "center", gap: 6, animation: "mc-invite 1.8s ease-in-out infinite",
-              }}>
-                <span style={{ fontSize: 15 }}>⛏️</span> マイクラへ放つ ▶
-              </button>
-            </>
-          )}
+        {/* 植えた場所で育つ：実は植えた点の上に生り、下へ芽の茎が伸びる */}
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", animation: sending ? "suck-to-mc 0.62s cubic-bezier(0.55,0,0.85,0.35) forwards" : undefined, transformOrigin: "center bottom" }}>
+          {fruits.map((fr) => (
+            <div key={fr.id} style={{ position: "absolute", left: fr.x, top: fr.y, transform: "translate(-50%, -100%)", pointerEvents: "auto", display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <Grape fr={fr} selected={fr.id === selectedId} onSelect={openEdit} onDelete={() => removeFruit(fr.id)} />
+              <div style={{ width: 3, height: 20, background: "linear-gradient(to bottom,#4a9c6e,transparent)", borderRadius: 2 }} />
+            </div>
+          ))}
         </div>
+
+        {/* マイクラへ放つ（固定・右下） */}
+        {fruits.length > 0 && (
+          <button type="button" onClick={(e) => { e.stopPropagation(); sendToMc(); }} disabled={sending} style={{
+            position: "absolute", right: 20, bottom: 20, zIndex: 10,
+            padding: "10px 18px", borderRadius: 12, border: "none", cursor: sending ? "default" : "pointer",
+            background: "linear-gradient(135deg,#5aa0e0,#3d7ec0)", color: "#fff", fontWeight: 900, fontSize: 13,
+            boxShadow: "0 4px 16px rgba(61,126,192,0.5), inset 0 1px 0 rgba(255,255,255,0.4)",
+            display: "flex", alignItems: "center", gap: 6, animation: "mc-invite 1.8s ease-in-out infinite",
+          }}>
+            <span style={{ fontSize: 15 }}>⛏️</span> マイクラへ放つ ▶
+          </button>
+        )}
 
         {/* さりげない演出：光るコードが流れて、そのまま空へ昇って消える */}
         {reveal && (
