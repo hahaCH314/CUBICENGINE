@@ -74,7 +74,7 @@ export default function RootLayout({
             fontSize: 13,
             fontWeight: 700,
             lineHeight: 1,
-            color: "#fb923c",
+            color: "#f0a818",
             pointerEvents: "none",
             whiteSpace: "nowrap",
             letterSpacing: "0.02em",
