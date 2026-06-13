@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, type ComponentType } from "react";
+import { GrapeIcons, type IconProps } from "./grapeIcons";
 
 /* ──────────────────────────────────────────────────────────────
    GrapePanel — 🌿 GROVE（JAVA / 自然×メタバース）/ 構造は「ハブ」
@@ -34,6 +35,35 @@ const ITEMS: ItemDef[] = [
   { type: "repeat",   label: "くりかえす",     emoji: "🔄", cat: "loop",    needsText: true,  placeholder: "3 回" },
   { type: "number",   label: "数",             emoji: "💎", cat: "value",   needsText: true,  placeholder: "10" },
 ];
+
+// 漂う発光の粒（両脇に多め＝遊び場の息づかい）
+const MOTES: { x: string; y: string; s: number; c: string; d: number; delay: number }[] = [
+  { x: "6%",  y: "30%", s: 4,   c: "#7df0c0", d: 7,  delay: 0 },
+  { x: "10%", y: "62%", s: 3,   c: "#aef7df", d: 9,  delay: 1 },
+  { x: "4%",  y: "78%", s: 5,   c: "#5fe0b8", d: 8,  delay: 2 },
+  { x: "14%", y: "45%", s: 2.5, c: "#cffbe4", d: 11, delay: 0.5 },
+  { x: "20%", y: "15%", s: 2.5, c: "#9ff0c8", d: 11, delay: 2 },
+  { x: "90%", y: "35%", s: 4,   c: "#7df0c0", d: 8,  delay: 1.5 },
+  { x: "94%", y: "60%", s: 3,   c: "#aef7df", d: 10, delay: 0 },
+  { x: "88%", y: "75%", s: 5,   c: "#5fe0b8", d: 9,  delay: 2.5 },
+  { x: "84%", y: "50%", s: 2.5, c: "#cffbe4", d: 12, delay: 1 },
+  { x: "78%", y: "18%", s: 2.5, c: "#9ff0c8", d: 12, delay: 1.2 },
+  { x: "30%", y: "85%", s: 3,   c: "#aef7df", d: 10, delay: 0.8 },
+  { x: "65%", y: "82%", s: 3.5, c: "#7df0c0", d: 9,  delay: 1.8 },
+  { x: "48%", y: "20%", s: 2,   c: "#cffbe4", d: 13, delay: 0.3 },
+  { x: "50%", y: "70%", s: 2,   c: "#aef7df", d: 14, delay: 0.6 },
+];
+
+// アイテム種別 → 単色SVGアイコン（ヒマワリ作 grapeIcons・currentColorで色は親に追従）
+const ICON_MAP: Record<string, ComponentType<IconProps>> = {
+  on_join: GrapeIcons.Join, on_break: GrapeIcons.Break, on_chat: GrapeIcons.Chat,
+  say: GrapeIcons.Message, give: GrapeIcons.Item, effect: GrapeIcons.Effect,
+  if: GrapeIcons.If, repeat: GrapeIcons.Loop, number: GrapeIcons.Number,
+};
+function ItemGlyph({ type, size }: { type: string; size: number }) {
+  const Ic = ICON_MAP[type];
+  return Ic ? <Ic size={size} style={{ display: "block", flexShrink: 0 }} /> : null;
+}
 
 interface Fruit { id: string; item: ItemDef; text: string; born: number; }
 interface Spawn { x: number; y: number; phase: "pick" | "type"; item?: ItemDef; editId?: string; }
@@ -121,20 +151,36 @@ export default function GrapePanel() {
     <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
       <style dangerouslySetInnerHTML={{ __html: KEYFRAMES }} />
 
-      {/* 舞台（全面＝没入背景／タップで種をまく） */}
+      {/* 舞台（全面＝没入背景：アバター/パンドラの夜の森／タップで種をまく） */}
       <div ref={stageRef} onClick={openPick} style={{
         position: "absolute", inset: 0, overflow: "auto",
-        background: "radial-gradient(125% 95% at 50% 8%, #43645a 0%, #36534b 45%, #2b443d 100%)",
+        background: "radial-gradient(120% 95% at 50% 2%, #163a33 0%, #0d251f 42%, #061310 100%)",
         cursor: sending ? "default" : "crosshair",
       }}>
-        {/* メタバースのグリッド（両脇まで・中央へ集中） */}
+        {/* かすかなデジタル格子（自然×メタバースの"メタ"側） */}
         <div style={{
           position: "absolute", inset: 0, pointerEvents: "none",
-          backgroundImage: "linear-gradient(rgba(150,235,200,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(150,235,200,0.08) 1px, transparent 1px)",
-          backgroundSize: "40px 40px",
-          maskImage: "radial-gradient(120% 90% at 50% 12%, #000 35%, transparent 92%)",
-          WebkitMaskImage: "radial-gradient(120% 90% at 50% 12%, #000 35%, transparent 92%)",
+          backgroundImage: "linear-gradient(rgba(120,230,190,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(120,230,190,0.045) 1px, transparent 1px)",
+          backgroundSize: "44px 44px",
+          maskImage: "radial-gradient(120% 90% at 50% 15%, #000 28%, transparent 86%)",
+          WebkitMaskImage: "radial-gradient(120% 90% at 50% 15%, #000 28%, transparent 86%)",
         }} />
+        {/* 上からの光芒（god rays） */}
+        <div style={{ position: "absolute", top: "-12%", left: "50%", transform: "translateX(-50%)", width: "62%", height: "95%", pointerEvents: "none", filter: "blur(7px)", opacity: 0.8,
+          background: "conic-gradient(from 178deg at 50% 0%, transparent 0deg, rgba(150,235,200,0.07) 10deg, transparent 20deg, rgba(150,235,200,0.05) 30deg, transparent 40deg, rgba(150,235,200,0.06) 50deg, transparent 60deg)" }} />
+        {/* 両脇のバイオ発光（＝遊び場） */}
+        <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "24%", pointerEvents: "none", background: "radial-gradient(58% 48% at 0% 58%, rgba(60,220,160,0.20), transparent 72%)" }} />
+        <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "24%", pointerEvents: "none", background: "radial-gradient(58% 48% at 100% 46%, rgba(45,205,180,0.18), transparent 72%)" }} />
+        {/* 底のもや */}
+        <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: "32%", pointerEvents: "none", background: "linear-gradient(to top, rgba(35,150,120,0.22), transparent)", filter: "blur(12px)" }} />
+        {/* 漂う発光の粒（両脇に多め） */}
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+          {MOTES.map((m, i) => (
+            <span key={i} style={{ position: "absolute", left: m.x, top: m.y, width: m.s, height: m.s, borderRadius: "50%", background: m.c, boxShadow: `0 0 ${m.s * 2.5}px ${m.c}`, animation: `mote ${m.d}s ease-in-out ${m.delay}s infinite` }} />
+          ))}
+        </div>
+        {/* 周辺ビネット（中央へ集中させる） */}
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", boxShadow: "inset 0 0 200px rgba(0,0,0,0.72)" }} />
 
         {/* タイトル＝GROVE */}
         <div style={{ position: "absolute", top: 16, left: 20, zIndex: 2, fontWeight: 900, fontSize: 15, color: "#d3f0e2", letterSpacing: "0.18em", display: "flex", alignItems: "center", gap: 8, textShadow: "0 1px 3px rgba(0,0,0,0.4)", pointerEvents: "none" }}>
@@ -241,11 +287,11 @@ export default function GrapePanel() {
                         <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
                           {items.map((it) => (
                             <button key={it.type} type="button" onClick={() => pickItem(it)} style={{
-                              display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 9px", borderRadius: 9, border: "none", cursor: "pointer",
+                              display: "inline-flex", alignItems: "center", gap: 5, padding: "6px 9px", borderRadius: 9, border: "none", cursor: "pointer",
                               color: "#fff", fontWeight: 800, fontSize: 11.5, background: `linear-gradient(135deg, ${cs.glow}, ${cs.color})`,
                               boxShadow: `0 0 0 1px rgba(255,255,255,0.25) inset`, textShadow: "0 1px 1px rgba(0,0,0,0.3)",
                             }}>
-                              <span style={{ fontSize: 13 }}>{it.emoji}</span>{it.label}{it.needsText && <span style={{ fontSize: 9, opacity: 0.85 }}>✎</span>}
+                              <ItemGlyph type={it.type} size={14} />{it.label}{it.needsText && <span style={{ fontSize: 9, opacity: 0.85 }}>✎</span>}
                             </button>
                           ))}
                         </div>
@@ -255,8 +301,8 @@ export default function GrapePanel() {
                 </div>
               ) : spawn.item ? (
                 <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 240 }}>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: "#fff", display: "inline-flex", alignItems: "center", gap: 4, background: CAT_STYLE[spawn.item.cat].color, padding: "5px 9px", borderRadius: 8, boxShadow: `0 0 10px ${CAT_STYLE[spawn.item.cat].glow}`, whiteSpace: "nowrap" }}>
-                    <span>{spawn.item.emoji}</span>{spawn.item.label}
+                  <span style={{ fontSize: 12, fontWeight: 800, color: "#fff", display: "inline-flex", alignItems: "center", gap: 5, background: CAT_STYLE[spawn.item.cat].color, padding: "5px 9px", borderRadius: 8, boxShadow: `0 0 10px ${CAT_STYLE[spawn.item.cat].glow}`, whiteSpace: "nowrap" }}>
+                    <ItemGlyph type={spawn.item.type} size={14} />{spawn.item.label}
                   </span>
                   <input ref={inputRef} value={draft} placeholder={spawn.item.placeholder || "中身を書く…"}
                     onChange={(e) => setDraft(e.target.value)}
@@ -289,8 +335,8 @@ function Grape({ fr, selected, isHub, onSelect, onDelete }: {
         textAlign: "center", position: "relative",
       }}>
         <div style={{ position: "absolute", top: 7, left: 16, width: 22, height: 14, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,255,255,0.85), transparent 70%)", pointerEvents: "none" }} />
-        <div style={{ fontSize: isHub ? 12 : 11, fontWeight: 900, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 4, textShadow: "0 1px 2px rgba(0,0,0,0.35)" }}>
-          <span style={{ fontSize: isHub ? 15 : 13 }}>{fr.item.emoji}</span>{fr.item.label}
+        <div style={{ fontSize: isHub ? 12 : 11, fontWeight: 900, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 5, textShadow: "0 1px 2px rgba(0,0,0,0.35)" }}>
+          <ItemGlyph type={fr.item.type} size={isHub ? 16 : 14} />{fr.item.label}
         </div>
         {fr.item.needsText && (fr.text ? (
           <div style={{ fontSize: 13, fontWeight: 800, color: "#fff", marginTop: 2, wordBreak: "break-word", textShadow: "0 1px 2px rgba(0,0,0,0.4)" }}>{fr.text}</div>
@@ -366,4 +412,5 @@ const KEYFRAMES = `
   @keyframes pop-in { 0%{opacity:0;transform:translate(-50%,10px) scale(0.7)} 100%{opacity:1;transform:translate(-50%,10px) scale(1)} }
   @keyframes reveal-fade { 0%{opacity:0} 100%{opacity:1} }
   @keyframes code-line-in { 0%{opacity:0;transform:translateX(-6px)} 100%{opacity:1;transform:translateX(0)} }
+  @keyframes mote { 0%,100%{opacity:0.18;transform:translateY(0)} 50%{opacity:0.85;transform:translateY(-14px)} }
 `;
