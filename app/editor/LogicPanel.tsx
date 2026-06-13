@@ -1645,6 +1645,14 @@ export default function LogicPanel() {
   const [showCode, setShowCode] = useState(false);
   const [showHelp, setShowHelp] = useState(true);
   const [genCode, setGenCode] = useState("");
+  const [reveal, setReveal] = useState<string[] | null>(null); // ✨コード誕生の演出
+  const [revShown, setRevShown] = useState(0);
+  useEffect(() => {
+    if (!reveal) return;
+    let i = 0;
+    const id = setInterval(() => { i++; setRevShown(i); if (i >= reveal.length) clearInterval(id); }, 70);
+    return () => clearInterval(id);
+  }, [reveal]);
   const [snapHint, setSnapHint] = useState<{ targetId: string; slot: string; pos: { x: number; y: number } } | null>(null);
   const [showSnapGuide, setShowSnapGuide] = useState(true);
   const [eating, setEating] = useState<string | null>(null);
@@ -2629,7 +2637,8 @@ export default function LogicPanel() {
             disabled={!isLogicValid}
             onClick={() => {
               playSuccessSound();
-              showToast("アドオンデータをエクスポートしました！マイクラを起動してください！", "success");
+              const lines = (genCode || "// まず きっかけ ブロックを置いて繋げよう").split("\n");
+              setRevShown(0); setReveal(lines);
             }}
             title={isLogicValid ? "アドオンをマイクラへ出力する" : "きっかけブロックを配置して繋げてください"}
             style={{
@@ -2806,7 +2815,26 @@ export default function LogicPanel() {
           </div>
         )}
 
-
+        {/* ✨ コード誕生の魔法（SPROUT＝工房の暖色／本物の出力コードが生まれる） */}
+        {reveal && (
+          <div style={{
+            position: "absolute", inset: 0, zIndex: 200,
+            background: "radial-gradient(120% 100% at 50% 25%, #1c130a 0%, #0c0805 100%)",
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24,
+            animation: "toastSlideDown 0.3s ease-out",
+          }}>
+            <div style={{ fontSize: 13, fontWeight: 900, letterSpacing: "0.2em", color: "#ffcf8a", marginBottom: 8, textShadow: "0 0 14px #ffab4d" }}>✨ あなたが書いたコードが生まれた</div>
+            <pre style={{ fontFamily: "monospace", fontSize: 13, lineHeight: 1.7, color: "#ffe2b0", textShadow: "0 0 8px rgba(255,171,77,0.4)", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,171,77,0.25)", borderRadius: 12, padding: "16px 22px", maxWidth: 720, width: "100%", overflow: "auto", maxHeight: "55%", margin: 0, whiteSpace: "pre-wrap", boxShadow: "0 0 40px rgba(255,171,77,0.12)" }}>
+              {reveal.slice(0, revShown).join("\n")}{revShown < reveal.length ? " ▋" : ""}
+            </pre>
+            {revShown >= reveal.length && (
+              <div style={{ marginTop: 18, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+                <div style={{ fontSize: 16, fontWeight: 900, color: "#fff", textShadow: "0 0 18px #ffab4d" }}>🟢 マイクラで動く — これ、<span style={{ color: "#ffd9a0" }}>あなたが創った</span>。</div>
+                <button type="button" onClick={() => setReveal(null)} style={{ border: "none", cursor: "pointer", background: "linear-gradient(135deg,#f0b25a,#b8742a)", color: "#3a2405", fontWeight: 900, fontSize: 13, padding: "9px 20px", borderRadius: 11, boxShadow: "0 4px 16px rgba(240,178,90,0.4)" }}>とじる</button>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* コードプレビュー */}
         {showCode && (
