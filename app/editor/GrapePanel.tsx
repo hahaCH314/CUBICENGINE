@@ -85,7 +85,10 @@ export default function GrapePanel() {
   useEffect(() => {
     if (!reveal) return;
     let i = 0;
-    const id = setInterval(() => { i++; setShown(i); if (i >= reveal.length) clearInterval(id); }, 95);
+    const id = setInterval(() => {
+      i++; setShown(i);
+      if (i >= reveal.length) { clearInterval(id); setTimeout(() => { setReveal(null); setSending(false); }, 1700); }
+    }, 80);
     return () => clearInterval(id);
   }, [reveal]);
 
@@ -234,35 +237,24 @@ export default function GrapePanel() {
           )}
         </div>
 
-        {/* ✨ コード誕生の魔法（魂＝「作った！」の高揚＋コードのロマン） */}
+        {/* さりげない演出：光るコードが流れて、そのまま空へ昇って消える */}
         {reveal && (
-          <div onClick={(e) => e.stopPropagation()} style={{
-            position: "absolute", inset: 0, zIndex: 30,
-            background: "radial-gradient(120% 100% at 50% 30%, #0c1a14 0%, #050a07 100%)",
-            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-            padding: 24, animation: "reveal-fade 0.4s ease-out",
+          <div style={{
+            position: "absolute", inset: 0, zIndex: 30, pointerEvents: "none",
+            background: "rgba(6,14,10,0.5)",
+            display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
+            animation: "reveal-fade 0.6s ease-out",
           }}>
-            <div style={{ fontSize: 13, fontWeight: 900, letterSpacing: "0.2em", color: "#9ff0c8", marginBottom: 8, textShadow: "0 0 14px #5fe0b8" }}>
-              ✨ あなたが書いたコードが生まれた
-            </div>
-            <div style={{ fontFamily: "monospace", fontSize: 14, lineHeight: 1.7, background: "rgba(0,0,0,0.35)", border: "1px solid rgba(95,224,184,0.2)", borderRadius: 12, padding: "16px 22px", maxWidth: 700, width: "100%", overflow: "auto", maxHeight: "55%", boxShadow: "0 0 40px rgba(95,224,184,0.12)" }}>
+            <div style={{
+              fontFamily: "monospace", fontSize: 13.5, lineHeight: 1.85, color: "#c2f7e0",
+              textShadow: "0 0 12px rgba(95,224,184,0.6)",
+              animation: shown >= reveal.length ? "code-ascend 1.6s ease-in forwards" : undefined,
+            }}>
               {reveal.slice(0, shown).map((ln, i) => (
-                <div key={i} style={{ whiteSpace: "pre", color: ln.trim().startsWith("//") ? "#6fae90" : "#c8ffe6", textShadow: "0 0 8px rgba(95,224,184,0.4)", animation: "code-line-in 0.3s ease-out" }}>{ln || " "}</div>
+                <div key={i} style={{ whiteSpace: "pre", opacity: ln.trim().startsWith("//") ? 0.6 : 1, animation: "code-line-in 0.3s ease-out" }}>{ln || " "}</div>
               ))}
               {shown < reveal.length && <span style={{ color: "#5fe0b8" }}>▋</span>}
             </div>
-            {shown >= reveal.length && (
-              <div style={{ marginTop: 18, display: "flex", flexDirection: "column", alignItems: "center", gap: 12, animation: "reveal-fade 0.6s ease-out" }}>
-                <div style={{ fontSize: 16, fontWeight: 900, color: "#fff", textShadow: "0 0 18px #5fe0b8" }}>
-                  🟢 マイクラで動いてる — これ、<span style={{ color: "#aef7df" }}>あなたが創った</span>。
-                </div>
-                <button type="button" onClick={() => { setReveal(null); setSending(false); }} style={{
-                  border: "none", cursor: "pointer", background: "linear-gradient(135deg,#5fe0b8,#2f8f73)",
-                  color: "#063024", fontWeight: 900, fontSize: 13, padding: "9px 20px", borderRadius: 11,
-                  boxShadow: "0 4px 16px rgba(95,224,184,0.4)",
-                }}>とじる</button>
-              </div>
-            )}
           </div>
         )}
 
@@ -413,4 +405,5 @@ const KEYFRAMES = `
   @keyframes reveal-fade { 0%{opacity:0} 100%{opacity:1} }
   @keyframes code-line-in { 0%{opacity:0;transform:translateX(-6px)} 100%{opacity:1;transform:translateX(0)} }
   @keyframes mote { 0%,100%{opacity:0.18;transform:translateY(0)} 50%{opacity:0.85;transform:translateY(-14px)} }
+  @keyframes code-ascend { 0%{transform:translateY(0);opacity:1} 100%{transform:translateY(-100px);opacity:0;filter:blur(3px)} }
 `;
