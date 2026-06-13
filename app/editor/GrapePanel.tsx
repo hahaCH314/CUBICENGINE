@@ -156,14 +156,7 @@ export default function GrapePanel() {
         background: "radial-gradient(120% 95% at 50% 2%, #163a33 0%, #0d251f 42%, #061310 100%)",
         cursor: sending ? "default" : "crosshair",
       }}>
-        {/* かすかなデジタル格子（自然×メタバースの"メタ"側） */}
-        <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          backgroundImage: "linear-gradient(rgba(120,230,190,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(120,230,190,0.045) 1px, transparent 1px)",
-          backgroundSize: "44px 44px",
-          maskImage: "radial-gradient(120% 90% at 50% 15%, #000 28%, transparent 86%)",
-          WebkitMaskImage: "radial-gradient(120% 90% at 50% 15%, #000 28%, transparent 86%)",
-        }} />
+        {/* 方眼紙(グリッド)は撤去：暗い森に格子は不要。メタ感は発光の粒/コードで出す */}
         {/* 上からの光芒（god rays） */}
         <div style={{ position: "absolute", top: "-12%", left: "50%", transform: "translateX(-50%)", width: "62%", height: "95%", pointerEvents: "none", filter: "blur(7px)", opacity: 0.8,
           background: "conic-gradient(from 178deg at 50% 0%, transparent 0deg, rgba(150,235,200,0.07) 10deg, transparent 20deg, rgba(150,235,200,0.05) 30deg, transparent 40deg, rgba(150,235,200,0.06) 50deg, transparent 60deg)" }} />
@@ -198,9 +191,8 @@ export default function GrapePanel() {
         {/* 植えた場所で育つ：実は植えた点の上に生り、下へ芽の茎が伸びる */}
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none", animation: sending ? "suck-to-mc 0.62s cubic-bezier(0.55,0,0.85,0.35) forwards" : undefined, transformOrigin: "center bottom" }}>
           {fruits.map((fr) => (
-            <div key={fr.id} style={{ position: "absolute", left: fr.x, top: fr.y, transform: "translate(-50%, -100%)", pointerEvents: "auto", display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <div key={fr.id} style={{ position: "absolute", left: fr.x, top: fr.y, transform: "translate(-50%, -50%)", pointerEvents: "auto" }}>
               <Grape fr={fr} selected={fr.id === selectedId} onSelect={openEdit} onDelete={() => removeFruit(fr.id)} />
-              <div style={{ width: 3, height: 20, background: "linear-gradient(to bottom,#4a9c6e,transparent)", borderRadius: 2 }} />
             </div>
           ))}
         </div>
