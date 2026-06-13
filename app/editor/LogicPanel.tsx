@@ -6,7 +6,7 @@ import { McButton, McBadge } from "../_mc";
 
 import { Category, FieldDef, CBlock, Tmpl, CalcSubCat, CatDef } from "./_types";
 import { BW, BH, GAP, SNAP, BASE_ZOOM } from "./_constants";
-import { CAT_WORKSHOP, CAT_CYBER } from "../../data/categories";
+import { CAT_WORKSHOP } from "../../data/categories";
 import { TEMPLATES, CALC_SUBTABS, getCalcSubCat } from "../../data/templates";
 import { ITEM_NAMES } from "../../data/itemNames";
 import { blockH, getStackHeight, getDepth, getPos, getFamily, detach, attach, dist, findSnap } from "../../lib/blockGraph";
@@ -1631,10 +1631,8 @@ export default function LogicPanel() {
   const [showLib, setShowLib] = useState(true);
   const [activeCategory, setActiveCategory] = useState<Category>("trigger");
   const [focusedField, setFocusedField] = useState<{ blockId: string; fieldId: string } | null>(null);
-  /** インテリアテーマ — Phase 1 では切替トグルのみ、永続化は未実装（後で store に移す） */
-  const [interiorTheme, setInteriorTheme] = useState<"workshop" | "cyber">("workshop");
-  // テーマ連動パレット：アナログ=暖色 / デジタル=蛍光。子(ToyCubeBlock/BlockTray)へ pal で渡す
-  const CAT = interiorTheme === "cyber" ? CAT_CYBER : CAT_WORKSHOP;
+  // 統合版(積み木)はアナログ工房に1画面で統一。配色は工房パレット固定。
+  const CAT = CAT_WORKSHOP;
   // armed 接続（タップ→タップ）用の状態
   const [wireDrag, setWireDrag] = useState<{ sourceBlockId: string; slot: string; armed: boolean; accepts: Category[] } | null>(null);
   // マウスのキャンバス上の座標（ドラッグ中のワイヤー追従用）
@@ -2644,61 +2642,7 @@ export default function LogicPanel() {
             ▶ マイクラへ
           </McButton>
 
-          <div style={{ width: 2, height: 16, background: "#4a4842", margin: "0 2px" }} />
-
-          {/* インテリアテーマ切替（Phase 1：工房 ⇄ 電脳） P9: 背景が変わると分かるUI */}
-          <div
-            title="このボタンで背景の雰囲気が変わる（工房=アナログ ⇄ 電脳=デジタル）"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              background: "#1f1e1a",
-              border: "2px solid #0e0d0a",
-              borderRadius: 10,
-              padding: 2,
-              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
-            }}
-          >
-            <span style={{ fontSize: 10, fontWeight: 900, color: "#a59c8a", padding: "0 6px 0 5px", letterSpacing: "0.03em", whiteSpace: "nowrap" }}>🎨 背景</span>
-            <button
-              onClick={() => setInteriorTheme("workshop")}
-              aria-pressed={interiorTheme === "workshop"}
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 4,
-                padding: "4px 9px", fontSize: 11, fontWeight: 900, lineHeight: 1,
-                background: interiorTheme === "workshop"
-                  ? "linear-gradient(180deg, #b08040 0%, #6b4720 100%)"
-                  : "transparent",
-                color: interiorTheme === "workshop" ? "#fff8e6" : "#a59c8a",
-                border: "none", borderRadius: 8, cursor: "pointer",
-                boxShadow: interiorTheme === "workshop"
-                  ? "inset 0 1px 0 rgba(255,230,170,0.5), 0 0 6px rgba(220,160,90,0.35)"
-                  : "none",
-              }}
-            >
-              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "linear-gradient(135deg,#e0a85a,#7a4f23)", boxShadow: "0 0 0 1px rgba(0,0,0,0.4)", display: "inline-block" }} />
-              📻 <span>アナログ</span>
-            </button>
-            <button
-              onClick={() => setInteriorTheme("cyber")}
-              aria-pressed={interiorTheme === "cyber"}
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 4,
-                padding: "4px 9px", fontSize: 11, fontWeight: 900, lineHeight: 1,
-                background: interiorTheme === "cyber"
-                  ? "linear-gradient(180deg, #ec4899 0%, #06b6d4 100%)"
-                  : "transparent",
-                color: interiorTheme === "cyber" ? "#0a0517" : "#a59c8a",
-                border: "none", borderRadius: 8, cursor: "pointer",
-                boxShadow: interiorTheme === "cyber"
-                  ? "inset 0 1px 0 rgba(255,255,255,0.4), 0 0 8px rgba(236,72,153,0.55)"
-                  : "none",
-              }}
-            >
-              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "linear-gradient(135deg,#ec4899,#06b6d4)", boxShadow: "0 0 0 1px rgba(0,0,0,0.4)", display: "inline-block" }} />
-              📡 <span>デジタル</span>
-            </button>
-          </div>
+          {/* 背景テーマ切替は撤去：統合版(積み木)はアナログ工房に1画面で統一 */}
 
           {/* 右端：検索窓 */}
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 さがす..."
@@ -2982,7 +2926,7 @@ export default function LogicPanel() {
           }}>
 
           {/* インテリア背景（screen 座標固定） — workshop / cyberpunk */}
-          <ThemeBackdrop theme={interiorTheme} zoom={zoom} pan={pan} />
+          <ThemeBackdrop theme="workshop" zoom={zoom} pan={pan} />
 
           {/* 床 — pan/zoom の影響を受けない screen 座標。ブロックが1個以上ある時だけ出現。
               ロジック画面の最下端に完全固定（床がある演出）。zIndex は world transform より上。 */}
@@ -3035,7 +2979,7 @@ export default function LogicPanel() {
                   const isCond = b.type === "co_if";
                   const inner = isCond && b.innerId ? blocks.find(x => x.id === b.innerId) ?? null : null;
 
-                  return <ToyCubeBlock key={b.id} b={b} pos={pos} pal={CAT} cyber={interiorTheme === "cyber"} selected={selected === b.id}
+                  return <ToyCubeBlock key={b.id} b={b} pos={pos} pal={CAT} cyber={false} selected={selected === b.id}
                     snapSlot={snapHint?.targetId === b.id ? snapHint.slot : null}
                     innerBlock={inner} blocks={blocks}
                     isEating={isCond && chomping === b.id}
@@ -3064,7 +3008,7 @@ export default function LogicPanel() {
                   const condBlock = eb ? blocks.find(d => d.innerId === eating) : null;
                   if (!eb || !condBlock) return null;
                   const dp = getPos(condBlock.id, blocks);
-                  return <ToyCubeBlock key={`eat-${eating}`} b={eb} pal={CAT} cyber={interiorTheme === "cyber"}
+                  return <ToyCubeBlock key={`eat-${eating}`} b={eb} pal={CAT} cyber={false}
                     pos={{ x: dp.x + BW + GAP, y: dp.y }}
                     selected={false} snapSlot={null} isEating={true}
                     blocks={blocks}
