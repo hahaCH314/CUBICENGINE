@@ -642,10 +642,10 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
         }
       `}} />
       
-      {/* 暖かい地下室的グラデーション */}
+      {/* 暖かいおもちゃ工房的グラデーション */}
       <div style={{
         position: "absolute", inset: 0,
-        background: "radial-gradient(circle at center 40%, #291c13 0%, #0d0805 100%)",
+        background: "radial-gradient(circle at center 40%, #473222 0%, #1f140e 100%)",
       }} />
 
       {/* 工房という"部屋"＝一点透視の空間（壁画ではなく、奥行きのある箱の中にいる） */}
@@ -661,10 +661,10 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
           transform: "perspective(440px) rotateX(-48deg)",
           transformOrigin: "top center",
           background: `
-            repeating-linear-gradient(90deg, rgba(0,0,0,0.16) 0px, rgba(0,0,0,0.16) 1px, transparent 1px, transparent 48px),
-            linear-gradient(to top, #1a110b 0%, #0c0704 100%)
+            repeating-linear-gradient(90deg, rgba(0,0,0,0.12) 0px, rgba(0,0,0,0.12) 1px, transparent 1px, transparent 48px),
+            linear-gradient(to top, #36251b 0%, #1a110c 100%)
           `,
-          boxShadow: "inset 0 -50px 70px rgba(0,0,0,0.6)",
+          boxShadow: "inset 0 -50px 70px rgba(0,0,0,0.4)",
         }} />
 
         {/* 左の壁（消失点へ収束） */}
@@ -672,16 +672,16 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
           position: "absolute", left: "-3%", top: "-25%", bottom: "-25%", width: "36%",
           transform: "perspective(440px) rotateY(48deg)",
           transformOrigin: "left center",
-          background: "linear-gradient(to right, #0a0603 0%, #1c120b 100%)",
-          boxShadow: "inset -40px 0 60px rgba(0,0,0,0.55)",
+          background: "linear-gradient(to right, #1a110c 0%, #3a271c 100%)",
+          boxShadow: "inset -40px 0 60px rgba(0,0,0,0.35)",
         }} />
         {/* 右の壁（消失点へ収束） */}
         <div style={{
           position: "absolute", right: "-3%", top: "-25%", bottom: "-25%", width: "36%",
           transform: "perspective(440px) rotateY(-48deg)",
           transformOrigin: "right center",
-          background: "linear-gradient(to left, #0a0603 0%, #1c120b 100%)",
-          boxShadow: "inset 40px 0 60px rgba(0,0,0,0.55)",
+          background: "linear-gradient(to left, #1a110c 0%, #3a271c 100%)",
+          boxShadow: "inset 40px 0 60px rgba(0,0,0,0.35)",
         }} />
 
         {/* 奥の壁（遠く・小さく・暗い／横張りの板） */}
@@ -689,10 +689,10 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
           position: "absolute", left: "50%", top: "33%", width: "58%", height: "34%",
           transform: "translateX(-50%)",
           background: `
-            repeating-linear-gradient(to bottom, #1d130c 0px, #1d130c 20px, #150d08 20px, #150d08 22px),
-            linear-gradient(to bottom, #22150d, #110a05)
+            repeating-linear-gradient(to bottom, #2d1c12 0px, #2d1c12 20px, #20140c 20px, #20140c 22px),
+            linear-gradient(to bottom, #3b281b, #221710)
           `,
-          boxShadow: "inset 0 0 70px rgba(0,0,0,0.75), 0 0 0 1px rgba(0,0,0,0.4)",
+          boxShadow: "inset 0 0 70px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,0,0,0.3)",
         }} />
 
         {/* 床（手前広く→奥へ収束＝立っている地面。板の継ぎ目が消失点へ） */}
@@ -701,11 +701,11 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
           transform: "perspective(440px) rotateX(50deg)",
           transformOrigin: "bottom center",
           background: `
-            repeating-linear-gradient(90deg, rgba(0,0,0,0.30) 0px, rgba(0,0,0,0.30) 1.5px, transparent 1.5px, transparent 56px),
-            repeating-linear-gradient(to top, rgba(255,198,120,0.035) 0px, rgba(255,198,120,0.035) 1px, transparent 1px, transparent 42px),
-            linear-gradient(to top, #2c1d12 0%, #160e08 65%, #0d0805 100%)
+            repeating-linear-gradient(90deg, rgba(0,0,0,0.22) 0px, rgba(0,0,0,0.22) 1.5px, transparent 1.5px, transparent 56px),
+            repeating-linear-gradient(to top, rgba(255,198,120,0.05) 0px, rgba(255,198,120,0.05) 1px, transparent 1px, transparent 42px),
+            linear-gradient(to top, #4d3624 0%, #2f1f14 65%, #1f140d 100%)
           `,
-          boxShadow: "inset 0 50px 90px rgba(0,0,0,0.5)",
+          boxShadow: "inset 0 50px 90px rgba(0,0,0,0.3)",
         }} />
       </div>
 
@@ -739,8 +739,8 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
           <div style={{
             width: 3,
             height: 170,
-            background: "linear-gradient(to bottom, rgba(30,23,18,0) 0%, #1e1712 22%)",
-            boxShadow: "0 0 2px rgba(0,0,0,0.6)",
+            background: "linear-gradient(to bottom, rgba(58,45,35,0) 0%, #3e3025 22%)",
+            boxShadow: "0 0 2px rgba(0,0,0,0.4)",
             flexShrink: 0,
           }} />
           
@@ -754,7 +754,7 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
             position: "relative",
             marginTop: -1,
             flexShrink: 0,
-            boxShadow: "0 3px 5px rgba(0,0,0,0.4)",
+            boxShadow: "0 3px 5px rgba(0,0,0,0.3)",
           }}>
             {/* ソケットの金属溝 */}
             <div style={{
@@ -801,7 +801,7 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
             left: -170,
             width: 340,
             height: 340,
-            background: "radial-gradient(circle at center, rgba(255,196,104,0.34) 0%, rgba(255,168,70,0.16) 28%, rgba(255,140,44,0.05) 55%, transparent 78%)",
+            background: "radial-gradient(circle at center, rgba(255,206,124,0.42) 0%, rgba(255,178,90,0.22) 28%, rgba(255,150,64,0.08) 55%, transparent 78%)",
             filter: "blur(14px)",
             pointerEvents: "none",
             zIndex: -1,
@@ -813,7 +813,7 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
             left: -560,
             width: 1120,
             height: 920,
-            background: "radial-gradient(ellipse 48% 56% at center top, rgba(255,162,58,0.17) 0%, rgba(255,148,44,0.115) 16%, rgba(255,132,32,0.07) 32%, rgba(255,118,24,0.035) 52%, rgba(255,106,18,0.013) 72%, rgba(255,100,14,0.004) 88%, transparent 100%)",
+            background: "radial-gradient(ellipse 48% 56% at center top, rgba(255,182,78,0.25) 0%, rgba(255,168,64,0.18) 16%, rgba(255,152,52,0.12) 32%, rgba(255,138,44,0.06) 52%, rgba(255,126,38,0.02) 72%, transparent 100%)",
             filter: "blur(10px)",
             pointerEvents: "none",
             zIndex: -1,
@@ -838,7 +838,7 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
         height: "70px",
         background: "linear-gradient(to bottom, #1d140e 0%, #0d0805 100%)",
         borderTop: "3px solid #2d1e15",
-        boxShadow: "0 -8px 24px rgba(0,0,0,0.9)",
+        boxShadow: "0 -8px 24px rgba(0,0,0,0.7)",
         transform: `translate(${pan.x * 0.42}px, ${pan.y * 0.35}px) scale(${1 + (zoom - 1) * 0.42})`,
         transformOrigin: "center bottom",
         zIndex: 4,
@@ -849,7 +849,7 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
       {/* 周辺ビネット（やや緩めて光が闇へ滑らかに溶けるように） */}
       <div style={{
         position: "absolute", inset: 0,
-        boxShadow: "inset 0 0 300px rgba(0,0,0,0.82)",
+        boxShadow: "inset 0 0 300px rgba(0,0,0,0.6)",
         zIndex: 5,
       }} />
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 
 /* ──────────────────────────────────────────────────────────────
    GrapePanel — 🌿 GROVE（JAVA / 自然×メタバース）/ 構造は「ハブ」
@@ -44,11 +44,20 @@ export default function GrapePanel() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pump, setPump] = useState(0);
   const [sending, setSending] = useState(false);
-  const [flash, setFlash] = useState(false);
   const [spawn, setSpawn] = useState<Spawn | null>(null);
   const [draft, setDraft] = useState("");
+  const [reveal, setReveal] = useState<string[] | null>(null); // コード誕生の演出
+  const [shown, setShown] = useState(0);                       // 何行まで生まれたか
   const stageRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // コードが1行ずつ"生まれる"ストリーム
+  useEffect(() => {
+    if (!reveal) return;
+    let i = 0;
+    const id = setInterval(() => { i++; setShown(i); if (i >= reveal.length) clearInterval(id); }, 95);
+    return () => clearInterval(id);
+  }, [reveal]);
 
   const coords = (e: React.MouseEvent) => {
     const r = stageRef.current?.getBoundingClientRect();
@@ -96,14 +105,13 @@ export default function GrapePanel() {
 
   const removeFruit = (id: string) => { setFruits((f) => f.filter((x) => x.id !== id)); setSelectedId((s) => s === id ? null : s); };
 
+  // 放つ → あなたが書いた事になるコードが生まれる（魂＝創造のロマン）
   const sendToMc = useCallback(() => {
-    setFruits((cur) => {
-      if (!cur.length) return cur;
-      setSending(true); playSend();
-      setTimeout(() => { setFruits([]); setSelectedId(null); setSending(false); setFlash(true); setTimeout(() => setFlash(false), 950); }, 640);
-      return cur;
-    });
-  }, []);
+    const h = fruits.find((x) => x.item.cat === "trigger") || null;
+    if (!h) return;
+    const sp = fruits.filter((x) => x !== h);
+    setShown(0); setReveal(fruitsToCode(h, sp)); setSending(true); playSend();
+  }, [fruits]);
 
   const hub = fruits.find((x) => x.item.cat === "trigger") || null;
   const spokes = fruits.filter((x) => x !== hub);
@@ -180,10 +188,35 @@ export default function GrapePanel() {
           )}
         </div>
 
-        {/* 出力成功フラッシュ */}
-        {flash && (
-          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 5, animation: "mc-flash 0.95s ease-out forwards" }}>
-            <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", textShadow: "0 0 20px #5fe0b8, 0 2px 6px rgba(0,0,0,0.5)" }}>🎉 GROVE から放った！</div>
+        {/* ✨ コード誕生の魔法（魂＝「作った！」の高揚＋コードのロマン） */}
+        {reveal && (
+          <div onClick={(e) => e.stopPropagation()} style={{
+            position: "absolute", inset: 0, zIndex: 30,
+            background: "radial-gradient(120% 100% at 50% 30%, #0c1a14 0%, #050a07 100%)",
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+            padding: 24, animation: "reveal-fade 0.4s ease-out",
+          }}>
+            <div style={{ fontSize: 13, fontWeight: 900, letterSpacing: "0.2em", color: "#9ff0c8", marginBottom: 8, textShadow: "0 0 14px #5fe0b8" }}>
+              ✨ あなたが書いたコードが生まれた
+            </div>
+            <div style={{ fontFamily: "monospace", fontSize: 14, lineHeight: 1.7, background: "rgba(0,0,0,0.35)", border: "1px solid rgba(95,224,184,0.2)", borderRadius: 12, padding: "16px 22px", maxWidth: 700, width: "100%", overflow: "auto", maxHeight: "55%", boxShadow: "0 0 40px rgba(95,224,184,0.12)" }}>
+              {reveal.slice(0, shown).map((ln, i) => (
+                <div key={i} style={{ whiteSpace: "pre", color: ln.trim().startsWith("//") ? "#6fae90" : "#c8ffe6", textShadow: "0 0 8px rgba(95,224,184,0.4)", animation: "code-line-in 0.3s ease-out" }}>{ln || " "}</div>
+              ))}
+              {shown < reveal.length && <span style={{ color: "#5fe0b8" }}>▋</span>}
+            </div>
+            {shown >= reveal.length && (
+              <div style={{ marginTop: 18, display: "flex", flexDirection: "column", alignItems: "center", gap: 12, animation: "reveal-fade 0.6s ease-out" }}>
+                <div style={{ fontSize: 16, fontWeight: 900, color: "#fff", textShadow: "0 0 18px #5fe0b8" }}>
+                  🟢 マイクラで動いてる — これ、<span style={{ color: "#aef7df" }}>あなたが創った</span>。
+                </div>
+                <button type="button" onClick={() => { setReveal(null); setSending(false); }} style={{
+                  border: "none", cursor: "pointer", background: "linear-gradient(135deg,#5fe0b8,#2f8f73)",
+                  color: "#063024", fontWeight: 900, fontSize: 13, padding: "9px 20px", borderRadius: 11,
+                  boxShadow: "0 4px 16px rgba(95,224,184,0.4)",
+                }}>とじる</button>
+              </div>
+            )}
           </div>
         )}
 
@@ -269,6 +302,33 @@ function Grape({ fr, selected, isHub, onSelect, onDelete }: {
   );
 }
 
+// 組んだ実 → "あなたが書いた事になる"コード（Java/GROVE 風・演出用の本物っぽい見せ方）
+const TRIGGER_JAVA: Record<string, string> = { on_join: "onPlayerJoin", on_break: "onBlockBreak", on_chat: "onPlayerChat" };
+function fruitsToCode(hub: Fruit, spokes: Fruit[]): string[] {
+  const ev = TRIGGER_JAVA[hub.item.type] || "onEvent";
+  const lines: string[] = [];
+  lines.push("// ⚡ あなたが創った MOD — CUBICENGINE GROVE");
+  lines.push("@SubscribeEvent");
+  lines.push(`public void ${ev}(Player player) {`);
+  if (hub.item.type === "on_chat" && hub.text) lines.push(`    if (!message.equals("${hub.text}")) return;`);
+  if (spokes.length === 0) lines.push("    // 「すること」を足してみよう");
+  for (const s of spokes) lines.push("    " + actionToJava(s));
+  lines.push("}");
+  return lines;
+}
+function actionToJava(f: Fruit): string {
+  const t = f.text.trim();
+  switch (f.item.type) {
+    case "say":    return `player.sendMessage("${t || "こんにちは！"}");`;
+    case "give":   return `player.give(new ItemStack("${t || "diamond"}"));`;
+    case "effect": return `player.addEffect(Effects.JUMP_BOOST, 200);`;
+    case "if":     return `if (world.isNight()) { /* ${t || "じょうけん"} */ }`;
+    case "repeat": return `for (int i = 0; i < ${parseInt(t) || 3}; i++) { /* くりかえす */ }`;
+    case "number": return `int value = ${parseInt(t) || 0};`;
+    default:       return `// ${f.item.label}`;
+  }
+}
+
 function shade(hex: string): string {
   const n = parseInt(hex.slice(1), 16);
   const r = Math.max(0, ((n >> 16) & 255) - 55), g = Math.max(0, ((n >> 8) & 255) - 55), b = Math.max(0, (n & 255) - 55);
@@ -304,4 +364,6 @@ const KEYFRAMES = `
   @keyframes mc-invite { 0%,100%{box-shadow:0 4px 16px rgba(61,126,192,0.5), inset 0 1px 0 rgba(255,255,255,0.4)} 50%{box-shadow:0 4px 22px rgba(95,224,184,0.7), 0 0 0 3px rgba(95,224,184,0.25), inset 0 1px 0 rgba(255,255,255,0.4)} }
   @keyframes mc-flash { 0%{opacity:0;transform:scale(0.7)} 25%{opacity:1;transform:scale(1.05)} 70%{opacity:1;transform:scale(1)} 100%{opacity:0;transform:scale(1)} }
   @keyframes pop-in { 0%{opacity:0;transform:translate(-50%,10px) scale(0.7)} 100%{opacity:1;transform:translate(-50%,10px) scale(1)} }
+  @keyframes reveal-fade { 0%{opacity:0} 100%{opacity:1} }
+  @keyframes code-line-in { 0%{opacity:0;transform:translateX(-6px)} 100%{opacity:1;transform:translateX(0)} }
 `;
