@@ -179,11 +179,23 @@ export default function GrapePanel() {
           <span style={{ fontSize: 18 }}>🌿</span> GROVE <span style={{ fontSize: 10, fontWeight: 800, opacity: 0.7, letterSpacing: "0.1em" }}>JAVA</span>
         </div>
 
-        {/* 空ならヒント */}
+        {/* 空状態：発光する木の絵 ＋ TAP だけ（さりげなく） */}
         {fruits.length === 0 && (
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-            <div style={{ padding: "16px 24px", borderRadius: 24, border: "2px dashed rgba(150,235,200,0.45)", color: "#cdeede", fontWeight: 800, fontSize: 14, textAlign: "center", background: "rgba(255,255,255,0.06)", animation: "grape-breathe 3s ease-in-out infinite" }}>
-              🌱 どこかをタップして木をはやそう
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, animation: "grape-breathe 3.6s ease-in-out infinite" }}>
+              <div style={{ position: "relative", width: 120, height: 120 }}>
+                <div style={{ position: "absolute", left: "50%", top: 26, transform: "translateX(-50%)", width: 92, height: 72, borderRadius: "50%", background: "radial-gradient(circle, rgba(95,224,184,0.30), rgba(95,224,184,0.06) 60%, transparent 75%)", filter: "blur(4px)" }} />
+                <svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#aef7df" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ position: "relative", filter: "drop-shadow(0 0 6px rgba(95,224,184,0.6))" }}>
+                  <path d="M60 116 V58" />
+                  <path d="M60 84 C 50 78, 42 74, 36 64" />
+                  <path d="M60 74 C 70 68, 78 64, 84 56" />
+                  <path d="M60 58 C 56 50, 56 42, 60 34" />
+                </svg>
+                <span style={{ position: "absolute", left: 31, top: 58, width: 7, height: 7, borderRadius: "50%", background: "#cffbe4", boxShadow: "0 0 8px #5fe0b8" }} />
+                <span style={{ position: "absolute", left: 82, top: 50, width: 6, height: 6, borderRadius: "50%", background: "#cffbe4", boxShadow: "0 0 8px #5fe0b8" }} />
+                <span style={{ position: "absolute", left: 57, top: 30, width: 6, height: 6, borderRadius: "50%", background: "#cffbe4", boxShadow: "0 0 8px #5fe0b8" }} />
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 900, letterSpacing: "0.35em", color: "#bff5db", textShadow: "0 0 12px rgba(95,224,184,0.6)" }}>TAP</div>
             </div>
           </div>
         )}

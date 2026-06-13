@@ -89,25 +89,25 @@ const tabConfig: { key: Tab; label: string; color: string; icon: string }[] = [
   {
     key: "logic",
     label: "ロジック",
-    color: "#fb7185", // ヒーリング・ポーションピンク
+    color: "#facc15", // ヒーリング・ポーションピンク
     icon: "🧩",
   },
   {
     key: "model",
     label: "モデル",
-    color: "#fb7185",
+    color: "#facc15",
     icon: "📦",
   },
   {
     key: "settings",
     label: "設定",
-    color: "#fb7185",
+    color: "#facc15",
     icon: "⚙️",
   },
   {
     key: "launcher",
     label: "起動",
-    color: "#fb7185",
+    color: "#facc15",
     icon: "🚀",
   },
 ];
@@ -292,7 +292,7 @@ export default function EditorPage() {
             "--mc-btn-bg": isActive ? tab.color : "#3a3833", // 非アクティブ時は暗い石色
             "--mc-btn-edge": isActive ? lighten(tab.color) : "#5a574e",
             "--mc-btn-shadow": isActive ? darken(tab.color) : "#1f1e1a",
-            "--mc-btn-text": isActive ? "#ffffff" : "#9c9890",
+            "--mc-btn-text": isActive ? "#3a2c05" : "#9c9890",
           } as React.CSSProperties;
           return (
             <McButton
