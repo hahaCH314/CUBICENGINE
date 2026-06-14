@@ -104,12 +104,6 @@ const tabConfig: { key: Tab; label: string; color: string; icon: string }[] = [
     color: "#facc15",
     icon: "⚙️",
   },
-  {
-    key: "launcher",
-    label: "起動",
-    color: "#facc15",
-    icon: "🚀",
-  },
 ];
 
 /* ─── Dropdown Component ─── */
