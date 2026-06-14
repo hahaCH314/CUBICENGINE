@@ -2,6 +2,8 @@ import { CBlock } from '../app/editor/_types';
 
 function escStr(s:string){return s.replace(/\\/g,"\\\\").replace(/"/g,'\\"').replace(/`/g,"\\`").replace(/\$/g,"\\$").replace(/\n/g,"\\n");}
 function escId(s:string){return s.replace(/[^a-z0-9_.:/-]/gi,"");}
+/** Minecraft ID を正規化：名前空間が無ければ minecraft: を付与。二重付与は防ぐ */
+function nsId(s:string,fb="minecraft:air"):string{const v=escId(s)||fb;return v.includes(":")?v:"minecraft:"+v;}
 function gf(b:CBlock,id:string,fb=""):string{return b.fields.find(f=>f.id===id)?.value??fb;}
 /** 変数名を安全なJS識別子に変換（先頭が数字なら _ を付加） */
 function sanitizeVarName(s:string):string{
@@ -55,7 +57,7 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
         ? `${I}player.addTag("${escId(f("tag","vip"))}");`
         : `${I}player.removeTag("${escId(f("tag","vip"))}");`;
     case"ac_kick":
-      return`${I}player.runCommandAsync("kick \${player.name} ${escStr(f("msg","ルール違反"))}");`;
+      return`${I}player.runCommandAsync(\`kick \${player.name} ${escStr(f("msg","ルール違反"))}\`);`;
     // 演算ブロックをアクションとして単体実行（ログ出力付き）
     case"ca_add":case"ca_sub":case"ca_mul":case"ca_div":case"ca_mod":case"ca_pow":
     case"ca_abs":case"ca_floor":case"ca_ceil":case"ca_round":case"ca_sqrt":
@@ -285,7 +287,7 @@ function genExpr(id:string|null, blocks:CBlock[]):string{
     case"co_hp":      return`((player.getComponent("health")?.currentValue??20)<=Number(${f("threshold","10")}))`;
     case"co_night":   return"(world.getTimeOfDay()>=13000&&world.getTimeOfDay()<23000)";
     case"co_rain":    return`(world.getDimension("overworld").weather?.precipitation==="rain"||world.getDimension("overworld").weather?.precipitation==="thunder")`;
-    case"co_item":    return`(()=>{const _c=player.getComponent("inventory")?.container;if(!_c)return false;for(let _i=0;_i<_c.size;_i++)if(_c.getItem(_i)?.typeId==="${escId(f("item","minecraft:diamond"))}")return true;return false;})()`;
+    case"co_item":    return`(()=>{const _c=player.getComponent("inventory")?.container;if(!_c)return false;for(let _i=0;_i<_c.size;_i++)if(_c.getItem(_i)?.typeId==="${nsId(f("item","minecraft:diamond"))}")return true;return false;})()`;
     case"co_and":     return`(${genExpr(b.innerId,blocks)}&&${genExpr(b.thenId,blocks)})`;
     case"co_or":      return`(${genExpr(b.innerId,blocks)}||${genExpr(b.thenId,blocks)})`;
     case"co_not":     return`(!(${genExpr(b.innerId,blocks)}))`;
@@ -314,9 +316,12 @@ function genTrigger(b:CBlock,blocks:CBlock[]):string{
         body.split("\n").map((l:string)=>"    "+l).join("\n"),
         `  }, 40);`,
         `});`,
-        `// ⛏️ ブロックをこわしたとき (${f("block","stone")})`,
+      ].join("\n");
+    case"ev_break":
+      return[
+        `// ⛏️ ブロックをこわしたとき (${f("block","minecraft:stone")})`,
         `world.afterEvents.playerBreakBlock.subscribe((event) => {`,
-        `  if (event.brokenBlockPermutation.type.id !== "minecraft:${escId(f("block","stone"))}") return;`,
+        `  if (event.brokenBlockPermutation.type.id !== "${nsId(f("block","minecraft:stone"))}") return;`,
         `  const player = event.player;`,
         `  if (!player) return;`,
         body,
@@ -324,9 +329,9 @@ function genTrigger(b:CBlock,blocks:CBlock[]):string{
       ].join("\n");
     case"ev_item":
       return[
-        `// 🔮 アイテムをつかったとき (${f("item","diamond")})`,
+        `// 🔮 アイテムをつかったとき (${f("item","minecraft:diamond")})`,
         `world.afterEvents.itemUse.subscribe((event) => {`,
-        `  if (event.itemStack.typeId !== "minecraft:${escId(f("item","diamond"))}") return;`,
+        `  if (event.itemStack.typeId !== "${nsId(f("item","minecraft:diamond"))}") return;`,
         `  const player = event.source;`,
         `  if (!player) return;`,
         body,
