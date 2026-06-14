@@ -1673,7 +1673,7 @@ function SlotReel<T>({
         background: "linear-gradient(to bottom, #111 0%, #222 15%, #383530 50%, #222 85%, #111 100%)",
         borderRadius: 12,
         border: "3px solid #d4af37", // 高級感あるゴールド枠
-        boxShadow: "inset 0 0 20px rgba(0,0,0,0.85), 0 4px 12px rgba(0,0,0,0.5), 0 0 12px rgba(231,194,90,0.3)",
+        boxShadow: "inset 0 0 20px rgba(0,0,0,0.85), 0 4px 12px rgba(0,0,0,0.5)",
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
@@ -1683,38 +1683,15 @@ function SlotReel<T>({
         userSelect: "none"
       }}
     >
-      {/* カジノ筐体の装飾：マーキー電球＋当たりライン */}
-      <style>{`
-        @keyframes slotMarquee { 0%,100%{opacity:.4} 50%{opacity:1} }
-        @keyframes slotWinline { 0%,100%{box-shadow:0 0 8px rgba(231,194,90,.3), inset 0 0 12px rgba(231,194,90,.1)} 50%{box-shadow:0 0 20px rgba(231,194,90,.65), inset 0 0 18px rgba(231,194,90,.22)} }
-      `}</style>
-      {/* マーキー電球（上） */}
-      <div style={{
-        position: "absolute", top: 3, left: 8, right: 8, height: 8, zIndex: 6, pointerEvents: "none",
-        backgroundImage: "radial-gradient(circle, #ffe9a8 0 2px, transparent 2.6px)",
-        backgroundSize: "15px 8px", backgroundPosition: "center",
-        filter: "drop-shadow(0 0 3px #e3c25a)", animation: "slotMarquee 1.1s ease-in-out infinite",
-      }} />
-      {/* マーキー電球（下） */}
-      <div style={{
-        position: "absolute", bottom: 3, left: 8, right: 8, height: 8, zIndex: 6, pointerEvents: "none",
-        backgroundImage: "radial-gradient(circle, #ffe9a8 0 2px, transparent 2.6px)",
-        backgroundSize: "15px 8px", backgroundPosition: "center",
-        filter: "drop-shadow(0 0 3px #e3c25a)", animation: "slotMarquee 1.1s ease-in-out infinite", animationDelay: "0.55s",
-      }} />
-      {/* 当たりライン（光る・脈動・▶◀マーカー） */}
+      {/* 選択ライン（やわらかく・主張しすぎない） */}
       <div style={{
         position: "absolute", left: 2, right: 2, top: "50%", transform: "translateY(-50%)",
         height: 46,
-        borderTop: "2.5px solid rgba(231,194,90,0.95)",
-        borderBottom: "2.5px solid rgba(231,194,90,0.95)",
-        background: "rgba(231,194,90,0.10)",
-        animation: "slotWinline 1.8s ease-in-out infinite",
+        borderTop: "2px solid rgba(255,228,170,0.5)",
+        borderBottom: "2px solid rgba(255,228,170,0.5)",
+        background: "rgba(255,228,170,0.06)",
         pointerEvents: "none", zIndex: 5,
-      }}>
-        <span style={{ position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)", color: "#ffe9a8", fontSize: 12, textShadow: "0 0 6px #e3c25a" }}>▶</span>
-        <span style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", color: "#ffe9a8", fontSize: 12, textShadow: "0 0 6px #e3c25a" }}>◀</span>
-      </div>
+      }} />
 
       {/* アイテム描画コンテナ (3Dドラム缶効果) */}
       <div style={{
@@ -2900,8 +2877,8 @@ export default function LogicPanel() {
           100% { transform: translateY(0); opacity: 1; }
         }
         .casino-border {
-          /* カジノ風だけどゲーム感：赤い派手な点滅→上品な金のグロー呼吸 */
-          animation: casinoLights 3.8s ease-in-out infinite;
+          /* ポケカ寄りに方針転換：カジノのギラギラ撤去（縁は後で明るい配色へ） */
+          animation: none;
         }
       `}</style>
 
