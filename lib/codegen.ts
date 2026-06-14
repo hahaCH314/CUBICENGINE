@@ -216,7 +216,7 @@ function genExpr(id:string|null, blocks:CBlock[]):string{
     case"va_rand":  return`(Math.floor(Math.random()*(Number(${f("max","100")})-Number(${f("min","0")})+1))+Number(${f("min","0")}))`;
     case"va_str":   return`"${escStr(f("v",""))}"`;
     case"va_num":   return`Number(${f("v","0")})`;
-    case"va_hp":    return`(player.getComponent("health")?.currentValue??20)`;
+    case"va_hp":    return`(player.getComponent("minecraft:health")?.currentValue??20)`;
     case"va_pos":   return`Math.round(player.location.${f("axis","Y").toLowerCase()})`;
     case"va_score": return`(()=>{try{return world.scoreboard.getObjective("${escId(f("obj","points"))}")?.getScore(player.scoreboardIdentity)??0;}catch(_e){return 0;}})()`;
     case"ca_add":   return`(${genExpr(b.fields[0]?.id,blocks)||f("a","0")}) + (${genExpr(b.fields[1]?.id,blocks)||f("b","0")})`;
@@ -284,10 +284,10 @@ function genExpr(id:string|null, blocks:CBlock[]):string{
     case"vv_lt":    return`(_v_${sanitizeVarName(f("name","score"))}<${f("val","100")})`;
     case"co_tag":     return`player.hasTag("${escId(f("tag",""))}")`;
     case"co_sneak":   return"player.isSneaking";
-    case"co_hp":      return`((player.getComponent("health")?.currentValue??20)<=Number(${f("threshold","10")}))`;
+    case"co_hp":      return`((player.getComponent("minecraft:health")?.currentValue??20)<=Number(${f("threshold","10")}))`;
     case"co_night":   return"(world.getTimeOfDay()>=13000&&world.getTimeOfDay()<23000)";
     case"co_rain":    return`(world.getDimension("overworld").weather?.precipitation==="rain"||world.getDimension("overworld").weather?.precipitation==="thunder")`;
-    case"co_item":    return`(()=>{const _c=player.getComponent("inventory")?.container;if(!_c)return false;for(let _i=0;_i<_c.size;_i++)if(_c.getItem(_i)?.typeId==="${nsId(f("item","minecraft:diamond"))}")return true;return false;})()`;
+    case"co_item":    return`(()=>{const _c=player.getComponent("minecraft:inventory")?.container;if(!_c)return false;for(let _i=0;_i<_c.size;_i++)if(_c.getItem(_i)?.typeId==="${nsId(f("item","minecraft:diamond"))}")return true;return false;})()`;
     case"co_and":     return`(${genExpr(b.innerId,blocks)}&&${genExpr(b.thenId,blocks)})`;
     case"co_or":      return`(${genExpr(b.innerId,blocks)}||${genExpr(b.thenId,blocks)})`;
     case"co_not":     return`(!(${genExpr(b.innerId,blocks)}))`;
