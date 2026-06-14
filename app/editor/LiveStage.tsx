@@ -221,7 +221,8 @@ export default function LiveStage({ blocks }: { blocks: CBlock[] }) {
 
   return (
     <div style={{
-      position: "absolute", top: 64, left: "50%", transform: "translateX(-50%)",
+      position: "absolute", top: 44, left: "50%",
+      transform: "translateX(-50%) scale(1.5)", transformOrigin: "top center",
       width: 460, height: 232, zIndex: 25, pointerEvents: "none",
     }}>
       <style>{`

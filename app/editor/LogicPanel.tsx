@@ -1673,7 +1673,7 @@ function SlotReel<T>({
         background: "linear-gradient(to bottom, #111 0%, #222 15%, #383530 50%, #222 85%, #111 100%)",
         borderRadius: 12,
         border: "3px solid #d4af37", // 高級感あるゴールド枠
-        boxShadow: "inset 0 0 20px rgba(0,0,0,0.85), 0 4px 12px rgba(0,0,0,0.5)",
+        boxShadow: "inset 0 0 20px rgba(0,0,0,0.85), 0 4px 12px rgba(0,0,0,0.5), 0 0 12px rgba(231,194,90,0.3)",
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
@@ -1683,18 +1683,37 @@ function SlotReel<T>({
         userSelect: "none"
       }}
     >
-      {/* 選択ラインデコレーション（選択位置を劇的に見やすく） */}
+      {/* カジノ筐体の装飾：マーキー電球＋当たりライン */}
+      <style>{`
+        @keyframes slotMarquee { 0%,100%{opacity:.4} 50%{opacity:1} }
+        @keyframes slotWinline { 0%,100%{box-shadow:0 0 8px rgba(231,194,90,.3), inset 0 0 12px rgba(231,194,90,.1)} 50%{box-shadow:0 0 20px rgba(231,194,90,.65), inset 0 0 18px rgba(231,194,90,.22)} }
+      `}</style>
+      {/* マーキー電球（上） */}
       <div style={{
-        position: "absolute",
-        left: 2, right: 2, top: "50%",
-        transform: "translateY(-50%)",
-        height: 48,
-        borderTop: "2.5px solid rgba(212, 175, 110, 0.8)",
-        borderBottom: "2.5px solid rgba(212, 175, 110, 0.8)",
-        background: "rgba(212, 175, 110, 0.12)",
-        pointerEvents: "none",
-        zIndex: 5
+        position: "absolute", top: 3, left: 8, right: 8, height: 8, zIndex: 6, pointerEvents: "none",
+        backgroundImage: "radial-gradient(circle, #ffe9a8 0 2px, transparent 2.6px)",
+        backgroundSize: "15px 8px", backgroundPosition: "center",
+        filter: "drop-shadow(0 0 3px #e3c25a)", animation: "slotMarquee 1.1s ease-in-out infinite",
+      }} />
+      {/* マーキー電球（下） */}
+      <div style={{
+        position: "absolute", bottom: 3, left: 8, right: 8, height: 8, zIndex: 6, pointerEvents: "none",
+        backgroundImage: "radial-gradient(circle, #ffe9a8 0 2px, transparent 2.6px)",
+        backgroundSize: "15px 8px", backgroundPosition: "center",
+        filter: "drop-shadow(0 0 3px #e3c25a)", animation: "slotMarquee 1.1s ease-in-out infinite", animationDelay: "0.55s",
+      }} />
+      {/* 当たりライン（光る・脈動・▶◀マーカー） */}
+      <div style={{
+        position: "absolute", left: 2, right: 2, top: "50%", transform: "translateY(-50%)",
+        height: 46,
+        borderTop: "2.5px solid rgba(231,194,90,0.95)",
+        borderBottom: "2.5px solid rgba(231,194,90,0.95)",
+        background: "rgba(231,194,90,0.10)",
+        animation: "slotWinline 1.8s ease-in-out infinite",
+        pointerEvents: "none", zIndex: 5,
       }}>
+        <span style={{ position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)", color: "#ffe9a8", fontSize: 12, textShadow: "0 0 6px #e3c25a" }}>▶</span>
+        <span style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", color: "#ffe9a8", fontSize: 12, textShadow: "0 0 6px #e3c25a" }}>◀</span>
       </div>
 
       {/* アイテム描画コンテナ (3Dドラム缶効果) */}
@@ -1795,6 +1814,71 @@ function SlotReel<T>({
   );
 }
 
+/* ══════════════════════════════════════════════════════════
+   FieldSlot — 「テキストごとにスロット」。選んだアイテムの
+   各フィールド(=値)を、ミニ・スロットで決める。候補(options)が
+   あれば◀▶で送る／無ければ入力。これでSPAWN=中身入りの完成品。
+   ══════════════════════════════════════════════════════════ */
+function FieldSlot({ label, value, options, onChange }: {
+  label: string; value: string; options?: string[]; onChange: (v: string) => void;
+}) {
+  const hasOpts = !!options && options.length > 0;
+  const idx = hasOpts ? Math.max(0, options!.indexOf(value)) : 0;
+  const go = (d: number) => {
+    if (!hasOpts) return;
+    const n = (idx + d + options!.length) % options!.length;
+    onChange(options![n]);
+    playSlotTickSound();
+  };
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      <div style={{ fontSize: 9, fontWeight: 900, color: "#ffe08a", letterSpacing: "0.06em", paddingLeft: 4, textShadow: "0 0 5px rgba(231,194,90,0.6)" }}>
+        {label}
+      </div>
+      {hasOpts ? (
+        <div style={{ display: "flex", alignItems: "stretch", gap: 4, height: 34 }}>
+          <button onClick={() => go(-1)} style={fsArrow}>◀</button>
+          <div
+            onClick={() => go(1)}
+            title="タップで次の候補へ"
+            style={{
+              flex: 1, position: "relative", display: "flex", alignItems: "center", justifyContent: "center",
+              background: "linear-gradient(to bottom, #14110c, #2a2620, #14110c)",
+              border: "2px solid #d4af37", borderRadius: 8, cursor: "pointer",
+              boxShadow: "inset 0 0 10px rgba(0,0,0,0.8), 0 0 8px rgba(231,194,90,0.25)",
+              overflow: "hidden",
+            }}>
+            <span style={{ position: "absolute", left: 3, color: "rgba(231,194,90,0.6)", fontSize: 10 }}>▶</span>
+            <span key={value} style={{
+              color: "#fff", fontWeight: 900, fontSize: 12, padding: "0 16px",
+              maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+              textShadow: "0 1px 2px #000", animation: "fsFlip 0.18s ease",
+            }}>{value || "—"}</span>
+            <span style={{ position: "absolute", right: 3, color: "rgba(231,194,90,0.6)", fontSize: 10 }}>◀</span>
+          </div>
+          <button onClick={() => go(1)} style={fsArrow}>▶</button>
+        </div>
+      ) : (
+        <input
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          style={{
+            height: 34, boxSizing: "border-box", width: "100%", padding: "0 10px",
+            background: "linear-gradient(to bottom, #14110c, #2a2620)", color: "#fff",
+            border: "2px solid #d4af37", borderRadius: 8, outline: "none",
+            fontWeight: 900, fontSize: 12, textAlign: "center",
+            boxShadow: "inset 0 0 10px rgba(0,0,0,0.8)",
+          }} />
+      )}
+    </div>
+  );
+}
+const fsArrow: React.CSSProperties = {
+  width: 30, flexShrink: 0, background: "linear-gradient(to bottom, #3a2f16, #241c0c)",
+  color: "#ffe08a", border: "2px solid #d4af37", borderRadius: 8, cursor: "pointer",
+  fontSize: 11, fontWeight: 900, boxShadow: "0 2px 0 #1a1408, inset 0 1px 0 rgba(255,255,255,0.15)",
+};
+
 export default function LogicPanel() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -1878,6 +1962,16 @@ export default function LogicPanel() {
       setSelectedTemplate(null);
     }
   }, [activeCategory]);
+
+  // テキストごとにスロット：選択アイテムの各フィールド値（SPAWN時に注入）
+  const [fieldVals, setFieldVals] = useState<Record<string, string>>({});
+  useEffect(() => {
+    if (!selectedTemplate) { setFieldVals({}); return; }
+    const init: Record<string, string> = {};
+    selectedTemplate.fields.forEach(f => (init[f.id] = f.value));
+    setFieldVals(init);
+  }, [selectedTemplate]);
+
   const [focusedField, setFocusedField] = useState<{ blockId: string; fieldId: string } | null>(null);
   // 統合版(積み木)はアナログ工房に1画面で統一。配色は工房パレット固定。
   const CAT = CAT_WORKSHOP;
@@ -2400,7 +2494,7 @@ export default function LogicPanel() {
     setTimeout(() => setParticles(prev => prev.filter(p => p.id !== id && p.id !== sparkId)), 400); // 400ms で素早く消えるように
   }, []);
 
-  const addBlock = useCallback((t: Tmpl) => {
+  const addBlock = useCallback((t: Tmpl, fieldOverrides?: Record<string, string>) => {
     const { pan, zoom, blocks } = live.current;
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -2410,6 +2504,9 @@ export default function LogicPanel() {
 
     // まず y = 0 でブロックを生成し、その高さを取得する
     const nb = spawnBlock(t, baseX, 0);
+    if (fieldOverrides) {
+      nb.fields = nb.fields.map(f => fieldOverrides[f.id] !== undefined ? { ...f, value: fieldOverrides[f.id] } : f);
+    }
     const nbH = blockH(nb);
 
     // 自動積み上げ配置
@@ -2795,11 +2892,16 @@ export default function LogicPanel() {
 
         /* カジノ風点滅ランプエフェクト */
         @keyframes casinoLights {
-          0%, 100% { border-color: #d4af37; box-shadow: 0 0 8px #d4af37, inset 0 0 8px #d4af37; }
-          50% { border-color: #ff4757; box-shadow: 0 0 15px #ff4757, inset 0 0 12px #ff4757; }
+          0%, 100% { border-color: #4a3f24; }
+          50%      { border-color: #e3c25a; }
+        }
+        @keyframes fsFlip {
+          0% { transform: translateY(-40%); opacity: 0; }
+          100% { transform: translateY(0); opacity: 1; }
         }
         .casino-border {
-          animation: casinoLights 2s infinite alternate;
+          /* カジノ風だけどゲーム感：赤い派手な点滅→上品な金のグロー呼吸 */
+          animation: casinoLights 3.8s ease-in-out infinite;
         }
       `}</style>
 
@@ -2817,6 +2919,7 @@ export default function LogicPanel() {
           padding: "16px 12px",
           boxSizing: "border-box",
           gap: 12,
+          overflowY: "auto",
           boxShadow: "inset -5px 0 15px rgba(0,0,0,0.6)"
         }}>
           {/* スロット看板 */}
@@ -2844,7 +2947,7 @@ export default function LogicPanel() {
 
           {/* カテゴリドラム */}
           <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-            <div style={{ fontSize: 10, fontWeight: 900, color: "#d4af37", letterSpacing: "0.05em", paddingLeft: 4 }}>
+            <div style={{ fontSize: 10, fontWeight: 900, color: "#ffe08a", letterSpacing: "0.08em", paddingLeft: 4, textShadow: "0 0 6px rgba(231,194,90,0.7), 0 0 2px rgba(231,194,90,0.9)" }}>
               STEP 1: カテゴリをまわす
             </div>
             <SlotReel
@@ -2873,7 +2976,7 @@ export default function LogicPanel() {
 
           {/* アイテムドラム */}
           <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-            <div style={{ fontSize: 10, fontWeight: 900, color: "#d4af37", letterSpacing: "0.05em", paddingLeft: 4 }}>
+            <div style={{ fontSize: 10, fontWeight: 900, color: "#ffe08a", letterSpacing: "0.08em", paddingLeft: 4, textShadow: "0 0 6px rgba(231,194,90,0.7), 0 0 2px rgba(231,194,90,0.9)" }}>
               STEP 2: アイテムをまわす
             </div>
             <SlotReel
@@ -2902,12 +3005,30 @@ export default function LogicPanel() {
             />
           </div>
 
+          {/* STEP 3：テキストごとにスロット（中身をセット）＝これでロジック成立 */}
+          {selectedTemplate && selectedTemplate.fields.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+              <div style={{ fontSize: 10, fontWeight: 900, color: "#ffe08a", letterSpacing: "0.05em", paddingLeft: 4, textShadow: "0 0 6px rgba(231,194,90,0.7)" }}>
+                STEP 3: 中身をセット
+              </div>
+              {selectedTemplate.fields.map(f => (
+                <FieldSlot
+                  key={f.id}
+                  label={f.label}
+                  value={fieldVals[f.id] ?? f.value}
+                  options={f.options}
+                  onChange={v => setFieldVals(prev => ({ ...prev, [f.id]: v }))}
+                />
+              ))}
+            </div>
+          )}
+
           {/* 決定・SPAWNボタン */}
           <button
             disabled={!selectedTemplate}
             onClick={() => {
               if (selectedTemplate) {
-                addBlock(selectedTemplate);
+                addBlock(selectedTemplate, fieldVals);
               }
             }}
             style={{
@@ -3376,7 +3497,7 @@ export default function LogicPanel() {
 
           <McButton
             size="sm"
-            variant={showProjects ? "grape" : "default"}
+            variant="grape"
             onClick={() => setShowProjects(v => !v)}
             active={showProjects}
             title="プロジェクトの保存・読み込み"
@@ -3387,7 +3508,7 @@ export default function LogicPanel() {
 
           <McButton
             size="sm"
-            variant={showTemplates ? "info" : "default"}
+            variant="info"
             onClick={() => setShowTemplates(v => !v)}
             active={showTemplates}
             title="テンプレートギャラリー"
@@ -3398,7 +3519,7 @@ export default function LogicPanel() {
 
           <McButton
             size="sm"
-            variant={showCode ? "warning" : "default"}
+            variant="warning"
             onClick={() => setShowCode(v => !v)}
             active={showCode}
             title="生成コードを表示"
@@ -3409,7 +3530,7 @@ export default function LogicPanel() {
 
           <McButton
             size="sm"
-            variant={showHelp ? "primary" : "default"}
+            variant="primary"
             onClick={() => setShowHelp(v => !v)}
             active={showHelp}
             title="操作ガイドを開く"
