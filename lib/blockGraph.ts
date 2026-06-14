@@ -2,11 +2,7 @@ import { CBlock } from '../app/editor/_types';
 import { GAP, BW, BH, SNAP } from '../app/editor/_constants';
 
 function blockH(b: CBlock): number {
-  // 削除ボタンを避けて label を下げる + 隙間。
-  if (b.type === "co_if") return 168; // 2行スロット×3が収まる高さ
-  if (b.type === "ct_rep") return BH + 7 + b.fields.length * 18 + 7 + 18 + 16; // 2行スロット分を加算
-  if (b.fields.length === 0) return 69; // フィールド無しコンパクト
-  return BH + 7 + b.fields.length * 18 + 7 + 18;
+  return 154;
 }
 
 function getStackHeight(id: string | null, blocks: CBlock[]): number {

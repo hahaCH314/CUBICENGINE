@@ -3,10 +3,10 @@
    ══════════════════════════════════════════════════════════ */
 
 /** ブロック幅 */
-export const BW   = 96;
+export const BW   = 64;
 
 /** ブロックの基本高さ */
-export const BH   = 65;
+export const BH   = 64;
 
 /** ブロック間ギャップ（0 = 密着積み） */
 export const GAP  = 0;

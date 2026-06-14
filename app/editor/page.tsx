@@ -283,30 +283,49 @@ export default function EditorPage() {
         </div>
       </div>
 
-      {/* ─ Tab Bar （マイクラ・インベントリ風タブ） ─ */}
-      <div className="h-10 bg-surface border-b-2 border-border flex items-end px-2 gap-1 shrink-0">
+      {/* ─ Premium Modern Tab Bar ─ */}
+      <div 
+        className="h-12 flex items-end px-4 gap-2 shrink-0 relative z-10" 
+        style={{ 
+          background: "linear-gradient(to bottom, #2d3436, #222f3e)",
+          borderBottom: "2px solid rgba(255,255,255,0.1)",
+          boxShadow: "0 4px 15px rgba(0,0,0,0.3)"
+        }}
+      >
         {tabConfig.map((tab) => {
           const isActive = activeTab === tab.key;
-          // タブごとの色をボタン CSS 変数として注入（押下時/通常時で同じカラー）
-          const tabStyle = {
-            "--mc-btn-bg": isActive ? tab.color : "#3a3833", // 非アクティブ時は暗い石色
-            "--mc-btn-edge": isActive ? lighten(tab.color) : "#5a574e",
-            "--mc-btn-shadow": isActive ? darken(tab.color) : "#1f1e1a",
-            "--mc-btn-text": isActive ? "#3a2c05" : "#9c9890",
-          } as React.CSSProperties;
           return (
-            <McButton
+            <button
               key={tab.key}
               id={`tab-${tab.key}`}
               onClick={() => setActiveTab(tab.key)}
-              active={isActive}
-              style={tabStyle}
+              className="relative px-6 py-2.5 flex items-center gap-2.5 rounded-t-xl transition-all duration-300 ease-out outline-none"
+              style={{
+                background: isActive ? "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)" : "transparent",
+                border: "1px solid",
+                borderColor: isActive ? "rgba(255,255,255,0.25)" : "transparent",
+                borderBottom: "none",
+                color: isActive ? "#fff" : "rgba(255,255,255,0.5)",
+                transform: isActive ? "translateY(2px)" : "none",
+                zIndex: isActive ? 10 : 1,
+                boxShadow: isActive ? "0 -4px 15px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2)" : "none",
+              }}
+              onMouseEnter={e => {
+                if (!isActive) e.currentTarget.style.background = "rgba(255,255,255,0.08)";
+              }}
+              onMouseLeave={e => {
+                if (!isActive) e.currentTarget.style.background = "transparent";
+              }}
             >
-              <span className="flex items-center gap-1.5">
-                <span className="text-[14px] leading-none">{tab.icon}</span>
-                <span>{tab.label}</span>
-              </span>
-            </McButton>
+              {isActive && (
+                <div 
+                  className="absolute top-0 left-0 right-0 h-[3px] rounded-t-xl" 
+                  style={{ background: tab.color, boxShadow: `0 0 10px ${tab.color}, 0 0 5px ${tab.color}` }} 
+                />
+              )}
+              <span className="text-[17px]" style={{ filter: isActive ? `drop-shadow(0 0 5px ${tab.color})` : "grayscale(0.8) opacity(0.7)" }}>{tab.icon}</span>
+              <span className="font-bold text-[14px] tracking-wide" style={{ fontFamily: "'M PLUS Rounded 1c', sans-serif" }}>{tab.label}</span>
+            </button>
           );
         })}
       </div>

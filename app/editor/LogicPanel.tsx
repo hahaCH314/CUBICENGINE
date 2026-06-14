@@ -3,10 +3,12 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useEditorStore } from "./store";
 import { McButton, McBadge } from "../_mc";
+import { CodeRevealOverlay } from "./CodeRevealOverlay";
+import * as LucideIcons from "lucide-react";
 
 import { Category, FieldDef, CBlock, Tmpl, CalcSubCat, CatDef } from "./_types";
 import { BW, BH, GAP, SNAP, BASE_ZOOM } from "./_constants";
-import { CAT_WORKSHOP } from "../../data/categories";
+import { CAT, CAT_WORKSHOP } from "../../data/categories";
 import { TEMPLATES, CALC_SUBTABS, getCalcSubCat } from "../../data/templates";
 import { ITEM_NAMES } from "../../data/itemNames";
 import { blockH, getStackHeight, getDepth, getPos, getFamily, detach, attach, dist, findSnap } from "../../lib/blockGraph";
@@ -87,7 +89,7 @@ interface PresetProject {
 
 const PRESET_PROJECTS: PresetProject[] = [
   {
-    name: "ウェルカムMod", emoji: "👋", desc: "参加時に歓迎メッセージを送信",
+    name: "ウェルカムMod", emoji: "UserPlus", desc: "参加時に歓迎メッセージを送信",
     create: () => {
       const a = spawnBlock(T("ev_join"), 100, 600);
       let b = spawnBlock(T("ac_msg"), 100, 600 - BH - GAP);
@@ -97,7 +99,7 @@ const PRESET_PROJECTS: PresetProject[] = [
     },
   },
   {
-    name: "HP危険警告", emoji: "🩸", desc: "HP10以下で赤いメッセージを表示",
+    name: "HP危険警告", emoji: "HeartPulse", desc: "HP10以下で赤いメッセージを表示",
     create: () => {
       const a = spawnBlock(T("ev_hurt"), 80, 600);
       const donut = spawnBlock(T("co_if"), 300, 600 - BH - GAP);
@@ -231,24 +233,7 @@ function buildCode(blocks: CBlock[]): string {
 
 /** ブロックの実描画幅（ToyCubeBlockのwと一致。落下の左右回避でも使う） */
 function blockWidth(b: CBlock, blocks: CBlock[]): number {
-  const titleSize = b.label.length > 10 ? 11 : b.label.length > 8 ? 12 : b.label.length > 6 ? 13 : 15;
-  const titleW = b.label.length * titleSize;
-  let contentW = 0;
-  b.fields.forEach(f => {
-    let d = f.value || "";
-    if (d.startsWith("minecraft:")) { const item = ITEM_NAMES[d]; if (item) d = `${item.icon} ${item.jp}`; }
-    const flen = f.label.length + d.length;
-    contentW = Math.max(contentW, flen * 10 + 40);
-  });
-  if (b.type === "co_if" || b.type === "ct_rep") {
-    (["inner", "then", "else"] as const).forEach(slot => {
-      const targetId = slot === "inner" ? b.innerId : slot === "then" ? b.thenId : b.elseId;
-      const tb = targetId ? blocks.find(x => x.id === targetId) : null;
-      if (tb) contentW = Math.max(contentW, tb.label.length * 8 + 68);
-      else contentW = Math.max(contentW, 95);
-    });
-  }
-  return Math.max(BW, Math.max(titleW + 48, contentW + 28));
+  return BW;
 }
 
  function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnapping, isAdding, isDeleting, innerBlock, blocks, onDown, onDelete, onFieldChange, onEjectInner, focusedField, setFocusedField, wireDrag, onSlotClick, isShaking, isDragging, isPopping, isRolling, rollFrom, rollRot, rollDur }: {
@@ -315,10 +300,11 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
     const targetBlock = targetId ? blocks.find(x => x.id === targetId) : null;
     const isArmedThis = wireDrag && wireDrag.sourceBlockId === b.id && wireDrag.slot === slotKey && wireDrag.armed;
 
-    const acceptBadge = slotKey === "inner" ? "[💎条件/値]" : "[⚡動作]";
+    const isInner = slotKey === "inner";
+    const slotIcon = isInner ? "💠" : "🔽";
 
     return (
-      <button
+      <div
         key={slotKey}
         className={isArmedThis ? "slot-btn slot-btn--armed" : "slot-btn"}
         onMouseDown={e => {
@@ -326,48 +312,34 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
           onSlotClick(b.id, slotKey);
         }}
         style={{
-          display: "flex", flexDirection: "column", alignItems: "stretch", gap: 2,
-          width: "100%", minHeight: 28, padding: "3px 5px", marginTop: 3,
-          background: badge.color,
-          border: isArmedThis ? "1.5px solid #ffffff" : `1.5px solid rgba(0,0,0,0.28)`,
-          borderRadius: 5, color: "#ffffff", fontSize: 10, fontWeight: 900,
+          width: 18, height: 18, borderRadius: "50%",
+          background: isArmedThis ? badge.color : "rgba(0,0,0,0.6)",
+          border: `2px solid ${isArmedThis ? "#fff" : badge.color}`,
           cursor: "pointer",
-          boxShadow: isArmedThis
-            ? `0 0 8px ${badge.color}, inset 0 1.5px 0 rgba(255,255,255,0.45)`
-            : "inset 0 1.5px 0 rgba(255,255,255,0.35), inset 0 -2px 0 rgba(0,0,0,0.28), 0 2px 0 rgba(0,0,0,0.3), 0 3px 4px rgba(0,0,0,0.25)",
-          animation: isArmedThis ? "slotPulse 1.0s ease-in-out infinite" : "none",
-          fontFamily: "'M PLUS Rounded 1c', 'Nunito', sans-serif",
-          textShadow: "0px -1px 1px rgba(0,0,0,0.55), 0px 1px 1px rgba(255,255,255,0.2)",
-          transition: "transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s ease",
+          boxShadow: isArmedThis ? `0 0 10px ${badge.color}` : "inset 0 2px 4px rgba(0,0,0,0.5)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          transition: "all 0.15s ease",
+          position: "relative"
+        }}
+        title={`${head.jp} (${targetBlock ? targetBlock.label : "Empty"})`}
+        onMouseEnter={e => {
+          if (!isArmedThis) e.currentTarget.style.transform = "scale(1.2)";
+        }}
+        onMouseLeave={e => {
+          if (!isArmedThis) e.currentTarget.style.transform = "scale(1)";
         }}
       >
-        <span style={{ display: "flex", alignItems: "center", gap: 3, lineHeight: 1 }}>
-          <span style={{ fontSize: 10 }}>{badge.icon}</span>
-          <span>{head.jp}</span>
-        </span>
-
-        {targetBlock ? (
-          <span style={{
-            width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-            fontSize: 9, background: "rgba(0,0,0,0.55)", padding: "2px 5px", borderRadius: 4, color: "#fff",
-            textShadow: "none", textAlign: "left", lineHeight: 1.2, boxShadow: "inset 0 1px 1.5px rgba(0,0,0,0.35)"
-          }}>
-            {targetBlock.label}
-          </span>
-        ) : (
-          <span style={{
-            width: "100%", fontSize: 9, color: "rgba(255,255,255,0.85)",
-            background: "rgba(0,0,0,0.28)",
-            padding: "2px 5px", borderRadius: 4,
-            textShadow: "none", textAlign: "left", lineHeight: 1.2, whiteSpace: "nowrap",
-            overflow: "hidden", textOverflow: "ellipsis", boxShadow: "inset 0 1px 1.5px rgba(0,0,0,0.3)"
-          }}>
-            {acceptBadge}
-          </span>
-        )}
-      </button>
+        {targetBlock && <div style={{ width: 8, height: 8, borderRadius: "50%", background: badge.color }} />}
+      </div>
     );
   };
+
+  // Lucideアイコンの動的取得
+  // @ts-ignore
+  const IconComponent = LucideIcons[cat.icon] || LucideIcons.HelpCircle;
+  // 特殊なブロックの場合は独自のアイコンを使用（テンプレートに指定がある場合）
+  // @ts-ignore
+  const BlockIconComponent = (b.emoji && LucideIcons[b.emoji]) ? LucideIcons[b.emoji] : IconComponent;
 
   return (
     <div onMouseDown={e => onDown(e, b.id)} style={{
@@ -375,195 +347,61 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
       width: w, height: h,
       cursor: isDragging ? "grabbing" : "grab", userSelect: "none",
       animation: anim,
-      transformOrigin: (isAdding || isRolling) ? "bottom center" : "center center",
+      transformOrigin: "center center",
       ...(isRolling ? { 
         ["--roll-from" as never]: `${-(rollFrom ?? 0)}px`, 
         ["--roll-rot" as never]: `${-((rollFrom ?? 0) / BW) * 360}deg`,
         ["--bounce-rot" as never]: `${rollRot ?? 6}deg`
       } : {}),
-      transform: selected && !isDragging ? "translate(-3px, -3px)" : "none", // 選択中はわずかに浮き上がる
+      transform: isDragging
+        ? "scale(1.1) translateY(-8px)"
+        : selected
+          ? "scale(1.05) translateY(-4px)"
+          : "none",
       zIndex: isDragging ? 9999 : (selected ? 1000 : 20) + depth * 10,
       opacity: isDimmed ? 0.35 : 1.0,
       filter: isDimmed 
         ? "grayscale(0.5)" 
         : isDragging 
-          ? "brightness(1.08) drop-shadow(0 8px 16px rgba(0,0,0,0.45)) drop-shadow(0 3px 6px rgba(0,0,0,0.3))" 
+          ? "brightness(1.1) drop-shadow(0 15px 25px rgba(0,0,0,0.5))" 
           : selected
-            ? (cyber
-                ? `brightness(1.1) drop-shadow(0 0 18px ${cat.bg}) drop-shadow(0 0 7px ${cat.bg}) drop-shadow(0 6px 12px rgba(0,0,0,0.4))` // デジタル選択：強ネオン
-                : `brightness(1.06) drop-shadow(0 0 10px ${cat.bg}88) drop-shadow(0 6px 12px rgba(0,0,0,0.4))`) // アナログ選択
-            : (cyber
-                ? `drop-shadow(0 0 14px ${cat.bg}dd) drop-shadow(0 0 5px ${cat.bg}) drop-shadow(0 2px 4px rgba(0,0,0,0.35))` // デジタル通常：強めネオン発光
-                : `drop-shadow(0 0 6px ${cat.bg}66) drop-shadow(0 2px 4px rgba(0,0,0,0.3))`), // アナログ通常：控えめ発光
+            ? `brightness(1.1) drop-shadow(0 0 15px ${cat.bg}AA) drop-shadow(0 8px 16px rgba(0,0,0,0.4))`
+            : `drop-shadow(0 0 8px ${cat.bg}66) drop-shadow(0 4px 8px rgba(0,0,0,0.3))`,
       transition: "opacity 0.25s ease, filter 0.15s, transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1)",
     }}>
-      {/* 3D上面 - 0.68倍スケール */}
+      {/* メイン円形ノード */}
       <div style={{
-        position: "absolute",
-        left: 0,
-        top: -14,
-        width: w,
-        height: 14,
-        background: `linear-gradient(to right, ${cat.top}, ${cat.top})`,
-        borderRadius: `${R}px ${R}px 0 0`,
-        transform: "skewX(-45deg)",
-        transformOrigin: "bottom left",
-        borderTop: `1.8px solid ${cat.border}`,
-        borderLeft: `1.8px solid ${cat.border}`,
-        borderRight: `1.5px solid rgba(0,0,0,0.08)`,
-        borderBottom: `1.5px solid rgba(0,0,0,0.08)`,
-        boxSizing: "border-box",
-        zIndex: 1,
-      }} />
-      {/* 3D右側面 - 0.68倍スケール */}
-      <div style={{
-        position: "absolute",
-        left: w,
-        top: 0,
-        width: 14,
-        height: h,
-        background: `linear-gradient(to bottom, ${cat.side}, ${cat.side})`,
-        borderRadius: `0 ${R}px ${R}px 0`,
-        transform: "skewY(-45deg)",
-        transformOrigin: "top left",
-        borderTop: `1.5px solid rgba(0,0,0,0.08)`,
-        borderRight: `1.8px solid ${cat.border}`,
-        borderBottom: `1.8px solid ${cat.border}`,
-        borderLeft: `1.5px solid rgba(0,0,0,0.08)`,
-        boxSizing: "border-box",
-        zIndex: 1,
-      }} />
-      {/* 正面 */}
-      <div style={{
-        position: "absolute",
-        left: 0, top: 0, width: w, height: h,
-        background: `linear-gradient(135deg, ${cat.top}, ${cat.bg})`,
-        borderRadius: `${R}px 0 0 ${R}px`,
-        borderLeft: `1.8px solid ${cat.border}`,
-        borderBottom: `1.8px solid ${cat.border}`,
-        borderRight: `1.5px solid transparent`,
-        borderTop: `1.5px solid transparent`,
-        boxShadow: selected
-          ? `${innerBorder}, 0 0 0 2.5px #ffffff, 0 0 0 5px ${cat.border}, 0 0 12px rgba(255,255,255,0.6)` // 白枠＋境界枠＋グロー
-          : hl
-            ? `${innerBorder}, 0 0 0 2.7px #ffffff`
-            : isAcceptable
-              ? `${innerBorder}, 0 0 0 2.7px #ffffff, 0 0 11px ${badgeColor}`
-              : groupColor
-                ? `${innerBorder}, 0 2px 6px rgba(0,0,0,0.35), 0 0 10px ${groupColor}55`
-                : `${innerBorder}, 0 2px 6px rgba(0,0,0,0.35)`,
-        transition: "box-shadow 0.15s, transform 0.1s",
-        display: "flex", flexDirection: "column", padding: "3px 10px", boxSizing: "border-box",
-        overflow: "hidden",
-        zIndex: 2,
-        justifyContent: "center",
-      }}>
-        <div style={{
+          position: "absolute",
+          left: 0, top: 0, width: w, height: h,
+          background: `linear-gradient(135deg, ${cat.top}, ${cat.bg})`,
+          borderRadius: "50%",
+          border: `2px solid rgba(255,255,255,0.3)`,
+          boxShadow: selected
+            ? `inset 0 2px 4px rgba(255,255,255,0.4), 0 0 0 3px #ffffff, inset 0 -4px 8px rgba(0,0,0,0.3)`
+            : hl || isAcceptable
+              ? `inset 0 2px 4px rgba(255,255,255,0.4), 0 0 0 3px #ffffff, 0 0 12px ${badgeColor || "#fff"}`
+              : `inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -4px 8px rgba(0,0,0,0.3)`,
+          transition: "box-shadow 0.15s, transform 0.1s",
           display: "flex", justifyContent: "center", alignItems: "center",
-          marginTop: (isCond || isLoop) ? 8 : 2,
-          paddingRight: 16, // ✕ボタン(18px)の重なり回避
+          zIndex: 2,
         }}>
-          <div style={{
-            fontSize: titleSize,
-            fontWeight: 900,
-            color: cat.text,
-            lineHeight: 1.1,
-            textAlign: "center",
-            width: "100%",
-            textShadow: cat.text === "#ffffff"
-              ? "1.2px 1.2px 0 #000, -1.2px 1.2px 0 #000, 1.2px -1.2px 0 #000, -1.2px -1.2px 0 #000"
-              : "1px 1px 0 rgba(255,255,255,0.7), -1px 1px 0 rgba(255,255,255,0.7), 1px -1px 0 rgba(255,255,255,0.7), -1px -1px 0 rgba(255,255,255,0.7)",
-            overflow: "hidden",
-            whiteSpace: "nowrap",
-            textOverflow: "ellipsis",
-          }}>
-            {b.label}
-          </div>
-        </div>
-        <div style={{
-          fontSize: 10,
-          color: cat.text === "#ffffff" ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.7)",
-          textAlign: "center",
-          textShadow: cat.text === "#ffffff"
-            ? "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000"
-            : "1px 1px 0 rgba(255,255,255,0.5), -1px 1px 0 rgba(255,255,255,0.5), 1px -1px 0 rgba(255,255,255,0.5), -1px -1px 0 rgba(255,255,255,0.5)",
-          fontWeight: 800, marginTop: 3, letterSpacing: "0.04em"
-        }}>
-          {cat.icon} {cat.label}
-        </div>
-        {isCond && (
-          <div style={{ marginTop: 2, display: "flex", flexDirection: "column", gap: 1 }}>
-            {renderSlotButton("inner")}
-            {renderSlotButton("then")}
-            {renderSlotButton("else")}
-          </div>
-        )}
-        {isLoop && (
-          <div style={{ marginTop: 2 }}>
-            {renderSlotButton("then")}
-          </div>
-        )}
-        {!isCond && b.fields.length > 0 && (
-          <div style={{
-            marginTop: 4, display: "flex", flexDirection: "column", gap: 3,
-            background: "rgba(0,0,0,0.12)", padding: "4px", borderRadius: 5,
-            border: `1.5px solid ${cat.border}`, boxShadow: "inset 2px 2px 0 rgba(0,0,0,0.18)"
-          }}>
-            {b.fields.map(f => {
-              const isFocused = focusedField?.blockId === b.id && focusedField?.fieldId === f.id;
-              return (
-                <div key={f.id} style={{ display: "flex", alignItems: "center", gap: 4, position: "relative", minHeight: 22 }}>
-                  <span style={{
-                    fontSize: 10, color: cat.text, fontWeight: 900, minWidth: 22,
-                    textShadow: cat.text === "#ffffff"
-                      ? "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000"
-                      : "none"
-                  }}>{f.label}</span>
-                  {(() => {
-                    // コンボボックス: 候補(datalist)から「選べる」＋「自由入力もできる」両対応
-                    let disp = f.value || "";
-                    if (!isFocused && disp.startsWith("minecraft:")) {
-                      const item = ITEM_NAMES[disp];
-                      if (item) disp = `${item.icon} ${item.jp}`;
-                    }
-                    const dlId = f.options ? `dl-${b.id}-${f.id}` : undefined;
-                    return (
-                      <>
-                        <input value={isFocused ? (f.value || "") : disp} onChange={e => onFieldChange(b.id, f.id, e.target.value)}
-                          list={dlId}
-                          onMouseDown={e => e.stopPropagation()}
-                          onFocus={() => setFocusedField?.({ blockId: b.id, fieldId: f.id })}
-                          onBlur={() => setFocusedField?.(null)}
-                          style={{
-                            flex: isFocused ? "none" : 1,
-                            position: isFocused ? "absolute" : "relative",
-                            left: isFocused ? 26 : "auto",
-                            width: isFocused ? 150 : "100%",
-                            zIndex: isFocused ? 999 : 1,
-                            transition: "width 0.25s ease, z-index 0.25s",
-                            fontSize: 11, background: "#2c2c2c", border: `1.5px solid #57606f`, borderRadius: 4, color: "#fff", padding: "3px 4px", outline: "none", fontWeight: 800,
-                            boxShadow: "inset 1px 1px 0 rgba(0,0,0,0.5)", fontFamily: "inherit"
-                          }} />
-                        {f.options && (
-                          <datalist id={dlId}>
-                            {f.options.map(o => {
-                              let od = o;
-                              if (od.startsWith("minecraft:")) { const item = ITEM_NAMES[od]; if (item) od = `${item.icon} ${item.jp}`; }
-                              return <option key={o} value={o} label={od !== o ? od : undefined} />;
-                            })}
-                          </datalist>
-                        )}
-                      </>
-                    );
-                  })()}
-                </div>
-              );
-            })}
-          </div>
-        )}
+          {/* SVGアイコン */}
+          <BlockIconComponent size={32} color="#ffffff" strokeWidth={2} style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))" }} />
       </div>
 
-      {!isEating && (
+      {/* スロットポート（条件分岐などの場合、下部にはみ出して表示） */}
+      {(isCond || isLoop) && (
+        <div style={{
+          position: "absolute", bottom: -12, left: "50%", transform: "translateX(-50%)",
+          display: "flex", gap: 6, zIndex: 3
+        }}>
+           {isCond && <>{renderSlotButton("inner")}{renderSlotButton("then")}{renderSlotButton("else")}</>}
+           {isLoop && renderSlotButton("then")}
+        </div>
+      )}
+
+      {/* 削除ボタン */}
+      {!isEating && selected && (
         <button
           onMouseDown={e => {
             e.stopPropagation();
@@ -572,26 +410,19 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
           }}
           title="削除"
           style={{
-            position: "absolute", top: 4, right: 6,
-            width: 22, height: 22, borderRadius: 4,
-            background: "rgba(0,0,0,0.25)",
-            border: `1px solid ${cat.border}`,
-            color: cat.text, fontSize: 12, fontWeight: 900,
-            cursor: "pointer", zIndex: 30, display: "flex", alignItems: "center", justifyContent: "center",
-            opacity: 0.6,
-            padding: 0,
-            lineHeight: 1,
-            transition: "opacity 0.15s, transform 0.1s",
+            position: "absolute", top: -8, right: -8,
+            width: 24, height: 24, borderRadius: "50%",
+            background: "#e74c3c", border: `2px solid #fff`,
+            color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: "pointer", zIndex: 30,
+            boxShadow: "0 2px 5px rgba(0,0,0,0.3)",
+            transition: "transform 0.1s",
           }}
-          onMouseEnter={e => {
-            e.currentTarget.style.opacity = "1";
-            e.currentTarget.style.transform = "scale(1.05)";
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.opacity = "0.5";
-            e.currentTarget.style.transform = "scale(1)";
-          }}
-        >✕</button>
+          onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
+          onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+        >
+          <LucideIcons.X size={14} strokeWidth={3} />
+        </button>
       )}
     </div>
   );
@@ -615,7 +446,7 @@ function ToyFloor() {
 
 function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: number } }) {
   return (
-    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
+    <div style={{ position: "absolute", inset: "-20%", overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes workshop-sway {
           0% { transform: rotate(-3deg); }
@@ -642,16 +473,16 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
         }
       `}} />
       
-      {/* 暖かいおもちゃ工房的グラデーション */}
+      {/* 暖かいおもちゃ工房的グラデーション（明るく開放的な陽の光差し込むイメージ） */}
       <div style={{
         position: "absolute", inset: 0,
-        background: "radial-gradient(circle at center 40%, #473222 0%, #1f140e 100%)",
+        background: "radial-gradient(circle at center 40%, #faf0e6 0%, #d8bda2 100%)",
       }} />
 
       {/* 工房という"部屋"＝一点透視の空間（壁画ではなく、奥行きのある箱の中にいる） */}
       <div style={{
         position: "absolute", inset: 0, overflow: "hidden",
-        transform: `translate(${pan.x * 0.12}px, ${pan.y * 0.1}px) scale(${1 + (zoom - 1) * 0.3})`,
+        transform: `translate(${pan.x * 0.05}px, ${pan.y * 0.04}px) scale(${1 + (zoom - 1) * 0.15})`,
         transformOrigin: "center center",
         zIndex: 1,
       }}>
@@ -661,10 +492,10 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
           transform: "perspective(440px) rotateX(-48deg)",
           transformOrigin: "top center",
           background: `
-            repeating-linear-gradient(90deg, rgba(0,0,0,0.12) 0px, rgba(0,0,0,0.12) 1px, transparent 1px, transparent 48px),
-            linear-gradient(to top, #36251b 0%, #1a110c 100%)
+            repeating-linear-gradient(90deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 48px),
+            linear-gradient(to top, #eddcd2 0%, #cca47c 100%)
           `,
-          boxShadow: "inset 0 -50px 70px rgba(0,0,0,0.4)",
+          boxShadow: "inset 0 -30px 50px rgba(0,0,0,0.15)",
         }} />
 
         {/* 左の壁（消失点へ収束） */}
@@ -672,16 +503,16 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
           position: "absolute", left: "-3%", top: "-25%", bottom: "-25%", width: "36%",
           transform: "perspective(440px) rotateY(48deg)",
           transformOrigin: "left center",
-          background: "linear-gradient(to right, #1a110c 0%, #3a271c 100%)",
-          boxShadow: "inset -40px 0 60px rgba(0,0,0,0.35)",
+          background: "linear-gradient(to right, #b08968 0%, #ddb892 100%)",
+          boxShadow: "inset -30px 0 40px rgba(0,0,0,0.15)",
         }} />
         {/* 右の壁（消失点へ収束） */}
         <div style={{
           position: "absolute", right: "-3%", top: "-25%", bottom: "-25%", width: "36%",
           transform: "perspective(440px) rotateY(-48deg)",
           transformOrigin: "right center",
-          background: "linear-gradient(to left, #1a110c 0%, #3a271c 100%)",
-          boxShadow: "inset 40px 0 60px rgba(0,0,0,0.35)",
+          background: "linear-gradient(to left, #b08968 0%, #ddb892 100%)",
+          boxShadow: "inset 30px 0 40px rgba(0,0,0,0.15)",
         }} />
 
         {/* 奥の壁（遠く・小さく・暗い／横張りの板） */}
@@ -689,10 +520,10 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
           position: "absolute", left: "50%", top: "33%", width: "58%", height: "34%",
           transform: "translateX(-50%)",
           background: `
-            repeating-linear-gradient(to bottom, #2d1c12 0px, #2d1c12 20px, #20140c 20px, #20140c 22px),
-            linear-gradient(to bottom, #3b281b, #221710)
+            repeating-linear-gradient(to bottom, #d4b290 0px, #d4b290 20px, #c39e78 20px, #c39e78 22px),
+            linear-gradient(to bottom, #ddb892, #b08968)
           `,
-          boxShadow: "inset 0 0 70px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,0,0,0.3)",
+          boxShadow: "inset 0 0 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.1)",
         }} />
 
         {/* 床（手前広く→奥へ収束＝立っている地面。板の継ぎ目が消失点へ） */}
@@ -701,11 +532,11 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
           transform: "perspective(440px) rotateX(50deg)",
           transformOrigin: "bottom center",
           background: `
-            repeating-linear-gradient(90deg, rgba(0,0,0,0.22) 0px, rgba(0,0,0,0.22) 1.5px, transparent 1.5px, transparent 56px),
-            repeating-linear-gradient(to top, rgba(255,198,120,0.05) 0px, rgba(255,198,120,0.05) 1px, transparent 1px, transparent 42px),
-            linear-gradient(to top, #4d3624 0%, #2f1f14 65%, #1f140d 100%)
+            repeating-linear-gradient(90deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1.5px, transparent 1.5px, transparent 56px),
+            repeating-linear-gradient(to top, rgba(255,255,255,0.15) 0px, rgba(255,255,255,0.15) 1px, transparent 1px, transparent 42px),
+            linear-gradient(to top, #eddcd2 0%, #ddb892 65%, #b08968 100%)
           `,
-          boxShadow: "inset 0 50px 90px rgba(0,0,0,0.3)",
+          boxShadow: "inset 0 30px 50px rgba(0,0,0,0.1)",
         }} />
       </div>
 
@@ -836,9 +667,9 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
         right: "-80px",
         bottom: "-30px",
         height: "70px",
-        background: "linear-gradient(to bottom, #1d140e 0%, #0d0805 100%)",
-        borderTop: "3px solid #2d1e15",
-        boxShadow: "0 -8px 24px rgba(0,0,0,0.7)",
+        background: "linear-gradient(to bottom, #7f5539 0%, #5c3d2e 100%)",
+        borderTop: "3px solid #9c6644",
+        boxShadow: "0 -8px 24px rgba(0,0,0,0.25)",
         transform: `translate(${pan.x * 0.42}px, ${pan.y * 0.35}px) scale(${1 + (zoom - 1) * 0.42})`,
         transformOrigin: "center bottom",
         zIndex: 4,
@@ -849,7 +680,7 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
       {/* 周辺ビネット（やや緩めて光が闇へ滑らかに溶けるように） */}
       <div style={{
         position: "absolute", inset: 0,
-        boxShadow: "inset 0 0 300px rgba(0,0,0,0.6)",
+        boxShadow: "inset 0 0 300px rgba(0,0,0,0.18)",
         zIndex: 5,
       }} />
     </div>
@@ -858,7 +689,7 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
 
 function CyberBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: number } }) {
   return (
-    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
+    <div style={{ position: "absolute", inset: "-20%", overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes cyber-scan {
           0% { transform: translateY(-10%); }
@@ -892,7 +723,7 @@ function CyberBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: numbe
         }
       `}} />
       
-      {/* 電脳グリーンをベースにした漆黒の闇背景 */}
+      {/* 電脳グリーンをベースにした漆黒 of 闇背景 */}
       <div style={{
         position: "absolute", inset: 0,
         background: "radial-gradient(circle at center, #010803 0%, #000201 100%)",
@@ -906,10 +737,10 @@ function CyberBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: numbe
         zIndex: 1,
       }} />
 
-      {/* レイヤー1: 電脳の"空間"＝一点透視の緑ワイヤーフレーム部屋（フラット床→奥へ伸びる空間に。アナログ工房と同じ奥行き構造で色だけ冷たい緑） */}
+      {/* レイヤー1: 電脳の"空間"＝一点透視の緑ワイヤーフレーム部屋 */}
       <div style={{
         position: "absolute", inset: 0, overflow: "hidden",
-        transform: `translate(${pan.x * 0.12}px, ${pan.y * 0.1}px) scale(${1 + (zoom - 1) * 0.3})`,
+        transform: `translate(${pan.x * 0.05}px, ${pan.y * 0.04}px) scale(${1 + (zoom - 1) * 0.15})`,
         transformOrigin: "center center",
         zIndex: 2,
       }}>
@@ -948,7 +779,7 @@ function CyberBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: numbe
           backgroundSize: "30px 30px",
           boxShadow: "inset 0 0 70px rgba(0,2,1,0.85)",
         }} />
-        {/* 床（手前広く→奥へ収束する緑グリッド＝立っている地面。一番明るい＝手前） */}
+        {/* 床（手前広く→奥へ収束する緑グリッド） */}
         <div style={{
           position: "absolute", bottom: "-4%", left: "-25%", right: "-25%", height: "56%",
           transform: "perspective(440px) rotateX(50deg)",
@@ -959,12 +790,7 @@ function CyberBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: numbe
         }} />
       </div>
 
-      {/* 中央の発光体は撤去（きもい/不要との判断）。デジタルは"緑の空間＋漂う光の粒"の静かな世界に。 */}
-
-
-
-
-      {/* 柔らかい電脳グロー（中央、パララックス中） */}
+      {/* 柔らかい電脳グロー */}
       <div style={{
         position: "absolute", top: "15%", left: "50%", transform: `translateX(calc(-50% + ${pan.x * 0.2}px)) translateY(${pan.y * 0.15}px)`, width: 700, height: 700,
         background: "radial-gradient(circle, rgba(79, 217, 138, 0.04) 0%, transparent 70%)",
@@ -973,18 +799,16 @@ function CyberBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: numbe
         zIndex: 5,
       }} />
 
-      {/* ラメ・スパークル粒子層 (ホログラム線上をゆっくり漂う) */}
+      {/* ラメ・スパークル粒子層 */}
       <div style={{ position: "absolute", inset: 0, zIndex: 6 }}>
-        {/* ミント色スパークル */}
         <div style={{ position: "absolute", left: "15%", bottom: "25%", width: 2, height: 2, borderRadius: "50%", background: "#cffbe4", boxShadow: "0 0 4px #cffbe4", animation: "cyber-sparkle-1 9s infinite ease-in-out" }} />
         <div style={{ position: "absolute", left: "45%", bottom: "45%", width: 2.5, height: 2.5, borderRadius: "50%", background: "#cffbe4", boxShadow: "0 0 6px #cffbe4", animation: "cyber-sparkle-2 12s infinite ease-in-out" }} />
         <div style={{ position: "absolute", left: "75%", bottom: "15%", width: 1.8, height: 1.8, borderRadius: "50%", background: "#cffbe4", boxShadow: "0 0 3px #cffbe4", animation: "cyber-sparkle-1 14s infinite ease-in-out" }} />
         <div style={{ position: "absolute", left: "30%", bottom: "60%", width: 2, height: 2, borderRadius: "50%", background: "#cffbe4", boxShadow: "0 0 4px #cffbe4", animation: "cyber-sparkle-2 8s infinite ease-in-out" }} />
-        {/* ごく稀に金の微粒子を1粒だけ */}
         <div style={{ position: "absolute", left: "60%", bottom: "35%", width: 3, height: 3, borderRadius: "50%", background: "#ffd700", boxShadow: "0 0 8px #ffd700", animation: "cyber-sparkle-1 16s infinite ease-in-out" }} />
       </div>
 
-      {/* ゆっくり上から下へ流れる水平スキャンスイープ (画面固定) */}
+      {/* ゆっくり上から下へ流れる水平スキャンスイープ */}
       <div style={{
         position: "absolute",
         left: 0,
@@ -1049,7 +873,7 @@ function SnapIndicator({ x, y, color, zoom, slot }: { x: number; y: number; colo
 
   return (
     <>
-      {/* メインのスナップゾーン — 二重枠 + 半透明フィル + パルス */}
+      {/* メインのスナップゾーン */}
       <div style={{
         position: "absolute",
         left: x - width / 2,
@@ -1065,7 +889,7 @@ function SnapIndicator({ x, y, color, zoom, slot }: { x: number; y: number; colo
         zIndex: 100,
         pointerEvents: "none",
       }} />
-      {/* 中央の十字スナップポイント (磁石の中心) */}
+      {/* 中央の十字スナップポイント */}
       <div style={{
         position: "absolute",
         left: x - 10, top: y - 10,
@@ -1076,7 +900,7 @@ function SnapIndicator({ x, y, color, zoom, slot }: { x: number; y: number; colo
         <div style={{ position: "absolute", left: 9, top: 0, width: 2, height: 20, background: "#fff", boxShadow: `0 0 6px ${color}` }} />
         <div style={{ position: "absolute", left: 0, top: 9, width: 20, height: 2, background: "#fff", boxShadow: `0 0 6px ${color}` }} />
       </div>
-      {/* 方向ラベル — スロットに応じた説明 */}
+      {/* 方向ラベル */}
       <div style={{
         position: "absolute",
         left: x - 75,
@@ -1109,20 +933,16 @@ function BlockTray({
   filtered,
   onAdd,
   searching,
-  activeCategory,
-  pal
+  activeCategory
 }: {
   filtered: Tmpl[];
   onAdd: (t: Tmpl) => void;
   searching: boolean;
   activeCategory: Category;
-  pal: Record<Category, CatDef>;
 }) {
-  // 演算カテゴリ専用のサブタブ状態
   const [calcSub, setCalcSub] = useState<CalcSubCat>("arith");
   const showSubtabs = activeCategory === "calc" && !searching;
 
-  // 演算サブタブ選択中は、その分類のテンプレートだけに更にフィルタ
   const visibleTemplates = showSubtabs
     ? filtered.filter(t => getCalcSubCat(t) === calcSub)
     : filtered;
@@ -1130,7 +950,7 @@ function BlockTray({
   return (
     <div className="mc-bevel" style={{
       width: "100%",
-      height: showSubtabs ? 124 : 96,
+      height: showSubtabs ? 200 : 166,
       flexShrink: 0,
       background: "#3a3833",
       display: "flex",
@@ -1142,7 +962,7 @@ function BlockTray({
       borderRight: "none",
       boxSizing: "border-box"
     }}>
-      {/* 左端アクション（ランダム追加ボタン） */}
+      {/* 左端アクション */}
       <div style={{
         width: 104,
         padding: "6px 8px",
@@ -1176,14 +996,13 @@ function BlockTray({
         </span>
       </div>
 
-      {/* 中央：横スクロールするブロックアイテム一覧 */}
+      {/* 中央 */}
       <div style={{
         flex: 1,
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
       }}>
-        {/* 演算カテゴリのみ：サブタブ */}
         {showSubtabs && (
           <div style={{
             display: "flex",
@@ -1231,7 +1050,7 @@ function BlockTray({
           </div>
         )}
 
-        {/* ブロックリスト本体（横スクロール） */}
+        {/* リスト本体 */}
         <div style={{
           flex: 1,
           overflowX: "auto",
@@ -1240,110 +1059,65 @@ function BlockTray({
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
-          gap: 22,
+          gap: 16,
           scrollbarWidth: "thin",
           scrollbarColor: "#4a4842 #2a2924"
         }}>
           {visibleTemplates.map(t => {
-            const c = pal[t.category];
+            const c = CAT[t.category];
 
-            // キャンバスのブロックと統一した 3D キューブの内側ベベル
-            const innerBorder = "inset 1.5px 1.5px 0 rgba(255,255,255,0.12), inset -1.5px -1.5px 0 rgba(0,0,0,0.24)";
-            const hoverInnerBorder = "inset 2px 2px 0 rgba(255,255,255,0.45), inset -2px -2px 0 rgba(0,0,0,0.26)";
-            const pressInnerBorder = "inset 2px 2px 0 rgba(0,0,0,0.32), inset -2px -2px 0 rgba(255,255,255,0.20)";
-            const bw_w = 86;
-            const bw_h = 58;
-            const FACE_D = 11;
-            const R = 5;
+            const innerBorder = "inset 1px 1px 0 rgba(255,255,255,0.15), inset -1px -1.5px 0 rgba(0,0,0,0.25)";
+            const hoverInnerBorder = "inset 1.5px 1.5px 0 rgba(255,255,255,0.3), inset -1.5px -2px 0 rgba(0,0,0,0.28)";
+            const pressInnerBorder = "inset 1.5px 1.5px 0 rgba(0,0,0,0.3), inset -1.5px -1.5px 0 rgba(255,255,255,0.15)";
+            const bw_w = BW;
+            const bw_h = 130;
 
             return (
               <button key={t.type + t.label} onClick={() => onAdd(t)} title={t.sublabel}
                 style={{
-                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1,
-                  width: bw_w, height: bw_h, padding: "3px 2px",
-                  // 融合: 正面(=このボタン)を独立カードに見せない。継ぎ目側(上/右)の角丸と縁を消す。
-                  borderRadius: `${R}px 0 0 ${R}px`,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 1,
+                  width: bw_w,
+                  height: bw_h,
+                  padding: "4px 2px",
+                  borderRadius: 8,
                   background: `linear-gradient(135deg, ${c.top}, ${c.bg})`,
-                  borderLeft: `2.5px solid ${c.border}`,
-                  borderBottom: `2.5px solid ${c.border}`,
-                  borderRight: `1px solid transparent`,
-                  borderTop: `1px solid transparent`,
+                  border: `2.0px solid ${c.border}`,
+                  borderBottom: `4.0px solid rgba(0,0,0,0.28)`,
                   cursor: "pointer",
-                  transition: "transform 0.1s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.1s ease, filter 0.1s ease",
-                  // ブロックの体: 浮く"ボタン影"は出さず、キャンバスブロックと同じ斜めオフセット影で地に置く
-                  boxShadow: `${innerBorder}, 2px 2px 0 rgba(0,0,0,0.18)`,
+                  transition: "transform 0.12s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.12s ease, filter 0.12s ease",
+                  boxShadow: `${innerBorder}, 0 2px 4px rgba(0,0,0,0.25)`,
                   flexShrink: 0,
                   position: "relative",
                   overflow: "visible",
-                  marginTop: FACE_D, // 3D 上面分の余白を上に確保（はみ出し防止）
                 }}
                 onMouseEnter={e => {
                   const el = e.currentTarget;
-                  // 持ち上げない。ブロックが"光る"だけ
-                  el.style.boxShadow = `${hoverInnerBorder}, 2px 2px 0 rgba(0,0,0,0.2)`;
-                  el.style.filter = "brightness(1.09)";
+                  el.style.transform = "translateY(-5px)";
+                  el.style.boxShadow = `${hoverInnerBorder}, 0 6px 12px rgba(0,0,0,0.35)`;
+                  el.style.filter = "brightness(1.06)";
                 }}
                 onMouseLeave={e => {
                   const el = e.currentTarget;
                   el.style.transform = "";
-                  el.style.boxShadow = `${innerBorder}, 2px 2px 0 rgba(0,0,0,0.18)`;
+                  el.style.boxShadow = `${innerBorder}, 0 2px 4px rgba(0,0,0,0.25)`;
                   el.style.filter = "";
                 }}
                 onMouseDown={e => {
                   const el = e.currentTarget;
-                  // ブロックが地面に"押し込まれる"(沈む＝影を畳む)。ボタンの上下移動ではない
-                  el.style.transform = "scale(0.95)";
-                  el.style.boxShadow = `${pressInnerBorder}, 1px 1px 0 rgba(0,0,0,0.2)`;
+                  el.style.transform = "translateY(0) scale(0.96)";
+                  el.style.boxShadow = `${pressInnerBorder}, 0 1px 2px rgba(0,0,0,0.2)`;
                 }}
                 onMouseUp={e => {
                   const el = e.currentTarget;
-                  el.style.transform = "";
-                  el.style.boxShadow = `${hoverInnerBorder}, 2px 2px 0 rgba(0,0,0,0.2)`;
+                  el.style.transform = "translateY(-5px)";
+                  el.style.boxShadow = `${hoverInnerBorder}, 0 6px 12px rgba(0,0,0,0.35)`;
                 }}
               >
-                {/* 3D 上面 — キャンバスブロックと同じ skewX 形状（角丸厚みアップ） */}
-                <div style={{
-                  position: "absolute",
-                  left: 0,
-                  top: -FACE_D,
-                  width: bw_w,
-                  height: FACE_D,
-                  background: c.top,
-                  borderRadius: `${R}px ${R}px 0 0`,
-                  transform: "skewX(-45deg)",
-                  transformOrigin: "bottom left",
-                  borderTop: `2.5px solid ${c.border}`,
-                  borderLeft: `2.5px solid ${c.border}`,
-                  borderRight: `1px solid rgba(0,0,0,0.22)`,
-                  borderBottom: `1px solid rgba(0,0,0,0.22)`,
-                  boxSizing: "border-box",
-                  pointerEvents: "none",
-                  zIndex: 1,
-                }} />
-
-                {/* 3D 右側面 — キャンバスブロックと同じ skewY 形状 */}
-                <div style={{
-                  position: "absolute",
-                  left: bw_w,
-                  top: 0,
-                  width: FACE_D,
-                  height: bw_h,
-                  background: c.side,
-                  borderRadius: `0 ${R}px ${R}px 0`,
-                  transform: "skewY(-45deg)",
-                  transformOrigin: "top left",
-                  borderTop: `1px solid rgba(0,0,0,0.22)`,
-                  borderRight: `2.5px solid ${c.border}`,
-                  borderBottom: `2.5px solid ${c.border}`,
-                  borderLeft: `1px solid rgba(0,0,0,0.22)`,
-                  boxSizing: "border-box",
-                  pointerEvents: "none",
-                  zIndex: 1,
-                }} />
-
-                <span style={{ fontSize: t.type === "co_if" ? 22 : 20, filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.4))", lineHeight: 1, zIndex: 2, position: "relative" }}>
-                  {t.emoji}
-                </span>
+                {(() => { const TrayIcon = (LucideIcons as any)[t.emoji] || LucideIcons.HelpCircle; return <TrayIcon size={t.type === "co_if" ? 22 : 20} color="#ffffff" strokeWidth={2.5} style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.3))", zIndex: 2, position: "relative" as const }} />; })()}
                 <span style={{
                   fontSize: t.label.length > 7 ? 10 : 12,
                   fontWeight: 900,
@@ -1355,9 +1129,10 @@ function BlockTray({
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   textShadow: c.text === "#ffffff"
-                    ? "1.5px 1.5px 0 #000, -1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000"
+                    ? "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000"
                     : "none",
-                  zIndex: 2, position: "relative",
+                  zIndex: 2,
+                  position: "relative",
                 }}>
                   {t.label}
                 </span>
@@ -1369,8 +1144,8 @@ function BlockTray({
               該当するブロックなし
             </div>
           )}
-        </div>{/* /inner scroll */}
-      </div>{/* /outer column */}
+        </div>
+      </div>
     </div>
   );
 }
@@ -1542,7 +1317,7 @@ function TemplateGallery({ onSelect, onClose }: {
               }}
               onMouseEnter={e => { const el = e.currentTarget; el.style.background = "#2a2924"; el.style.borderColor = "#ec4899"; el.style.transform = "translateY(-1px)"; }}
               onMouseLeave={e => { const el = e.currentTarget; el.style.background = "#1f1e1a"; el.style.borderColor = ""; el.style.transform = ""; }}>
-              <div style={{ fontSize: 26, marginBottom: 6, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.4))" }}>{p.emoji}</div>
+              <div style={{ marginBottom: 6, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.4))" }}>{(() => { const PIcon = (LucideIcons as any)[p.emoji] || LucideIcons.HelpCircle; return <PIcon size={26} color="#ffffff" strokeWidth={2} />; })()}</div>
               <div className="font-pixel" style={{ fontSize: 11, color: "var(--foreground)", marginBottom: 4, letterSpacing: "0.03em" }}>{p.name}</div>
               <div style={{ fontSize: 10, color: "var(--muted)", lineHeight: 1.45 }}>{p.desc}</div>
             </button>
@@ -1709,22 +1484,34 @@ export default function LogicPanel() {
     prevValidRef.current = isLogicValid;
   }, [isLogicValid, showToast]);
 
-  // ─── 床（content Y=660）を画面底辺に揃える ───
-  // 数式: pan.y + 660 * zoom = rect.height  →  pan.y = rect.height - 660 * zoom
-  // マウント時とウィンドウリサイズ時に再計算。X は触らない（自由パン維持）。
-  useEffect(() => {
-    const alignFloor = () => {
-      const rect = containerRef.current?.getBoundingClientRect();
-      if (!rect || rect.height <= 0) return;
-      const groundY = 408 + BH; // = 473（ToyFloor の content Y）
-      const desiredPanY = rect.height - groundY * live.current.zoom;
-      // 床合わせは Y のみ。X は中央寄せ(resetPanZoom が設定)を維持する
-      setPan((p) => ({ x: p.x, y: desiredPanY }));
-    };
-    alignFloor();                                  // 初回
-    window.addEventListener("resize", alignFloor); // ウィンドウサイズ変動時
-    return () => window.removeEventListener("resize", alignFloor);
+  // ─── キャンバス座標の正規化 ───
+  const normalizeCanvas = useCallback((currentBlocks: CBlock[]) => {
+    if (currentBlocks.length === 0) return;
+    const positions = currentBlocks.map(b => getPos(b.id, currentBlocks));
+    const minX = Math.min(...positions.map(p => p.x));
+    const diffX = minX - 60;
+    if (Math.abs(diffX) < 1) return;
+
+    // 親なしルートブロックの id 集合
+    const rootBlockIds = new Set(
+      currentBlocks
+        .filter(bl => !currentBlocks.some(p => p.nextId === bl.id || p.innerId === bl.id || p.thenId === bl.id || p.elseId === bl.id))
+        .map(bl => bl.id)
+    );
+
+    setBlocks(prev => prev.map(b => {
+      if (rootBlockIds.has(b.id)) {
+        return { ...b, x: b.x - diffX };
+      }
+      return b;
+    }));
+
+    setPan(p => ({
+      ...p,
+      x: p.x + diffX * live.current.zoom
+    }));
   }, []);
+
 
   // ─── Undo / Redo ───
   const historyRef = useRef<string[]>([JSON.stringify(blocks)]);
@@ -1826,9 +1613,10 @@ export default function LogicPanel() {
       setWireDrag(null);
       return;
     }
-    // キャンバスのパン移動（ドラッグ）は禁止し、選択解除のみ行う
-    panDrag.current = { active: false, sx: 0, sy: 0, sp: { x: 0, y: 0 } };
-    setSelected(null); e.preventDefault();
+    // キャンバスのパン移動（ドラッグ）をX方向のみ許可する
+    panDrag.current = { active: true, sx: e.clientX, sy: e.clientY, sp: { ...live.current.pan } };
+    setSelected(null);
+    e.preventDefault();
   }, []);
 
   const handleBlockDown = useCallback((e: React.MouseEvent, id: string) => {
@@ -1932,7 +1720,11 @@ export default function LogicPanel() {
       setMouseCanvasPos({ x: mx, y: my });
 
       if (panDrag.current.active) {
-        return; // パン移動（ドラッグ）は無効化（固定表示）
+        setPan(p => ({
+          x: panDrag.current.sp.x + (e.clientX - panDrag.current.sx),
+          y: panDrag.current.sp.y + (e.clientY - panDrag.current.sy)
+        }));
+        return;
       }
       if (!blockDrag.current.active) return;
       const cx = (e.clientX - rect.left) / zoom - pan.x / zoom - blockDrag.current.offX;
@@ -2066,7 +1858,9 @@ export default function LogicPanel() {
           landX = hit.x + hit.w + gapX; // ぶつかった相手の右隣へピタリ
         }
 
-        setBlocks(prev => prev.map(bl => bl.id === id ? { ...bl, x: landX, y: landY } : bl));
+        const nextBlocks = blocks.map(bl => bl.id === id ? { ...bl, x: landX, y: landY } : bl);
+        setBlocks(nextBlocks);
+        normalizeCanvas(nextBlocks);
 
         // ぶつかって右へよけた分があれば「転がって正面で着地」アニメを発火
         const rolledRight = landX - targetLandX;
@@ -2223,10 +2017,12 @@ export default function LogicPanel() {
       }
     }
 
-    setBlocks(prev => [
-      ...prev.map(bl => positions.has(bl.id) ? { ...bl, x: positions.get(bl.id)! } : bl),
+    const nextBlocks = [
+      ...blocks.map(bl => positions.has(bl.id) ? { ...bl, x: positions.get(bl.id)! } : bl),
       nb
-    ]);
+    ];
+    setBlocks(nextBlocks);
+    normalizeCanvas(nextBlocks);
     setAddAnim(nb.id);
     playAddSound();
 
@@ -2665,7 +2461,7 @@ export default function LogicPanel() {
 
         {/* 2行目：ブロックトレイ */}
         {showLib && (
-          <BlockTray filtered={filtered} onAdd={addBlock} searching={searching} activeCategory={activeCategory} pal={CAT} />
+          <BlockTray filtered={filtered} onAdd={addBlock} searching={searching} activeCategory={activeCategory} />
         )}
       </div>
 
@@ -2817,23 +2613,11 @@ export default function LogicPanel() {
 
         {/* ✨ コード誕生の魔法（SPROUT＝工房の暖色／本物の出力コードが生まれる） */}
         {reveal && (
-          <div style={{
-            position: "absolute", inset: 0, zIndex: 200,
-            background: "radial-gradient(120% 100% at 50% 25%, #1c130a 0%, #0c0805 100%)",
-            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24,
-            animation: "toastSlideDown 0.3s ease-out",
-          }}>
-            <div style={{ fontSize: 13, fontWeight: 900, letterSpacing: "0.2em", color: "#ffcf8a", marginBottom: 8, textShadow: "0 0 14px #ffab4d" }}>✨ あなたが書いたコードが生まれた</div>
-            <pre style={{ fontFamily: "monospace", fontSize: 13, lineHeight: 1.7, color: "#ffe2b0", textShadow: "0 0 8px rgba(255,171,77,0.4)", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,171,77,0.25)", borderRadius: 12, padding: "16px 22px", maxWidth: 720, width: "100%", overflow: "auto", maxHeight: "55%", margin: 0, whiteSpace: "pre-wrap", boxShadow: "0 0 40px rgba(255,171,77,0.12)" }}>
-              {reveal.slice(0, revShown).join("\n")}{revShown < reveal.length ? " ▋" : ""}
-            </pre>
-            {revShown >= reveal.length && (
-              <div style={{ marginTop: 18, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-                <div style={{ fontSize: 16, fontWeight: 900, color: "#fff", textShadow: "0 0 18px #ffab4d" }}>🟢 マイクラで動く — これ、<span style={{ color: "#ffd9a0" }}>あなたが創った</span>。</div>
-                <button type="button" onClick={() => setReveal(null)} style={{ border: "none", cursor: "pointer", background: "linear-gradient(135deg,#f0b25a,#b8742a)", color: "#3a2405", fontWeight: 900, fontSize: 13, padding: "9px 20px", borderRadius: 11, boxShadow: "0 4px 16px rgba(240,178,90,0.4)" }}>とじる</button>
-              </div>
-            )}
-          </div>
+          <CodeRevealOverlay
+            revealCode={reveal.join("\n")}
+            onClose={() => setReveal(null)}
+            theme="workshop"
+          />
         )}
 
         {/* コードプレビュー */}
