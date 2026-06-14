@@ -30,8 +30,11 @@
 - ブロック接続・グラフ（`nextId/thenId/elseId/innerId`、`lib/blockGraph.ts`、`findSnap` 等の座標計算）、`genCode`/`lib/codegen`、テンプレ定義（`data/templates.ts`）。
 - 揺らぎ・エフェクトは見た目の描画（CSS keyframe / 一時State）だけで完結させる。
 
-### 🛠 シオン側（並行）
-中身を進める：カードゲームのつなぎ（ポケカ的に"場に出す"設計）、LiveStageのビート拡充・条件分岐の上演、編集フロー。色はヒマワリ待ち。
+### 🔀 衝突回避（ファイル分担・Phase制）＝伊波さん合意 2026-06-14
+**同じファイルを同時に触らない＝git衝突ゼロ。**
+- **Phase 1（並行・今）**: 🎨ヒマワリ＝`LogicPanel.tsx` / `LiveStage.tsx` / `page.tsx` / `globals.css` / 背景（見た目を専有）。⚙️**シオンは Phase 1 中 `LogicPanel.tsx` を触らない**＝`lib/codegen.ts`・`exporter.ts`・`data/templates.ts` のみ（中身＝出力Modの正しさ＋ブロック/フィールド追加）。
+- **Phase 2（ヒマワリの塗りが commit された後）**: シオンが `LogicPanel.tsx` を引き取り「つなぎ＝ポケカ的に"場に出す"モデル」を実装。塗り直し後のキレイな土台でやるので無駄ゼロ。
+- ヒマワリへ: 安心して `LogicPanel.tsx` を専有してOK。塗り終えたら commit して一声。
 
 ---
 
