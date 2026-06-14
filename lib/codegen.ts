@@ -218,7 +218,7 @@ function genExpr(id:string|null, blocks:CBlock[]):string{
     case"va_num":   return`Number(${f("v","0")})`;
     case"va_hp":    return`(player.getComponent("health")?.currentValue??20)`;
     case"va_pos":   return`Math.round(player.location.${f("axis","Y").toLowerCase()})`;
-    case"va_score": return`(player.runCommandAsync("scoreboard players test @s ${escId(f("obj","points"))} * *").then(r=>parseInt(r.statusMessage?.match(/\\d+/)?.[0]??'0')).catch(()=>0))`;
+    case"va_score": return`(()=>{try{return world.scoreboard.getObjective("${escId(f("obj","points"))}")?.getScore(player.scoreboardIdentity)??0;}catch(_e){return 0;}})()`;
     case"ca_add":   return`(${genExpr(b.fields[0]?.id,blocks)||f("a","0")}) + (${genExpr(b.fields[1]?.id,blocks)||f("b","0")})`;
     case"ca_sub":   return`(${genExpr(b.fields[0]?.id,blocks)||f("a","0")}) - (${genExpr(b.fields[1]?.id,blocks)||f("b","0")})`;
     case"ca_mul":   return`(${genExpr(b.fields[0]?.id,blocks)||f("a","1")}) * (${genExpr(b.fields[1]?.id,blocks)||f("b","1")})`;
