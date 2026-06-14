@@ -279,7 +279,7 @@ export default function EditorPage() {
 
       {/* ─ Premium Modern Tab Bar ─ */}
       <div 
-        className="h-12 flex items-end px-4 gap-2 shrink-0 relative z-10" 
+        className="h-12 flex items-center justify-center px-4 gap-2 shrink-0 relative z-10"
         style={{ 
           background: "linear-gradient(to bottom, #2d3436, #222f3e)",
           borderBottom: "2px solid rgba(255,255,255,0.1)",
@@ -293,16 +293,16 @@ export default function EditorPage() {
               key={tab.key}
               id={`tab-${tab.key}`}
               onClick={() => setActiveTab(tab.key)}
-              className="relative px-6 py-2.5 flex items-center gap-2.5 rounded-t-xl transition-all duration-300 ease-out outline-none"
+              className="relative px-6 py-1.5 flex items-center gap-2 rounded-full transition-all duration-200 ease-out outline-none"
               style={{
-                background: isActive ? "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)" : "transparent",
-                border: "1px solid",
-                borderColor: isActive ? "rgba(255,255,255,0.25)" : "transparent",
-                borderBottom: "none",
-                color: isActive ? "#fff" : "rgba(255,255,255,0.5)",
-                transform: isActive ? "translateY(2px)" : "none",
-                zIndex: isActive ? 10 : 1,
-                boxShadow: isActive ? "0 -4px 15px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2)" : "none",
+                background: isActive
+                  ? `linear-gradient(180deg, ${lighten(tab.color)}, ${tab.color})`
+                  : "transparent",
+                color: isActive ? "#1a1a1a" : "rgba(255,255,255,0.55)",
+                fontWeight: isActive ? 900 : 700,
+                boxShadow: isActive
+                  ? `0 2px 10px ${tab.color}77, inset 0 1px 0 rgba(255,255,255,0.55)`
+                  : "none",
               }}
               onMouseEnter={e => {
                 if (!isActive) e.currentTarget.style.background = "rgba(255,255,255,0.08)";
@@ -311,14 +311,8 @@ export default function EditorPage() {
                 if (!isActive) e.currentTarget.style.background = "transparent";
               }}
             >
-              {isActive && (
-                <div 
-                  className="absolute top-0 left-0 right-0 h-[3px] rounded-t-xl" 
-                  style={{ background: tab.color, boxShadow: `0 0 10px ${tab.color}, 0 0 5px ${tab.color}` }} 
-                />
-              )}
-              <span className="text-[17px]" style={{ filter: isActive ? `drop-shadow(0 0 5px ${tab.color})` : "grayscale(0.8) opacity(0.7)" }}>{tab.icon}</span>
-              <span className="font-bold text-[14px] tracking-wide" style={{ fontFamily: "'M PLUS Rounded 1c', sans-serif" }}>{tab.label}</span>
+              <span className="text-[16px]" style={{ filter: isActive ? "none" : "grayscale(0.6) opacity(0.7)" }}>{tab.icon}</span>
+              <span className="text-[13px] tracking-wide" style={{ fontFamily: "'M PLUS Rounded 1c', sans-serif" }}>{tab.label}</span>
             </button>
           );
         })}

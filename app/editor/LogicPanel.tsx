@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useEditorStore } from "./store";
 import { McButton, McBadge } from "../_mc";
 import { CodeRevealOverlay } from "./CodeRevealOverlay";
+import LiveStage from "./LiveStage";
 import * as LucideIcons from "lucide-react";
 
 import { Category, FieldDef, CBlock, Tmpl, CalcSubCat, CatDef } from "./_types";
@@ -156,6 +157,11 @@ function playClickSound() { tone(1100, 0.022, "sine", 0.12); }
 function playSuccessSound() { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, 0.18, "sine", 0.18), i * 75)); }
 function playWireDeleteSound() { tone(600, 0.08, "sawtooth", 0.15, 200); }
 
+/** スロットリール回転時のカチカチ音 */
+function playSlotTickSound() {
+  tone(880, 0.015, "triangle", 0.08);
+}
+
 function playEatSound() {
   try {
     const Ctx = (window as any).AudioContext || (window as any).webkitAudioContext;
@@ -236,7 +242,18 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
   return BW;
 }
 
- function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnapping, isAdding, isDeleting, innerBlock, blocks, onDown, onDelete, onFieldChange, onEjectInner, focusedField, setFocusedField, wireDrag, onSlotClick, isShaking, isDragging, isPopping, isRolling, rollFrom, rollRot, rollDur }: {
+const CARD_INDEX: Record<Category, string> = {
+  trigger: "★",
+  action: "A",
+  ifelse: "Q",
+  loop: "L",
+  value: "V",
+  calc: "C",
+  ui: "U",
+  variable: "X",
+};
+
+function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnapping, isAdding, isDeleting, innerBlock, blocks, onDown, onDelete, onFieldChange, onEjectInner, focusedField, setFocusedField, wireDrag, onSlotClick, isShaking, isDragging, isPopping, isRolling, rollFrom, rollRot, rollDur }: {
   b: CBlock; pos: { x: number; y: number }; pal: Record<Category, CatDef>; cyber: boolean; selected: boolean; snapSlot: string | null;
   isEating?: boolean; isSnapping?: boolean; isAdding?: boolean; isDeleting?: boolean;
   innerBlock?: CBlock | null; blocks: CBlock[];
@@ -257,6 +274,7 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
   rollDur?: number;
 }) {
   const cat = pal[b.category];
+  const cardIdx = CARD_INDEX[b.category] || "●";
   const hl = snapSlot !== null;
   const isCond = b.type === "co_if";
   const isLoop = b.type === "ct_rep";
@@ -272,13 +290,13 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
     : isDeleting ? "blockDelete 0.6s cubic-bezier(0.36,0.07,0.19,0.97) forwards"
       : isAdding ? "blockAdd 0.34s cubic-bezier(0.2, 0.8, 0.3, 1) forwards"
         : isRolling ? `blockRoll ${rollDur || 0.5}s cubic-bezier(0.25, 0.85, 0.4, 1.1) forwards` // ぶつかって右へ転がる→正面で着地
-        : isPopping ? "blockPop 0.4s cubic-bezier(0.25, 1.5, 0.5, 1)" // ポップ！
-          : isSnapping ? "blockSnap 0.12s ease-out"
-            : isShaking ? "blockShake 0.3s ease-in-out" // Error shake
-              : isAcceptable ? "wireTargetGlow 1.2s ease-in-out infinite"
-                : isDragging ? "blockDragHover 0.55s ease-in-out infinite"
-                  : selected ? "wireTargetGlow 1.8s ease-in-out infinite" // 選択中はゆっくりネオングローパルス！
-                    : "none";
+          : isPopping ? "blockPop 0.4s cubic-bezier(0.25, 1.5, 0.5, 1)" // ポップ！
+            : isSnapping ? "blockSnap 0.12s ease-out"
+              : isShaking ? "blockShake 0.3s ease-in-out" // Error shake
+                : isAcceptable ? "wireTargetGlow 1.2s ease-in-out infinite"
+                  : isDragging ? "blockDragHover 0.55s ease-in-out infinite"
+                    : selected ? "wireTargetGlow 1.8s ease-in-out infinite" // 選択中はゆっくりネオングローパルス！
+                      : "none";
 
   // 共通グローの判定：イベントブロック（trigger）から繋がっているグループなら、そのイベント色をグループカラーとする
   const rootId = getRootBlockId(b.id, blocks);
@@ -286,12 +304,8 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
   const hasEventRoot = rootBlock && rootBlock.category === "trigger";
   const groupColor = hasEventRoot ? pal[rootBlock.category].bg : null;
 
-  const titleSize = b.label.length > 10 ? 11 : b.label.length > 8 ? 12 : b.label.length > 6 ? 13 : 15;
   const w = blockWidth(b, blocks);
   const h = blockH(b);
-  const R = 5;
-
-  const innerBorder = "inset 1.5px 1.5px 0 rgba(255,255,255,0.10), inset -1.5px -1.5px 0 rgba(0,0,0,0.24)";
 
   const renderSlotButton = (slotKey: "inner" | "then" | "else") => {
     const badge = SLOT_BADGE[slotKey];
@@ -301,7 +315,6 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
     const isArmedThis = wireDrag && wireDrag.sourceBlockId === b.id && wireDrag.slot === slotKey && wireDrag.armed;
 
     const isInner = slotKey === "inner";
-    const slotIcon = isInner ? "💠" : "🔽";
 
     return (
       <div
@@ -341,6 +354,11 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
   // @ts-ignore
   const BlockIconComponent = (b.emoji && LucideIcons[b.emoji]) ? LucideIcons[b.emoji] : IconComponent;
 
+  // カードサイズを黄金比に近く、横幅をしっかり持たせたトランプサイズに調整（幅82, 高さ112）
+  const cardW = 82;
+  const cardH = 112;
+  const leftOffset = (w - cardW) / 2; // -9px センタリング
+
   return (
     <div onMouseDown={e => onDown(e, b.id)} style={{
       position: "absolute", left: pos.x, top: pos.y,
@@ -348,8 +366,8 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
       cursor: isDragging ? "grabbing" : "grab", userSelect: "none",
       animation: anim,
       transformOrigin: "center center",
-      ...(isRolling ? { 
-        ["--roll-from" as never]: `${-(rollFrom ?? 0)}px`, 
+      ...(isRolling ? {
+        ["--roll-from" as never]: `${-(rollFrom ?? 0)}px`,
         ["--roll-rot" as never]: `${-((rollFrom ?? 0) / BW) * 360}deg`,
         ["--bounce-rot" as never]: `${rollRot ?? 6}deg`
       } : {}),
@@ -360,43 +378,112 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
           : "none",
       zIndex: isDragging ? 9999 : (selected ? 1000 : 20) + depth * 10,
       opacity: isDimmed ? 0.35 : 1.0,
-      filter: isDimmed 
-        ? "grayscale(0.5)" 
-        : isDragging 
-          ? "brightness(1.1) drop-shadow(0 15px 25px rgba(0,0,0,0.5))" 
+      filter: isDimmed
+        ? "grayscale(0.5)"
+        : isDragging
+          ? "brightness(1.1) drop-shadow(0 15px 25px rgba(0,0,0,0.5))"
           : selected
             ? `brightness(1.1) drop-shadow(0 0 15px ${cat.bg}AA) drop-shadow(0 8px 16px rgba(0,0,0,0.4))`
             : `drop-shadow(0 0 8px ${cat.bg}66) drop-shadow(0 4px 8px rgba(0,0,0,0.3))`,
       transition: "opacity 0.25s ease, filter 0.15s, transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1)",
     }}>
-      {/* メイン円形ノード */}
+      {/* メインカードノード（カラフルなトランプカード風） */}
       <div style={{
-          position: "absolute",
-          left: 0, top: 0, width: w, height: h,
-          background: `linear-gradient(135deg, ${cat.top}, ${cat.bg})`,
-          borderRadius: "50%",
-          border: `2px solid rgba(255,255,255,0.3)`,
-          boxShadow: selected
-            ? `inset 0 2px 4px rgba(255,255,255,0.4), 0 0 0 3px #ffffff, inset 0 -4px 8px rgba(0,0,0,0.3)`
-            : hl || isAcceptable
-              ? `inset 0 2px 4px rgba(255,255,255,0.4), 0 0 0 3px #ffffff, 0 0 12px ${badgeColor || "#fff"}`
-              : `inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -4px 8px rgba(0,0,0,0.3)`,
-          transition: "box-shadow 0.15s, transform 0.1s",
-          display: "flex", justifyContent: "center", alignItems: "center",
-          zIndex: 2,
+        position: "absolute",
+        left: leftOffset, top: 0, width: cardW, height: cardH,
+        background: `linear-gradient(135deg, ${cat.top}, ${cat.bg})`, // 前のカラフルなグラデーション背景
+        borderRadius: "8px",
+        border: selected
+          ? `2.5px solid #ffffff`
+          : hl || isAcceptable
+            ? `2.5px solid ${badgeColor || "#ffffff"}`
+            : `2px solid rgba(255,255,255,0.3)`,
+        boxShadow: selected
+          ? `0 0 0 3px #ffffff, 0 8px 20px rgba(0,0,0,0.35)`
+          : hl || isAcceptable
+            ? `0 0 0 3px #ffffff, 0 0 14px ${badgeColor || "#fff"}`
+            : `0 4px 10px rgba(0,0,0,0.25)`,
+        transition: "all 0.15s ease",
+        display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center",
+        padding: "5px",
+        boxSizing: "border-box",
+        zIndex: 2,
+      }}>
+        {/* インナーデザインフレーム */}
+        <div style={{
+          width: "100%",
+          height: "100%",
+          border: "1.5px solid rgba(255,255,255,0.25)", // 白半透明の内枠
+          borderRadius: "5px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "16px 2px 10px", // 下部パディングを増やしてラベル位置を上げる
+          boxSizing: "border-box",
+          position: "relative",
         }}>
-          {/* SVGアイコン */}
-          <BlockIconComponent size={32} color="#ffffff" strokeWidth={2} style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))" }} />
+          {/* 左上のインデックス */}
+          <div style={{
+            position: "absolute",
+            left: 5, top: 4,
+            lineHeight: 1.0,
+            color: "#ffffff",
+            fontWeight: 900,
+            fontSize: 10,
+            textShadow: "1px 1px 1px rgba(0,0,0,0.3)"
+          }}>
+            {cardIdx}
+          </div>
+
+          {/* 右下のインデックス */}
+          <div style={{
+            position: "absolute",
+            right: 5, bottom: 4,
+            lineHeight: 1.0,
+            color: "#ffffff",
+            fontWeight: 900,
+            fontSize: 10,
+            transform: "rotate(180deg)",
+            textShadow: "1px 1px 1px rgba(0,0,0,0.3)"
+          }}>
+            {cardIdx}
+          </div>
+
+          {/* 中央のシンボルマーク */}
+          {/* @ts-ignore */}
+          <BlockIconComponent size={26} color="#ffffff" strokeWidth={2.5} style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.25))" }} />
+
+          {/* 下部ラベル */}
+          <span style={{
+            fontSize: b.label.length > 7 ? 8 : 9,
+            fontWeight: 900,
+            color: "#ffffff",
+            textAlign: "center",
+            lineHeight: 1.15,
+            width: "85%",
+            wordBreak: "break-word", // 折り返しを許可して省略記号を排除
+            display: "block",
+            textShadow: "1px 1px 2px rgba(0,0,0,0.5)",
+            zIndex: 2,
+            marginTop: "auto"
+          }}>
+            {b.label}
+          </span>
+        </div>
       </div>
 
       {/* スロットポート（条件分岐などの場合、下部にはみ出して表示） */}
       {(isCond || isLoop) && (
         <div style={{
-          position: "absolute", bottom: -12, left: "50%", transform: "translateX(-50%)",
+          position: "absolute",
+          top: cardH + 4, // カード下端のすぐ下に自動追従
+          left: "50%",
+          transform: "translateX(-50%)",
           display: "flex", gap: 6, zIndex: 3
         }}>
-           {isCond && <>{renderSlotButton("inner")}{renderSlotButton("then")}{renderSlotButton("else")}</>}
-           {isLoop && renderSlotButton("then")}
+          {isCond && <>{renderSlotButton("inner")}{renderSlotButton("then")}{renderSlotButton("else")}</>}
+          {isLoop && renderSlotButton("then")}
         </div>
       )}
 
@@ -410,8 +497,10 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
           }}
           title="削除"
           style={{
-            position: "absolute", top: -8, right: -8,
-            width: 24, height: 24, borderRadius: "50%",
+            position: "absolute",
+            top: -8,
+            right: leftOffset - 6, // カードの右上端に合わせる
+            width: 22, height: 22, borderRadius: "50%",
             background: "#e74c3c", border: `2px solid #fff`,
             color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
             cursor: "pointer", zIndex: 30,
@@ -421,7 +510,7 @@ function blockWidth(b: CBlock, blocks: CBlock[]): number {
           onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
           onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
         >
-          <LucideIcons.X size={14} strokeWidth={3} />
+          <LucideIcons.X size={12} strokeWidth={3} />
         </button>
       )}
     </div>
@@ -447,7 +536,8 @@ function ToyFloor() {
 function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: number } }) {
   return (
     <div style={{ position: "absolute", inset: "-20%", overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes workshop-sway {
           0% { transform: rotate(-3deg); }
           100% { transform: rotate(3deg); }
@@ -472,7 +562,7 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
           100% { transform: translate(-10px, -140px) scale(0.7); opacity: 0; }
         }
       `}} />
-      
+
       {/* 暖かいおもちゃ工房的グラデーション（明るく開放的な陽の光差し込むイメージ） */}
       <div style={{
         position: "absolute", inset: 0,
@@ -574,7 +664,7 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
             boxShadow: "0 0 2px rgba(0,0,0,0.4)",
             flexShrink: 0,
           }} />
-          
+
           {/* レトロな真鍮製ソケット */}
           <div style={{
             width: 16,
@@ -690,7 +780,8 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
 function CyberBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: number } }) {
   return (
     <div style={{ position: "absolute", inset: "-20%", overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes cyber-scan {
           0% { transform: translateY(-10%); }
           100% { transform: translateY(110%); }
@@ -722,7 +813,7 @@ function CyberBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: numbe
           100% { opacity: 0.85; }
         }
       `}} />
-      
+
       {/* 電脳グリーンをベースにした漆黒 of 闇背景 */}
       <div style={{
         position: "absolute", inset: 0,
@@ -1329,8 +1420,380 @@ function TemplateGallery({ onSelect, onClose }: {
 }
 
 /* ══════════════════════════════════════════════════════════
-   メインパネル
+   スロットリールコンポーネント（カジノ風）
    ══════════════════════════════════════════════════════════ */
+function SlotReel<T>({
+  items,
+  value,
+  onChange,
+  renderItem
+}: {
+  items: T[];
+  value: T;
+  onChange: (item: T) => void;
+  renderItem: (item: T, active: boolean) => React.ReactNode;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const ITEM_HEIGHT = 40; // 3D回転時の見かけの高さに合わせた仮想アイテム高さ
+
+  // 外部からの初期値
+  const currentIndex = items.indexOf(value) !== -1 ? items.indexOf(value) : 0;
+
+  // ピクセル単位の絶対スクロール位置
+  const [scrollPos, setScrollPos] = useState(currentIndex * ITEM_HEIGHT);
+  
+  // アニメーションループ用
+  const scrollPosRef = useRef(scrollPos);
+  scrollPosRef.current = scrollPos;
+
+  const isDragging = useRef(false);
+  const dragStartY = useRef(0);
+  const dragStartScrollPos = useRef(0);
+  const lastY = useRef(0);
+  const lastTime = useRef(0);
+  const velocity = useRef(0);
+  const animFrameId = useRef<number | null>(null);
+
+  // カチカチ音制御
+  const lastTickIndex = useRef(Math.round(scrollPos / ITEM_HEIGHT));
+
+  // 外部から value や items が変更された場合の同期
+  useEffect(() => {
+    if (!isDragging.current && animFrameId.current === null) {
+      const idx = items.indexOf(value) !== -1 ? items.indexOf(value) : 0;
+      setScrollPos(idx * ITEM_HEIGHT);
+      lastTickIndex.current = idx;
+    }
+  }, [value, items]);
+
+  // アニメーション終了時のインデックス確定処理
+  const finalizeIndex = useCallback((pos: number) => {
+    if (items.length === 0) return;
+    const rawIdx = Math.round(pos / ITEM_HEIGHT);
+    const finalIdx = (rawIdx % items.length + items.length) % items.length;
+    onChange(items[finalIdx]);
+  }, [items, onChange]);
+
+  // アニメーションループ (慣性と吸着スナップ)
+  const startAnimationLoop = useCallback(() => {
+    const loop = () => {
+      if (isDragging.current) return;
+
+      let vel = velocity.current;
+      let pos = scrollPosRef.current;
+
+      // カチカチ音の発生条件のチェック
+      const currentTickIdx = Math.round(pos / ITEM_HEIGHT);
+      if (currentTickIdx !== lastTickIndex.current) {
+        playSlotTickSound();
+        lastTickIndex.current = currentTickIdx;
+      }
+
+      if (Math.abs(vel) > 0.15) {
+        // 1. 慣性スピン中
+        pos += vel * 16; // 60fps想定で16ms進む
+        vel *= 0.95; // 摩擦減衰（緩急をなめらかに）
+        velocity.current = vel;
+        setScrollPos(pos);
+        animFrameId.current = requestAnimationFrame(loop);
+      } else {
+        // 2. 吸着スナップ中 (最も近いアイテムの位置にバネ風に滑らかに吸着)
+        velocity.current = 0;
+        const targetPos = Math.round(pos / ITEM_HEIGHT) * ITEM_HEIGHT;
+        const diff = targetPos - pos;
+
+        if (Math.abs(diff) > 0.1) {
+          pos += diff * 0.16; // 吸着イージング (バネのようになめらか)
+          setScrollPos(pos);
+          animFrameId.current = requestAnimationFrame(loop);
+        } else {
+          setScrollPos(targetPos);
+          animFrameId.current = null;
+          finalizeIndex(targetPos);
+        }
+      }
+    };
+
+    if (animFrameId.current) cancelAnimationFrame(animFrameId.current);
+    animFrameId.current = requestAnimationFrame(loop);
+  }, [items, finalizeIndex]);
+
+  const handlePrev = useCallback(() => {
+    if (items.length <= 1) return;
+    if (animFrameId.current) cancelAnimationFrame(animFrameId.current);
+    
+    const currentIdx = Math.round(scrollPosRef.current / ITEM_HEIGHT);
+    const targetPos = (currentIdx - 1) * ITEM_HEIGHT;
+    
+    velocity.current = 0;
+    // 目的の位置まで滑らかに移動させるためにアニメーションループを起動
+    const loop = () => {
+      let pos = scrollPosRef.current;
+      const diff = targetPos - pos;
+      if (Math.abs(diff) > 0.1) {
+        pos += diff * 0.22; // 若干強めのイージングでカチッと移動
+        setScrollPos(pos);
+        
+        const currentTickIdx = Math.round(pos / ITEM_HEIGHT);
+        if (currentTickIdx !== lastTickIndex.current) {
+          playSlotTickSound();
+          lastTickIndex.current = currentTickIdx;
+        }
+        
+        animFrameId.current = requestAnimationFrame(loop);
+      } else {
+        setScrollPos(targetPos);
+        animFrameId.current = null;
+        finalizeIndex(targetPos);
+      }
+    };
+    animFrameId.current = requestAnimationFrame(loop);
+  }, [items, finalizeIndex]);
+
+  const handleNext = useCallback(() => {
+    if (items.length <= 1) return;
+    if (animFrameId.current) cancelAnimationFrame(animFrameId.current);
+    
+    const currentIdx = Math.round(scrollPosRef.current / ITEM_HEIGHT);
+    const targetPos = (currentIdx + 1) * ITEM_HEIGHT;
+    
+    velocity.current = 0;
+    const loop = () => {
+      let pos = scrollPosRef.current;
+      const diff = targetPos - pos;
+      if (Math.abs(diff) > 0.1) {
+        pos += diff * 0.22;
+        setScrollPos(pos);
+        
+        const currentTickIdx = Math.round(pos / ITEM_HEIGHT);
+        if (currentTickIdx !== lastTickIndex.current) {
+          playSlotTickSound();
+          lastTickIndex.current = currentTickIdx;
+        }
+        
+        animFrameId.current = requestAnimationFrame(loop);
+      } else {
+        setScrollPos(targetPos);
+        animFrameId.current = null;
+        finalizeIndex(targetPos);
+      }
+    };
+    animFrameId.current = requestAnimationFrame(loop);
+  }, [items, finalizeIndex]);
+
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    if (items.length <= 1) return;
+    
+    // ホイール入力に合わせて速度を加算
+    velocity.current += e.deltaY < 0 ? 0.35 : -0.35;
+    
+    // 最大速度制限
+    velocity.current = Math.min(2.5, Math.max(-2.5, velocity.current));
+    
+    startAnimationLoop();
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (items.length <= 1) return;
+    if (animFrameId.current) cancelAnimationFrame(animFrameId.current);
+    
+    isDragging.current = true;
+    dragStartY.current = e.clientY;
+    dragStartScrollPos.current = scrollPosRef.current;
+    
+    lastY.current = e.clientY;
+    lastTime.current = Date.now();
+    velocity.current = 0;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current) return;
+    
+    const diffY = e.clientY - dragStartY.current;
+    // 下ドラッグで上にスクロールするように、符号を調整（直感的な操作感に）
+    const newScrollPos = dragStartScrollPos.current - diffY;
+    
+    // リアルタイムの速度計測
+    const now = Date.now();
+    const dt = now - lastTime.current;
+    if (dt > 10) {
+      const dy = e.clientY - lastY.current;
+      // スクロールの符号に合わせるため -dy/dt
+      velocity.current = -dy / dt; 
+      lastY.current = e.clientY;
+      lastTime.current = now;
+    }
+
+    setScrollPos(newScrollPos);
+
+    // ドラッグ中もカチカチ音を鳴らす
+    const currentTickIdx = Math.round(newScrollPos / ITEM_HEIGHT);
+    if (currentTickIdx !== lastTickIndex.current) {
+      playSlotTickSound();
+      lastTickIndex.current = currentTickIdx;
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    
+    // 慣性スピンを開始
+    startAnimationLoop();
+  };
+
+  // 表示するアイテムのインデックスを決定 (現在の scrollPos から 5つ割り出す)
+  const virtualIndex = scrollPos / ITEM_HEIGHT;
+  const centerIndex = Math.round(virtualIndex);
+
+  const visibleIndices = [];
+  for (let i = -2; i <= 2; i++) {
+    if (items.length === 0) continue;
+    const itemIdx = ((centerIndex + i) % items.length + items.length) % items.length;
+    visibleIndices.push({
+      itemIdx,
+      absoluteIndex: centerIndex + i
+    });
+  }
+
+  return (
+    <div
+      ref={containerRef}
+      onWheel={handleWheel}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+      style={{
+        position: "relative",
+        height: 200,
+        width: 260,
+        margin: "0 auto",
+        background: "linear-gradient(to bottom, #111 0%, #222 15%, #383530 50%, #222 85%, #111 100%)",
+        borderRadius: 12,
+        border: "3px solid #d4af37", // 高級感あるゴールド枠
+        boxShadow: "inset 0 0 20px rgba(0,0,0,0.85), 0 4px 12px rgba(0,0,0,0.5)",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        cursor: "ns-resize",
+        userSelect: "none"
+      }}
+    >
+      {/* 選択ラインデコレーション（選択位置を劇的に見やすく） */}
+      <div style={{
+        position: "absolute",
+        left: 2, right: 2, top: "50%",
+        transform: "translateY(-50%)",
+        height: 48,
+        borderTop: "2.5px solid rgba(212, 175, 110, 0.8)",
+        borderBottom: "2.5px solid rgba(212, 175, 110, 0.8)",
+        background: "rgba(212, 175, 110, 0.12)",
+        pointerEvents: "none",
+        zIndex: 5
+      }}>
+      </div>
+
+      {/* アイテム描画コンテナ (3Dドラム缶効果) */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        perspective: "600px",
+        transformStyle: "preserve-3d",
+        pointerEvents: "none"
+      }}>
+        {visibleIndices.map(({ itemIdx, absoluteIndex }) => {
+          const item = items[itemIdx];
+          if (!item) return null;
+          
+          // 滑らかな仮想位置の算出
+          const virtualPos = absoluteIndex - virtualIndex;
+          
+          // 3Dドラム缶の角度と深さの計算
+          const angle = virtualPos * 25; // 1目盛り25度の回転
+          const zDepth = Math.cos(angle * Math.PI / 180) * 85 - 85; // 奥に逃げる深さ
+          const yPos = Math.sin(angle * Math.PI / 180) * 85; // 縦の歪み位置
+          
+          const isActive = Math.abs(virtualPos) < 0.5;
+          const dist = Math.abs(virtualPos);
+          // 中央の選択中アイテムをより強調し、非アクティブを極限まで薄くして見やすく！
+          const scale = isActive ? 1.15 : Math.max(0.65, 1 - dist * 0.18);
+          const opacity = isActive ? 1.0 : Math.max(0, 1 - dist * 0.48);
+
+          return (
+            <div key={absoluteIndex} style={{
+              height: 38,
+              position: "absolute",
+              top: "50%",
+              marginTop: -19,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transform: `translateY(${yPos}px) translateZ(${zDepth}px) rotateX(${-angle}deg) scale(${scale})`,
+              opacity: opacity,
+              width: 240,
+              pointerEvents: "none",
+              backfaceVisibility: "hidden"
+            }}>
+              {renderItem(item, isActive)}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 上下操作ボタン（補助用、タッチデバイスやホイールなし用） */}
+      <button 
+        onClick={(e) => { e.stopPropagation(); handlePrev(); }} 
+        style={{
+          position: "absolute", top: 8, right: 8,
+          background: "rgba(0,0,0,0.6)", border: "1.5px solid #d4af37", color: "#d4af37",
+          borderRadius: "50%", width: 22, height: 22, cursor: "pointer", zIndex: 10,
+          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11,
+          outline: "none", transition: "all 0.1s",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.3)"
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.background = "#d4af37";
+          e.currentTarget.style.color = "#111";
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.background = "rgba(0,0,0,0.6)";
+          e.currentTarget.style.color = "#d4af37";
+        }}
+      >
+        ▲
+      </button>
+      <button 
+        onClick={(e) => { e.stopPropagation(); handleNext(); }} 
+        style={{
+          position: "absolute", bottom: 8, right: 8,
+          background: "rgba(0,0,0,0.6)", border: "1.5px solid #d4af37", color: "#d4af37",
+          borderRadius: "50%", width: 22, height: 22, cursor: "pointer", zIndex: 10,
+          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11,
+          outline: "none", transition: "all 0.1s",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.3)"
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.background = "#d4af37";
+          e.currentTarget.style.color = "#111";
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.background = "rgba(0,0,0,0.6)";
+          e.currentTarget.style.color = "#d4af37";
+        }}
+      >
+        ▼
+      </button>
+    </div>
+  );
+}
 
 export default function LogicPanel() {
   const [mounted, setMounted] = useState(false);
@@ -1405,6 +1868,16 @@ export default function LogicPanel() {
   const [search, setSearch] = useState("");
   const [showLib, setShowLib] = useState(true);
   const [activeCategory, setActiveCategory] = useState<Category>("trigger");
+  const [selectedTemplate, setSelectedTemplate] = useState<Tmpl | null>(null);
+
+  useEffect(() => {
+    const defaultTemplates = TEMPLATES.filter(t => t.category === activeCategory);
+    if (defaultTemplates.length > 0) {
+      setSelectedTemplate(defaultTemplates[0]);
+    } else {
+      setSelectedTemplate(null);
+    }
+  }, [activeCategory]);
   const [focusedField, setFocusedField] = useState<{ blockId: string; fieldId: string } | null>(null);
   // 統合版(積み木)はアナログ工房に1画面で統一。配色は工房パレット固定。
   const CAT = CAT_WORKSHOP;
@@ -1635,7 +2108,7 @@ export default function LogicPanel() {
           const screenX = pos.x * zoom + pan.x;
           const screenY = pos.y * zoom + pan.y;
           burstParticles(screenX, screenY, CAT[b.category].bg);
-          
+
           // 波紋（Ripple）を追加
           setParticles(prev => [
             ...prev,
@@ -1805,7 +2278,7 @@ export default function LogicPanel() {
         const sy = (tp.y + BH / 2) * zoom + pan.y;
         const color = CAT[blocks.find(bl => bl.id === snap.targetId)?.category || "action"].bg;
         burstParticles(sx, sy, color);
-        
+
         // 波紋（Ripple）を追加
         const slotColor = SLOT_BADGE[snap.slot]?.color || color;
         setParticles(prev => [
@@ -2159,11 +2632,9 @@ export default function LogicPanel() {
 
   const cats: Category[] = ["trigger", "action", "ifelse", "value", "loop", "calc", "ui", "variable"];
 
-  /* ════ レンダー ════ */
-
   return (
-    <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", overflow: "hidden", background: "#23211e" }}>
-      <style>{`
+    <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "row", overflow: "hidden", background: "#222120" }}>
+        <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@800;900&family=Nunito:wght@800;900&family=M+PLUS+Rounded+1c:wght@800;900&display=swap');
 
         * {
@@ -2189,12 +2660,10 @@ export default function LogicPanel() {
           100%{ transform: translateY(0) scaleY(1); filter: brightness(1); }
         }
         @keyframes blockAdd {
-          /* 落下 → スッと静止（跳ねさせない・潰さない） */
           0%   { transform: translateY(-44px); opacity: 0; }
           30%  { opacity: 1; }
           100% { transform: translateY(0); opacity: 1; }
         }
-        /* ぶつかって右へ転がる → 必ず正面で着地（ヒマワリ調整：速さ/ぽよん/転がり量/個体差） */
         @keyframes blockRoll {
           0%   { transform: translateX(var(--roll-from,0px)) rotate(var(--roll-rot,0deg)); }
           55%  { transform: translateX(0) rotate(0deg); }
@@ -2295,10 +2764,6 @@ export default function LogicPanel() {
           0%,100% { transform: translateY(0); opacity:0.85; }
           50%     { transform: translateY(6px); opacity:1; }
         }
-        @keyframes hintFloat {
-          0%,100%{ transform: translateY(0)   rotate(-2deg); }
-          50%   { transform: translateY(-12px) rotate(2deg); }
-        }
         @keyframes hintAura {
           0%,100%{ opacity: 0.55; transform: scale(1);    }
           50%   { opacity: 0.95; transform: scale(1.15); }
@@ -2306,14 +2771,6 @@ export default function LogicPanel() {
         @keyframes neonBeam {
           0%,100%{ opacity: 0.4; }
           50%   { opacity: 1;   }
-        }
-        @keyframes snapPulse {
-          0%   { transform: scale(1);    opacity: 1; }
-          100% { transform: scale(1.04); opacity: 0.85; }
-        }
-        @keyframes snapLabelBob {
-          0%   { transform: translateY(0);   }
-          100% { transform: translateY(-3px);}
         }
         @keyframes spectrumShift {
           0%   { background-position: 0% 50%; }
@@ -2335,68 +2792,571 @@ export default function LogicPanel() {
           0%, 100% { transform: scale(0.9); opacity: 0.25; filter: blur(15px); }
           50% { transform: scale(1.2); opacity: 0.55; filter: blur(25px); }
         }
+
+        /* カジノ風点滅ランプエフェクト */
+        @keyframes casinoLights {
+          0%, 100% { border-color: #d4af37; box-shadow: 0 0 8px #d4af37, inset 0 0 8px #d4af37; }
+          50% { border-color: #ff4757; box-shadow: 0 0 15px #ff4757, inset 0 0 12px #ff4757; }
+        }
+        .casino-border {
+          animation: casinoLights 2s infinite alternate;
+        }
       `}</style>
 
-      {/* 1. 最上部ヘッダー（すべての操作を1行に集約 ＆ ブロックトレイ） */}
-      <div className="mc-bevel" style={{
-        background: "#2a2924",
-        borderBottom: "2px solid #1f1e1a",
-        display: "flex",
-        flexDirection: "column",
-        zIndex: 30,
-        flexShrink: 0
-      }}>
-        {/* 1行目：カテゴリ、各種機能ボタン、検索窓をすべて1列に配置 */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", padding: "6px 12px", boxSizing: "border-box" }}>
-          {/* 左端：トレイ開閉 */}
-          <McButton size="sm" onClick={() => setShowLib(v => !v)} active={showLib} title={showLib ? "ブロックトレイを閉じる" : "ブロックトレイを開く"}>
-            {showLib ? "📂 閉じる" : "📂 開く"}
-          </McButton>
-          <div style={{ width: 2, height: 16, background: "#4a4842", margin: "0 2px" }} />
+        {/* ========================================================
+          【左】スロットリール（カテゴリ＆アイテム選択）
+          ======================================================== */}
+        <div className="casino-border" style={{
+          width: 360,
+          display: "flex",
+          flexDirection: "column",
+          background: "#2d2b29",
+          borderRight: "4px solid #1f1e1a",
+          zIndex: 30,
+          flexShrink: 0,
+          padding: "16px 12px",
+          boxSizing: "border-box",
+          gap: 12,
+          boxShadow: "inset -5px 0 15px rgba(0,0,0,0.6)"
+        }}>
+          {/* スロット看板 */}
+          <div style={{
+            background: "linear-gradient(135deg, #b8860b 0%, #d4af37 50%, #b8860b 100%)",
+            border: "2px solid #fff",
+            borderRadius: 8,
+            padding: "6px 0",
+            textAlign: "center",
+            boxShadow: "0 4px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.4)"
+          }}>
+            <span style={{
+              fontSize: 13, fontWeight: 900, color: "#111", letterSpacing: "0.1em",
+              textShadow: "1px 1px 0px rgba(255,255,255,0.5)"
+            }}>🎰 SPROUT SLOTS</span>
+          </div>
 
-          {/* カテゴリ選択タブ */}
-          {cats.map(cat => {
-            const c = CAT[cat];
-            const isActive = !searching && cat === activeCategory;
-            const borderBottomSize = isActive ? "4px" : "3px";
+          {/* 検索窓 */}
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 ブロックを検索..."
+            style={{
+              width: "100%", boxSizing: "border-box", padding: "6px 10px", fontSize: 11,
+              background: "#1c1b18", border: "2px solid #4a4842", borderRadius: 8, color: "#e5e3db", outline: "none", fontWeight: 800,
+              boxShadow: "inset 2px 2px 0 rgba(0,0,0,0.35)",
+            }} />
+
+          {/* カテゴリドラム */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            <div style={{ fontSize: 10, fontWeight: 900, color: "#d4af37", letterSpacing: "0.05em", paddingLeft: 4 }}>
+              STEP 1: カテゴリをまわす
+            </div>
+            <SlotReel
+              items={cats}
+              value={activeCategory}
+              onChange={(cat) => {
+                setActiveCategory(cat);
+                if (searching) setSearch("");
+              }}
+              renderItem={(cat, active) => {
+                const c = CAT[cat];
+                return (
+                  <div style={{
+                    display: "flex", alignItems: "center", gap: 8,
+                    color: active ? (c.text === "#ffffff" ? "#ffffff" : c.top) : "#c8c4b8",
+                    fontWeight: 900, fontSize: active ? 13 : 11,
+                    textShadow: active ? "1px 1px 2px rgba(0,0,0,0.8)" : "none"
+                  }}>
+                    <span style={{ fontSize: active ? 16 : 13 }}>{c.icon}</span>
+                    <span>{c.label}</span>
+                  </div>
+                );
+              }}
+            />
+          </div>
+
+          {/* アイテムドラム */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            <div style={{ fontSize: 10, fontWeight: 900, color: "#d4af37", letterSpacing: "0.05em", paddingLeft: 4 }}>
+              STEP 2: アイテムをまわす
+            </div>
+            <SlotReel
+              items={filtered}
+              value={selectedTemplate || filtered[0]}
+              onChange={(tmpl) => setSelectedTemplate(tmpl)}
+              renderItem={(tmpl, active) => {
+                if (!tmpl) return null;
+                const c = CAT[tmpl.category];
+                const TIcon = (LucideIcons as any)[tmpl.emoji] || LucideIcons.HelpCircle;
+                return (
+                  <div style={{
+                    display: "flex", alignItems: "center", gap: 8,
+                    color: active ? (c.text === "#ffffff" ? "#ffffff" : c.top) : "#c8c4b8",
+                    fontWeight: 900, fontSize: active ? 12 : 10,
+                    textShadow: active ? "1px 1px 2px rgba(0,0,0,0.8)" : "none",
+                    width: "100%", justifyContent: "center"
+                  }}>
+                    <TIcon size={active ? 16 : 13} color={active ? "#ffffff" : "#c8c4b8"} strokeWidth={2.5} />
+                    <span style={{
+                      maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"
+                    }}>{tmpl.label}</span>
+                  </div>
+                );
+              }}
+            />
+          </div>
+
+          {/* 決定・SPAWNボタン */}
+          <button
+            disabled={!selectedTemplate}
+            onClick={() => {
+              if (selectedTemplate) {
+                addBlock(selectedTemplate);
+              }
+            }}
+            style={{
+              marginTop: "auto",
+              width: "100%",
+              height: 52,
+              background: selectedTemplate
+                ? "linear-gradient(to bottom, #ff4757, #ff6b81)"
+                : "linear-gradient(to bottom, #747d8c, #a4b0be)",
+              border: "3px solid #fff",
+              borderRadius: 12,
+              boxShadow: selectedTemplate
+                ? "0 6px 0 #b33939, 0 10px 20px rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.4)"
+                : "0 6px 0 #57606f, 0 4px 6px rgba(0,0,0,0.2)",
+              color: "#fff",
+              fontWeight: 900,
+              fontSize: 16,
+              letterSpacing: "0.15em",
+              cursor: selectedTemplate ? "pointer" : "not-allowed",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+              transition: "all 0.1s ease",
+              transform: "translateY(0)"
+            }}
+            onMouseDown={e => {
+              if (selectedTemplate) {
+                const btn = e.currentTarget;
+                btn.style.transform = "translateY(4px)";
+                btn.style.boxShadow = "0 2px 0 #b33939, 0 2px 5px rgba(0,0,0,0.4)";
+              }
+            }}
+            onMouseUp={e => {
+              if (selectedTemplate) {
+                const btn = e.currentTarget;
+                btn.style.transform = "translateY(0)";
+                btn.style.boxShadow = "0 6px 0 #b33939, 0 10px 20px rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.4)";
+              }
+            }}
+            onMouseLeave={e => {
+              if (selectedTemplate) {
+                const btn = e.currentTarget;
+                btn.style.transform = "translateY(0)";
+                btn.style.boxShadow = "0 6px 0 #b33939, 0 10px 20px rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.4)";
+              }
+            }}
+          >
+            <span>🎯 SPAWN!</span>
+          </button>
+        </div>
+
+        {/* ========================================================
+          【中央】プレイ面（ソリティア風キャンバス）
+          ======================================================== */}
+        <div style={{ flex: 1, position: "relative", overflow: "hidden", backgroundColor: "#252320" }}>
+          {showProjects && (
+            <ProjectPanel
+              blocks={blocks}
+              onLoad={b => { setBlocks(migrateBlocks(b)); }}
+              onClose={() => setShowProjects(false)}
+            />
+          )}
+          {showTemplates && (
+            <TemplateGallery
+              onSelect={b => { setBlocks(prev => [...prev, ...b]); }}
+              onClose={() => setShowTemplates(false)}
+            />
+          )}
+
+          {showHelp && (
+            <div style={{
+              position: "absolute", bottom: 10, right: 10, zIndex: 40, width: 244,
+              background: "rgba(22, 18, 14, 0.92)",
+              backdropFilter: "blur(8px)",
+              border: "1px solid rgba(212, 175, 110, 0.22)",
+              borderRadius: 12,
+              boxShadow: "0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)",
+              overflow: "hidden",
+            }}>
+              <div style={{
+                padding: "11px 14px",
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                borderBottom: "1px solid rgba(212,175,110,0.15)",
+              }}>
+                <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "#d8b46a", textTransform: "uppercase" }}>How to play</span>
+                <button onClick={() => setShowHelp(false)} style={{
+                  width: 20, height: 20, borderRadius: 6, border: "none",
+                  background: "rgba(255,255,255,0.06)", color: "#a59c8a", cursor: "pointer",
+                  fontSize: 12, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center",
+                }}>✕</button>
+              </div>
+              <div style={{ padding: "12px 14px 6px" }}>
+                {[
+                  { s: "1", t: "左側のスロットでアイテムを選んでSPAWNで配置" },
+                  { s: "2", t: "条件のスロット（もしも/そうなら）をタップ → つなげる相手が光る" },
+                  { s: "3", t: "光った相手をタップで接続（カチッ！）" },
+                  { s: "4", t: "ブロックを選んで Delete で削除 / Ctrl+D でコピー" },
+                  { s: "Esc", t: "Esc で接続をキャンセル" },
+                ].map((s, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 12 }}>
+                    <span style={{
+                      flexShrink: 0, width: 22, height: 22, borderRadius: "50%",
+                      background: "linear-gradient(160deg, #8a6f4a, #5b4730)",
+                      border: "1px solid rgba(212,175,110,0.5)",
+                      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.25), 0 1px 2px rgba(0,0,0,0.4)",
+                      color: "#f3e3c0", fontSize: s.s.length > 1 ? 9 : 11, fontWeight: 800,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontFamily: "monospace",
+                    }}>{s.s}</span>
+                    <div style={{ fontSize: 11.5, color: "rgba(245,240,232,0.9)", fontWeight: 500, lineHeight: 1.45, paddingTop: 2 }}>{s.t}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 統計インジケーター（スリム版） */}
+          <div style={{
+            position: "absolute", top: 8, left: 8, zIndex: 20,
+            display: "flex", gap: 5
+          }}>
+            {/* ブロック数 */}
+            <div title={`配置ブロック ${blocks.length}個`} style={{
+              background: "rgba(25, 25, 28, 0.82)",
+              backdropFilter: "blur(4px)",
+              border: "1px solid rgba(255,255,255,0.12)",
+              padding: "3px 8px",
+              borderRadius: 6,
+              display: "inline-flex", alignItems: "center", gap: 4,
+              boxShadow: "0 1px 4px rgba(0,0,0,0.35)",
+              color: "#fff",
+              fontSize: 11, fontWeight: 800,
+            }}>
+              <span style={{ fontSize: 12 }}>📦</span>
+              <span style={{
+                fontFamily: "monospace", letterSpacing: "0.02em", color: "#00cec9"
+              }}>{mounted ? blocks.length : 0}<span style={{ fontSize: 9, marginLeft: 1 }}>個</span></span>
+            </div>
+
+            {/* ズーム倍率 */}
+            <button onClick={resetPanZoom} title="クリックで 100% + 画面中央に戻る" style={{
+              background: "rgba(25, 25, 28, 0.82)",
+              backdropFilter: "blur(4px)",
+              border: "1px solid rgba(255,255,255,0.12)",
+              padding: "3px 8px",
+              borderRadius: 6,
+              display: "inline-flex", alignItems: "center", gap: 4,
+              boxShadow: "0 1px 4px rgba(0,0,0,0.35)",
+              color: "#fff",
+              fontSize: 11, fontWeight: 800, cursor: "pointer",
+            }}>
+              <span style={{ fontSize: 12 }}>🎯</span>
+              <span style={{ fontFamily: "monospace", letterSpacing: "0.02em", color: "#00b4d8" }}>{Math.round(zoom / BASE_ZOOM * 100)}%</span>
+              <span style={{ fontSize: 9, color: "#888", marginLeft: 1 }}>↺戻る</span>
+            </button>
+
+            {/* ガイド線トグル */}
+            <button onClick={() => setShowSnapGuide(!showSnapGuide)} title="スナップ時のガイド線の表示/非表示" style={{
+              background: showSnapGuide ? "rgba(0, 184, 148, 0.15)" : "rgba(25, 25, 28, 0.82)",
+              backdropFilter: "blur(4px)",
+              border: showSnapGuide ? "1px solid rgba(0, 184, 148, 0.5)" : "1px solid rgba(255,255,255,0.12)",
+              padding: "3px 8px",
+              borderRadius: 6,
+              display: "inline-flex", alignItems: "center", gap: 4,
+              boxShadow: "0 1px 4px rgba(0,0,0,0.35)",
+              color: showSnapGuide ? "#55efc4" : "#888",
+              fontSize: 11, fontWeight: 800, cursor: "pointer",
+            }}>
+              <span style={{ fontSize: 12 }}>🎯</span>
+              <span style={{ letterSpacing: "0.02em" }}>ガイド線:{showSnapGuide ? "ON" : "OFF"}</span>
+            </button>
+          </div>
+
+          {/* トースト通知 */}
+          {toast && (
+            <div style={{
+              position: "absolute", top: 14, left: "50%", transform: "translateX(-50%)",
+              zIndex: 100,
+              padding: "10px 18px",
+              borderRadius: 10,
+              background: toast.level === "error" ? "rgba(220,53,69,0.96)"
+                : toast.level === "warning" ? "rgba(255,193,7,0.96)"
+                  : "rgba(13,110,253,0.96)",
+              color: toast.level === "warning" ? "#1a1a1a" : "#ffffff",
+              fontSize: 13, fontWeight: 900,
+              border: "2px solid rgba(0,0,0,0.4)",
+              boxShadow: "0 6px 18px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.25)",
+              pointerEvents: "none",
+              maxWidth: "80%",
+              textAlign: "center",
+              animation: "toastSlideDown 0.25s cubic-bezier(0.2,0.8,0.2,1)",
+            }}>
+              <span style={{ fontSize: 15, marginRight: 6 }}>
+                {toast.level === "error" ? "⚠️" : toast.level === "warning" ? "⚡" : "💡"}
+              </span>
+              {toast.message}
+            </div>
+          )}
+
+          {/* コード誕生演出 */}
+          {reveal && (
+            <CodeRevealOverlay
+              revealCode={reveal.join("\n")}
+              onClose={() => setReveal(null)}
+              theme="workshop"
+            />
+          )}
+
+          {/* 案A：結果が生きて動くステージ（組んだ瞬間に上演） */}
+          <LiveStage blocks={blocks} />
+
+          {/* コードプレビュー */}
+          {showCode && (
+            <div className="mc-panel" style={{ position: "absolute", bottom: 10, left: 8, right: 8, zIndex: 40, maxHeight: 240, background: "var(--panel)", display: "flex", flexDirection: "column" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 14px", borderBottom: "2px solid var(--border-color)" }}>
+                <span className="font-pixel text-[11px] text-accent">⚡ GENERATED CODE</span>
+                <button onClick={() => setShowCode(false)} className="mc-btn mc-btn--sm">✕</button>
+              </div>
+              <pre style={{ flex: 1, overflowY: "auto", margin: 0, padding: "10px 14px", fontSize: 10, color: "#a3e635", fontFamily: "monospace", lineHeight: 1.6, whiteSpace: "pre-wrap", wordBreak: "break-all", background: "#12110e" }}>
+                {genCode}
+              </pre>
+            </div>
+          )}
+
+          {/* スナップインジケーター */}
+          {snapHint && showSnapGuide && (
+            <SnapIndicator x={snapHint.pos.x} y={snapHint.pos.y} zoom={zoom} slot={snapHint.slot}
+              color={snapHint.slot === "inner" ? "#6c5ce7" : snapHint.slot === "then" ? "#00b894" : snapHint.slot === "else" ? "#e17055" : "#0984e3"} />
+          )}
+
+          {/* パーティクル */}
+          {particles.map(p => {
+            if (p.type === "ripple") {
+              return (
+                <div key={p.id} style={{
+                  position: "absolute", left: p.x - 30, top: p.y - 30,
+                  width: 60, height: 60, borderRadius: "50%",
+                  border: `4px solid ${p.color}`,
+                  boxShadow: `0 0 12px ${p.color}, inset 0 0 12px ${p.color}`,
+                  pointerEvents: "none", zIndex: 201,
+                  animation: "connectRipple 0.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards"
+                }} />
+              );
+            }
             return (
-              <button key={cat} onClick={() => { setActiveCategory(cat); if (searching) setSearch(""); }}
-                style={{
-                  display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", borderRadius: 12,
-                  background: isActive ? `linear-gradient(135deg, ${c.top}, ${c.bg})` : "#3a3833",
-                  borderLeft: `2.5px solid ${isActive ? c.border : "#5a574e"}`,
-                  borderBottom: `${borderBottomSize} solid ${isActive ? c.border : "#1f1e1a"}`,
-                  borderRight: `1.5px solid ${isActive ? "rgba(0,0,0,0.2)" : "#1f1e1a"}`,
-                  borderTop: `1.5px solid ${isActive ? "rgba(255,255,255,0.2)" : "#5a574e"}`,
-                  boxShadow: isActive ? "inset 2px 2px 0 rgba(255,255,255,0.4), 2px 2px 0 rgba(0,0,0,0.15)" : "2px 2px 0 rgba(0,0,0,0.15)",
-                  color: isActive ? "#fff" : "#c8c4b8", fontWeight: 900, fontSize: 12, cursor: "pointer", whiteSpace: "nowrap",
-                  transform: isActive ? "translateY(1px)" : "none",
-                  transition: "all 0.08s ease"
-                }}
-                onMouseEnter={e => {
-                  if (!isActive) {
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                    e.currentTarget.style.boxShadow = "3px 3px 0 rgba(0,0,0,0.2)";
-                  }
-                }}
-                onMouseLeave={e => {
-                  if (!isActive) {
-                    e.currentTarget.style.transform = "none";
-                    e.currentTarget.style.boxShadow = "2px 2px 0 rgba(0,0,0,0.15)";
-                  }
-                }}
-              >
-                <span style={{ fontSize: 13 }}>{c.icon}</span><span style={{ whiteSpace: "nowrap" }}>{c.label}</span>
-              </button>
+              <div key={p.id} style={{ position: "absolute", left: p.x, top: p.y, pointerEvents: "none", zIndex: 200 }}>
+                {[0, 45, 90, 135, 180, 225, 270, 315].map((deg, i) => {
+                  const size = 6 + ((i * 37) % 6);
+                  const reach = 36 + ((i * 53) % 24);
+                  const yBias = deg > 180 ? -8 : 0;
+                  return (
+                    <div key={deg} style={{
+                      position: "absolute", width: size, height: size, borderRadius: "50%",
+                      background: p.color,
+                      pointerEvents: "none",
+                      // @ts-ignore
+                      "--dx": `${Math.cos(deg * Math.PI / 180) * reach}px`,
+                      // @ts-ignore
+                      "--dy": `${Math.sin(deg * Math.PI / 180) * reach + yBias}px`,
+                      animation: `particle ${0.28 + i * 0.012}s cubic-bezier(0.1, 0.8, 0.3, 1) forwards`,
+                      boxShadow: `0 0 6px ${p.color}`,
+                      opacity: 0.85,
+                    }} />
+                  );
+                })}
+              </div>
             );
           })}
-          <div style={{ width: 2, height: 16, background: "#4a4842", margin: "0 2px" }} />
 
-          {/* 各種ツールボタン */}
-          <McButton size="sm" onClick={zoomToFit} title="全ブロックを画面に収める">⊡</McButton>
-          <McButton size="sm" onClick={resetPanZoom} title="ズーム＆位置をリセット (100% + 中央寄せ)">⊙</McButton>
-          <McButton size="sm" onClick={undo} title="元に戻す (Ctrl+Z)">↩</McButton>
-          <McButton size="sm" onClick={redo} title="やり直す (Ctrl+Y)">↪</McButton>
+          {/* 衝撃リング */}
+          {impacts.map(p => (
+            <div key={p.id} style={{ position: "absolute", left: p.x, top: p.y, pointerEvents: "none", zIndex: 199 }}>
+              <div style={{
+                position: "absolute", left: "50%", top: "50%",
+                transform: "translate(-50%,-50%)",
+                border: `3px solid ${p.color}`,
+                borderRadius: "50%",
+                animation: "impactRing 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+                boxShadow: `0 0 18px ${p.color}99`,
+              }} />
+              <div style={{
+                position: "absolute", left: "50%", top: "50%",
+                transform: "translate(-50%,-50%)",
+                borderRadius: "50%",
+                background: `radial-gradient(circle, ${p.color}80 0%, ${p.color}20 50%, transparent 70%)`,
+                animation: "impactFlash 0.5s ease-out forwards",
+              }} />
+            </div>
+          ))}
+
+          {/* 紙吹雪 */}
+          {confetti.map(c => (
+            <div key={c.id} style={{ position: "absolute", left: c.x, top: c.y, pointerEvents: "none", zIndex: 201 }}>
+              {Array.from({ length: 14 }).map((_, i) => {
+                const ang = (i / 14) * 360 + (i * 17) % 30;
+                const reach = 60 + (i % 4) * 22;
+                const colors = ["#ec4899", "#a855f7", "#06b6d4", "#fbbf24", "#10b981"];
+                const col = colors[i % colors.length];
+                const shapes = ["50%", "2px", "20% 80% 20% 80% / 80% 20% 80% 20%"];
+                const shape = shapes[i % shapes.length];
+                return (
+                  <div key={i} style={{
+                    position: "absolute", width: 7, height: 11,
+                    background: col,
+                    borderRadius: shape,
+                    // @ts-ignore
+                    "--dx": `${Math.cos(ang * Math.PI / 180) * reach}px`,
+                    // @ts-ignore
+                    "--dy": `${Math.sin(ang * Math.PI / 180) * reach - 30}px`,
+                    // @ts-ignore
+                    "--rot": `${(i % 2 ? 1 : -1) * (180 + i * 30)}deg`,
+                    animation: `confettiBurst ${0.75 + (i % 5) * 0.06}s cubic-bezier(0.1, 0.7, 0.3, 1) forwards`,
+                    boxShadow: `0 0 4px ${col}88`,
+                  }} />
+                );
+              })}
+            </div>
+          ))}
+
+          {/* キャンバス背景 */}
+          <div ref={containerRef} onMouseDown={handleBgDown} onWheel={handleWheel}
+            style={{
+              position: "absolute", inset: 0, cursor: "grab", backgroundColor: "#222120",
+              zIndex: 0
+            }}>
+
+            {/* インテリア背景 */}
+            <ThemeBackdrop theme="workshop" zoom={zoom} pan={pan} />
+
+            {/* 床 */}
+            {blocks.length > 0 && (
+              <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 6, pointerEvents: "none" }}>
+                <ToyFloor />
+              </div>
+            )}
+
+            {/* ブロックコンテナ */}
+            <div style={{ position: "absolute", inset: 0, transform: `translate(${pan.x}px,${pan.y}px) scale(${zoom})`, transformOrigin: "0 0" }}>
+
+              {mounted && (
+                <>
+                  {/* 接続シームライン */}
+                  {connectors.map((c, i) => (
+                    <Connector key={i} x={c.x} y={c.y} color={c.color} />
+                  ))}
+
+                  {/* ケーブル */}
+                  <svg style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    pointerEvents: "none",
+                    zIndex: 5,
+                  }}>
+                    {cables.map((c, i) => (
+                      <g key={i}>
+                        <line x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} stroke="rgba(0,0,0,0.35)" strokeWidth="5.8" strokeLinecap="round" />
+                        <line x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} stroke={c.color} strokeWidth="3.8" strokeLinecap="round" />
+                        <line x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} stroke="#ffffff" strokeWidth="3.8" strokeLinecap="round"
+                          strokeDasharray="8 32"
+                          style={{ animation: "wirePulse 1.8s linear infinite", opacity: 0.45 }} />
+                        <rect x={c.x2 - 5} y={c.y2 - 5} width={5} height={10} fill="#2c2c2c" rx={1} stroke="#4f4f4f" strokeWidth={1} />
+                        <circle cx={c.x2 - 7} cy={c.y2} r={2.4} fill={c.color} />
+                      </g>
+                    ))}
+                  </svg>
+
+                  {/* ブロック */}
+                  {blocks.map(b => {
+                    const pos = getPos(b.id, blocks);
+                    const isCond = b.type === "co_if";
+                    const inner = isCond && b.innerId ? blocks.find(x => x.id === b.innerId) ?? null : null;
+
+                    return <ToyCubeBlock key={b.id} b={b} pos={pos} pal={CAT} cyber={false} selected={selected === b.id}
+                      snapSlot={snapHint?.targetId === b.id ? snapHint.slot : null}
+                      innerBlock={inner} blocks={blocks}
+                      isEating={isCond && chomping === b.id}
+                      isSnapping={snapAnim === b.id}
+                      isAdding={addAnim === b.id}
+                      isDeleting={deleteAnim === b.id}
+                      onDown={handleBlockDown} onDelete={handleDelete}
+                      onEjectInner={isCond ? handleEjectInner : undefined}
+                      onFieldChange={handleFieldChange}
+                      focusedField={focusedField}
+                      setFocusedField={setFocusedField}
+                      wireDrag={wireDrag}
+                      onSlotClick={handleSlotClick}
+                      isShaking={shakeAnim === b.id}
+                      isDragging={blockDrag.current.active && blockDrag.current.id === b.id}
+                      isPopping={popBlocks[b.id]}
+                      isRolling={rollAnim?.id === b.id}
+                      rollFrom={rollAnim?.id === b.id ? rollAnim.from : 0}
+                      rollRot={rollAnim?.id === b.id ? rollAnim.rot : undefined}
+                      rollDur={rollAnim?.id === b.id ? rollAnim.dur : undefined} />;
+                  })}
+
+                  {/* 食べられアニメーション */}
+                  {eating && (() => {
+                    const eb = blocks.find(b => b.id === eating);
+                    const condBlock = eb ? blocks.find(d => d.innerId === eating) : null;
+                    if (!eb || !condBlock) return null;
+                    const dp = getPos(condBlock.id, blocks);
+                    return <ToyCubeBlock key={`eat-${eating}`} b={eb} pal={CAT} cyber={false}
+                      pos={{ x: dp.x + BW + GAP, y: dp.y }}
+                      selected={false} snapSlot={null} isEating={true}
+                      blocks={blocks}
+                      onDown={() => { }} onDelete={() => { }} onFieldChange={() => { }}
+                      wireDrag={null} onSlotClick={() => { }} />;
+                  })()}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ========================================================
+          【右】操作ボタン（システムコントロール）
+          ======================================================== */}
+        <div className="casino-border" style={{
+          width: 260,
+          display: "flex",
+          flexDirection: "column",
+          background: "#2d2b29",
+          borderLeft: "4px solid #1f1e1a",
+          zIndex: 30,
+          flexShrink: 0,
+          padding: "16px 12px",
+          boxSizing: "border-box",
+          gap: 16,
+          boxShadow: "inset 5px 0 15px rgba(0,0,0,0.6)",
+          alignItems: "center"
+        }}>
+          {/* 操作看板 */}
+          <div style={{
+            background: "linear-gradient(135deg, #b8860b 0%, #d4af37 50%, #b8860b 100%)",
+            border: "2px solid #fff",
+            borderRadius: 8,
+            padding: "4px 0",
+            width: "100%",
+            textAlign: "center",
+            order: -2,
+            boxShadow: "0 3px 6px rgba(0,0,0,0.3)"
+          }}>
+            <span style={{ fontSize: 10, fontWeight: 900, color: "#111", letterSpacing: "0.05em" }}>CONTROL</span>
+          </div>
+
+          {/* 各種アクションボタン */}
           <McButton
             size="sm"
             variant="danger"
@@ -2409,430 +3369,113 @@ export default function LogicPanel() {
               }
             }}
             title="すべてのブロックを消去する"
+            style={{ width: "100%", height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}
           >
             🗑️ クリア
           </McButton>
 
-          <div style={{ width: 2, height: 16, background: "#4a4842", margin: "0 2px" }} />
-
-          <McButton size="sm" variant={showProjects ? "grape" : "default"} onClick={() => setShowProjects(v => !v)} active={showProjects} title="プロジェクトの保存・読み込み">
-            💾 保存/読込
-          </McButton>
-          <McButton size="sm" variant={showTemplates ? "info" : "default"} onClick={() => setShowTemplates(v => !v)} active={showTemplates} title="テンプレートギャラリー">
-            🎮 サンプル
-          </McButton>
-          <McButton size="sm" variant={showCode ? "warning" : "default"} onClick={() => setShowCode(v => !v)} active={showCode} title="生成コードを表示">
-            💻 コード
-          </McButton>
-          <McButton size="sm" variant={showHelp ? "primary" : "default"} onClick={() => setShowHelp(v => !v)} active={showHelp} title="操作ガイドを開く">
-            ❓ ヘルプ
-          </McButton>
           <McButton
             size="sm"
-            variant={isLogicValid ? "success" : "default"}
+            variant={showProjects ? "grape" : "default"}
+            onClick={() => setShowProjects(v => !v)}
+            active={showProjects}
+            title="プロジェクトの保存・読み込み"
+            style={{ width: "100%", height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}
+          >
+            💾 保存/読込
+          </McButton>
+
+          <McButton
+            size="sm"
+            variant={showTemplates ? "info" : "default"}
+            onClick={() => setShowTemplates(v => !v)}
+            active={showTemplates}
+            title="テンプレートギャラリー"
+            style={{ width: "100%", height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}
+          >
+            🎮 サンプル
+          </McButton>
+
+          <McButton
+            size="sm"
+            variant={showCode ? "warning" : "default"}
+            onClick={() => setShowCode(v => !v)}
+            active={showCode}
+            title="生成コードを表示"
+            style={{ width: "100%", height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}
+          >
+            💻 コード
+          </McButton>
+
+          <McButton
+            size="sm"
+            variant={showHelp ? "primary" : "default"}
+            onClick={() => setShowHelp(v => !v)}
+            active={showHelp}
+            title="操作ガイドを開く"
+            style={{ width: "100%", height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}
+          >
+            ❓ ヘルプ
+          </McButton>
+
+          {/* マイクラへ出力ボタン */}
+          <button
             disabled={!isLogicValid}
             onClick={() => {
               playSuccessSound();
               const lines = (genCode || "// まず きっかけ ブロックを置いて繋げよう").split("\n");
-              setRevShown(0); setReveal(lines);
+              setReveal(lines);
             }}
-            title={isLogicValid ? "アドオンをマイクラへ出力する" : "きっかけブロックを配置して繋げてください"}
             style={{
-              opacity: isLogicValid ? 1.0 : 0.45,
+              order: -1,
+              width: "100%",
+              height: 60,
+              background: isLogicValid
+                ? "linear-gradient(to bottom, #10b981, #059669)"
+                : "linear-gradient(to bottom, #747d8c, #a4b0be)",
+              border: "3px solid #fff",
+              borderRadius: 12,
+              boxShadow: isLogicValid
+                ? "0 6px 0 #047857, 0 8px 16px rgba(16,185,129,0.3), inset 0 2px 0 rgba(255,255,255,0.4)"
+                : "0 6px 0 #57606f, 0 4px 6px rgba(0,0,0,0.2)",
+              color: "#fff",
+              fontWeight: 900,
+              fontSize: 12,
+              letterSpacing: "0.05em",
               cursor: isLogicValid ? "pointer" : "not-allowed",
-              transition: "all 0.2s ease",
-              boxShadow: isLogicValid ? "0 0 10px rgba(16,185,129,0.45)" : "none",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              lineHeight: 1.2,
+              transition: "all 0.1s ease",
+              transform: "translateY(0)"
+            }}
+            onMouseDown={e => {
+              if (isLogicValid) {
+                const btn = e.currentTarget;
+                btn.style.transform = "translateY(4px)";
+                btn.style.boxShadow = "0 2px 0 #047857, 0 2px 5px rgba(0,0,0,0.4)";
+              }
+            }}
+            onMouseUp={e => {
+              if (isLogicValid) {
+                const btn = e.currentTarget;
+                btn.style.transform = "translateY(0)";
+                btn.style.boxShadow = "0 6px 0 #047857, 0 8px 16px rgba(16,185,129,0.3), inset 0 2px 0 rgba(255,255,255,0.4)";
+              }
+            }}
+            onMouseLeave={e => {
+              if (isLogicValid) {
+                const btn = e.currentTarget;
+                btn.style.transform = "translateY(0)";
+                btn.style.boxShadow = "0 6px 0 #047857, 0 8px 16px rgba(16,185,129,0.3), inset 0 2px 0 rgba(255,255,255,0.4)";
+              }
             }}
           >
-            ▶ マイクラへ
-          </McButton>
-
-          {/* 背景テーマ切替は撤去：統合版(積み木)はアナログ工房に1画面で統一 */}
-
-          {/* 右端：検索窓 */}
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 さがす..."
-            style={{
-              marginLeft: "auto", width: 180, boxSizing: "border-box", padding: "6px 12px", fontSize: 13,
-              background: "#1c1b18", border: "3px solid #4a4842", borderRadius: 8, color: "#e5e3db", outline: "none", fontWeight: 800,
-              boxShadow: "inset 2px 2px 0 rgba(0,0,0,0.35), 2px 2px 0 rgba(255,255,255,0.05)",
-              fontFamily: "'DotGothic16', sans-serif"
-            }} />
-        </div>
-
-        {/* 2行目：ブロックトレイ */}
-        {showLib && (
-          <BlockTray filtered={filtered} onAdd={addBlock} searching={searching} activeCategory={activeCategory} />
-        )}
-      </div>
-
-      {/* 2. 下部：メインキャンバス領域 */}
-      <div style={{ flex: 1, position: "relative", overflow: "hidden", backgroundColor: "#252320" }}>
-        {showProjects && (
-          <ProjectPanel
-            blocks={blocks}
-            onLoad={b => { setBlocks(migrateBlocks(b)); }}
-            onClose={() => setShowProjects(false)}
-          />
-        )}
-        {showTemplates && (
-          <TemplateGallery
-            onSelect={b => { setBlocks(prev => [...prev, ...b]); }}
-            onClose={() => setShowTemplates(false)}
-          />
-        )}
-
-        {showHelp && (
-          <div style={{
-            position: "absolute", top: 10, right: 10, zIndex: 40, width: 244,
-            background: "rgba(22, 18, 14, 0.92)",
-            backdropFilter: "blur(8px)",
-            border: "1px solid rgba(212, 175, 110, 0.22)",
-            borderRadius: 12,
-            boxShadow: "0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)",
-            overflow: "hidden",
-          }}>
-            <div style={{
-              padding: "11px 14px",
-              display: "flex", justifyContent: "space-between", alignItems: "center",
-              borderBottom: "1px solid rgba(212,175,110,0.15)",
-            }}>
-              <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "#d8b46a", textTransform: "uppercase" }}>How to play</span>
-              <button onClick={() => setShowHelp(false)} style={{
-                width: 20, height: 20, borderRadius: 6, border: "none",
-                background: "rgba(255,255,255,0.06)", color: "#a59c8a", cursor: "pointer",
-                fontSize: 12, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center",
-              }}>✕</button>
-            </div>
-            <div style={{ padding: "12px 14px 6px" }}>
-              {[
-                { s: "1", t: "上部トレイのブロックをクリックで追加" },
-                { s: "2", t: "条件のスロット（もしも/そうなら）をタップ → つなげる相手が光る" },
-                { s: "3", t: "光った相手をタップで接続（カチッ！）" },
-                { s: "4", t: "ブロックを選んで Delete で削除 / Ctrl+D でコピー" },
-                { s: "Esc", t: "Esc で接続をキャンセル" },
-              ].map((s, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 12 }}>
-                  <span style={{
-                    flexShrink: 0, width: 22, height: 22, borderRadius: "50%",
-                    background: "linear-gradient(160deg, #8a6f4a, #5b4730)",
-                    border: "1px solid rgba(212,175,110,0.5)",
-                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.25), 0 1px 2px rgba(0,0,0,0.4)",
-                    color: "#f3e3c0", fontSize: s.s.length > 1 ? 9 : 11, fontWeight: 800,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontFamily: "monospace",
-                  }}>{s.s}</span>
-                  <div style={{ fontSize: 11.5, color: "rgba(245,240,232,0.9)", fontWeight: 500, lineHeight: 1.45, paddingTop: 2 }}>{s.t}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* 統計インジケーター（スリム版） */}
-        <div style={{
-          position: "absolute", top: 8, left: 8, zIndex: 20,
-          display: "flex", gap: 5
-        }}>
-          {/* ブロック数（P5: 上限なし・個数のみ表示） */}
-          <div title={`配置ブロック ${blocks.length}個`} style={{
-            background: "rgba(25, 25, 28, 0.82)",
-            backdropFilter: "blur(4px)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            padding: "3px 8px",
-            borderRadius: 6,
-            display: "inline-flex", alignItems: "center", gap: 4,
-            boxShadow: "0 1px 4px rgba(0,0,0,0.35)",
-            color: "#fff",
-            fontSize: 11, fontWeight: 800,
-          }}>
-            <span style={{ fontSize: 12 }}>📦</span>
-            <span style={{
-              fontFamily: "monospace", letterSpacing: "0.02em", color: "#00cec9"
-            }}>{mounted ? blocks.length : 0}<span style={{ fontSize: 9, marginLeft: 1 }}>個</span></span>
-          </div>
-
-          {/* ズーム倍率（クリックで100%＋中央へ戻る） */}
-          <button onClick={resetPanZoom} title="クリックで 100% + 画面中央に戻る" style={{
-            background: "rgba(25, 25, 28, 0.82)",
-            backdropFilter: "blur(4px)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            padding: "3px 8px",
-            borderRadius: 6,
-            display: "inline-flex", alignItems: "center", gap: 4,
-            boxShadow: "0 1px 4px rgba(0,0,0,0.35)",
-            color: "#fff",
-            fontSize: 11, fontWeight: 800, cursor: "pointer",
-          }}>
-            <span style={{ fontSize: 12 }}>🎯</span>
-            <span style={{ fontFamily: "monospace", letterSpacing: "0.02em", color: "#00b4d8" }}>{Math.round(zoom / BASE_ZOOM * 100)}%</span>
-            <span style={{ fontSize: 9, color: "#888", marginLeft: 1 }}>↺戻る</span>
-          </button>
-
-          {/* ガイド線トグル（🎯 ガイド線） */}
-          <button onClick={() => setShowSnapGuide(!showSnapGuide)} title="スナップ時のガイド線の表示/非表示（初心者向けガイド）" style={{
-            background: showSnapGuide ? "rgba(0, 184, 148, 0.15)" : "rgba(25, 25, 28, 0.82)",
-            backdropFilter: "blur(4px)",
-            border: showSnapGuide ? "1px solid rgba(0, 184, 148, 0.5)" : "1px solid rgba(255,255,255,0.12)",
-            padding: "3px 8px",
-            borderRadius: 6,
-            display: "inline-flex", alignItems: "center", gap: 4,
-            boxShadow: "0 1px 4px rgba(0,0,0,0.35)",
-            color: showSnapGuide ? "#55efc4" : "#888",
-            fontSize: 11, fontWeight: 800, cursor: "pointer",
-          }}>
-            <span style={{ fontSize: 12 }}>🎯</span>
-            <span style={{ letterSpacing: "0.02em" }}>ガイド線:{showSnapGuide ? "ON" : "OFF"}</span>
+            <span>EXPORT<br />▶ マイクラ</span>
           </button>
         </div>
-
-        {/* トースト通知（画面上部中央） */}
-        {toast && (
-          <div style={{
-            position: "absolute", top: 14, left: "50%", transform: "translateX(-50%)",
-            zIndex: 100,
-            padding: "10px 18px",
-            borderRadius: 10,
-            background: toast.level === "error" ? "rgba(220,53,69,0.96)"
-              : toast.level === "warning" ? "rgba(255,193,7,0.96)"
-                : "rgba(13,110,253,0.96)",
-            color: toast.level === "warning" ? "#1a1a1a" : "#ffffff",
-            fontSize: 13, fontWeight: 900,
-            border: "2px solid rgba(0,0,0,0.4)",
-            boxShadow: "0 6px 18px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.25)",
-            pointerEvents: "none",
-            maxWidth: "80%",
-            textAlign: "center",
-            animation: "toastSlideDown 0.25s cubic-bezier(0.2,0.8,0.2,1)",
-          }}>
-            <span style={{ fontSize: 15, marginRight: 6 }}>
-              {toast.level === "error" ? "⚠️" : toast.level === "warning" ? "⚡" : "💡"}
-            </span>
-            {toast.message}
-          </div>
-        )}
-
-        {/* ✨ コード誕生の魔法（SPROUT＝工房の暖色／本物の出力コードが生まれる） */}
-        {reveal && (
-          <CodeRevealOverlay
-            revealCode={reveal.join("\n")}
-            onClose={() => setReveal(null)}
-            theme="workshop"
-          />
-        )}
-
-        {/* コードプレビュー */}
-        {showCode && (
-          <div className="mc-panel" style={{ position: "absolute", bottom: 10, left: 8, right: 8, zIndex: 40, maxHeight: 240, background: "var(--panel)", display: "flex", flexDirection: "column" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 14px", borderBottom: "2px solid var(--border-color)" }}>
-              <span className="font-pixel text-[11px] text-accent">⚡ GENERATED CODE</span>
-              <button onClick={() => setShowCode(false)} className="mc-btn mc-btn--sm">✕</button>
-            </div>
-            <pre style={{ flex: 1, overflowY: "auto", margin: 0, padding: "10px 14px", fontSize: 10, color: "#a3e635", fontFamily: "monospace", lineHeight: 1.6, whiteSpace: "pre-wrap", wordBreak: "break-all", background: "#12110e" }}>
-              {genCode}
-            </pre>
-          </div>
-        )}
-
-        {/* スナップインジケーター */}
-        {snapHint && showSnapGuide && (
-          <SnapIndicator x={snapHint.pos.x} y={snapHint.pos.y} zoom={zoom} slot={snapHint.slot}
-            color={snapHint.slot === "inner" ? "#6c5ce7" : snapHint.slot === "then" ? "#00b894" : snapHint.slot === "else" ? "#e17055" : "#0984e3"} />
-        )}
-
-        {/* パーティクルバースト（土煙：粒のサイズと飛距離をランダム化で派手に） */}
-        {particles.map(p => {
-          if (p.type === "ripple") {
-            return (
-              <div key={p.id} style={{
-                position: "absolute", left: p.x - 30, top: p.y - 30,
-                width: 60, height: 60, borderRadius: "50%",
-                border: `4px solid ${p.color}`,
-                boxShadow: `0 0 12px ${p.color}, inset 0 0 12px ${p.color}`,
-                pointerEvents: "none", zIndex: 201,
-                animation: "connectRipple 0.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards"
-              }} />
-            );
-          }
-          return (
-            <div key={p.id} style={{ position: "absolute", left: p.x, top: p.y, pointerEvents: "none", zIndex: 200 }}>
-              {[0, 45, 90, 135, 180, 225, 270, 315].map((deg, i) => {
-                const size = 6 + ((i * 37) % 6);                  // 6〜11px
-                const reach = 36 + ((i * 53) % 24);               // 36〜59px
-                const yBias = deg > 180 ? -8 : 0;               // 上方向にバイアス（土煙っぽく）
-                return (
-                  <div key={deg} style={{
-                    position: "absolute", width: size, height: size, borderRadius: "50%",
-                    background: p.color,
-                    pointerEvents: "none",
-                    // @ts-ignore
-                    "--dx": `${Math.cos(deg * Math.PI / 180) * reach}px`,
-                    // @ts-ignore
-                    "--dy": `${Math.sin(deg * Math.PI / 180) * reach + yBias}px`,
-                    animation: `particle ${0.28 + i * 0.012}s cubic-bezier(0.1, 0.8, 0.3, 1) forwards`,
-                    boxShadow: `0 0 6px ${p.color}`,
-                    opacity: 0.85,
-                  }} />
-                );
-              })}
-            </div>
-          );
-        })}
-
-        {/* 着地の衝撃リング + 光フラッシュ */}
-        {impacts.map(p => (
-          <div key={p.id} style={{ position: "absolute", left: p.x, top: p.y, pointerEvents: "none", zIndex: 199 }}>
-            {/* 地面に広がる楕円リング（カテゴリ色） */}
-            <div style={{
-              position: "absolute", left: "50%", top: "50%",
-              transform: "translate(-50%,-50%)",
-              border: `3px solid ${p.color}`,
-              borderRadius: "50%",
-              animation: "impactRing 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards",
-              boxShadow: `0 0 18px ${p.color}99`,
-            }} />
-            {/* 同時にカテゴリ色の柔らかい光フラッシュ */}
-            <div style={{
-              position: "absolute", left: "50%", top: "50%",
-              transform: "translate(-50%,-50%)",
-              borderRadius: "50%",
-              background: `radial-gradient(circle, ${p.color}80 0%, ${p.color}20 50%, transparent 70%)`,
-              animation: "impactFlash 0.5s ease-out forwards",
-            }} />
-          </div>
-        ))}
-
-        {/* 紙吹雪（co_if 専用のお祝い演出） */}
-        {confetti.map(c => (
-          <div key={c.id} style={{ position: "absolute", left: c.x, top: c.y, pointerEvents: "none", zIndex: 201 }}>
-            {Array.from({ length: 14 }).map((_, i) => {
-              const ang = (i / 14) * 360 + (i * 17) % 30;
-              const reach = 60 + (i % 4) * 22;
-              const colors = ["#ec4899", "#a855f7", "#06b6d4", "#fbbf24", "#10b981"];
-              const col = colors[i % colors.length];
-              const shapes = ["50%", "2px", "20% 80% 20% 80% / 80% 20% 80% 20%"]; // 円・四角・葉っぱ
-              const shape = shapes[i % shapes.length];
-              return (
-                <div key={i} style={{
-                  position: "absolute", width: 7, height: 11,
-                  background: col,
-                  borderRadius: shape,
-                  // @ts-ignore
-                  "--dx": `${Math.cos(ang * Math.PI / 180) * reach}px`,
-                  // @ts-ignore
-                  "--dy": `${Math.sin(ang * Math.PI / 180) * reach - 30}px`, // 上方向にバイアス
-                  // @ts-ignore
-                  "--rot": `${(i % 2 ? 1 : -1) * (180 + i * 30)}deg`,
-                  animation: `confettiBurst ${0.75 + (i % 5) * 0.06}s cubic-bezier(0.1, 0.7, 0.3, 1) forwards`,
-                  boxShadow: `0 0 4px ${col}88`,
-                }} />
-              );
-            })}
-          </div>
-        ))}
-
-        {/* キャンバス背景（テーマ背景レイヤー — pan/zoom 影響なし） */}
-        <div ref={containerRef} onMouseDown={handleBgDown} onWheel={handleWheel}
-          style={{
-            position: "absolute", inset: 0, cursor: "grab", backgroundColor: "#161513",
-            zIndex: 0
-          }}>
-
-          {/* インテリア背景（screen 座標固定） — workshop / cyberpunk */}
-          <ThemeBackdrop theme="workshop" zoom={zoom} pan={pan} />
-
-          {/* 床 — pan/zoom の影響を受けない screen 座標。ブロックが1個以上ある時だけ出現。
-              ロジック画面の最下端に完全固定（床がある演出）。zIndex は world transform より上。 */}
-          {blocks.length > 0 && (
-            <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 6, pointerEvents: "none" }}>
-              <ToyFloor />
-            </div>
-          )}
-
-          {/* ブロックコンテナ */}
-          <div style={{ position: "absolute", inset: 0, transform: `translate(${pan.x}px,${pan.y}px) scale(${zoom})`, transformOrigin: "0 0" }}>
-
-            {mounted && (
-              <>
-                {/* 接続シームライン */}
-                {connectors.map((c, i) => (
-                  <Connector key={i} x={c.x} y={c.y} color={c.color} />
-                ))}
-
-                {/* コンセントコード（ケーブル）の描画レイヤー */}
-                <svg style={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  pointerEvents: "none",
-                  zIndex: 5,
-                }}>
-                  {cables.map((c, i) => (
-                    <g key={i}>
-                      {/* 影 */}
-                      <line x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} stroke="rgba(0,0,0,0.35)" strokeWidth="5.8" strokeLinecap="round" />
-                      {/* ケーブル */}
-                      <line x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} stroke={c.color} strokeWidth="3.8" strokeLinecap="round" />
-                      {/* 電流パルス (常時流れるほのかなパルス) */}
-                      <line x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} stroke="#ffffff" strokeWidth="3.8" strokeLinecap="round"
-                        strokeDasharray="8 32"
-                        style={{ animation: "wirePulse 1.8s linear infinite", opacity: 0.45 }} />
-                      {/* プラグ */}
-                      <rect x={c.x2 - 5} y={c.y2 - 5} width={5} height={10} fill="#2c2c2c" rx={1} stroke="#4f4f4f" strokeWidth={1} />
-                      {/* プラグの丸 */}
-                      <circle cx={c.x2 - 7} cy={c.y2} r={2.4} fill={c.color} />
-                    </g>
-                  ))}
-                </svg>
-
-                {/* ブロック */}
-                {blocks.map(b => {
-                  const pos = getPos(b.id, blocks);
-                  const isCond = b.type === "co_if";
-                  const inner = isCond && b.innerId ? blocks.find(x => x.id === b.innerId) ?? null : null;
-
-                  return <ToyCubeBlock key={b.id} b={b} pos={pos} pal={CAT} cyber={false} selected={selected === b.id}
-                    snapSlot={snapHint?.targetId === b.id ? snapHint.slot : null}
-                    innerBlock={inner} blocks={blocks}
-                    isEating={isCond && chomping === b.id}
-                    isSnapping={snapAnim === b.id}
-                    isAdding={addAnim === b.id}
-                    isDeleting={deleteAnim === b.id}
-                    onDown={handleBlockDown} onDelete={handleDelete}
-                    onEjectInner={isCond ? handleEjectInner : undefined}
-                    onFieldChange={handleFieldChange}
-                    focusedField={focusedField}
-                    setFocusedField={setFocusedField}
-                    wireDrag={wireDrag}
-                    onSlotClick={handleSlotClick}
-                    isShaking={shakeAnim === b.id}
-                    isDragging={blockDrag.current.active && blockDrag.current.id === b.id}
-                    isPopping={popBlocks[b.id]}
-                    isRolling={rollAnim?.id === b.id}
-                    rollFrom={rollAnim?.id === b.id ? rollAnim.from : 0}
-                    rollRot={rollAnim?.id === b.id ? rollAnim.rot : undefined}
-                    rollDur={rollAnim?.id === b.id ? rollAnim.dur : undefined} />;
-                })}
-
-                {/* 食べられアニメーション（ToyCubeBlock用に合わせて修正） */}
-                {eating && (() => {
-                  const eb = blocks.find(b => b.id === eating);
-                  const condBlock = eb ? blocks.find(d => d.innerId === eating) : null;
-                  if (!eb || !condBlock) return null;
-                  const dp = getPos(condBlock.id, blocks);
-                  return <ToyCubeBlock key={`eat-${eating}`} b={eb} pal={CAT} cyber={false}
-                    pos={{ x: dp.x + BW + GAP, y: dp.y }}
-                    selected={false} snapSlot={null} isEating={true}
-                    blocks={blocks}
-                    onDown={() => { }} onDelete={() => { }} onFieldChange={() => { }}
-                    wireDrag={null} onSlotClick={() => { }} />;
-                })()}
-              </>
-            )}
-          </div>
-        </div>
       </div>
-    </div>
-  );
+    );
 }
-
