@@ -2926,6 +2926,76 @@ export default function LogicPanel() {
           ======================================================== */}
         <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
           <WorkshopBackdrop zoom={zoom} pan={pan} />
+
+          {/* 操作キャンバス復元（カード描画＋ドラッグ/接続。背景はWorkshopBackdropを透過。色はヒマワリが後で） */}
+          <div ref={containerRef} onMouseDown={handleBgDown} onWheel={handleWheel}
+            style={{ position: "absolute", inset: 0, cursor: "grab", background: "transparent", zIndex: 1 }}>
+            {blocks.length > 0 && (
+              <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 6, pointerEvents: "none" }}>
+                <ToyFloor />
+              </div>
+            )}
+            <div style={{ position: "absolute", inset: 0, transform: `translate(${pan.x}px,${pan.y}px) scale(${zoom})`, transformOrigin: "0 0" }}>
+              {mounted && (
+                <>
+                  {connectors.map((c, i) => (
+                    <Connector key={i} x={c.x} y={c.y} color={c.color} />
+                  ))}
+                  <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 5 }}>
+                    {cables.map((c, i) => (
+                      <g key={i}>
+                        <line x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} stroke="rgba(0,0,0,0.35)" strokeWidth="5.8" strokeLinecap="round" />
+                        <line x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} stroke={c.color} strokeWidth="3.8" strokeLinecap="round" />
+                        <line x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} stroke="#ffffff" strokeWidth="3.8" strokeLinecap="round"
+                          strokeDasharray="8 32"
+                          style={{ animation: "wirePulse 1.8s linear infinite", opacity: 0.45 }} />
+                        <rect x={c.x2 - 5} y={c.y2 - 5} width={5} height={10} fill="#2c2c2c" rx={1} stroke="#4f4f4f" strokeWidth={1} />
+                        <circle cx={c.x2 - 7} cy={c.y2} r={2.4} fill={c.color} />
+                      </g>
+                    ))}
+                  </svg>
+                  {blocks.map(b => {
+                    const pos = getPos(b.id, blocks);
+                    const isCond = b.type === "co_if";
+                    const inner = isCond && b.innerId ? blocks.find(x => x.id === b.innerId) ?? null : null;
+                    return <ToyCubeBlock key={b.id} b={b} pos={pos} pal={CAT} cyber={false} selected={selected === b.id}
+                      snapSlot={snapHint?.targetId === b.id ? snapHint.slot : null}
+                      innerBlock={inner} blocks={blocks}
+                      isEating={isCond && chomping === b.id}
+                      isSnapping={snapAnim === b.id}
+                      isAdding={addAnim === b.id}
+                      isDeleting={deleteAnim === b.id}
+                      onDown={handleBlockDown} onDelete={handleDelete}
+                      onEjectInner={isCond ? handleEjectInner : undefined}
+                      onFieldChange={handleFieldChange}
+                      focusedField={focusedField}
+                      setFocusedField={setFocusedField}
+                      wireDrag={wireDrag}
+                      onSlotClick={handleSlotClick}
+                      isShaking={shakeAnim === b.id}
+                      isDragging={blockDrag.current.active && blockDrag.current.id === b.id}
+                      isPopping={popBlocks[b.id]}
+                      isRolling={rollAnim?.id === b.id}
+                      rollFrom={rollAnim?.id === b.id ? rollAnim.from : 0}
+                      rollRot={rollAnim?.id === b.id ? rollAnim.rot : undefined}
+                      rollDur={rollAnim?.id === b.id ? rollAnim.dur : undefined} />;
+                  })}
+                  {eating && (() => {
+                    const eb = blocks.find(b => b.id === eating);
+                    const condBlock = eb ? blocks.find(d => d.innerId === eating) : null;
+                    if (!eb || !condBlock) return null;
+                    const dp = getPos(condBlock.id, blocks);
+                    return <ToyCubeBlock key={`eat-${eating}`} b={eb} pal={CAT} cyber={false}
+                      pos={{ x: dp.x + BW + GAP, y: dp.y }}
+                      selected={false} snapSlot={null} isEating={true}
+                      blocks={blocks}
+                      onDown={() => { }} onDelete={() => { }} onFieldChange={() => { }}
+                      wireDrag={null} onSlotClick={() => { }} />;
+                  })()}
+                </>
+              )}
+            </div>
+          </div>
           {showProjects && (
             <ProjectPanel
               blocks={blocks}
