@@ -220,31 +220,28 @@ button, a, input, select, textarea {
 
 /* ── ボタン（おもちゃのプッシュボタン風・3D角丸） ── */
 .mc-btn {
-  --mc-btn-bg:     #8c8779;   /* 画面に馴染む温かみのある石グレー */
-  --mc-btn-edge:   #c1bcb0;   /* 左上のハイライト */
-  --mc-btn-shadow: #4a4842;   /* 右下の太い影 */
-  --mc-btn-text:   #ffffff;   /* 文字は白 */
-  --mc-btn-text-shadow: #2f2d27; /* 濃い文字影 */
+  --mc-btn-bg:     #cbd5e1;   /* デフォルトはココナッツホワイト */
+  --mc-btn-shadow: #94a3b8;   /* 3D押し込み面 */
+  --mc-btn-text:   #475569;   /* 文字は濃いグレー */
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   padding: 8px 14px;
-  font-size: 13px; /* 文字サイズ拡大 */
+  font-size: 13px;
   line-height: 1;
   font-family: var(--font-pixel), monospace;
   letter-spacing: 0.04em;
   font-weight: 900;
   text-transform: none;
   color: var(--mc-btn-text);
-  text-shadow: 1.5px 1.5px 0 var(--mc-btn-text-shadow);
   background: var(--mc-btn-bg);
-  border: 3px solid #1f1e1a; /* 太い黒枠 */
-  border-radius: 8px; /* 角丸おもちゃデザイン */
+  border: 3px solid #1e293b; /* 太い枠線 */
+  border-radius: 12px; /* パステルおもちゃ用の丸み */
   box-shadow: 
-    inset 2.5px 2.5px 0 var(--mc-btn-edge), 
-    inset -2.5px -2.5px 0 rgba(0,0,0,0.2), 
+    inset 0 3px 0 rgba(255,255,255,0.6), 
+    inset 0 -3px 0 rgba(0,0,0,0.15), 
     0 4px 0 var(--mc-btn-shadow);
   cursor: pointer;
   transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.08s ease, filter 0.12s ease;
@@ -255,20 +252,19 @@ button, a, input, select, textarea {
   transform: translateY(0);
 }
 .mc-btn:hover:not(:disabled) {
-  color: #ffffa0; /* ホバーでマイクラ伝統の黄色文字に */
   transform: translateY(-2px); /* ぷるんと浮き上がる */
   box-shadow: 
-    inset 2.5px 2.5px 0 var(--mc-btn-edge), 
-    inset -2.5px -2.5px 0 rgba(0,0,0,0.2), 
+    inset 0 3px 0 rgba(255,255,255,0.6), 
+    inset 0 -3px 0 rgba(0,0,0,0.15), 
     0 6px 0 var(--mc-btn-shadow);
-  filter: brightness(1.08) saturate(1.05);
+  filter: brightness(1.05) saturate(1.05);
 }
 .mc-btn:active:not(:disabled),
 .mc-btn[data-active="true"] {
-  transform: translateY(3px); /* 押し込まれる */
+  transform: translateY(4px); /* 押し込まれる */
   box-shadow: 
-    inset 2px 2px 2px rgba(0,0,0,0.35), 
-    0 1px 0 var(--mc-btn-shadow);
+    inset 0 2px 4px rgba(0,0,0,0.2), 
+    0 0px 0 var(--mc-btn-shadow);
 }
 .mc-btn:disabled {
   filter: grayscale(0.7) brightness(0.95);
@@ -277,18 +273,18 @@ button, a, input, select, textarea {
   box-shadow: none;
 }
 
-/* バリエーション（色違い・白文字には黒影でマイクラ風 1px シャドウ） */
-.mc-btn--primary { --mc-btn-bg:#facc15; --mc-btn-edge:#fde68a; --mc-btn-shadow:#a16207; --mc-btn-text:#3a2c05; --mc-btn-text-shadow:rgba(255,245,210,0.45); }
-.mc-btn--coral   { --mc-btn-bg:#fb7185; --mc-btn-edge:#fecdd3; --mc-btn-shadow:#a83a36; --mc-btn-text:#fff; --mc-btn-text-shadow:#7a2724; }
-.mc-btn--success { --mc-btn-bg:#10b981; --mc-btn-edge:#6ee7b7; --mc-btn-shadow:#064e3b; --mc-btn-text:#fff; --mc-btn-text-shadow:#064e3b; }
-.mc-btn--warning { --mc-btn-bg:#f59e0b; --mc-btn-edge:#fcd34d; --mc-btn-shadow:#7c2d12; --mc-btn-text:#fff; --mc-btn-text-shadow:#7c2d12; }
-.mc-btn--danger  { --mc-btn-bg:#dc2626; --mc-btn-edge:#fca5a5; --mc-btn-shadow:#7f1d1d; --mc-btn-text:#fff; --mc-btn-text-shadow:#7f1d1d; }
-.mc-btn--info    { --mc-btn-bg:#06b6d4; --mc-btn-edge:#67e8f9; --mc-btn-shadow:#155e75; --mc-btn-text:#fff; --mc-btn-text-shadow:#155e75; }
-.mc-btn--grape   { --mc-btn-bg:#a855f7; --mc-btn-edge:#d8b4fe; --mc-btn-shadow:#581c87; --mc-btn-text:#fff; --mc-btn-text-shadow:#581c87; }
+/* バリエーション（甘く可愛いパステルカラー） */
+.mc-btn--primary { --mc-btn-bg:#fde047; --mc-btn-shadow:#ca8a04; --mc-btn-text:#854d0e; } /* レモン/ゴールド */
+.mc-btn--coral   { --mc-btn-bg:#ff9ebb; --mc-btn-shadow:#e05a80; --mc-btn-text:#a31d44; } /* いちごミルク */
+.mc-btn--success { --mc-btn-bg:#80ed99; --mc-btn-shadow:#38b000; --mc-btn-text:#004b23; } /* メロン */
+.mc-btn--warning { --mc-btn-bg:#fdba74; --mc-btn-shadow:#f97316; --mc-btn-text:#7c2d12; } /* アプリコット */
+.mc-btn--danger  { --mc-btn-bg:#fca5a5; --mc-btn-shadow:#db2777; --mc-btn-text:#9d174d; } /* ラズベリー */
+.mc-btn--info    { --mc-btn-bg:#8ecae6; --mc-btn-shadow:#219ebc; --mc-btn-text:#023047; } /* ラムネソーダ */
+.mc-btn--grape   { --mc-btn-bg:#c3a6ff; --mc-btn-shadow:#8a5cf5; --mc-btn-text:#491b9a; } /* ラベンダー */
 
-/* サイズ：ピクセルフォントは小さくしすぎないこと（11px 未満は読めない） */
-.mc-btn--sm { padding: 7px 11px; font-size: 11px; gap: 6px; letter-spacing: 0.03em; }
-.mc-btn--lg { padding: 13px 22px; font-size: 15px; gap: 10px; }
+/* サイズ */
+.mc-btn--sm { padding: 6px 11px; font-size: 11px; gap: 6px; letter-spacing: 0.03em; border-radius: 8px; }
+.mc-btn--lg { padding: 12px 20px; font-size: 15px; gap: 10px; border-radius: 16px; }
 
 /* ── パネル（インベントリ枠風 + 任意のタイトル） ── */
 .mc-panel {

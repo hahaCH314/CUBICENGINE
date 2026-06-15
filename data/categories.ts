@@ -18,14 +18,14 @@ interface CatDef {
 // ── テーマ連動パレット ──
 // アナログ(工房)＝彩度を落とした深い暖色。電球に照らされた道具の色。
 const CAT_WORKSHOP: Record<Category, CatDef> = {
-  trigger:  { bg: "#c2504d", top: "#d76b66", side: "#9c3c3a", border: "#561d1c", text: "#ffffff", accent: "#e8b27a", icon: "Zap", label: "イベント" },
-  action:   { bg: "#3d6e9c", top: "#5689b6", side: "#2c5277", border: "#163149", text: "#ffffff", accent: "#8fb6da", icon: "Target", label: "アクション" },
-  ifelse:   { bg: "#2d8a72", top: "#41a88c", side: "#1f6553", border: "#0e3328", text: "#ffffff", accent: "#7fd0b9", icon: "GitBranch", label: "条件" },
-  value:    { bg: "#cf9740", top: "#e6b25c", side: "#a5752a", border: "#5c3f12", text: "#241a08", accent: "#a35e1f", icon: "Gem", label: "値" },
-  loop:     { bg: "#c2683f", top: "#db8259", side: "#9a4e2b", border: "#562713", text: "#ffffff", accent: "#e8b27a", icon: "Repeat", label: "制御" },
-  calc:     { bg: "#789938", top: "#95b751", side: "#5b7826", border: "#30420f", text: "#1a200a", accent: "#bcd989", icon: "Calculator", label: "演算" },
-  ui:       { bg: "#a45cae", top: "#c178c9", side: "#80428f", border: "#451b51", text: "#ffffff", accent: "#d39adb", icon: "AppWindow", label: "UI作成" },
-  variable: { bg: "#5b50a4", top: "#7a6fc4", side: "#423783", border: "#221847", text: "#ffffff", accent: "#a59ce0", icon: "Package", label: "変数" },
+  trigger:  { bg: "#facc15", top: "#fef08a", side: "#d97706", border: "#facc15", text: "#451a03", accent: "#fef08a", icon: "Zap", label: "イベント" },
+  action:   { bg: "#38bdf8", top: "#bae6fd", side: "#0284c7", border: "#38bdf8", text: "#0369a1", accent: "#bae6fd", icon: "Target", label: "アクション" },
+  ifelse:   { bg: "#ec4899", top: "#fbcfe8", side: "#db2777", border: "#ec4899", text: "#9d174d", accent: "#fbcfe8", icon: "GitBranch", label: "条件" },
+  value:    { bg: "#f97316", top: "#fed7aa", side: "#ea580c", border: "#f97316", text: "#7c2d12", accent: "#fed7aa", icon: "Gem", label: "値" },
+  loop:     { bg: "#ef4444", top: "#fecaca", side: "#dc2626", border: "#ef4444", text: "#991b1b", accent: "#fecaca", icon: "Repeat", label: "制御" },
+  calc:     { bg: "#22c55e", top: "#bbf7d0", side: "#16a34a", border: "#22c55e", text: "#064e3b", accent: "#bbf7d0", icon: "Calculator", label: "演算" },
+  ui:       { bg: "#a855f7", top: "#e9d5ff", side: "#9333ea", border: "#a855f7", text: "#4c1d95", accent: "#e9d5ff", icon: "AppWindow", label: "UI作成" },
+  variable: { bg: "#64748b", top: "#cbd5e1", side: "#475569", border: "#64748b", text: "#1e293b", accent: "#cbd5e1", icon: "Package", label: "変数" },
 };
 
 // デジタル(電脳)＝蛍光・発光寄り。暗い空間で光って見える色（ブロック側で色 drop-shadow も付与）。

@@ -387,86 +387,102 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
             : `drop-shadow(0 0 8px ${cat.bg}66) drop-shadow(0 4px 8px rgba(0,0,0,0.3))`,
       transition: "opacity 0.25s ease, filter 0.15s, transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1)",
     }}>
-      {/* メインカードノード（カラフルなトランプカード風） */}
+      {/* メインカードノード（ポケカ風：白ベースカード） */}
       <div style={{
         position: "absolute",
         left: leftOffset, top: 0, width: cardW, height: cardH,
-        background: `linear-gradient(135deg, ${cat.top}, ${cat.bg})`, // 前のカラフルなグラデーション背景
-        borderRadius: "8px",
+        background: "#ffffff", // 白いカードベース
+        borderRadius: "12px", // 角丸の強化
         border: selected
-          ? `2.5px solid #ffffff`
+          ? `3px solid ${cat.bg}`
           : hl || isAcceptable
-            ? `2.5px solid ${badgeColor || "#ffffff"}`
-            : `2px solid rgba(255,255,255,0.3)`,
+            ? `3px solid ${badgeColor || cat.bg}`
+            : `2.5px solid #e2e8f0`,
         boxShadow: selected
-          ? `0 0 0 3px #ffffff, 0 8px 20px rgba(0,0,0,0.35)`
+          ? `0 0 0 3px #ffffff, 0 0 16px ${cat.bg}88, 0 8px 20px rgba(0,0,0,0.2)`
           : hl || isAcceptable
-            ? `0 0 0 3px #ffffff, 0 0 14px ${badgeColor || "#fff"}`
-            : `0 4px 10px rgba(0,0,0,0.25)`,
+            ? `0 0 0 3px #ffffff, 0 0 16px ${badgeColor || cat.bg}`
+            : `0 4px 10px rgba(0,0,0,0.15)`,
         transition: "all 0.15s ease",
         display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center",
-        padding: "5px",
+        padding: "4px",
         boxSizing: "border-box",
         zIndex: 2,
+        overflow: "hidden"
       }}>
+
+
         {/* インナーデザインフレーム */}
         <div style={{
           width: "100%",
           height: "100%",
-          border: "1.5px solid rgba(255,255,255,0.25)", // 白半透明の内枠
-          borderRadius: "5px",
+          border: `1.5px solid ${cat.bg}33`, // カテゴリ色を薄くした内枠
+          borderRadius: "8px",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
           alignItems: "center",
-          padding: "16px 2px 10px", // 下部パディングを増やしてラベル位置を上げる
+          padding: "18px 2px 8px",
           boxSizing: "border-box",
           position: "relative",
+          background: "radial-gradient(circle at center, #ffffff 60%, #fafafa 100%)",
         }}>
-          {/* 左上のインデックス */}
+          {/* 左上のインデックス（タイプカラー背景のバッジ風） */}
           <div style={{
             position: "absolute",
-            left: 5, top: 4,
-            lineHeight: 1.0,
+            left: 4, top: 4,
+            width: 14, height: 14,
+            borderRadius: "50%",
+            background: cat.bg,
+            display: "flex", alignItems: "center", justifyContent: "center",
             color: "#ffffff",
             fontWeight: 900,
-            fontSize: 10,
-            textShadow: "1px 1px 1px rgba(0,0,0,0.3)"
+            fontSize: 8,
+            boxShadow: "0 1px 3px rgba(0,0,0,0.15)"
           }}>
             {cardIdx}
           </div>
 
-          {/* 右下のインデックス */}
+          {/* 右上の小さなタイプカラー点 */}
           <div style={{
             position: "absolute",
-            right: 5, bottom: 4,
-            lineHeight: 1.0,
-            color: "#ffffff",
-            fontWeight: 900,
-            fontSize: 10,
-            transform: "rotate(180deg)",
-            textShadow: "1px 1px 1px rgba(0,0,0,0.3)"
-          }}>
-            {cardIdx}
-          </div>
+            right: 5, top: 5,
+            width: 8, height: 8,
+            borderRadius: "50%",
+            background: cat.bg,
+            boxShadow: `0 0 6px ${cat.bg}`,
+          }} />
 
-          {/* 中央のシンボルマーク */}
-          {/* @ts-ignore */}
-          <BlockIconComponent size={26} color="#ffffff" strokeWidth={2.5} style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.25))" }} />
+          {/* 中央の「白い丸枠」イラストフレーム */}
+          <div style={{
+            width: 42,
+            height: 42,
+            borderRadius: "50%",
+            background: "#ffffff",
+            border: `2px solid ${cat.bg}`,
+            boxShadow: `inset 0 1px 4px rgba(0,0,0,0.08), 0 2px 6px ${cat.bg}22`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginTop: 4,
+          }}>
+            {/* @ts-ignore */}
+            <BlockIconComponent size={20} color={cat.bg} strokeWidth={2.5} />
+          </div>
 
           {/* 下部ラベル */}
           <span style={{
-            fontSize: b.label.length > 7 ? 8 : 9,
+            fontSize: b.label.length > 7 ? 8 : 9.5,
             fontWeight: 900,
-            color: "#ffffff",
+            color: "#334155", // 暗いグレーで明るい背景上での可読性向上
             textAlign: "center",
             lineHeight: 1.15,
-            width: "85%",
-            wordBreak: "break-word", // 折り返しを許可して省略記号を排除
+            width: "90%",
+            wordBreak: "break-word",
             display: "block",
-            textShadow: "1px 1px 2px rgba(0,0,0,0.5)",
             zIndex: 2,
-            marginTop: "auto"
+            marginTop: "auto",
+            textShadow: "none"
           }}>
             {b.label}
           </span>
@@ -538,390 +554,360 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
     <div style={{ position: "absolute", inset: "-20%", overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
       <style dangerouslySetInnerHTML={{
         __html: `
-        @keyframes workshop-sway {
-          0% { transform: rotate(-3deg); }
-          100% { transform: rotate(3deg); }
+        @keyframes water-sway {
+          0% { transform: rotate(-1.5deg) translateY(0px); }
+          100% { transform: rotate(1.5deg) translateY(-8px); }
         }
-        @keyframes bulb-glow {
-          0% { box-shadow: 0 0 20px #ff9f43, 0 0 40px rgba(255,159,67,0.5), inset 0 2px 4px rgba(255,255,255,0.6); }
-          100% { box-shadow: 0 0 35px #ffb84d, 0 0 70px rgba(255,184,77,0.7), inset 0 2px 4px rgba(255,255,255,0.8); }
+        @keyframes bubble-rise {
+          0% { transform: translateY(110%) translateX(0) scale(0.8); opacity: 0; }
+          10% { opacity: 0.7; }
+          90% { opacity: 0.7; }
+          100% { transform: translateY(-10%) translateX(var(--wobble)) scale(1.1); opacity: 0; }
         }
-        @keyframes dust-float-1 {
-          0% { transform: translate(0, 0) scale(0.8); opacity: 0; }
-          50% { transform: translate(25px, -45px) scale(1.2); opacity: 0.35; }
-          100% { transform: translate(45px, -90px) scale(0.8); opacity: 0; }
+        @keyframes light-shaft-shimmer {
+          0% { opacity: 0.15; transform: skewX(-15deg) scaleX(0.9); }
+          100% { opacity: 0.35; transform: skewX(-10deg) scaleX(1.1); }
         }
-        @keyframes dust-float-2 {
-          0% { transform: translate(0, 0) scale(1.1); opacity: 0; }
-          50% { transform: translate(-30px, -60px) scale(0.7); opacity: 0.40; }
-          100% { transform: translate(-15px, -120px) scale(1.0); opacity: 0; }
+        @keyframes lantern-glow {
+          0% { box-shadow: 0 0 20px #e0f2fe, 0 0 40px rgba(224,242,254,0.4); }
+          100% { box-shadow: 0 0 35px #ffffff, 0 0 70px rgba(255,255,255,0.6); }
         }
-        @keyframes dust-float-3 {
-          0% { transform: translate(0, 0) scale(0.9); opacity: 0; }
-          50% { transform: translate(15px, -70px) scale(1.0); opacity: 0.30; }
-          100% { transform: translate(-10px, -140px) scale(0.7); opacity: 0; }
+        @keyframes sea-plant-sway {
+          0% { transform: skewX(-2deg); }
+          100% { transform: skewX(2deg); }
+        }
+        @keyframes whale-swim {
+          0% { transform: translate(-350px, 45vh) scale(1.6) scaleX(-1) rotate(3deg); opacity: 0; }
+          5% { opacity: 1; }
+          95% { opacity: 1; }
+          100% { transform: translate(120vw, 35vh) scale(1.6) scaleX(-1) rotate(-3deg); opacity: 0; }
+        }
+        @keyframes squid-swim {
+          0% { transform: translate(110vw, 65vh) scale(0.95) rotate(-10deg); opacity: 0; }
+          5% { opacity: 1; }
+          10% { transform: translate(95vw, 60vh) scale(0.95) rotate(-15deg); }
+          15% { transform: translate(92vw, 62vh) scale(0.95) rotate(-10deg); }
+          25% { transform: translate(75vw, 55vh) scale(0.95) rotate(-18deg); }
+          30% { transform: translate(72vw, 57vh) scale(0.95) rotate(-12deg); }
+          45% { transform: translate(50vw, 45vh) scale(0.95) rotate(-22deg); }
+          50% { transform: translate(47vw, 47vh) scale(0.95) rotate(-15deg); }
+          65% { transform: translate(25vw, 53vh) scale(0.95) rotate(-10deg); }
+          70% { transform: translate(22vw, 55vh) scale(0.95) rotate(-5deg); }
+          85% { transform: translate(0vw, 60vh) scale(0.95) rotate(-12deg); }
+          95% { opacity: 1; }
+          100% { transform: translate(-150px, 63vh) scale(0.95) rotate(-8deg); opacity: 0; }
+        }
+        @keyframes fishing-line-move {
+          0%, 20% { transform: translateY(-110%); }
+          30% { transform: translateY(0); }
+          55% { transform: translateY(0); }
+          57% { transform: translateY(-8px); }
+          59% { transform: translateY(0); }
+          61% { transform: translateY(-12px); }
+          63% { transform: translateY(2px); }
+          64.5% { transform: translateY(-150%); }
+          100% { transform: translateY(-150%); }
+        }
+        @keyframes kasago-move {
+          0% { transform: translate(110vw, 55vh) scale(0.75) scaleX(-1); opacity: 0; }
+          15% { opacity: 1; }
+          28% { transform: translate(65vw, 32vh) scale(0.75) scaleX(-1); }
+          35% { transform: translate(56vw, 19vh) scale(0.75) scaleX(-1); }
+          40% { transform: translate(51.2vw, 17.5vh) scale(0.75) scaleX(-1) rotate(12deg); }
+          44% { transform: translate(51.7vw, 18vh) scale(0.75) scaleX(-1) rotate(7deg); }
+          48% { transform: translate(51.2vw, 17.5vh) scale(0.75) scaleX(-1) rotate(18deg); }
+          54% { transform: translate(51.7vw, 18vh) scale(0.75) scaleX(-1) rotate(7deg); }
+          58% { transform: translate(51.2vw, 17.5vh) scale(0.75) scaleX(-1) rotate(20deg); }
+          60% { transform: translate(51.4vw, 17.7vh) scale(0.75) scaleX(-1) rotate(24deg); }
+          62% { transform: translate(51.2vw, 17.5vh) scale(0.75) scaleX(-1) rotate(-12deg) translate(2px, -2px); }
+          63% { transform: translate(51.2vw, 17.5vh) scale(0.75) scaleX(-1) rotate(12deg) translate(-2px, 2px); }
+          64.5% { transform: translate(50vw, -120vh) scale(0.75) scaleX(-1) rotate(-45deg); opacity: 1; }
+          70%, 100% { transform: translate(50vw, -120vh) scale(0.75); opacity: 0; }
+        }
+        @keyframes drowned-swim {
+          0% { transform: translate(110vw, 50vh) scale(0.8) rotate(15deg); opacity: 0; }
+          10% { opacity: 0.18; }
+          50% { transform: translate(45vw, 55vh) scale(0.8) rotate(20deg); }
+          90% { opacity: 0.18; }
+          100% { transform: translate(-150px, 48vh) scale(0.8) rotate(15deg); opacity: 0; }
+        }
+        @keyframes puffer-swim {
+          0% { transform: translate(-100px, 25vh) scale(0.6) translateY(0); opacity: 0; }
+          5% { opacity: 0.25; }
+          25% { transform: translate(25vw, 22vh) scale(0.6) translateY(-4px); }
+          50% { transform: translate(55vw, 27vh) scale(0.6) translateY(4px); }
+          75% { transform: translate(85vw, 23vh) scale(0.6) translateY(-4px); }
+          95% { opacity: 0.25; }
+          100% { transform: translate(110vw, 26vh) scale(0.6) translateY(0); opacity: 0; }
+        }
+        @keyframes turtle-swim {
+          0% { transform: translate(-200px, 80vh) scale(1.1) rotate(2deg); opacity: 0; }
+          8% { opacity: 0.22; }
+          50% { transform: translate(50vw, 78vh) scale(1.1) rotate(-2deg); }
+          92% { opacity: 0.22; }
+          100% { transform: translate(110vw, 82vh) scale(1.1) rotate(1deg); opacity: 0; }
+        }
+        @keyframes dolphin-swim {
+          0% { transform: translate(110vw, 35vh) scale(0.9) scaleX(-1) rotate(5deg); opacity: 0; }
+          10% { opacity: 0.25; }
+          25% { transform: translate(80vw, 42vh) scale(0.9) scaleX(-1) rotate(-8deg); }
+          50% { transform: translate(50vw, 32vh) scale(0.9) scaleX(-1) rotate(10deg); }
+          75% { transform: translate(20vw, 40vh) scale(0.9) scaleX(-1) rotate(-6deg); }
+          90% { opacity: 0.25; }
+          100% { transform: translate(-180px, 35vh) scale(0.9) scaleX(-1) rotate(5deg); opacity: 0; }
         }
       `}} />
 
-      {/* 暖かいおもちゃ工房的グラデーション（明るく開放的な陽の光差し込むイメージ） */}
+      {/* 澄み渡る暖かい海（Warm Ocean）のグラデーション */}
       <div style={{
         position: "absolute", inset: 0,
-        background: "radial-gradient(circle at center 40%, #faf0e6 0%, #d8bda2 100%)",
+        background: "linear-gradient(to bottom, #7dd3fc 0%, #0ea5e9 40%, #0284c7 70%, #075985 100%)",
       }} />
 
-      {/* 工房という"部屋"＝一点透視の空間（壁画ではなく、奥行きのある箱の中にいる） */}
-      <div style={{
-        position: "absolute", inset: 0, overflow: "hidden",
-        transform: `translate(${pan.x * 0.05}px, ${pan.y * 0.04}px) scale(${1 + (zoom - 1) * 0.15})`,
-        transformOrigin: "center center",
-        zIndex: 1,
-      }}>
-        {/* 天井（奥へ収束） */}
-        <div style={{
-          position: "absolute", top: "-4%", left: "-25%", right: "-25%", height: "48%",
-          transform: "perspective(440px) rotateX(-48deg)",
-          transformOrigin: "top center",
-          background: `
-            repeating-linear-gradient(90deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 48px),
-            linear-gradient(to top, #eddcd2 0%, #cca47c 100%)
-          `,
-          boxShadow: "inset 0 -30px 50px rgba(0,0,0,0.15)",
-        }} />
-
-        {/* 左の壁（消失点へ収束） */}
-        <div style={{
-          position: "absolute", left: "-3%", top: "-25%", bottom: "-25%", width: "36%",
-          transform: "perspective(440px) rotateY(48deg)",
-          transformOrigin: "left center",
-          background: "linear-gradient(to right, #b08968 0%, #ddb892 100%)",
-          boxShadow: "inset -30px 0 40px rgba(0,0,0,0.15)",
-        }} />
-        {/* 右の壁（消失点へ収束） */}
-        <div style={{
-          position: "absolute", right: "-3%", top: "-25%", bottom: "-25%", width: "36%",
-          transform: "perspective(440px) rotateY(-48deg)",
-          transformOrigin: "right center",
-          background: "linear-gradient(to left, #b08968 0%, #ddb892 100%)",
-          boxShadow: "inset 30px 0 40px rgba(0,0,0,0.15)",
-        }} />
-
-        {/* 奥の壁（遠く・小さく・暗い／横張りの板） */}
-        <div style={{
-          position: "absolute", left: "50%", top: "33%", width: "58%", height: "34%",
-          transform: "translateX(-50%)",
-          background: `
-            repeating-linear-gradient(to bottom, #d4b290 0px, #d4b290 20px, #c39e78 20px, #c39e78 22px),
-            linear-gradient(to bottom, #ddb892, #b08968)
-          `,
-          boxShadow: "inset 0 0 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.1)",
-        }} />
-
-        {/* 床（手前広く→奥へ収束＝立っている地面。板の継ぎ目が消失点へ） */}
-        <div style={{
-          position: "absolute", bottom: "-4%", left: "-25%", right: "-25%", height: "56%",
-          transform: "perspective(440px) rotateX(50deg)",
-          transformOrigin: "bottom center",
-          background: `
-            repeating-linear-gradient(90deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1.5px, transparent 1.5px, transparent 56px),
-            repeating-linear-gradient(to top, rgba(255,255,255,0.15) 0px, rgba(255,255,255,0.15) 1px, transparent 1px, transparent 42px),
-            linear-gradient(to top, #eddcd2 0%, #ddb892 65%, #b08968 100%)
-          `,
-          boxShadow: "inset 0 30px 50px rgba(0,0,0,0.1)",
-        }} />
-      </div>
-
-      {/* （配管バーは一旦撤去：全幅の棒が浮いて見えるため。工房の作り込みは後日まとめて） */}
-
-      {/* ズームに合わせてスケールする親コンテナ（天井中央起点、パララックス中） */}
-      <div style={{
-        position: "absolute",
-        top: 0,
-        left: "50%",
-        transformOrigin: "top center",
-        /* 奥の部屋の備品＝背景プレーン：パンもズームもブロックより小さく反応＝奥行き。常に頭上に居る */
-        transform: `translateX(calc(-50% + ${pan.x * 0.18}px)) translateY(${pan.y * 0.18}px) scale(${1 + (zoom - 1) * 0.45})`,
-        width: 1,
-        height: 1,
-        zIndex: 3,
-      }}>
-        {/* 揺れるランプ ＆ ついてくる光（内側で揺らす） */}
-        <div style={{
-          transformOrigin: "top center",
-          animation: "workshop-sway 6.5s ease-in-out infinite alternate",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          width: 1,
-          height: 1,
-        }}>
-          {/* 天井カバーは撤去（天井が見えると不自然なため）。コードは上の闇から降りてくる */}
-
-          {/* プレーンな細めの吊りコード（上端は闇へ溶ける） */}
-          <div style={{
-            width: 3,
-            height: 170,
-            background: "linear-gradient(to bottom, rgba(58,45,35,0) 0%, #3e3025 22%)",
-            boxShadow: "0 0 2px rgba(0,0,0,0.4)",
-            flexShrink: 0,
-          }} />
-
-          {/* レトロな真鍮製ソケット */}
-          <div style={{
-            width: 16,
-            height: 22,
-            background: "linear-gradient(to right, #8a6f4a, #b0976d, #8a6f4a)",
-            border: "1px solid #57462e",
-            borderRadius: "3px 3px 0 0",
-            position: "relative",
-            marginTop: -1,
-            flexShrink: 0,
-            boxShadow: "0 3px 5px rgba(0,0,0,0.3)",
-          }}>
-            {/* ソケットの金属溝 */}
-            <div style={{
-              position: "absolute",
-              bottom: 4,
-              left: 0,
-              right: 0,
-              height: 3,
-              background: "#57462e",
-            }} />
-          </div>
-
-          {/* 大きなまん丸裸電球 */}
-          <div style={{
-            width: 36,
-            height: 36,
-            background: "radial-gradient(circle at 50% 30%, rgba(255,238,190,0.98) 0%, rgba(255,160,30,0.85) 65%)",
-            borderRadius: "50%",
-            marginTop: -2,
-            position: "relative",
-            zIndex: 1,
-            animation: "bulb-glow 3s ease-in-out infinite alternate",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            flexShrink: 0,
-          }}>
-            {/* フィラメントの光る細い線 */}
-            <div style={{
-              width: 6,
-              height: 12,
-              border: "1.5px solid #ffffff",
-              borderBottom: "none",
-              borderRadius: "3px 3px 0 0",
-              opacity: 0.95,
-              boxShadow: "0 0 6px #fff, 0 0 2px #ffb84d",
-            }} />
-          </div>
-
-          {/* 芯のブルーム：電球そのものが空気ににじむ（郷愁の核）。電球中心(≈207)に重ねる */}
-          <div style={{
-            position: "absolute",
-            top: 37,
-            left: -170,
-            width: 340,
-            height: 340,
-            background: "radial-gradient(circle at center, rgba(255,206,124,0.42) 0%, rgba(255,178,90,0.22) 28%, rgba(255,150,64,0.08) 55%, transparent 78%)",
-            filter: "blur(14px)",
-            pointerEvents: "none",
-            zIndex: -1,
-          }} />
-          {/* 広い光だまり：電球起点に地面方向へ長く落ち、多段グラデで境目を闇に溶かす */}
-          <div style={{
-            position: "absolute",
-            top: 185,
-            left: -560,
-            width: 1120,
-            height: 920,
-            background: "radial-gradient(ellipse 48% 56% at center top, rgba(255,182,78,0.25) 0%, rgba(255,168,64,0.18) 16%, rgba(255,152,52,0.12) 32%, rgba(255,138,44,0.06) 52%, rgba(255,126,38,0.02) 72%, transparent 100%)",
-            filter: "blur(10px)",
-            pointerEvents: "none",
-            zIndex: -1,
-          }} />
-
-          {/* ホコリ粒子 (光の輪の中でゆっくり漂う) */}
-          <div style={{ position: "absolute", top: 190, left: -150, width: 300, height: 300, pointerEvents: "none", zIndex: 0 }}>
-            <div style={{ position: "absolute", left: "45%", top: "20%", width: 3, height: 3, borderRadius: "50%", background: "#ffeaa7", filter: "blur(0.5px)", animation: "dust-float-1 8s infinite ease-in-out" }} />
-            <div style={{ position: "absolute", left: "30%", top: "45%", width: 2.5, height: 2.5, borderRadius: "50%", background: "#ffb84d", filter: "blur(0.5px)", animation: "dust-float-2 11s infinite ease-in-out" }} />
-            <div style={{ position: "absolute", left: "60%", top: "35%", width: 3.5, height: 3.5, borderRadius: "50%", background: "#ffeaa7", filter: "blur(0.5px)", animation: "dust-float-3 9s infinite ease-in-out" }} />
-            <div style={{ position: "absolute", left: "50%", top: "60%", width: 2, height: 2, borderRadius: "50%", background: "#ffb84d", filter: "blur(0.5px)", animation: "dust-float-1 13s infinite ease-in-out" }} />
-          </div>
-        </div>
-      </div>
-
-      {/* レイヤー3: 手前の作業台／棚の縁 (パララックス大、画面最下部) */}
-      <div style={{
-        position: "absolute",
-        left: "-80px",
-        right: "-80px",
-        bottom: "-30px",
-        height: "70px",
-        background: "linear-gradient(to bottom, #7f5539 0%, #5c3d2e 100%)",
-        borderTop: "3px solid #9c6644",
-        boxShadow: "0 -8px 24px rgba(0,0,0,0.25)",
-        transform: `translate(${pan.x * 0.42}px, ${pan.y * 0.35}px) scale(${1 + (zoom - 1) * 0.42})`,
-        transformOrigin: "center bottom",
-        zIndex: 4,
-      }}>
-        {/* 抽象的なツールの影は撤去（高ズームで謎の黒箱に見えるため） */}
-      </div>
-
-      {/* 周辺ビネット（やや緩めて光が闇へ滑らかに溶けるように） */}
+      {/* 太陽の光のカーテン（God Rays） */}
       <div style={{
         position: "absolute", inset: 0,
-        boxShadow: "inset 0 0 300px rgba(0,0,0,0.18)",
-        zIndex: 5,
+        background: "radial-gradient(circle at 50% -20%, rgba(255,255,255,0.4) 0%, transparent 60%)",
+        zIndex: 1
+      }} />
+      
+      {/* 斜めに降り注ぐ光の筋（ライトシャフト） */}
+      <div style={{
+        position: "absolute", top: -100, left: "20%", width: "60%", height: "150%",
+        display: "flex", gap: "20px", transform: "skewX(-12deg)",
+        opacity: 0.25, zIndex: 1, pointerEvents: "none"
+      }}>
+        <div style={{ width: 40, height: "100%", background: "linear-gradient(to bottom, rgba(255,255,255,0.4), transparent)", animation: "light-shaft-shimmer 7s infinite alternate ease-in-out" }} />
+        <div style={{ width: 120, height: "100%", background: "linear-gradient(to bottom, rgba(255,255,255,0.3), transparent)", animation: "light-shaft-shimmer 11s infinite alternate ease-in-out", animationDelay: "-2s" }} />
+        <div style={{ width: 60, height: "100%", background: "linear-gradient(to bottom, rgba(255,255,255,0.35), transparent)", animation: "light-shaft-shimmer 9s infinite alternate ease-in-out", animationDelay: "-5s" }} />
+        <div style={{ width: 180, height: "100%", background: "linear-gradient(to bottom, rgba(255,255,255,0.25), transparent)", animation: "light-shaft-shimmer 15s infinite alternate ease-in-out", animationDelay: "-3s" }} />
+      </div>
+
+      {/* クジラの影シルエット */}
+      <div style={{
+        position: "absolute",
+        left: 0,
+        top: 0,
+        width: 300,
+        height: 150,
+        fill: "rgba(0, 10, 25, 0.22)",
+        filter: "blur(5px)",
+        zIndex: 2,
+        animation: "whale-swim 75s infinite linear"
+      }}>
+        <svg viewBox="0 0 200 100" style={{ width: "100%", height: "100%" }}>
+          <path d="M10 40 C 30 20, 80 15, 130 30 C 150 25, 170 15, 190 5 C 185 20, 185 35, 190 50 C 170 45, 150 45, 130 40 C 110 55, 80 60, 50 55 C 30 52, 15 48, 10 40 Z" />
+          <path d="M70 48 C80 65, 95 65, 90 48" />
+        </svg>
+      </div>
+
+      {/* イカの影シルエット */}
+      <div style={{
+        position: "absolute",
+        left: 0,
+        top: 0,
+        width: 100,
+        height: 150,
+        fill: "rgba(0, 12, 28, 0.25)",
+        filter: "blur(3px)",
+        zIndex: 2,
+        animation: "squid-swim 50s infinite linear -15s"
+      }}>
+        <svg viewBox="0 0 100 150" style={{ width: "100%", height: "100%" }}>
+          <rect x="30" y="10" width="40" height="50" rx="2" />
+          <path d="M34 60 L30 110" stroke="rgba(0, 12, 28, 0.7)" strokeWidth="4" strokeLinecap="round" />
+          <path d="M40 60 L38 120" stroke="rgba(0, 12, 28, 0.7)" strokeWidth="4" strokeLinecap="round" />
+          <path d="M46 60 L45 130" stroke="rgba(0, 12, 28, 0.7)" strokeWidth="4" strokeLinecap="round" />
+          <path d="M52 60 L52 135" stroke="rgba(0, 12, 28, 0.7)" strokeWidth="4" strokeLinecap="round" />
+          <path d="M58 60 L60 130" stroke="rgba(0, 12, 28, 0.7)" strokeWidth="4" strokeLinecap="round" />
+          <path d="M64 60 L68 120" stroke="rgba(0, 12, 28, 0.7)" strokeWidth="4" strokeLinecap="round" />
+          <path d="M70 60 L74 110" stroke="rgba(0, 12, 28, 0.7)" strokeWidth="4" strokeLinecap="round" />
+        </svg>
+      </div>
+
+      {/* ドラウンド（溺死ゾンビ）の影シルエット */}
+      <div style={{
+        position: "absolute", left: 0, top: 0, width: 60, height: 100,
+        fill: "rgba(0, 10, 25, 0.22)", filter: "blur(2.5px)", zIndex: 2,
+        animation: "drowned-swim 60s infinite linear -20s"
+      }}>
+        <svg viewBox="0 0 60 100" style={{ width: "100%", height: "100%" }}>
+          <rect x="20" y="8" width="20" height="20" rx="1" />
+          <rect x="20" y="6" width="20" height="6" fill="rgba(0, 10, 25, 0.25)" />
+          <rect x="22" y="28" width="16" height="32" rx="1" />
+          <rect x="2" y="32" width="22" height="6" rx="1" />
+          <rect x="6" y="38" width="20" height="5" rx="1" />
+          <rect x="22" y="60" width="7" height="30" rx="1" />
+          <rect x="31" y="60" width="7" height="30" rx="1" />
+        </svg>
+      </div>
+
+      {/* フグの影シルエット */}
+      <div style={{
+        position: "absolute", left: 0, top: 0, width: 80, height: 80,
+        fill: "rgba(0, 10, 25, 0.2)", filter: "blur(2px)", zIndex: 2,
+        animation: "puffer-swim 40s infinite linear -10s"
+      }}>
+        <svg viewBox="0 0 80 80" style={{ width: "100%", height: "100%" }}>
+          <rect x="20" y="20" width="40" height="40" rx="8" />
+          <rect x="38" y="10" width="4" height="10" />
+          <rect x="38" y="60" width="4" height="10" />
+          <rect x="10" y="38" width="10" height="4" />
+          <rect x="60" y="38" width="10" height="4" />
+          <path d="M 22 22 L 14 14 L 17 11 Z" />
+          <path d="M 58 22 L 66 14 L 63 11 Z" />
+          <path d="M 22 58 L 14 66 L 11 63 Z" />
+          <path d="M 58 58 L 66 66 L 69 63 Z" />
+          <circle cx="50" cy="35" r="3" fill="rgba(255,255,255,0.15)" />
+          <circle cx="51" cy="35" r="1.5" fill="rgba(0,0,0,0.3)" />
+          <rect x="15" y="36" width="6" height="8" rx="1" />
+        </svg>
+      </div>
+
+      {/* カメの影シルエット */}
+      <div style={{
+        position: "absolute", left: 0, top: 0, width: 120, height: 60,
+        fill: "rgba(0, 10, 25, 0.2)", filter: "blur(3px)", zIndex: 2,
+        animation: "turtle-swim 80s infinite linear -35s"
+      }}>
+        <svg viewBox="0 0 120 60" style={{ width: "100%", height: "100%" }}>
+          <rect x="25" y="15" width="60" height="24" rx="6" />
+          <rect x="35" y="11" width="40" height="5" rx="2" fill="rgba(0, 10, 25, 0.2)" />
+          <rect x="85" y="20" width="18" height="14" rx="3" />
+          <path d="M 55 35 L 35 52 L 42 55 Z" />
+          <path d="M 65 35 L 50 50 L 55 53 Z" />
+          <path d="M 30 35 L 18 45 L 22 47 Z" />
+        </svg>
+      </div>
+
+      {/* イルカの影シルエット */}
+      <div style={{
+        position: "absolute", left: 0, top: 0, width: 130, height: 70,
+        fill: "rgba(0, 10, 25, 0.2)", filter: "blur(2.5px)", zIndex: 2,
+        animation: "dolphin-swim 30s infinite linear -5s"
+      }}>
+        <svg viewBox="0 0 130 70" style={{ width: "100%", height: "100%" }}>
+          <rect x="35" y="24" width="65" height="22" rx="4" />
+          <rect x="100" y="32" width="15" height="8" rx="1" />
+          <path d="M 65 24 L 52 8 L 60 24 Z" />
+          <path d="M 60 46 L 48 58 L 54 60 Z" />
+          <path d="M 35 35 L 12 22 L 15 48 Z" />
+        </svg>
+      </div>
+
+      {/* 釣り針＆糸（カサゴ釣りギミック） */}
+      <div style={{
+        position: "absolute",
+        left: "50%",
+        top: 0,
+        width: 2,
+        height: "18vh",
+        background: "transparent",
+        transformOrigin: "top center",
+        zIndex: 3,
+        animation: "fishing-line-move 45s infinite ease-in-out"
+      }}>
+        {/* 釣り針 */}
+        <div style={{
+          position: "absolute",
+          bottom: -12,
+          left: -5,
+          width: 10,
+          height: 12,
+          border: "2px solid rgba(255,255,255,0.4)",
+          borderTop: "none",
+          borderLeft: "none",
+          borderRadius: "0 0 8px 0",
+          transform: "rotate(45deg)"
+        }} />
+      </div>
+
+      {/* 釣られるカサゴ */}
+      <div style={{
+        position: "absolute",
+        left: 0,
+        top: 0,
+        width: 80,
+        height: 50,
+        fill: "rgba(0, 15, 30, 0.32)",
+        filter: "blur(2.5px)",
+        zIndex: 3,
+        transformOrigin: "center center",
+        animation: "kasago-move 45s infinite ease-in-out"
+      }}>
+        <svg viewBox="0 0 80 50" style={{ width: "100%", height: "100%" }}>
+          <rect x="20" y="15" width="35" height="20" rx="1" />
+          <path d="M20 25 L5 12 L5 38 Z" />
+          <rect x="30" y="5" width="15" height="10" rx="1" />
+          <rect x="35" y="35" width="12" height="8" rx="1" />
+          <circle cx="45" cy="22" r="2.5" fill="rgba(255,255,255,0.2)" />
+        </svg>
+      </div>
+
+      {/* ぷくぷくと上昇する空気の泡 */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 5, pointerEvents: "none" }}>
+        {/* 泡1 */}
+        <div style={{
+          position: "absolute", left: "15%", bottom: 0,
+          width: 8, height: 8, borderRadius: "50%",
+          border: "1px solid rgba(255,255,255,0.7)", background: "rgba(255,255,255,0.1)",
+          boxShadow: "inset 1px 1px 2px #fff",
+          // @ts-ignore
+          "--wobble": "30px",
+          animation: "bubble-rise 10s infinite linear"
+        }} />
+        {/* 泡2 */}
+        <div style={{
+          position: "absolute", left: "35%", bottom: 0,
+          width: 12, height: 12, borderRadius: "50%",
+          border: "1.5px solid rgba(255,255,255,0.8)", background: "rgba(255,255,255,0.15)",
+          boxShadow: "inset 2px 2px 3px #fff",
+          // @ts-ignore
+          "--wobble": "-45px",
+          animation: "bubble-rise 14s infinite linear",
+          animationDelay: "-3s"
+        }} />
+        {/* 泡3 */}
+        <div style={{
+          position: "absolute", left: "65%", bottom: 0,
+          width: 6, height: 6, borderRadius: "50%",
+          border: "0.8px solid rgba(255,255,255,0.7)", background: "rgba(255,255,255,0.05)",
+          boxShadow: "inset 1px 1px 1px #fff",
+          // @ts-ignore
+          "--wobble": "25px",
+          animation: "bubble-rise 8s infinite linear",
+          animationDelay: "-1s"
+        }} />
+        {/* 泡4 */}
+        <div style={{
+          position: "absolute", left: "80%", bottom: 0,
+          width: 10, height: 10, borderRadius: "50%",
+          border: "1.2px solid rgba(255,255,255,0.75)", background: "rgba(255,255,255,0.1)",
+          boxShadow: "inset 1px 1px 2px #fff",
+          // @ts-ignore
+          "--wobble": "-25px",
+          animation: "bubble-rise 12s infinite linear",
+          animationDelay: "-6s"
+        }} />
+      </div>
+
+      {/* 周辺水圧ビネット（四隅を少し深く青くして、海の中に潜っている雰囲気を強調） */}
+      <div style={{
+        position: "absolute", inset: 0,
+        boxShadow: "inset 0 0 180px rgba(7,89,133,0.35)",
+        zIndex: 7,
       }} />
     </div>
   );
 }
 
 function CyberBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: number } }) {
-  return (
-    <div style={{ position: "absolute", inset: "-20%", overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        @keyframes cyber-scan {
-          0% { transform: translateY(-10%); }
-          100% { transform: translateY(110%); }
-        }
-        @keyframes cyber-pulse {
-          0% { opacity: 0.04; }
-          100% { opacity: 0.09; }
-        }
-        @keyframes cyber-rotate {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        @keyframes cyber-sparkle-1 {
-          0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
-          50% { transform: translate(15px, -60px) scale(1.3); opacity: 0.45; }
-          100% { transform: translate(5px, -120px) scale(0.5); opacity: 0; }
-        }
-        @keyframes cyber-sparkle-2 {
-          0% { transform: translate(0, 0) scale(0.8); opacity: 0; }
-          50% { transform: translate(-20px, -80px) scale(1.0); opacity: 0.40; }
-          100% { transform: translate(-40px, -160px) scale(0.8); opacity: 0; }
-        }
-        @keyframes holo-float {
-          0% { transform: translateY(0px); }
-          100% { transform: translateY(-10px); }
-        }
-        @keyframes holo-glow {
-          0% { opacity: 0.5; }
-          100% { opacity: 0.85; }
-        }
-      `}} />
-
-      {/* 電脳グリーンをベースにした漆黒 of 闇背景 */}
-      <div style={{
-        position: "absolute", inset: 0,
-        background: "radial-gradient(circle at center, #010803 0%, #000201 100%)",
-      }} />
-
-      {/* スキャンライン（走査線）風ストライプ */}
-      <div style={{
-        position: "absolute", inset: 0,
-        backgroundImage: "linear-gradient(rgba(0,0,0,0.25) 50%, transparent 50%)",
-        backgroundSize: "100% 4px",
-        zIndex: 1,
-      }} />
-
-      {/* レイヤー1: 電脳の"空間"＝一点透視の緑ワイヤーフレーム部屋 */}
-      <div style={{
-        position: "absolute", inset: 0, overflow: "hidden",
-        transform: `translate(${pan.x * 0.05}px, ${pan.y * 0.04}px) scale(${1 + (zoom - 1) * 0.15})`,
-        transformOrigin: "center center",
-        zIndex: 2,
-      }}>
-        {/* 天井（奥へ収束する薄い緑グリッド） */}
-        <div style={{
-          position: "absolute", top: "-4%", left: "-25%", right: "-25%", height: "46%",
-          transform: "perspective(440px) rotateX(-48deg)",
-          transformOrigin: "top center",
-          backgroundImage: "linear-gradient(rgba(79,217,138,0.10) 1px, transparent 1px), linear-gradient(90deg, rgba(79,217,138,0.10) 1px, transparent 1px)",
-          backgroundSize: "54px 54px",
-          boxShadow: "inset 0 -50px 70px rgba(0,2,1,0.6)",
-        }} />
-        {/* 左の壁（消失点へ収束） */}
-        <div style={{
-          position: "absolute", left: "-3%", top: "-25%", bottom: "-25%", width: "36%",
-          transform: "perspective(440px) rotateY(48deg)",
-          transformOrigin: "left center",
-          backgroundImage: "linear-gradient(rgba(79,217,138,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(79,217,138,0.08) 1px, transparent 1px)",
-          backgroundSize: "54px 54px",
-          boxShadow: "inset -40px 0 60px rgba(0,2,1,0.6)",
-        }} />
-        {/* 右の壁（消失点へ収束） */}
-        <div style={{
-          position: "absolute", right: "-3%", top: "-25%", bottom: "-25%", width: "36%",
-          transform: "perspective(440px) rotateY(-48deg)",
-          transformOrigin: "right center",
-          backgroundImage: "linear-gradient(rgba(79,217,138,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(79,217,138,0.08) 1px, transparent 1px)",
-          backgroundSize: "54px 54px",
-          boxShadow: "inset 40px 0 60px rgba(0,2,1,0.6)",
-        }} />
-        {/* 奥の壁（遠く・最も薄い緑グリッド） */}
-        <div style={{
-          position: "absolute", left: "50%", top: "33%", width: "58%", height: "34%",
-          transform: "translateX(-50%)",
-          backgroundImage: "linear-gradient(rgba(79,217,138,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(79,217,138,0.07) 1px, transparent 1px)",
-          backgroundSize: "30px 30px",
-          boxShadow: "inset 0 0 70px rgba(0,2,1,0.85)",
-        }} />
-        {/* 床（手前広く→奥へ収束する緑グリッド） */}
-        <div style={{
-          position: "absolute", bottom: "-4%", left: "-25%", right: "-25%", height: "56%",
-          transform: "perspective(440px) rotateX(50deg)",
-          transformOrigin: "bottom center",
-          backgroundImage: "linear-gradient(rgba(79,217,138,0.18) 1px, transparent 1px), linear-gradient(90deg, rgba(79,217,138,0.18) 1px, transparent 1px)",
-          backgroundSize: "54px 54px",
-          boxShadow: "inset 0 60px 90px rgba(0,2,1,0.55)",
-        }} />
-      </div>
-
-      {/* 柔らかい電脳グロー */}
-      <div style={{
-        position: "absolute", top: "15%", left: "50%", transform: `translateX(calc(-50% + ${pan.x * 0.2}px)) translateY(${pan.y * 0.15}px)`, width: 700, height: 700,
-        background: "radial-gradient(circle, rgba(79, 217, 138, 0.04) 0%, transparent 70%)",
-        filter: "blur(50px)",
-        animation: "cyber-pulse 6s ease-in-out infinite alternate",
-        zIndex: 5,
-      }} />
-
-      {/* ラメ・スパークル粒子層 */}
-      <div style={{ position: "absolute", inset: 0, zIndex: 6 }}>
-        <div style={{ position: "absolute", left: "15%", bottom: "25%", width: 2, height: 2, borderRadius: "50%", background: "#cffbe4", boxShadow: "0 0 4px #cffbe4", animation: "cyber-sparkle-1 9s infinite ease-in-out" }} />
-        <div style={{ position: "absolute", left: "45%", bottom: "45%", width: 2.5, height: 2.5, borderRadius: "50%", background: "#cffbe4", boxShadow: "0 0 6px #cffbe4", animation: "cyber-sparkle-2 12s infinite ease-in-out" }} />
-        <div style={{ position: "absolute", left: "75%", bottom: "15%", width: 1.8, height: 1.8, borderRadius: "50%", background: "#cffbe4", boxShadow: "0 0 3px #cffbe4", animation: "cyber-sparkle-1 14s infinite ease-in-out" }} />
-        <div style={{ position: "absolute", left: "30%", bottom: "60%", width: 2, height: 2, borderRadius: "50%", background: "#cffbe4", boxShadow: "0 0 4px #cffbe4", animation: "cyber-sparkle-2 8s infinite ease-in-out" }} />
-        <div style={{ position: "absolute", left: "60%", bottom: "35%", width: 3, height: 3, borderRadius: "50%", background: "#ffd700", boxShadow: "0 0 8px #ffd700", animation: "cyber-sparkle-1 16s infinite ease-in-out" }} />
-      </div>
-
-      {/* ゆっくり上から下へ流れる水平スキャンスイープ */}
-      <div style={{
-        position: "absolute",
-        left: 0,
-        right: 0,
-        height: 120,
-        background: "linear-gradient(to bottom, transparent, rgba(79, 217, 138, 0.025) 50%, transparent)",
-        animation: "cyber-scan 8s linear infinite",
-        zIndex: 7,
-      }} />
-
-      {/* 周辺ビネット */}
-      <div style={{
-        position: "absolute", inset: 0,
-        boxShadow: "inset 0 0 220px rgba(0,0,0,0.96)",
-        zIndex: 8,
-      }} />
-    </div>
-  );
+  // サイバー背景も、積み木アナログ統一に伴い、呼び出されないが記述だけ維持
+  return <WorkshopBackdrop zoom={zoom} pan={pan} />;
 }
 
 function ThemeBackdrop({ theme, zoom, pan }: { theme: "workshop" | "cyber"; zoom: number; pan: { x: number; y: number } }) {
-  return theme === "cyber" ? <CyberBackdrop zoom={zoom} pan={pan} /> : <WorkshopBackdrop zoom={zoom} pan={pan} />;
+  return <WorkshopBackdrop zoom={zoom} pan={pan} />;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -953,9 +939,8 @@ function SnapIndicator({ x, y, color, zoom, slot }: { x: number; y: number; colo
   const height = BH * zoom;
   const R = 8 * zoom;
 
-  // 接続スロットごとに矢印 + 短い説明
   const labelMap: Record<string, string> = {
-    next: "▼ ここに積む",
+    next: "▼ ここに置く",
     then: "▼ そうなら",
     else: "▶ ちがうなら",
     inner: "◀ ここに入れる",
@@ -964,7 +949,6 @@ function SnapIndicator({ x, y, color, zoom, slot }: { x: number; y: number; colo
 
   return (
     <>
-      {/* メインのスナップゾーン */}
       <div style={{
         position: "absolute",
         left: x - width / 2,
@@ -980,7 +964,6 @@ function SnapIndicator({ x, y, color, zoom, slot }: { x: number; y: number; colo
         zIndex: 100,
         pointerEvents: "none",
       }} />
-      {/* 中央の十字スナップポイント */}
       <div style={{
         position: "absolute",
         left: x - 10, top: y - 10,
@@ -991,7 +974,6 @@ function SnapIndicator({ x, y, color, zoom, slot }: { x: number; y: number; colo
         <div style={{ position: "absolute", left: 9, top: 0, width: 2, height: 20, background: "#fff", boxShadow: `0 0 6px ${color}` }} />
         <div style={{ position: "absolute", left: 0, top: 9, width: 20, height: 2, background: "#fff", boxShadow: `0 0 6px ${color}` }} />
       </div>
-      {/* 方向ラベル */}
       <div style={{
         position: "absolute",
         left: x - 75,
@@ -1005,19 +987,19 @@ function SnapIndicator({ x, y, color, zoom, slot }: { x: number; y: number; colo
         background: color,
         border: `2px solid #fff`,
         padding: "4px 6px",
-        boxShadow: `0 2px 0 rgba(0,0,0,0.4), 0 0 12px ${color}`,
+        boxShadow: `0 2px 0 rgba(0,0,0,0.2), 0 0 12px ${color}`,
         animation: "snapLabelBob 0.45s ease-in-out infinite alternate",
         zIndex: 102,
         pointerEvents: "none",
         whiteSpace: "nowrap",
-        textShadow: "1px 1px 0 rgba(0,0,0,0.6)",
+        textShadow: "1px 1px 0 rgba(0,0,0,0.4)",
       }}>{label}</div>
     </>
   );
 }
 
 /* ══════════════════════════════════════════════════════════
-   サイドバー
+   サイドバー（おもちゃトレイ）
    ══════════════════════════════════════════════════════════ */
 
 function BlockTray({
@@ -1053,7 +1035,6 @@ function BlockTray({
       borderRight: "none",
       boxSizing: "border-box"
     }}>
-      {/* 左端アクション */}
       <div style={{
         width: 104,
         padding: "6px 8px",
@@ -1087,7 +1068,6 @@ function BlockTray({
         </span>
       </div>
 
-      {/* 中央 */}
       <div style={{
         flex: 1,
         display: "flex",
@@ -1141,7 +1121,6 @@ function BlockTray({
           </div>
         )}
 
-        {/* リスト本体 */}
         <div style={{
           flex: 1,
           overflowX: "auto",
@@ -1315,7 +1294,6 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
       position: "absolute", top: 50, left: "50%", transform: "translateX(-50%)", zIndex: 50,
       width: 460, background: "var(--surface)", boxShadow: "0 12px 48px rgba(0,0,0,0.6)", overflow: "hidden"
     }}>
-      {/* ヘッダー */}
       <div style={{
         padding: "10px 16px", background: "var(--panel)", borderBottom: "2px solid var(--border-color)",
         display: "flex", justifyContent: "space-between", alignItems: "center"
@@ -1325,7 +1303,6 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
       </div>
 
       <div style={{ padding: "16px 18px", maxHeight: 440, overflowY: "auto", background: "var(--surface)" }}>
-        {/* 保存 */}
         <div style={{ marginBottom: 16 }}>
           <div className="font-pixel" style={{ fontSize: 10, color: "var(--foreground)", marginBottom: 8, letterSpacing: "0.05em" }}>💾 現在の作業を保存</div>
           <div style={{ display: "flex", gap: 8 }}>
@@ -1341,7 +1318,6 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
           {msg && <div className="font-pixel" style={{ marginTop: 8, fontSize: 10, color: "#6ee7b7" }}>{msg}</div>}
         </div>
 
-        {/* 保存済みプロジェクト */}
         {projects.length > 0 && (
           <div style={{ marginBottom: 14 }}>
             <div className="font-pixel" style={{ fontSize: 10, color: "var(--foreground)", marginBottom: 8, letterSpacing: "0.05em" }}>📂 保存済みプロジェクト</div>
@@ -1361,7 +1337,6 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
           </div>
         )}
 
-        {/* インポート/エクスポート */}
         <div style={{ borderTop: "2px solid var(--border-color)", paddingTop: 14, display: "flex", gap: 8 }}>
           <button onClick={exportJson} className="mc-btn mc-btn--warning" style={{ flex: 1 }}>📤 JSON ダウンロード</button>
           <button onClick={() => fileRef.current?.click()} className="mc-btn mc-btn--success" style={{ flex: 1 }}>📥 JSON 読み込み</button>
@@ -1420,7 +1395,7 @@ function TemplateGallery({ onSelect, onClose }: {
 }
 
 /* ══════════════════════════════════════════════════════════
-   スロットリールコンポーネント（カジノ風）
+   スロットリールコンポーネント（明るいTCG調）
    ══════════════════════════════════════════════════════════ */
 function SlotReel<T>({
   items,
@@ -1526,12 +1501,11 @@ function SlotReel<T>({
     const targetPos = (currentIdx - 1) * ITEM_HEIGHT;
     
     velocity.current = 0;
-    // 目的の位置まで滑らかに移動させるためにアニメーションループを起動
     const loop = () => {
       let pos = scrollPosRef.current;
       const diff = targetPos - pos;
       if (Math.abs(diff) > 0.1) {
-        pos += diff * 0.22; // 若干強めのイージングでカチッと移動
+        pos += diff * 0.22;
         setScrollPos(pos);
         
         const currentTickIdx = Math.round(pos / ITEM_HEIGHT);
@@ -1585,12 +1559,8 @@ function SlotReel<T>({
     e.preventDefault();
     if (items.length <= 1) return;
     
-    // ホイール入力に合わせて速度を加算
     velocity.current += e.deltaY < 0 ? 0.35 : -0.35;
-    
-    // 最大速度制限
     velocity.current = Math.min(2.5, Math.max(-2.5, velocity.current));
-    
     startAnimationLoop();
   };
 
@@ -1611,15 +1581,12 @@ function SlotReel<T>({
     if (!isDragging.current) return;
     
     const diffY = e.clientY - dragStartY.current;
-    // 下ドラッグで上にスクロールするように、符号を調整（直感的な操作感に）
     const newScrollPos = dragStartScrollPos.current - diffY;
     
-    // リアルタイムの速度計測
     const now = Date.now();
     const dt = now - lastTime.current;
     if (dt > 10) {
       const dy = e.clientY - lastY.current;
-      // スクロールの符号に合わせるため -dy/dt
       velocity.current = -dy / dt; 
       lastY.current = e.clientY;
       lastTime.current = now;
@@ -1627,7 +1594,6 @@ function SlotReel<T>({
 
     setScrollPos(newScrollPos);
 
-    // ドラッグ中もカチカチ音を鳴らす
     const currentTickIdx = Math.round(newScrollPos / ITEM_HEIGHT);
     if (currentTickIdx !== lastTickIndex.current) {
       playSlotTickSound();
@@ -1638,12 +1604,9 @@ function SlotReel<T>({
   const handleMouseUp = () => {
     if (!isDragging.current) return;
     isDragging.current = false;
-    
-    // 慣性スピンを開始
     startAnimationLoop();
   };
 
-  // 表示するアイテムのインデックスを決定 (現在の scrollPos から 5つ割り出す)
   const virtualIndex = scrollPos / ITEM_HEIGHT;
   const centerIndex = Math.round(virtualIndex);
 
@@ -1670,10 +1633,10 @@ function SlotReel<T>({
         height: 200,
         width: 260,
         margin: "0 auto",
-        background: "linear-gradient(to bottom, #111 0%, #222 15%, #383530 50%, #222 85%, #111 100%)",
+        background: "linear-gradient(to bottom, #e0f2fe 0%, #f0f9ff 15%, #ffffff 50%, #f0f9ff 85%, #e0f2fe 100%)", // ソーダブルーグラデーション
         borderRadius: 12,
-        border: "3px solid #d4af37", // 高級感あるゴールド枠
-        boxShadow: "inset 0 0 20px rgba(0,0,0,0.85), 0 4px 12px rgba(0,0,0,0.5)",
+        border: "3px solid #7dd3fc", // パステルブルーのおもちゃ枠
+        boxShadow: "inset 0 1px 8px rgba(14,165,233,0.08), 0 4px 10px rgba(0,0,0,0.05)",
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
@@ -1687,9 +1650,9 @@ function SlotReel<T>({
       <div style={{
         position: "absolute", left: 2, right: 2, top: "50%", transform: "translateY(-50%)",
         height: 46,
-        borderTop: "2px solid rgba(255,228,170,0.5)",
-        borderBottom: "2px solid rgba(255,228,170,0.5)",
-        background: "rgba(255,228,170,0.06)",
+        borderTop: "2px solid rgba(14,165,233,0.18)",
+        borderBottom: "2px solid rgba(14,165,233,0.18)",
+        background: "rgba(14,165,233,0.03)",
         pointerEvents: "none", zIndex: 5,
       }} />
 
@@ -1709,17 +1672,13 @@ function SlotReel<T>({
           const item = items[itemIdx];
           if (!item) return null;
           
-          // 滑らかな仮想位置の算出
           const virtualPos = absoluteIndex - virtualIndex;
-          
-          // 3Dドラム缶の角度と深さの計算
-          const angle = virtualPos * 25; // 1目盛り25度の回転
-          const zDepth = Math.cos(angle * Math.PI / 180) * 85 - 85; // 奥に逃げる深さ
-          const yPos = Math.sin(angle * Math.PI / 180) * 85; // 縦の歪み位置
+          const angle = virtualPos * 25; 
+          const zDepth = Math.cos(angle * Math.PI / 180) * 85 - 85; 
+          const yPos = Math.sin(angle * Math.PI / 180) * 85; 
           
           const isActive = Math.abs(virtualPos) < 0.5;
           const dist = Math.abs(virtualPos);
-          // 中央の選択中アイテムをより強調し、非アクティブを極限まで薄くして見やすく！
           const scale = isActive ? 1.15 : Math.max(0.65, 1 - dist * 0.18);
           const opacity = isActive ? 1.0 : Math.max(0, 1 - dist * 0.48);
 
@@ -1749,19 +1708,19 @@ function SlotReel<T>({
         onClick={(e) => { e.stopPropagation(); handlePrev(); }} 
         style={{
           position: "absolute", top: 8, right: 8,
-          background: "rgba(0,0,0,0.6)", border: "1.5px solid #d4af37", color: "#d4af37",
+          background: "rgba(255,255,255,0.85)", border: "1.5px solid #7dd3fc", color: "#0284c7",
           borderRadius: "50%", width: 22, height: 22, cursor: "pointer", zIndex: 10,
           display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11,
           outline: "none", transition: "all 0.1s",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.3)"
+          boxShadow: "0 2px 4px rgba(0,0,0,0.06)"
         }}
         onMouseEnter={e => {
-          e.currentTarget.style.background = "#d4af37";
-          e.currentTarget.style.color = "#111";
+          e.currentTarget.style.background = "#7dd3fc";
+          e.currentTarget.style.color = "#ffffff";
         }}
         onMouseLeave={e => {
-          e.currentTarget.style.background = "rgba(0,0,0,0.6)";
-          e.currentTarget.style.color = "#d4af37";
+          e.currentTarget.style.background = "rgba(255,255,255,0.85)";
+          e.currentTarget.style.color = "#0284c7";
         }}
       >
         ▲
@@ -1770,19 +1729,19 @@ function SlotReel<T>({
         onClick={(e) => { e.stopPropagation(); handleNext(); }} 
         style={{
           position: "absolute", bottom: 8, right: 8,
-          background: "rgba(0,0,0,0.6)", border: "1.5px solid #d4af37", color: "#d4af37",
+          background: "rgba(255,255,255,0.85)", border: "1.5px solid #7dd3fc", color: "#0284c7",
           borderRadius: "50%", width: 22, height: 22, cursor: "pointer", zIndex: 10,
           display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11,
           outline: "none", transition: "all 0.1s",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.3)"
+          boxShadow: "0 2px 4px rgba(0,0,0,0.06)"
         }}
         onMouseEnter={e => {
-          e.currentTarget.style.background = "#d4af37";
-          e.currentTarget.style.color = "#111";
+          e.currentTarget.style.background = "#7dd3fc";
+          e.currentTarget.style.color = "#ffffff";
         }}
         onMouseLeave={e => {
-          e.currentTarget.style.background = "rgba(0,0,0,0.6)";
-          e.currentTarget.style.color = "#d4af37";
+          e.currentTarget.style.background = "rgba(255,255,255,0.85)";
+          e.currentTarget.style.color = "#0284c7";
         }}
       >
         ▼
@@ -1792,9 +1751,7 @@ function SlotReel<T>({
 }
 
 /* ══════════════════════════════════════════════════════════
-   FieldSlot — 「テキストごとにスロット」。選んだアイテムの
-   各フィールド(=値)を、ミニ・スロットで決める。候補(options)が
-   あれば◀▶で送る／無ければ入力。これでSPAWN=中身入りの完成品。
+   FieldSlot — 「テキストごとにスロット」。
    ══════════════════════════════════════════════════════════ */
 function FieldSlot({ label, value, options, onChange }: {
   label: string; value: string; options?: string[]; onChange: (v: string) => void;
@@ -1809,7 +1766,7 @@ function FieldSlot({ label, value, options, onChange }: {
   };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      <div style={{ fontSize: 9, fontWeight: 900, color: "#ffe08a", letterSpacing: "0.06em", paddingLeft: 4, textShadow: "0 0 5px rgba(231,194,90,0.6)" }}>
+      <div style={{ fontSize: 9, fontWeight: 900, color: "#475569", letterSpacing: "0.06em", paddingLeft: 4 }}>
         {label}
       </div>
       {hasOpts ? (
@@ -1820,18 +1777,18 @@ function FieldSlot({ label, value, options, onChange }: {
             title="タップで次の候補へ"
             style={{
               flex: 1, position: "relative", display: "flex", alignItems: "center", justifyContent: "center",
-              background: "linear-gradient(to bottom, #14110c, #2a2620, #14110c)",
-              border: "2px solid #d4af37", borderRadius: 8, cursor: "pointer",
-              boxShadow: "inset 0 0 10px rgba(0,0,0,0.8), 0 0 8px rgba(231,194,90,0.25)",
+              background: "#ffffff",
+              border: "2px solid #cbd5e1", borderRadius: 8, cursor: "pointer",
+              boxShadow: "inset 0 1px 3px rgba(0,0,0,0.06)",
               overflow: "hidden",
             }}>
-            <span style={{ position: "absolute", left: 3, color: "rgba(231,194,90,0.6)", fontSize: 10 }}>▶</span>
+            <span style={{ position: "absolute", left: 3, color: "#94a3b8", fontSize: 10 }}>▶</span>
             <span key={value} style={{
-              color: "#fff", fontWeight: 900, fontSize: 12, padding: "0 16px",
+              color: "#334155", fontWeight: 900, fontSize: 12, padding: "0 16px",
               maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-              textShadow: "0 1px 2px #000", animation: "fsFlip 0.18s ease",
+              animation: "fsFlip 0.18s ease",
             }}>{value || "—"}</span>
-            <span style={{ position: "absolute", right: 3, color: "rgba(231,194,90,0.6)", fontSize: 10 }}>◀</span>
+            <span style={{ position: "absolute", right: 3, color: "#94a3b8", fontSize: 10 }}>◀</span>
           </div>
           <button onClick={() => go(1)} style={fsArrow}>▶</button>
         </div>
@@ -1841,19 +1798,19 @@ function FieldSlot({ label, value, options, onChange }: {
           onChange={e => onChange(e.target.value)}
           style={{
             height: 34, boxSizing: "border-box", width: "100%", padding: "0 10px",
-            background: "linear-gradient(to bottom, #14110c, #2a2620)", color: "#fff",
-            border: "2px solid #d4af37", borderRadius: 8, outline: "none",
+            background: "#ffffff", color: "#334155",
+            border: "2px solid #cbd5e1", borderRadius: 8, outline: "none",
             fontWeight: 900, fontSize: 12, textAlign: "center",
-            boxShadow: "inset 0 0 10px rgba(0,0,0,0.8)",
+            boxShadow: "inset 0 1px 3px rgba(0,0,0,0.06)",
           }} />
       )}
     </div>
   );
 }
 const fsArrow: React.CSSProperties = {
-  width: 30, flexShrink: 0, background: "linear-gradient(to bottom, #3a2f16, #241c0c)",
-  color: "#ffe08a", border: "2px solid #d4af37", borderRadius: 8, cursor: "pointer",
-  fontSize: 11, fontWeight: 900, boxShadow: "0 2px 0 #1a1408, inset 0 1px 0 rgba(255,255,255,0.15)",
+  width: 30, flexShrink: 0, background: "linear-gradient(to bottom, #f8fafc, #f1f5f9)",
+  color: "#64748b", border: "2px solid #cbd5e1", borderRadius: 8, cursor: "pointer",
+  fontSize: 11, fontWeight: 900, boxShadow: "0 2px 0 #cbd5e1, inset 0 1px 0 rgba(255,255,255,0.8)",
 };
 
 export default function LogicPanel() {
@@ -1865,7 +1822,6 @@ export default function LogicPanel() {
   const setGeneratedJsCode = useEditorStore(s => s.setGeneratedJsCode);
   const setLogicGraphJson = useEditorStore(s => s.setLogicGraphJson);
 
-  // 古い記憶（過去のセーブデータ）を最新の仕様に浄化（絵文字分離・ラベル統一）＋ ルートブロックを床に接地させる
   const migrateBlocks = (blocks: any[]): CBlock[] => {
     const migrated = blocks.map(b => {
       const tmpl = TEMPLATES.find(t => t.type === b.type);
@@ -1879,7 +1835,6 @@ export default function LogicPanel() {
       };
     });
 
-    // 重複キーの削除 (過去のバグでIDが被っていた場合へのフェイルセーフ)
     const seenIds = new Set<string>();
     const deduplicated = migrated.filter(b => {
       if (seenIds.has(b.id)) return false;
@@ -1887,7 +1842,6 @@ export default function LogicPanel() {
       return true;
     });
 
-    // 既存(読み込み済み)ブロックも床に接地（最初からある root ブロックが浮くのを防ぐ）
     const rootBlocks = deduplicated.filter(bl => {
       const hasParent = deduplicated.some(p => p.nextId === bl.id || p.innerId === bl.id || p.thenId === bl.id || p.elseId === bl.id);
       return !hasParent;
@@ -1923,7 +1877,6 @@ export default function LogicPanel() {
     return makeInitial();
   });
   const [pan, setPan] = useState({ x: 60, y: 60 });
-  // ズーム機能（復活）：縦に積んだ時の全体俯瞰用。0.4 〜 1.0 の範囲。
   const [zoom, setZoom] = useState(BASE_ZOOM);
   const [selected, setSelected] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -1940,7 +1893,6 @@ export default function LogicPanel() {
     }
   }, [activeCategory]);
 
-  // テキストごとにスロット：選択アイテムの各フィールド値（SPAWN時に注入）
   const [fieldVals, setFieldVals] = useState<Record<string, string>>({});
   useEffect(() => {
     if (!selectedTemplate) { setFieldVals({}); return; }
@@ -1950,11 +1902,8 @@ export default function LogicPanel() {
   }, [selectedTemplate]);
 
   const [focusedField, setFocusedField] = useState<{ blockId: string; fieldId: string } | null>(null);
-  // 統合版(積み木)はアナログ工房に1画面で統一。配色は工房パレット固定。
   const CAT = CAT_WORKSHOP;
-  // armed 接続（タップ→タップ）用の状態
   const [wireDrag, setWireDrag] = useState<{ sourceBlockId: string; slot: string; armed: boolean; accepts: Category[] } | null>(null);
-  // マウスのキャンバス上の座標（ドラッグ中のワイヤー追従用）
   const [mouseCanvasPos, setMouseCanvasPos] = useState({ x: 0, y: 0 });
 
   const searching = search.trim().length > 0;
@@ -1964,7 +1913,7 @@ export default function LogicPanel() {
   const [showCode, setShowCode] = useState(false);
   const [showHelp, setShowHelp] = useState(true);
   const [genCode, setGenCode] = useState("");
-  const [reveal, setReveal] = useState<string[] | null>(null); // ✨コード誕生の演出
+  const [reveal, setReveal] = useState<string[] | null>(null); 
   const [revShown, setRevShown] = useState(0);
   useEffect(() => {
     if (!reveal) return;
@@ -1976,18 +1925,15 @@ export default function LogicPanel() {
   const [showSnapGuide, setShowSnapGuide] = useState(true);
   const [eating, setEating] = useState<string | null>(null);
   const [chomping, setChomping] = useState<string | null>(null);
-  const [snapAnim, setSnapAnim] = useState<string | null>(null);   // スナップ時バウンス
-  const [addAnim, setAddAnim] = useState<string | null>(null);   // 追加時スライドイン
-  const [rollAnim, setRollAnim] = useState<{ id: string; from: number; rot?: number; dur?: number } | null>(null); // ぶつかって右へ転がる
-  const [deleteAnim, setDeleteAnim] = useState<string | null>(null);   // 削除時フェードアウト
-  const [shakeAnim, setShakeAnim] = useState<string | null>(null);   // エラー時ブルブル
-  const [popBlocks, setPopBlocks] = useState<Record<string, boolean>>({}); // 接続成立時のバウンスブロック
+  const [snapAnim, setSnapAnim] = useState<string | null>(null);   
+  const [addAnim, setAddAnim] = useState<string | null>(null);   
+  const [rollAnim, setRollAnim] = useState<{ id: string; from: number; rot?: number; dur?: number } | null>(null); 
+  const [deleteAnim, setDeleteAnim] = useState<string | null>(null);   
+  const [shakeAnim, setShakeAnim] = useState<string | null>(null);   
+  const [popBlocks, setPopBlocks] = useState<Record<string, boolean>>({}); 
 
-  // パーティクルバースト (スクリーン座標)
   const [particles, setParticles] = useState<{ id: string; x: number; y: number; color: string; type?: string }[]>([]);
-  // 着地時の衝撃リング / 光フラッシュ
   const [impacts, setImpacts] = useState<{ id: string; x: number; y: number; color: string }[]>([]);
-  // 紙吹雪（co_if など特別ブロック用）
   const [confetti, setConfetti] = useState<{ id: string; x: number; y: number }[]>([]);
   const [showProjects, setShowProjects] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
@@ -2012,14 +1958,12 @@ export default function LogicPanel() {
     }, 400);
   }, []);
 
-  // P8-juice: ロジックが妥当かどうかの判定（ trigger ブロックが存在し、且つ nextId を持つツリーが1つ以上ある ）
   const isLogicValid = blocks.some(b => b.category === "trigger" && b.nextId !== null);
   const [logicCompleteAnim, setLogicCompleteAnim] = useState(false);
   const prevValidRef = useRef(false);
 
   useEffect(() => {
     if (isLogicValid && !prevValidRef.current) {
-      // 完成した瞬間！
       setLogicCompleteAnim(true);
       playSuccessSound();
       showToast("ロジックが完成しました！マイクラへ出力できます！", "success");
@@ -2028,7 +1972,6 @@ export default function LogicPanel() {
     prevValidRef.current = isLogicValid;
   }, [isLogicValid, showToast]);
 
-  // ─── キャンバス座標の正規化 ───
   const normalizeCanvas = useCallback((currentBlocks: CBlock[]) => {
     if (currentBlocks.length === 0) return;
     const positions = currentBlocks.map(b => getPos(b.id, currentBlocks));
@@ -2036,7 +1979,6 @@ export default function LogicPanel() {
     const diffX = minX - 60;
     if (Math.abs(diffX) < 1) return;
 
-    // 親なしルートブロックの id 集合
     const rootBlockIds = new Set(
       currentBlocks
         .filter(bl => !currentBlocks.some(p => p.nextId === bl.id || p.innerId === bl.id || p.thenId === bl.id || p.elseId === bl.id))
@@ -2056,8 +1998,6 @@ export default function LogicPanel() {
     }));
   }, []);
 
-
-  // ─── Undo / Redo ───
   const historyRef = useRef<string[]>([JSON.stringify(blocks)]);
   const historyIdx = useRef(0);
   const skipHistory = useRef(false);
@@ -2107,7 +2047,6 @@ export default function LogicPanel() {
     const maxX = Math.max(...positions.map(p => p.x + BW));
     const cx = (minX + maxX) / 2;
     if (rect) {
-      // 横=画面中央 / 縦=床(groundY=473)を画面下端にピタリ合わせる(alignFloorと一致・浮かせない)
       const groundY = 408 + BH;
       setPan({ x: rect.width / 2 - cx * BASE_ZOOM, y: rect.height - groundY * BASE_ZOOM });
     } else {
@@ -2121,10 +2060,8 @@ export default function LogicPanel() {
     }
   }, [blocks.length, resetPanZoom]);
 
-  // 初回マウント時、既存ブロックがあれば画面中央に寄せる（100%=真ん中）
   useEffect(() => {
     resetPanZoom();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -2142,9 +2079,8 @@ export default function LogicPanel() {
     setZoom(z => {
       const nz = Math.min(2.5, Math.max(0.2, z * fac));
       setPan(p => ({
-        // X: マウス位置を画面上で固定（カーソルへ向かってズーム）
+        mx,
         x: mx - (mx - p.x) * (nz / z),
-        // Y: キャンバスの底辺を画面上で固定（rect.height を不動点に）
         y: rect.height - (rect.height - p.y) * (nz / z),
       }));
       return nz;
@@ -2157,7 +2093,6 @@ export default function LogicPanel() {
       setWireDrag(null);
       return;
     }
-    // キャンバスのパン移動（ドラッグ）をX方向のみ許可する
     panDrag.current = { active: true, sx: e.clientX, sy: e.clientY, sp: { ...live.current.pan } };
     setSelected(null);
     e.preventDefault();
@@ -2180,7 +2115,6 @@ export default function LogicPanel() {
           const screenY = pos.y * zoom + pan.y;
           burstParticles(screenX, screenY, CAT[b.category].bg);
 
-          // 波紋（Ripple）を追加
           setParticles(prev => [
             ...prev,
             { id: uid() + "_ripple", x: screenX, y: screenY, color: SLOT_BADGE[wireDrag.slot].color, type: "ripple" }
@@ -2190,7 +2124,7 @@ export default function LogicPanel() {
           return;
         } else {
           setShakeAnim(id);
-          tone(150, 0.1, "sawtooth", 0.3); // Error sound
+          tone(150, 0.1, "sawtooth", 0.3); 
           showToast("ここには繋げないよ！", "warning");
           setTimeout(() => setShakeAnim(null), 300);
           setWireDrag(null);
@@ -2199,7 +2133,7 @@ export default function LogicPanel() {
       }
     }
 
-    playClickSound(); // 拾った瞬間のカチッ感触
+    playClickSound(); 
     const rect = containerRef.current!.getBoundingClientRect();
     const pos = getPos(id, blocks);
     const visX = pos.x, visY = pos.y;
@@ -2216,7 +2150,7 @@ export default function LogicPanel() {
   const handleSlotClick = useCallback((blockId: string, slot: string) => {
     const accepts: Category[] = slot === "inner"
       ? ["ifelse", "value", "calc", "variable"]
-      : ["trigger", "action", "loop", "ui"]; // then, else用
+      : ["trigger", "action", "loop", "ui"]; 
 
     setWireDrag({
       sourceBlockId: blockId,
@@ -2275,22 +2209,18 @@ export default function LogicPanel() {
       const cy = (e.clientY - rect.top) / zoom - pan.y / zoom - blockDrag.current.offY;
       const id = blockDrag.current.id;
 
-      // 磁力吸着: スナップポイントに吸い寄せる
       const b = blocks.find(x => x.id === id)!;
       const dragH = blockH(b);
       const center = { x: cx + BW / 2, y: cy + dragH / 2 };
       const snap = findSnap(id, center, blocks);
 
-      // ドラッグ中のブロック自体は、スナップ時でも強制吸着させずマウス位置（cx, cy）に追従させる
       let finalX = cx;
       let finalY = cy;
 
-      // ブロックの下面が床の上面（408 + BH = 473）より下に沈み込まないように制限する
       finalY = Math.min(cy, 408 + BH - dragH);
 
       setBlocks(prev => prev.map(bl => bl.id === id ? { ...bl, x: finalX, y: finalY } : bl));
 
-      // スナップヒント（ガイド線）の表示位置は、合体したときの正しい吸着座標に基づいて計算する
       if (snap) {
         const target = blocks.find(bl => bl.id === snap.targetId);
         if (target) {
@@ -2350,7 +2280,6 @@ export default function LogicPanel() {
         const color = CAT[blocks.find(bl => bl.id === snap.targetId)?.category || "action"].bg;
         burstParticles(sx, sy, color);
 
-        // 波紋（Ripple）を追加
         const slotColor = SLOT_BADGE[snap.slot]?.color || color;
         setParticles(prev => [
           ...prev,
@@ -2366,16 +2295,13 @@ export default function LogicPanel() {
         }
         setSnapHint(null);
       } else {
-        // スナップなしドロップ（空中浮遊を排除し、常に画面左端下 X=60 の床またはそこにあるブロックの上へ落下・着地）
-        playClickSound(); // 放開直後のカチッ音
+        playClickSound(); 
         const droppedBlock = blocks.find(bl => bl.id === id)!;
         const dragH = blockH(droppedBlock);
 
-        // 1. 落下先の X = プレイヤーが見ている画面の「左端」（ビューポート左下に落とす）
         const _rect = containerRef.current?.getBoundingClientRect();
         const targetLandX = _rect ? Math.round((40 - pan.x) / zoom) : 60;
 
-        // 2. 自分（と自分のファミリー）以外の親なしブロックをすべて取得
         const myFamily = getFamily(id, blocks);
         const otherRoots = blocks.filter(bl => {
           if (myFamily.includes(bl.id)) return false;
@@ -2385,12 +2311,10 @@ export default function LogicPanel() {
           return !hasParent;
         });
 
-        // 3. 床に接地: いま画面に見えてる床ライン(screen下端)にブロック下面を合わせる(pan/zoom追従＝浮かない)
         const landY = _rect
           ? (_rect.height - 8 - pan.y) / zoom - dragH
           : 408 + BH - dragH;
 
-        // 4. 左右回避: 既存の床ブロック(親なしroot)と「実際の幅」で重ならない空きXを左→右へ
         const myW = blockWidth(droppedBlock, blocks);
         const occupied = otherRoots.map(r => ({ x: getPos(r.id, blocks).x, w: blockWidth(r, blocks) }));
         const gapX = 12;
@@ -2399,18 +2323,17 @@ export default function LogicPanel() {
         while (guard++ < 300) {
           const hit = occupied.find(o => landX < o.x + o.w + gapX && landX + myW + gapX > o.x);
           if (!hit) break;
-          landX = hit.x + hit.w + gapX; // ぶつかった相手の右隣へピタリ
+          landX = hit.x + hit.w + gapX; 
         }
 
         const nextBlocks = blocks.map(bl => bl.id === id ? { ...bl, x: landX, y: landY } : bl);
         setBlocks(nextBlocks);
         normalizeCanvas(nextBlocks);
 
-        // ぶつかって右へよけた分があれば「転がって正面で着地」アニメを発火
         const rolledRight = landX - targetLandX;
         if (rolledRight > 4) {
-          const bounceRot = (Math.random() > 0.5 ? 1 : -1) * (3 + Math.random() * 5); // ランダムな傾きで個体差
-          const dur = 0.45 + Math.random() * 0.12; // 0.45〜0.57s の個体差
+          const bounceRot = (Math.random() > 0.5 ? 1 : -1) * (3 + Math.random() * 5); 
+          const dur = 0.45 + Math.random() * 0.12; 
           setRollAnim({ id, from: rolledRight, rot: bounceRot, dur });
           setTimeout(() => setRollAnim(null), dur * 1000 + 20);
         }
@@ -2466,9 +2389,9 @@ export default function LogicPanel() {
     setParticles(prev => [
       ...prev,
       { id, x: sx, y: sy, color },
-      { id: sparkId, x: sx, y: sy, color: "#ffffff" } // 白いカチッと衝撃火花
+      { id: sparkId, x: sx, y: sy, color: "#ffffff" } 
     ]);
-    setTimeout(() => setParticles(prev => prev.filter(p => p.id !== id && p.id !== sparkId)), 400); // 400ms で素早く消えるように
+    setTimeout(() => setParticles(prev => prev.filter(p => p.id !== id && p.id !== sparkId)), 400); 
   }, []);
 
   const addBlock = useCallback((t: Tmpl, fieldOverrides?: Record<string, string>) => {
@@ -2476,19 +2399,16 @@ export default function LogicPanel() {
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
 
-    // 落下先の基準 X = プレイヤーが見ている画面の「左端」（ビューポート左下に落とす）
     const baseX = Math.round((40 - pan.x) / zoom);
 
-    // まず y = 0 でブロックを生成し、その高さを取得する
     const nb = spawnBlock(t, baseX, 0);
     if (fieldOverrides) {
       nb.fields = nb.fields.map(f => fieldOverrides[f.id] !== undefined ? { ...f, value: fieldOverrides[f.id] } : f);
     }
     const nbH = blockH(nb);
 
-    // 自動積み上げ配置
     let targetX = baseX;
-    let targetY = 408 + BH - nbH; // 基本の床接地位置 (下面が 408 + BH になる位置)
+    let targetY = 408 + BH - nbH; 
 
     if (t.category !== "trigger") {
       const triggers = blocks.filter(b => b.category === "trigger");
@@ -2503,22 +2423,20 @@ export default function LogicPanel() {
         if (current) {
           const pos = getPos(current.id, blocks);
           targetX = pos.x;
-          targetY = pos.y - nbH - GAP; // current の上にピッタリ積む
+          targetY = pos.y - nbH - GAP; 
         }
       } else {
         targetX = baseX;
-        targetY = 408 - nbH - GAP; // トリガー用スペースの上に積む
+        targetY = 408 - nbH - GAP; 
       }
     } else {
-      // トリガー（イベント）ブロックも画面左端（baseX）に落とす
       targetX = baseX;
-      targetY = 408 + BH - nbH; // 床に接地
+      targetY = 408 + BH - nbH; 
     }
 
     nb.x = targetX;
     nb.y = targetY;
 
-    // トレイから追加時、指定位置と重なる親なしブロックを右へバンプ（連鎖的）
     const positions = new Map<string, number>();
     blocks.forEach(b => positions.set(b.id, b.x));
 
@@ -2573,21 +2491,18 @@ export default function LogicPanel() {
     setAddAnim(nb.id);
     playAddSound();
 
-    // カテゴリ色（衝撃リング/フラッシュをカテゴリらしく）
     const catColor = CAT[t.category]?.bg ?? "#ec4899";
 
-    // 着地タイミング (アニメの 50% = 0.6s × 0.5 = 300ms) に演出を集約
     setTimeout(() => {
       const sx = (targetX + BW / 2) * zoom + pan.x;
       const sy = (targetY + BH) * zoom + pan.y;
-      // 横方向の土煙バースト
-      burstParticles(sx - BW / 2, sy, "#c8c4b8");
-      burstParticles(sx + BW / 2, sy, "#c8c4b8");
-      // 衝撃リング（地面に広がる楕円）+ 光フラッシュ
+      burstParticles(sx - BW / 2, sy, "#cbd5e1");
+      burstParticles(sx + BW / 2, sy, "#cbd5e1");
+      
       const impactId = uid();
       setImpacts(prev => [...prev, { id: impactId, x: sx, y: sy, color: catColor }]);
       setTimeout(() => setImpacts(prev => prev.filter(p => p.id !== impactId)), 700);
-      // co_if（条件分岐ドーナツ）だけは紙吹雪で特別扱い
+      
       if (t.type === "co_if") {
         const confId = uid();
         setConfetti(prev => [...prev, { id: confId, x: sx, y: sy - BH / 2 }]);
@@ -2644,9 +2559,9 @@ export default function LogicPanel() {
         const tp = getPos(target.id, blocks);
         const th = blockH(target);
         cables.push({
-          x1: pp.x + BW - 20, // 右側のボタン位置付近から出る
+          x1: pp.x + BW - 20, 
           y1: pp.y + 41,
-          x2: tp.x + 0,       // ターゲットの左端へ接続
+          x2: tp.x + 0,       
           y2: tp.y + th / 2,
           color: SLOT_BADGE.inner.color
         });
@@ -2684,7 +2599,6 @@ export default function LogicPanel() {
     }
   }
 
-  // ドラッグ中・追従アームワイヤー
   if (wireDrag && wireDrag.armed) {
     const parent = blocks.find(x => x.id === wireDrag.sourceBlockId);
     if (parent) {
@@ -2707,7 +2621,7 @@ export default function LogicPanel() {
   const cats: Category[] = ["trigger", "action", "ifelse", "value", "loop", "calc", "ui", "variable"];
 
   return (
-    <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "row", overflow: "hidden", background: "#222120" }}>
+    <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "row", overflow: "hidden", background: "#f0f9ff" }}>
         <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@800;900&family=Nunito:wght@800;900&family=M+PLUS+Rounded+1c:wght@800;900&display=swap');
 
@@ -2715,7 +2629,6 @@ export default function LogicPanel() {
           font-family: 'Outfit', 'Nunito', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif !important;
         }
 
-        /* スロット=押すボタン(凸)。ホバーで浮く・押すと沈む */
         .slot-btn:hover { filter: brightness(1.08); }
         .slot-btn:active {
           transform: translateY(3px);
@@ -2728,8 +2641,8 @@ export default function LogicPanel() {
         @keyframes chomp   { 0%{transform:scale(1)} 15%{transform:scale(1.14)} 35%{transform:scale(0.93)} 55%{transform:scale(1.07)} 75%{transform:scale(0.97)} 100%{transform:scale(1)} }
 
         @keyframes blockSnap {
-          0%  { transform: translateY(-14px) scaleY(0.9); filter: brightness(2.2); }
-          40% { transform: translateY(4px) scaleY(0.93); filter: brightness(1.4); }
+          0%  { transform: translateY(-14px) scaleY(0.9); filter: brightness(1.8); }
+          40% { transform: translateY(4px) scaleY(0.93); filter: brightness(1.3); }
           70% { transform: translateY(-2px) scaleY(1.02); filter: brightness(1.1); }
           100%{ transform: translateY(0) scaleY(1); filter: brightness(1); }
         }
@@ -2761,19 +2674,14 @@ export default function LogicPanel() {
         }
         @keyframes blockDelete {
           0%   { transform: scale(1)    rotate(0deg);  opacity: 1;    filter: brightness(1); }
-          16%  { transform: scale(1.20) rotate(-7deg); opacity: 1;    filter: brightness(1.7); }
-          34%  { transform: scale(0.82) rotate(8deg);  opacity: 0.95; filter: brightness(1.2); }
-          60%  { transform: scale(1.06) rotate(-4deg) translateY(-10px); opacity: 0.65; filter: brightness(0.9); }
-          100% { transform: scale(0)    rotate(40deg)  translateY(28px); opacity: 0;    filter: brightness(0.4); }
+          16%  { transform: scale(1.20) rotate(-7deg); opacity: 1;    filter: brightness(1.5); }
+          34%  { transform: scale(0.82) rotate(8deg);  opacity: 0.95; filter: brightness(1.1); }
+          60%  { transform: scale(1.06) rotate(-4deg) translateY(-10px); opacity: 0.65; filter: brightness(0.95); }
+          100% { transform: scale(0)    rotate(40deg)  translateY(28px); opacity: 0;    filter: brightness(0.6); }
         }
         @keyframes blockDragHover {
           0%, 100% { transform: scale(1.06) rotate(-2deg) translateY(-3px); }
           50%      { transform: scale(1.06) rotate(2deg)  translateY(-5px); }
-        }
-        @keyframes blockClickPress {
-          0%   { transform: scale(1)    translateY(0); }
-          45%  { transform: scale(0.92) translateY(2px); }
-          100% { transform: scale(1)    translateY(0); }
         }
         @keyframes toastSlideDown {
           0%   { transform: translate(-50%, -22px); opacity: 0; }
@@ -2781,7 +2689,7 @@ export default function LogicPanel() {
         }
         @keyframes slotPulse {
           0%, 100% { filter: brightness(1.0); }
-          50%      { filter: brightness(1.35); }
+          50%      { filter: brightness(1.25); }
         }
         @keyframes wireTargetGlow {
           0%, 100% { filter: drop-shadow(0 0 4px rgba(255,255,255,0.7)) brightness(1.02); }
@@ -2801,26 +2709,9 @@ export default function LogicPanel() {
           from { stroke-dashoffset: 60; }
           to { stroke-dashoffset: 0; }
         }
-        @keyframes blockShine {
-          0% { filter: brightness(1.0); }
-          50% { filter: brightness(1.4) drop-shadow(0 0 16px rgba(255,255,255,0.85)); }
-          100% { filter: brightness(1.0); }
-        }
         @keyframes particle {
           0%  {transform:translate(0,0)scale(1);opacity:1}
           100%{transform:translate(var(--dx),var(--dy))scale(0);opacity:0}
-        }
-        @keyframes glowPulse {
-          0%,100%{filter:drop-shadow(0 0 8px var(--glow))}
-          50%    {filter:drop-shadow(0 0 18px var(--glow))}
-        }
-        @keyframes wireAppear {
-          0%  {stroke-dashoffset:1000;opacity:0}
-          100%{stroke-dashoffset:0;opacity:0.9}
-        }
-        @keyframes bgFloat {
-          0%,100%{background-position-y:0px}
-          50%    {background-position-y:6px}
         }
         @keyframes snapPulse {
           0%   { transform: scale(1);    opacity: 1; }
@@ -2829,22 +2720,6 @@ export default function LogicPanel() {
         @keyframes snapLabelBob {
           0%   { transform: translateY(0);   }
           100% { transform: translateY(-3px);}
-        }
-        @keyframes hintFloat {
-          0%,100%{ transform: translateY(0)   rotate(-2deg); }
-          50%   { transform: translateY(-12px) rotate(2deg); }
-        }
-        @keyframes hintBounce {
-          0%,100% { transform: translateY(0); opacity:0.85; }
-          50%     { transform: translateY(6px); opacity:1; }
-        }
-        @keyframes hintAura {
-          0%,100%{ opacity: 0.55; transform: scale(1);    }
-          50%   { opacity: 0.95; transform: scale(1.15); }
-        }
-        @keyframes neonBeam {
-          0%,100%{ opacity: 0.4; }
-          50%   { opacity: 1;   }
         }
         @keyframes spectrumShift {
           0%   { background-position: 0% 50%; }
@@ -2858,27 +2733,9 @@ export default function LogicPanel() {
           transform: translateY(2px) !important;
           box-shadow: inset 0 1px 2px rgba(0,0,0,0.08), 0 0 0 #c9c3b0, 0 1px 2px rgba(120,100,60,0.08) !important;
         }
-        @keyframes hintFloat {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-12px) rotate(1.5deg); }
-        }
-        @keyframes hintAura {
-          0%, 100% { transform: scale(0.9); opacity: 0.25; filter: blur(15px); }
-          50% { transform: scale(1.2); opacity: 0.55; filter: blur(25px); }
-        }
-
-        /* カジノ風点滅ランプエフェクト */
-        @keyframes casinoLights {
-          0%, 100% { border-color: #4a3f24; }
-          50%      { border-color: #e3c25a; }
-        }
         @keyframes fsFlip {
           0% { transform: translateY(-40%); opacity: 0; }
           100% { transform: translateY(0); opacity: 1; }
-        }
-        .casino-border {
-          /* ポケカ寄りに方針転換：カジノのギラギラ撤去（縁は後で明るい配色へ） */
-          animation: none;
         }
       `}</style>
 
@@ -2889,42 +2746,50 @@ export default function LogicPanel() {
           width: 360,
           display: "flex",
           flexDirection: "column",
-          background: "#2d2b29",
-          borderRight: "4px solid #1f1e1a",
+          background: "#fdfbf7", // 上品なココナッツミルク色
+          borderRight: "5px solid #e4dfd5", // 優しいトーンの仕切り枠
+          borderTop: "3px solid #fff", // 上部ハイライト
           zIndex: 30,
           flexShrink: 0,
           padding: "16px 12px",
           boxSizing: "border-box",
           gap: 12,
           overflowY: "auto",
-          boxShadow: "inset -5px 0 15px rgba(0,0,0,0.6)"
+          boxShadow: "inset -4px 0 12px rgba(0,0,0,0.03), 4px 0 10px rgba(0,0,0,0.05)"
         }}>
           {/* スロット看板 */}
           <div style={{
-            background: "linear-gradient(135deg, #b8860b 0%, #d4af37 50%, #b8860b 100%)",
-            border: "2px solid #fff",
-            borderRadius: 8,
-            padding: "6px 0",
+            background: "linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%)", // ソーダブループレート
+            border: "3px solid #1e293b", // 他のおもちゃボタンと合わせた黒枠
+            borderRadius: 12,
+            padding: "8px 0",
             textAlign: "center",
-            boxShadow: "0 4px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.4)"
+            boxShadow: "0 4px 0 #0284c7, inset 0 2px 0 rgba(255,255,255,0.4)" // ぷっくり立体感
           }}>
             <span style={{
-              fontSize: 13, fontWeight: 900, color: "#111", letterSpacing: "0.1em",
-              textShadow: "1px 1px 0px rgba(255,255,255,0.5)"
-            }}>🎰 SPROUT SLOTS</span>
+              fontSize: 12, fontWeight: 900,
+              color: "#0369a1", // ソーダブルーの濃い文字色
+              fontFamily: "var(--font-pixel), monospace",
+              letterSpacing: "0.15em",
+            }}>🌱 SPROUT SLOTS 🌱</span>
           </div>
 
           {/* 検索窓 */}
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 ブロックを検索..."
             style={{
               width: "100%", boxSizing: "border-box", padding: "6px 10px", fontSize: 11,
-              background: "#1c1b18", border: "2px solid #4a4842", borderRadius: 8, color: "#e5e3db", outline: "none", fontWeight: 800,
-              boxShadow: "inset 2px 2px 0 rgba(0,0,0,0.35)",
+              background: "#ffffff",
+              border: "3px solid #1e293b", // おもちゃの黒い太枠に合わせる
+              borderRadius: 8,
+              color: "#334155",
+              outline: "none",
+              fontWeight: 800,
+              boxShadow: "0 2px 0 #cbd5e1, inset 0 2px 3px rgba(0,0,0,0.06)",
             }} />
 
           {/* カテゴリドラム */}
           <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-            <div style={{ fontSize: 10, fontWeight: 900, color: "#ffe08a", letterSpacing: "0.08em", paddingLeft: 4, textShadow: "0 0 6px rgba(231,194,90,0.7), 0 0 2px rgba(231,194,90,0.9)" }}>
+            <div style={{ fontSize: 10, fontWeight: 900, color: "#64748b", letterSpacing: "0.08em", paddingLeft: 4 }}>
               STEP 1: カテゴリをまわす
             </div>
             <SlotReel
@@ -2939,9 +2804,8 @@ export default function LogicPanel() {
                 return (
                   <div style={{
                     display: "flex", alignItems: "center", gap: 8,
-                    color: active ? (c.text === "#ffffff" ? "#ffffff" : c.top) : "#c8c4b8",
+                    color: active ? c.text : "#64748b",
                     fontWeight: 900, fontSize: active ? 13 : 11,
-                    textShadow: active ? "1px 1px 2px rgba(0,0,0,0.8)" : "none"
                   }}>
                     <span style={{ fontSize: active ? 16 : 13 }}>{c.icon}</span>
                     <span>{c.label}</span>
@@ -2953,7 +2817,7 @@ export default function LogicPanel() {
 
           {/* アイテムドラム */}
           <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-            <div style={{ fontSize: 10, fontWeight: 900, color: "#ffe08a", letterSpacing: "0.08em", paddingLeft: 4, textShadow: "0 0 6px rgba(231,194,90,0.7), 0 0 2px rgba(231,194,90,0.9)" }}>
+            <div style={{ fontSize: 10, fontWeight: 900, color: "#64748b", letterSpacing: "0.08em", paddingLeft: 4 }}>
               STEP 2: アイテムをまわす
             </div>
             <SlotReel
@@ -2967,12 +2831,11 @@ export default function LogicPanel() {
                 return (
                   <div style={{
                     display: "flex", alignItems: "center", gap: 8,
-                    color: active ? (c.text === "#ffffff" ? "#ffffff" : c.top) : "#c8c4b8",
+                    color: active ? c.text : "#64748b",
                     fontWeight: 900, fontSize: active ? 12 : 10,
-                    textShadow: active ? "1px 1px 2px rgba(0,0,0,0.8)" : "none",
                     width: "100%", justifyContent: "center"
                   }}>
-                    <TIcon size={active ? 16 : 13} color={active ? "#ffffff" : "#c8c4b8"} strokeWidth={2.5} />
+                    <TIcon size={active ? 16 : 13} color={active ? c.text : "#94a3b8"} strokeWidth={2.5} />
                     <span style={{
                       maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"
                     }}>{tmpl.label}</span>
@@ -2982,10 +2845,10 @@ export default function LogicPanel() {
             />
           </div>
 
-          {/* STEP 3：テキストごとにスロット（中身をセット）＝これでロジック成立 */}
+          {/* STEP 3：テキストごとにスロット（中身をセット） */}
           {selectedTemplate && selectedTemplate.fields.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-              <div style={{ fontSize: 10, fontWeight: 900, color: "#ffe08a", letterSpacing: "0.05em", paddingLeft: 4, textShadow: "0 0 6px rgba(231,194,90,0.7)" }}>
+              <div style={{ fontSize: 10, fontWeight: 900, color: "#64748b", letterSpacing: "0.05em", paddingLeft: 4 }}>
                 STEP 3: 中身をセット
               </div>
               {selectedTemplate.fields.map(f => (
@@ -3013,44 +2876,44 @@ export default function LogicPanel() {
               width: "100%",
               height: 52,
               background: selectedTemplate
-                ? "linear-gradient(to bottom, #ff4757, #ff6b81)"
-                : "linear-gradient(to bottom, #747d8c, #a4b0be)",
-              border: "3px solid #fff",
-              borderRadius: 12,
+                ? "linear-gradient(135deg, #fffbeb 0%, #fde047 100%)" // 上品なパステルたまご色
+                : "linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%)",
+              border: "3px solid #1e293b",
+              borderRadius: 16,
               boxShadow: selectedTemplate
-                ? "0 6px 0 #b33939, 0 10px 20px rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.4)"
-                : "0 6px 0 #57606f, 0 4px 6px rgba(0,0,0,0.2)",
-              color: "#fff",
+                ? "0 5px 0 #eab308, 0 6px 12px rgba(234,179,8,0.2), inset 0 3px 0 rgba(255,255,255,0.6)"
+                : "0 4px 0 #94a3b8, 0 2px 4px rgba(0,0,0,0.05)",
+              color: selectedTemplate ? "#854d0e" : "#94a3b8",
               fontWeight: 900,
-              fontSize: 16,
-              letterSpacing: "0.15em",
+              fontSize: 15,
+              letterSpacing: "0.12em",
               cursor: selectedTemplate ? "pointer" : "not-allowed",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               gap: 6,
-              transition: "all 0.1s ease",
+              transition: "all 0.08s ease",
               transform: "translateY(0)"
             }}
             onMouseDown={e => {
               if (selectedTemplate) {
                 const btn = e.currentTarget;
                 btn.style.transform = "translateY(4px)";
-                btn.style.boxShadow = "0 2px 0 #b33939, 0 2px 5px rgba(0,0,0,0.4)";
+                btn.style.boxShadow = "0 1px 0 #eab308, 0 2px 4px rgba(0,0,0,0.15), inset 0 1px 2px rgba(0,0,0,0.1)";
               }
             }}
             onMouseUp={e => {
               if (selectedTemplate) {
                 const btn = e.currentTarget;
                 btn.style.transform = "translateY(0)";
-                btn.style.boxShadow = "0 6px 0 #b33939, 0 10px 20px rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.4)";
+                btn.style.boxShadow = "0 5px 0 #eab308, 0 6px 12px rgba(234,179,8,0.2), inset 0 3px 0 rgba(255,255,255,0.6)";
               }
             }}
             onMouseLeave={e => {
               if (selectedTemplate) {
                 const btn = e.currentTarget;
                 btn.style.transform = "translateY(0)";
-                btn.style.boxShadow = "0 6px 0 #b33939, 0 10px 20px rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.4)";
+                btn.style.boxShadow = "0 5px 0 #eab308, 0 6px 12px rgba(234,179,8,0.2), inset 0 3px 0 rgba(255,255,255,0.6)";
               }
             }}
           >
@@ -3061,7 +2924,8 @@ export default function LogicPanel() {
         {/* ========================================================
           【中央】プレイ面（ソリティア風キャンバス）
           ======================================================== */}
-        <div style={{ flex: 1, position: "relative", overflow: "hidden", backgroundColor: "#252320" }}>
+        <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+          <WorkshopBackdrop zoom={zoom} pan={pan} />
           {showProjects && (
             <ProjectPanel
               blocks={blocks}
@@ -3078,23 +2942,23 @@ export default function LogicPanel() {
 
           {showHelp && (
             <div style={{
-              position: "absolute", bottom: 10, right: 10, zIndex: 40, width: 244,
-              background: "rgba(22, 18, 14, 0.92)",
+              position: "absolute", bottom: 10, right: 190, zIndex: 40, width: 244,
+              background: "rgba(255, 255, 255, 0.95)",
               backdropFilter: "blur(8px)",
-              border: "1px solid rgba(212, 175, 110, 0.22)",
+              border: "1px solid rgba(148, 163, 184, 0.22)",
               borderRadius: 12,
-              boxShadow: "0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8)",
               overflow: "hidden",
             }}>
               <div style={{
                 padding: "11px 14px",
                 display: "flex", justifyContent: "space-between", alignItems: "center",
-                borderBottom: "1px solid rgba(212,175,110,0.15)",
+                borderBottom: "1px solid rgba(148,163,184,0.15)",
               }}>
-                <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "#d8b46a", textTransform: "uppercase" }}>How to play</span>
+                <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "#64748b", textTransform: "uppercase" }}>How to play</span>
                 <button onClick={() => setShowHelp(false)} style={{
                   width: 20, height: 20, borderRadius: 6, border: "none",
-                  background: "rgba(255,255,255,0.06)", color: "#a59c8a", cursor: "pointer",
+                  background: "rgba(0,0,0,0.05)", color: "#64748b", cursor: "pointer",
                   fontSize: 12, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center",
                 }}>✕</button>
               </div>
@@ -3109,14 +2973,14 @@ export default function LogicPanel() {
                   <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 12 }}>
                     <span style={{
                       flexShrink: 0, width: 22, height: 22, borderRadius: "50%",
-                      background: "linear-gradient(160deg, #8a6f4a, #5b4730)",
-                      border: "1px solid rgba(212,175,110,0.5)",
-                      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.25), 0 1px 2px rgba(0,0,0,0.4)",
-                      color: "#f3e3c0", fontSize: s.s.length > 1 ? 9 : 11, fontWeight: 800,
+                      background: "linear-gradient(160deg, #f1f5f9, #e2e8f0)",
+                      border: "1px solid rgba(148,163,184,0.3)",
+                      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 1px 2px rgba(0,0,0,0.05)",
+                      color: "#475569", fontSize: s.s.length > 1 ? 9 : 11, fontWeight: 800,
                       display: "flex", alignItems: "center", justifyContent: "center",
                       fontFamily: "monospace",
                     }}>{s.s}</span>
-                    <div style={{ fontSize: 11.5, color: "rgba(245,240,232,0.9)", fontWeight: 500, lineHeight: 1.45, paddingTop: 2 }}>{s.t}</div>
+                    <div style={{ fontSize: 11.5, color: "#475569", fontWeight: 500, lineHeight: 1.45, paddingTop: 2 }}>{s.t}</div>
                   </div>
                 ))}
               </div>
@@ -3130,54 +2994,38 @@ export default function LogicPanel() {
           }}>
             {/* ブロック数 */}
             <div title={`配置ブロック ${blocks.length}個`} style={{
-              background: "rgba(25, 25, 28, 0.82)",
+              background: "rgba(255, 255, 255, 0.85)",
               backdropFilter: "blur(4px)",
-              border: "1px solid rgba(255,255,255,0.12)",
+              border: "1px solid rgba(0,0,0,0.08)",
               padding: "3px 8px",
               borderRadius: 6,
               display: "inline-flex", alignItems: "center", gap: 4,
-              boxShadow: "0 1px 4px rgba(0,0,0,0.35)",
-              color: "#fff",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
+              color: "#334155",
               fontSize: 11, fontWeight: 800,
             }}>
               <span style={{ fontSize: 12 }}>📦</span>
               <span style={{
-                fontFamily: "monospace", letterSpacing: "0.02em", color: "#00cec9"
+                fontFamily: "monospace", letterSpacing: "0.02em", color: "#0ea5e9"
               }}>{mounted ? blocks.length : 0}<span style={{ fontSize: 9, marginLeft: 1 }}>個</span></span>
             </div>
 
             {/* ズーム倍率 */}
             <button onClick={resetPanZoom} title="クリックで 100% + 画面中央に戻る" style={{
-              background: "rgba(25, 25, 28, 0.82)",
+              background: "rgba(255, 255, 255, 0.85)",
               backdropFilter: "blur(4px)",
-              border: "1px solid rgba(255,255,255,0.12)",
+              border: "1px solid rgba(0,0,0,0.08)",
               padding: "3px 8px",
               borderRadius: 6,
               display: "inline-flex", alignItems: "center", gap: 4,
-              boxShadow: "0 1px 4px rgba(0,0,0,0.35)",
-              color: "#fff",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
+              color: "#334155",
               fontSize: 11, fontWeight: 800, cursor: "pointer",
             }}>
               <span style={{ fontSize: 12 }}>🎯</span>
-              <span style={{ fontFamily: "monospace", letterSpacing: "0.02em", color: "#00b4d8" }}>{Math.round(zoom / BASE_ZOOM * 100)}%</span>
-              <span style={{ fontSize: 9, color: "#888", marginLeft: 1 }}>↺戻る</span>
+              <span style={{ fontFamily: "monospace", letterSpacing: "0.02em", color: "#eab308" }}>{Math.round(zoom / BASE_ZOOM * 100)}%</span>
             </button>
 
-            {/* ガイド線トグル */}
-            <button onClick={() => setShowSnapGuide(!showSnapGuide)} title="スナップ時のガイド線の表示/非表示" style={{
-              background: showSnapGuide ? "rgba(0, 184, 148, 0.15)" : "rgba(25, 25, 28, 0.82)",
-              backdropFilter: "blur(4px)",
-              border: showSnapGuide ? "1px solid rgba(0, 184, 148, 0.5)" : "1px solid rgba(255,255,255,0.12)",
-              padding: "3px 8px",
-              borderRadius: 6,
-              display: "inline-flex", alignItems: "center", gap: 4,
-              boxShadow: "0 1px 4px rgba(0,0,0,0.35)",
-              color: showSnapGuide ? "#55efc4" : "#888",
-              fontSize: 11, fontWeight: 800, cursor: "pointer",
-            }}>
-              <span style={{ fontSize: 12 }}>🎯</span>
-              <span style={{ letterSpacing: "0.02em" }}>ガイド線:{showSnapGuide ? "ON" : "OFF"}</span>
-            </button>
           </div>
 
           {/* トースト通知 */}
@@ -3187,13 +3035,13 @@ export default function LogicPanel() {
               zIndex: 100,
               padding: "10px 18px",
               borderRadius: 10,
-              background: toast.level === "error" ? "rgba(220,53,69,0.96)"
-                : toast.level === "warning" ? "rgba(255,193,7,0.96)"
-                  : "rgba(13,110,253,0.96)",
-              color: toast.level === "warning" ? "#1a1a1a" : "#ffffff",
+              background: toast.level === "error" ? "rgba(239,68,68,0.96)"
+                : toast.level === "warning" ? "rgba(245,158,11,0.96)"
+                  : "rgba(59,130,246,0.96)",
+              color: "#ffffff",
               fontSize: 13, fontWeight: 900,
-              border: "2px solid rgba(0,0,0,0.4)",
-              boxShadow: "0 6px 18px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.25)",
+              border: "2px solid rgba(255,255,255,0.4)",
+              boxShadow: "0 6px 18px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.25)",
               pointerEvents: "none",
               maxWidth: "80%",
               textAlign: "center",
@@ -3215,17 +3063,16 @@ export default function LogicPanel() {
             />
           )}
 
-          {/* 案A：結果が生きて動くステージ（組んだ瞬間に上演） */}
           <LiveStage blocks={blocks} />
 
           {/* コードプレビュー */}
           {showCode && (
-            <div className="mc-panel" style={{ position: "absolute", bottom: 10, left: 8, right: 8, zIndex: 40, maxHeight: 240, background: "var(--panel)", display: "flex", flexDirection: "column" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 14px", borderBottom: "2px solid var(--border-color)" }}>
-                <span className="font-pixel text-[11px] text-accent">⚡ GENERATED CODE</span>
-                <button onClick={() => setShowCode(false)} className="mc-btn mc-btn--sm">✕</button>
+            <div className="mc-panel" style={{ position: "absolute", bottom: 10, left: 8, right: 8, zIndex: 40, maxHeight: 240, background: "#ffffff", display: "flex", flexDirection: "column", border: "2px solid #cbd5e1", boxShadow: "0 8px 32px rgba(0,0,0,0.1)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 14px", borderBottom: "2px solid #e2e8f0" }}>
+                <span className="font-pixel text-[11px] text-[#0ea5e9] font-bold">⚡ GENERATED CODE</span>
+                <button onClick={() => setShowCode(false)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 14, color: "#64748b" }}>✕</button>
               </div>
-              <pre style={{ flex: 1, overflowY: "auto", margin: 0, padding: "10px 14px", fontSize: 10, color: "#a3e635", fontFamily: "monospace", lineHeight: 1.6, whiteSpace: "pre-wrap", wordBreak: "break-all", background: "#12110e" }}>
+              <pre style={{ flex: 1, overflowY: "auto", margin: 0, padding: "10px 14px", fontSize: 10, color: "#0f766e", fontFamily: "monospace", lineHeight: 1.6, whiteSpace: "pre-wrap", wordBreak: "break-all", background: "#f8fafc" }}>
                 {genCode}
               </pre>
             </div>
@@ -3234,7 +3081,7 @@ export default function LogicPanel() {
           {/* スナップインジケーター */}
           {snapHint && showSnapGuide && (
             <SnapIndicator x={snapHint.pos.x} y={snapHint.pos.y} zoom={zoom} slot={snapHint.slot}
-              color={snapHint.slot === "inner" ? "#6c5ce7" : snapHint.slot === "then" ? "#00b894" : snapHint.slot === "else" ? "#e17055" : "#0984e3"} />
+              color={snapHint.slot === "inner" ? "#8b5cf6" : snapHint.slot === "then" ? "#10b981" : snapHint.slot === "else" ? "#f97316" : "#0ea5e9"} />
           )}
 
           {/* パーティクル */}
@@ -3259,7 +3106,7 @@ export default function LogicPanel() {
                   const yBias = deg > 180 ? -8 : 0;
                   return (
                     <div key={deg} style={{
-                      position: "absolute", width: size, height: size, borderRadius: "50%",
+                       position: "absolute", width: size, height: size, borderRadius: "50%",
                       background: p.color,
                       pointerEvents: "none",
                       // @ts-ignore
@@ -3311,11 +3158,10 @@ export default function LogicPanel() {
                   <div key={i} style={{
                     position: "absolute", width: 7, height: 11,
                     background: col,
-                    borderRadius: shape,
                     // @ts-ignore
                     "--dx": `${Math.cos(ang * Math.PI / 180) * reach}px`,
                     // @ts-ignore
-                    "--dy": `${Math.sin(ang * Math.PI / 180) * reach - 30}px`,
+                    "--dy": `${Math.sin(ang * Math.PI / 180) * reach - 30}px`, // 上方向にバイアス
                     // @ts-ignore
                     "--rot": `${(i % 2 ? 1 : -1) * (180 + i * 30)}deg`,
                     animation: `confettiBurst ${0.75 + (i % 5) * 0.06}s cubic-bezier(0.1, 0.7, 0.3, 1) forwards`,
@@ -3326,253 +3172,415 @@ export default function LogicPanel() {
             </div>
           ))}
 
-          {/* キャンバス背景 */}
-          <div ref={containerRef} onMouseDown={handleBgDown} onWheel={handleWheel}
-            style={{
-              position: "absolute", inset: 0, cursor: "grab", backgroundColor: "#222120",
-              zIndex: 0
-            }}>
-
-            {/* インテリア背景 */}
-            <ThemeBackdrop theme="workshop" zoom={zoom} pan={pan} />
-
-            {/* 床 */}
-            {blocks.length > 0 && (
-              <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 6, pointerEvents: "none" }}>
-                <ToyFloor />
-              </div>
-            )}
-
-            {/* ブロックコンテナ */}
-            <div style={{ position: "absolute", inset: 0, transform: `translate(${pan.x}px,${pan.y}px) scale(${zoom})`, transformOrigin: "0 0" }}>
-
-              {mounted && (
-                <>
-                  {/* 接続シームライン */}
-                  {connectors.map((c, i) => (
-                    <Connector key={i} x={c.x} y={c.y} color={c.color} />
-                  ))}
-
-                  {/* ケーブル */}
-                  <svg style={{
-                    position: "absolute",
-                    inset: 0,
-                    width: "100%",
-                    height: "100%",
-                    pointerEvents: "none",
-                    zIndex: 5,
-                  }}>
-                    {cables.map((c, i) => (
-                      <g key={i}>
-                        <line x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} stroke="rgba(0,0,0,0.35)" strokeWidth="5.8" strokeLinecap="round" />
-                        <line x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} stroke={c.color} strokeWidth="3.8" strokeLinecap="round" />
-                        <line x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2} stroke="#ffffff" strokeWidth="3.8" strokeLinecap="round"
-                          strokeDasharray="8 32"
-                          style={{ animation: "wirePulse 1.8s linear infinite", opacity: 0.45 }} />
-                        <rect x={c.x2 - 5} y={c.y2 - 5} width={5} height={10} fill="#2c2c2c" rx={1} stroke="#4f4f4f" strokeWidth={1} />
-                        <circle cx={c.x2 - 7} cy={c.y2} r={2.4} fill={c.color} />
-                      </g>
-                    ))}
-                  </svg>
-
-                  {/* ブロック */}
-                  {blocks.map(b => {
-                    const pos = getPos(b.id, blocks);
-                    const isCond = b.type === "co_if";
-                    const inner = isCond && b.innerId ? blocks.find(x => x.id === b.innerId) ?? null : null;
-
-                    return <ToyCubeBlock key={b.id} b={b} pos={pos} pal={CAT} cyber={false} selected={selected === b.id}
-                      snapSlot={snapHint?.targetId === b.id ? snapHint.slot : null}
-                      innerBlock={inner} blocks={blocks}
-                      isEating={isCond && chomping === b.id}
-                      isSnapping={snapAnim === b.id}
-                      isAdding={addAnim === b.id}
-                      isDeleting={deleteAnim === b.id}
-                      onDown={handleBlockDown} onDelete={handleDelete}
-                      onEjectInner={isCond ? handleEjectInner : undefined}
-                      onFieldChange={handleFieldChange}
-                      focusedField={focusedField}
-                      setFocusedField={setFocusedField}
-                      wireDrag={wireDrag}
-                      onSlotClick={handleSlotClick}
-                      isShaking={shakeAnim === b.id}
-                      isDragging={blockDrag.current.active && blockDrag.current.id === b.id}
-                      isPopping={popBlocks[b.id]}
-                      isRolling={rollAnim?.id === b.id}
-                      rollFrom={rollAnim?.id === b.id ? rollAnim.from : 0}
-                      rollRot={rollAnim?.id === b.id ? rollAnim.rot : undefined}
-                      rollDur={rollAnim?.id === b.id ? rollAnim.dur : undefined} />;
-                  })}
-
-                  {/* 食べられアニメーション */}
-                  {eating && (() => {
-                    const eb = blocks.find(b => b.id === eating);
-                    const condBlock = eb ? blocks.find(d => d.innerId === eating) : null;
-                    if (!eb || !condBlock) return null;
-                    const dp = getPos(condBlock.id, blocks);
-                    return <ToyCubeBlock key={`eat-${eating}`} b={eb} pal={CAT} cyber={false}
-                      pos={{ x: dp.x + BW + GAP, y: dp.y }}
-                      selected={false} snapSlot={null} isEating={true}
-                      blocks={blocks}
-                      onDown={() => { }} onDelete={() => { }} onFieldChange={() => { }}
-                      wireDrag={null} onSlotClick={() => { }} />;
-                  })()}
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* ========================================================
-          【右】操作ボタン（システムコントロール）
-          ======================================================== */}
-        <div className="casino-border" style={{
-          width: 260,
-          display: "flex",
-          flexDirection: "column",
-          background: "#2d2b29",
-          borderLeft: "4px solid #1f1e1a",
-          zIndex: 30,
-          flexShrink: 0,
-          padding: "16px 12px",
-          boxSizing: "border-box",
-          gap: 16,
-          boxShadow: "inset 5px 0 15px rgba(0,0,0,0.6)",
-          alignItems: "center"
-        }}>
-          {/* 操作看板 */}
+          {/* 右ペイン：コントロールパネル */}
           <div style={{
-            background: "linear-gradient(135deg, #b8860b 0%, #d4af37 50%, #b8860b 100%)",
-            border: "2px solid #fff",
-            borderRadius: 8,
-            padding: "4px 0",
-            width: "100%",
-            textAlign: "center",
-            order: -2,
-            boxShadow: "0 3px 6px rgba(0,0,0,0.3)"
+            position: "absolute",
+            top: 10,
+            right: 10,
+            bottom: 10,
+            width: 170,
+            background: "#eef2f6", // パステルグレーブルーのプラスチック筐体風
+            border: "4px solid #cbd5e1", // おもちゃの太いプラスチック枠
+            borderRadius: 20,
+            padding: "16px 12px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "center",
+            gap: 20,
+            boxShadow: "inset -2px -2px 6px rgba(0,0,0,0.1), 0 8px 20px rgba(0,0,0,0.15)",
+            zIndex: 40,
           }}>
-            <span style={{ fontSize: 10, fontWeight: 900, color: "#111", letterSpacing: "0.05em" }}>CONTROL</span>
-          </div>
-
-          {/* 各種アクションボタン */}
-          <McButton
-            size="sm"
-            variant="danger"
-            onClick={() => {
-              if (window.confirm("キャンバス上のすべてのブロックを消去しますか？")) {
-                setBlocks([]);
-                setSelected(null);
-                playDeleteSound();
-                showToast("すべてのブロックを消去しました", "warning");
-              }
-            }}
-            title="すべてのブロックを消去する"
-            style={{ width: "100%", height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}
-          >
-            🗑️ クリア
-          </McButton>
-
-          <McButton
-            size="sm"
-            variant="grape"
-            onClick={() => setShowProjects(v => !v)}
-            active={showProjects}
-            title="プロジェクトの保存・読み込み"
-            style={{ width: "100%", height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}
-          >
-            💾 保存/読込
-          </McButton>
-
-          <McButton
-            size="sm"
-            variant="info"
-            onClick={() => setShowTemplates(v => !v)}
-            active={showTemplates}
-            title="テンプレートギャラリー"
-            style={{ width: "100%", height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}
-          >
-            🎮 サンプル
-          </McButton>
-
-          <McButton
-            size="sm"
-            variant="warning"
-            onClick={() => setShowCode(v => !v)}
-            active={showCode}
-            title="生成コードを表示"
-            style={{ width: "100%", height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}
-          >
-            💻 コード
-          </McButton>
-
-          <McButton
-            size="sm"
-            variant="primary"
-            onClick={() => setShowHelp(v => !v)}
-            active={showHelp}
-            title="操作ガイドを開く"
-            style={{ width: "100%", height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}
-          >
-            ❓ ヘルプ
-          </McButton>
-
-          {/* マイクラへ出力ボタン */}
-          <button
-            disabled={!isLogicValid}
-            onClick={() => {
-              playSuccessSound();
-              const lines = (genCode || "// まず きっかけ ブロックを置いて繋げよう").split("\n");
-              setReveal(lines);
-            }}
-            style={{
-              order: -1,
+            {/* コントロールボタン群 (2列グリッド、ゲーム機風の丸ボタン) */}
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              gap: "20px 16px",
               width: "100%",
-              height: 60,
-              background: isLogicValid
-                ? "linear-gradient(to bottom, #10b981, #059669)"
-                : "linear-gradient(to bottom, #747d8c, #a4b0be)",
-              border: "3px solid #fff",
-              borderRadius: 12,
-              boxShadow: isLogicValid
-                ? "0 6px 0 #047857, 0 8px 16px rgba(16,185,129,0.3), inset 0 2px 0 rgba(255,255,255,0.4)"
-                : "0 6px 0 #57606f, 0 4px 6px rgba(0,0,0,0.2)",
-              color: "#fff",
-              fontWeight: 900,
-              fontSize: 12,
-              letterSpacing: "0.05em",
-              cursor: isLogicValid ? "pointer" : "not-allowed",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              textAlign: "center",
-              lineHeight: 1.2,
-              transition: "all 0.1s ease",
-              transform: "translateY(0)"
-            }}
-            onMouseDown={e => {
-              if (isLogicValid) {
-                const btn = e.currentTarget;
-                btn.style.transform = "translateY(4px)";
-                btn.style.boxShadow = "0 2px 0 #047857, 0 2px 5px rgba(0,0,0,0.4)";
-              }
-            }}
-            onMouseUp={e => {
-              if (isLogicValid) {
-                const btn = e.currentTarget;
-                btn.style.transform = "translateY(0)";
-                btn.style.boxShadow = "0 6px 0 #047857, 0 8px 16px rgba(16,185,129,0.3), inset 0 2px 0 rgba(255,255,255,0.4)";
-              }
-            }}
-            onMouseLeave={e => {
-              if (isLogicValid) {
-                const btn = e.currentTarget;
-                btn.style.transform = "translateY(0)";
-                btn.style.boxShadow = "0 6px 0 #047857, 0 8px 16px rgba(16,185,129,0.3), inset 0 2px 0 rgba(255,255,255,0.4)";
-              }
-            }}
-          >
-            <span>EXPORT<br />▶ マイクラ</span>
-          </button>
+              justifyItems: "center",
+              padding: "10px 0"
+            }}>
+              {/* 1. 戻る */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                <button
+                  onClick={undo}
+                  title="元に戻す (Ctrl+Z)"
+                  style={{
+                    width: 50, height: 50, borderRadius: "50%",
+                    background: "linear-gradient(135deg, #ffd1dc 0%, #ff9ebb 100%)", // いちごミルク
+                    border: "3px solid #1e293b",
+                    boxShadow: "0 5px 0 #e05a80, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)",
+                    color: "#a31d44", fontSize: 18, fontWeight: 900, cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center", outline: "none",
+                    transition: "all 0.08s ease", transform: "translateY(0)"
+                  }}
+                  onMouseDown={e => {
+                    const btn = e.currentTarget;
+                    btn.style.transform = "translateY(4px)";
+                    btn.style.boxShadow = "0 1px 0 #e05a80, 0 1px 4px rgba(0,0,0,0.15), inset 0 1px 2px rgba(0,0,0,0.1)";
+                  }}
+                  onMouseUp={e => {
+                    const btn = e.currentTarget;
+                    btn.style.transform = "translateY(0)";
+                    btn.style.boxShadow = "0 5px 0 #e05a80, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)";
+                  }}
+                  onMouseLeave={e => {
+                    const btn = e.currentTarget;
+                    btn.style.transform = "translateY(0)";
+                    btn.style.boxShadow = "0 5px 0 #e05a80, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)";
+                  }}
+                >
+                  ↩
+                </button>
+                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>戻る</span>
+              </div>
+
+              {/* 2. 進む */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                <button
+                  onClick={redo}
+                  title="やり直す (Ctrl+Y)"
+                  style={{
+                    width: 50, height: 50, borderRadius: "50%",
+                    background: "linear-gradient(135deg, #c3e0e5 0%, #8ecae6 100%)", // ラムネ
+                    border: "3px solid #1e293b",
+                    boxShadow: "0 5px 0 #219ebc, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)",
+                    color: "#023047", fontSize: 18, fontWeight: 900, cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center", outline: "none",
+                    transition: "all 0.08s ease", transform: "translateY(0)"
+                  }}
+                  onMouseDown={e => {
+                    const btn = e.currentTarget;
+                    btn.style.transform = "translateY(4px)";
+                    btn.style.boxShadow = "0 1px 0 #219ebc, 0 1px 4px rgba(0,0,0,0.15), inset 0 1px 2px rgba(0,0,0,0.1)";
+                  }}
+                  onMouseUp={e => {
+                    const btn = e.currentTarget;
+                    btn.style.transform = "translateY(0)";
+                    btn.style.boxShadow = "0 5px 0 #219ebc, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)";
+                  }}
+                  onMouseLeave={e => {
+                    const btn = e.currentTarget;
+                    btn.style.transform = "translateY(0)";
+                    btn.style.boxShadow = "0 5px 0 #219ebc, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)";
+                  }}
+                >
+                  ↪
+                </button>
+                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>進む</span>
+              </div>
+
+              {/* 3. ガイド線 */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                <button
+                  onClick={() => setShowSnapGuide(!showSnapGuide)}
+                  title="スナップ時のガイド線の表示/非表示"
+                  style={{
+                    width: 50, height: 50, borderRadius: "50%",
+                    background: showSnapGuide
+                      ? "linear-gradient(135deg, #c7f9cc 0%, #80ed99 100%)" // メロン
+                      : "linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%)", // オフホワイト
+                    border: "3px solid #1e293b",
+                    boxShadow: showSnapGuide
+                      ? "0 5px 0 #38b000, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)"
+                      : "0 5px 0 #94a3b8, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)",
+                    color: showSnapGuide ? "#004b23" : "#64748b", fontSize: 20, fontWeight: 900, cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center", outline: "none",
+                    transition: "all 0.08s ease", transform: "translateY(0)"
+                  }}
+                  onMouseDown={e => {
+                    const btn = e.currentTarget;
+                    const shadowColor = showSnapGuide ? "#38b000" : "#94a3b8";
+                    btn.style.transform = "translateY(4px)";
+                    btn.style.boxShadow = `0 1px 0 ${shadowColor}, 0 1px 4px rgba(0,0,0,0.15), inset 0 1px 2px rgba(0,0,0,0.1)`;
+                  }}
+                  onMouseUp={e => {
+                    const btn = e.currentTarget;
+                    const shadowColor = showSnapGuide ? "#38b000" : "#94a3b8";
+                    btn.style.transform = "translateY(0)";
+                    btn.style.boxShadow = `0 5px 0 ${shadowColor}, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)`;
+                  }}
+                  onMouseLeave={e => {
+                    const btn = e.currentTarget;
+                    const shadowColor = showSnapGuide ? "#38b000" : "#94a3b8";
+                    btn.style.transform = "translateY(0)";
+                    btn.style.boxShadow = `0 5px 0 ${shadowColor}, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)`;
+                  }}
+                >
+                  🎯
+                </button>
+                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>ガイド線</span>
+              </div>
+
+              {/* 4. クリア */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                <button
+                  onClick={() => {
+                    if (window.confirm("キャンバス上のすべてのブロックを消去しますか？")) {
+                      setBlocks([]);
+                      setSelected(null);
+                      playDeleteSound();
+                      showToast("すべてのブロックを消去しました", "warning");
+                    }
+                  }}
+                  title="すべてのブロックを消去する"
+                  style={{
+                    width: 50, height: 50, borderRadius: "50%",
+                    background: "linear-gradient(135deg, #ffe5d9 0%, #ffcad4 100%)", // ピーチ
+                    border: "3px solid #1e293b",
+                    boxShadow: "0 5px 0 #f08080, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)",
+                    color: "#b23a48", fontSize: 18, fontWeight: 900, cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center", outline: "none",
+                    transition: "all 0.08s ease", transform: "translateY(0)"
+                  }}
+                  onMouseDown={e => {
+                    const btn = e.currentTarget;
+                    btn.style.transform = "translateY(4px)";
+                    btn.style.boxShadow = "0 1px 0 #f08080, 0 1px 4px rgba(0,0,0,0.15), inset 0 1px 2px rgba(0,0,0,0.1)";
+                  }}
+                  onMouseUp={e => {
+                    const btn = e.currentTarget;
+                    btn.style.transform = "translateY(0)";
+                    btn.style.boxShadow = "0 5px 0 #f08080, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)";
+                  }}
+                  onMouseLeave={e => {
+                    const btn = e.currentTarget;
+                    btn.style.transform = "translateY(0)";
+                    btn.style.boxShadow = "0 5px 0 #f08080, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)";
+                  }}
+                >
+                  🗑️
+                </button>
+                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>クリア</span>
+              </div>
+
+              {/* 5. 保存/読込 */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                <button
+                  onClick={() => setShowProjects(v => !v)}
+                  title="プロジェクトの保存・読み込み"
+                  style={{
+                    width: 50, height: 50, borderRadius: "50%",
+                    background: showProjects
+                      ? "linear-gradient(135deg, #e8dbfc 0%, #c3a6ff 100%)" // ラベンダー
+                      : "linear-gradient(135deg, #f5f3ff 0%, #ddd6fe 100%)",
+                    border: "3px solid #1e293b",
+                    boxShadow: showProjects
+                      ? "0 5px 0 #8a5cf5, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)"
+                      : "0 5px 0 #a78bfa, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)",
+                    color: "#491b9a", fontSize: 18, fontWeight: 900, cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center", outline: "none",
+                    transition: "all 0.08s ease", transform: "translateY(0)"
+                  }}
+                  onMouseDown={e => {
+                    const btn = e.currentTarget;
+                    const shadowColor = showProjects ? "#8a5cf5" : "#a78bfa";
+                    btn.style.transform = "translateY(4px)";
+                    btn.style.boxShadow = `0 1px 0 ${shadowColor}, 0 1px 4px rgba(0,0,0,0.15), inset 0 1px 2px rgba(0,0,0,0.1)`;
+                  }}
+                  onMouseUp={e => {
+                    const btn = e.currentTarget;
+                    const shadowColor = showProjects ? "#8a5cf5" : "#a78bfa";
+                    btn.style.transform = "translateY(0)";
+                    btn.style.boxShadow = `0 5px 0 ${shadowColor}, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)`;
+                  }}
+                  onMouseLeave={e => {
+                    const btn = e.currentTarget;
+                    const shadowColor = showProjects ? "#8a5cf5" : "#a78bfa";
+                    btn.style.transform = "translateY(0)";
+                    btn.style.boxShadow = `0 5px 0 ${shadowColor}, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)`;
+                  }}
+                >
+                  💾
+                </button>
+                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>保存/読込</span>
+              </div>
+
+              {/* 6. サンプル */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                <button
+                  onClick={() => setShowTemplates(v => !v)}
+                  title="テンプレートギャラリー"
+                  style={{
+                    width: 50, height: 50, borderRadius: "50%",
+                    background: showTemplates
+                      ? "linear-gradient(135deg, #fef9c3 0%, #fde047 100%)" // レモン
+                      : "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)",
+                    border: "3px solid #1e293b",
+                    boxShadow: showTemplates
+                      ? "0 5px 0 #ca8a04, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)"
+                      : "0 5px 0 #f59e0b, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)",
+                    color: "#854d0e", fontSize: 18, fontWeight: 900, cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center", outline: "none",
+                    transition: "all 0.08s ease", transform: "translateY(0)"
+                  }}
+                  onMouseDown={e => {
+                    const btn = e.currentTarget;
+                    const shadowColor = showTemplates ? "#ca8a04" : "#f59e0b";
+                    btn.style.transform = "translateY(4px)";
+                    btn.style.boxShadow = `0 1px 0 ${shadowColor}, 0 1px 4px rgba(0,0,0,0.15), inset 0 1px 2px rgba(0,0,0,0.1)`;
+                  }}
+                  onMouseUp={e => {
+                    const btn = e.currentTarget;
+                    const shadowColor = showTemplates ? "#ca8a04" : "#f59e0b";
+                    btn.style.transform = "translateY(0)";
+                    btn.style.boxShadow = `0 5px 0 ${shadowColor}, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)`;
+                  }}
+                  onMouseLeave={e => {
+                    const btn = e.currentTarget;
+                    const shadowColor = showTemplates ? "#ca8a04" : "#f59e0b";
+                    btn.style.transform = "translateY(0)";
+                    btn.style.boxShadow = `0 5px 0 ${shadowColor}, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)`;
+                  }}
+                >
+                  🎮
+                </button>
+                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>サンプル</span>
+              </div>
+
+              {/* 7. コード */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                <button
+                  onClick={() => setShowCode(v => !v)}
+                  title="生成コードを表示"
+                  style={{
+                    width: 50, height: 50, borderRadius: "50%",
+                    background: showCode
+                      ? "linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)" // チェリー
+                      : "linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%)",
+                    border: "3px solid #1e293b",
+                    boxShadow: showCode
+                      ? "0 5px 0 #db2777, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)"
+                      : "0 5px 0 #ec4899, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)",
+                    color: "#9d174d", fontSize: 18, fontWeight: 900, cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center", outline: "none",
+                    transition: "all 0.08s ease", transform: "translateY(0)"
+                  }}
+                  onMouseDown={e => {
+                    const btn = e.currentTarget;
+                    const shadowColor = showCode ? "#db2777" : "#ec4899";
+                    btn.style.transform = "translateY(4px)";
+                    btn.style.boxShadow = `0 1px 0 ${shadowColor}, 0 1px 4px rgba(0,0,0,0.15), inset 0 1px 2px rgba(0,0,0,0.1)`;
+                  }}
+                  onMouseUp={e => {
+                    const btn = e.currentTarget;
+                    const shadowColor = showCode ? "#db2777" : "#ec4899";
+                    btn.style.transform = "translateY(0)";
+                    btn.style.boxShadow = `0 5px 0 ${shadowColor}, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)`;
+                  }}
+                  onMouseLeave={e => {
+                    const btn = e.currentTarget;
+                    const shadowColor = showCode ? "#db2777" : "#ec4899";
+                    btn.style.transform = "translateY(0)";
+                    btn.style.boxShadow = `0 5px 0 ${shadowColor}, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)`;
+                  }}
+                >
+                  💻
+                </button>
+                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>コード</span>
+              </div>
+
+              {/* 8. ヘルプ */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                <button
+                  onClick={() => setShowHelp(v => !v)}
+                  title="操作ガイドを開く"
+                  style={{
+                    width: 50, height: 50, borderRadius: "50%",
+                    background: showHelp
+                      ? "linear-gradient(135deg, #e0f7fa 0%, #80deea 100%)" // ミント
+                      : "linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)",
+                    border: "3px solid #1e293b",
+                    boxShadow: showHelp
+                      ? "0 5px 0 #00acc1, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)"
+                      : "0 5px 0 #0284c7, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)",
+                    color: "#006064", fontSize: 18, fontWeight: 900, cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center", outline: "none",
+                    transition: "all 0.08s ease", transform: "translateY(0)"
+                  }}
+                  onMouseDown={e => {
+                    const btn = e.currentTarget;
+                    const shadowColor = showHelp ? "#00acc1" : "#0284c7";
+                    btn.style.transform = "translateY(4px)";
+                    btn.style.boxShadow = `0 1px 0 ${shadowColor}, 0 1px 4px rgba(0,0,0,0.15), inset 0 1px 2px rgba(0,0,0,0.1)`;
+                  }}
+                  onMouseUp={e => {
+                    const btn = e.currentTarget;
+                    const shadowColor = showHelp ? "#00acc1" : "#0284c7";
+                    btn.style.transform = "translateY(0)";
+                    btn.style.boxShadow = `0 5px 0 ${shadowColor}, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)`;
+                  }}
+                  onMouseLeave={e => {
+                    const btn = e.currentTarget;
+                    const shadowColor = showHelp ? "#00acc1" : "#0284c7";
+                    btn.style.transform = "translateY(0)";
+                    btn.style.boxShadow = `0 5px 0 ${shadowColor}, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)`;
+                  }}
+                >
+                  ❓
+                </button>
+                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>ヘルプ</span>
+              </div>
+            </div>
+
+            {/* マイクラへ出力ボタン */}
+            <button
+              disabled={!isLogicValid}
+              onClick={() => {
+                playSuccessSound();
+                const lines = (genCode || "// まず きっかけ ブロックを置いて繋げよう").split("\n");
+                setReveal(lines);
+              }}
+              style={{
+                order: -1,
+                width: "100%",
+                height: 52,
+                background: isLogicValid
+                  ? "linear-gradient(135deg, #a7f3d0 0%, #10b981 100%)" // 爽やかなエメラルドグリーン
+                  : "linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%)",
+                border: "3px solid #1e293b",
+                borderRadius: 24, // 可愛い完全角丸
+                boxShadow: isLogicValid
+                  ? "0 5px 0 #047857, 0 6px 12px rgba(16,185,129,0.15), inset 0 3px 0 rgba(255,255,255,0.6)"
+                  : "0 4px 0 #94a3b8, 0 2px 4px rgba(0,0,0,0.05)",
+                color: isLogicValid ? "#064e3b" : "#94a3b8",
+                fontWeight: 900,
+                fontSize: 12,
+                letterSpacing: "0.05em",
+                cursor: isLogicValid ? "pointer" : "not-allowed",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                textAlign: "center",
+                lineHeight: 1.2,
+                transition: "all 0.08s ease",
+                transform: "translateY(0)"
+              }}
+              onMouseDown={e => {
+                if (isLogicValid) {
+                  const btn = e.currentTarget;
+                  btn.style.transform = "translateY(4px)";
+                  btn.style.boxShadow = "0 1px 0 #047857, 0 2px 4px rgba(0,0,0,0.15), inset 0 1px 2px rgba(0,0,0,0.1)";
+                }
+              }}
+              onMouseUp={e => {
+                if (isLogicValid) {
+                  const btn = e.currentTarget;
+                  btn.style.transform = "translateY(0)";
+                  btn.style.boxShadow = "0 5px 0 #047857, 0 6px 12px rgba(16,185,129,0.15), inset 0 3px 0 rgba(255,255,255,0.6)";
+                }
+              }}
+              onMouseLeave={e => {
+                if (isLogicValid) {
+                  const btn = e.currentTarget;
+                  btn.style.transform = "translateY(0)";
+                  btn.style.boxShadow = "0 5px 0 #047857, 0 6px 12px rgba(16,185,129,0.15), inset 0 3px 0 rgba(255,255,255,0.6)";
+                }
+              }}
+            >
+              <span>EXPORT<br />▶ マイクラ</span>
+            </button>
+          </div>
         </div>
       </div>
     );

@@ -131,11 +131,8 @@ function BuildTerminal() {
         id="export-btn"
         onClick={handleBuild}
         disabled={building}
-        className={`w-full py-3 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 flex items-center justify-center gap-2.5 ${
-          building
-            ? "bg-accent/30 text-accent/60 cursor-wait"
-            : "bg-gradient-to-r from-accent to-violet-500 text-white hover:shadow-lg hover:shadow-accent/30 hover:scale-[1.02] active:scale-[0.98]"
-        }`}
+        className={`mc-btn ${building ? "" : "mc-btn--primary"} w-full py-3`}
+        style={{ fontSize: 13, borderRadius: 16 }}
       >
         {building ? (
           <>
@@ -188,9 +185,9 @@ function BuildTerminal() {
                 </div>
               </>
             )}
-            <button onClick={() => setShowGuide(false)} style={{ marginTop: 16, width: "100%", padding: "10px", background: "var(--accent)", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>
-              わかった！
-            </button>
+             <button onClick={() => setShowGuide(false)} className="mc-btn mc-btn--primary w-full" style={{ marginTop: 16 }}>
+               わかった！
+             </button>
           </div>
         </div>
       )}
@@ -319,18 +316,20 @@ export default function SettingsPanel() {
         <h2 className="text-sm font-bold text-foreground/90 flex items-center gap-2">
           <span className="text-accent">⚙️</span> 設定 <span className="text-muted/50 text-xs font-mono">— addon studio</span>
         </h2>
-        <div className="inline-flex items-center bg-[#1f1e1a] border-2 border-[#0e0d0a] rounded-lg p-0.5 text-xs font-bold">
+        <div className="inline-flex items-center bg-[#1e293b]/10 border border-[#1e293b]/20 rounded-xl p-0.5 text-xs font-bold gap-1">
           <button
             onClick={() => switchMode("simple")}
-            className={`px-3 py-1 rounded-md transition-colors ${mode === "simple" ? "bg-accent text-white" : "text-muted hover:text-foreground/70"}`}
+            className={`mc-btn mc-btn--sm ${mode === "simple" ? "mc-btn--primary" : ""}`}
+            style={{ border: mode === "simple" ? undefined : "3px solid transparent", boxShadow: mode === "simple" ? undefined : "none" }}
           >
-            🟢 かんたん
+            🟢 SPROUT
           </button>
           <button
             onClick={() => switchMode("pro")}
-            className={`px-3 py-1 rounded-md transition-colors ${mode === "pro" ? "bg-gradient-to-r from-cyan-500 to-violet-500 text-white" : "text-muted hover:text-foreground/70"}`}
+            className={`mc-btn mc-btn--sm ${mode === "pro" ? "mc-btn--grape" : ""}`}
+            style={{ border: mode === "pro" ? undefined : "3px solid transparent", boxShadow: mode === "pro" ? undefined : "none" }}
           >
-            ⚡ プロ
+            ⚡ GROVE
           </button>
         </div>
       </div>
@@ -357,11 +356,11 @@ export default function SettingsPanel() {
               </div>
               <div className="flex flex-col gap-1.5 flex-1 min-w-0">
                 <label className="cursor-pointer">
-                  <div className="px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/30 text-accent text-[11px] font-bold hover:bg-accent/20 transition-colors text-center">📁 画像を選ぶ</div>
+                  <div className="mc-btn mc-btn--sm mc-btn--info text-center w-full">📁 画像を選ぶ</div>
                   <input type="file" accept="image/png,image/jpeg,image/gif,image/webp" className="hidden" onChange={handleIconFile} />
                 </label>
                 {packIconDataUrl && (
-                  <button onClick={() => setPackIconDataUrl("")} className="px-3 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[11px] font-bold hover:bg-rose-500/20 transition-colors">↺ もどす</button>
+                  <button onClick={() => setPackIconDataUrl("")} className="mc-btn mc-btn--sm mc-btn--danger w-full">↺ もどす</button>
                 )}
                 <p className="text-[9px] text-muted/50 leading-tight">128×128 PNG 推奨</p>
               </div>
