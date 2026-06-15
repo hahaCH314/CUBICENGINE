@@ -191,6 +191,19 @@ const chipWrap: React.CSSProperties = { position: "absolute", left: "50%", botto
 const chip: React.CSSProperties = { background: "#1f2937", color: "#fff", borderRadius: 999, padding: "5px 12px", fontSize: 11, fontWeight: 800, boxShadow: "0 4px 10px rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.15)", animation: "ls-pop 0.4s ease", whiteSpace: "nowrap" };
 const ring: React.CSSProperties = { position: "absolute", left: "50%", top: "50%", width: 10, height: 10, marginLeft: -5, marginTop: -5, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.7)", animation: "ls-ring 0.7s ease-out forwards" };
 
+/* 置いたブロック一覧（最小・見えるだけ。色はヒマワリが後で整える前提の中立スタイル） */
+const placedListWrap: React.CSSProperties = {
+  position: "absolute", top: 408, left: "50%", transform: "translateX(-50%)",
+  width: "min(760px, 92%)", zIndex: 24, pointerEvents: "auto",
+  display: "flex", flexDirection: "column", gap: 6,
+};
+const placedChip: React.CSSProperties = {
+  display: "inline-flex", alignItems: "center", gap: 6,
+  background: "rgba(255,255,255,0.92)", color: "#1e293b",
+  border: "1px solid rgba(0,0,0,0.1)", borderRadius: 10,
+  padding: "5px 10px", fontSize: 11, boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
+};
+
 /* ───────── 本体 ───────── */
 export default function LiveStage({ blocks }: { blocks: CBlock[] }) {
   const seq = useMemo(() => buildSequence(blocks), [blocks]);
@@ -220,6 +233,7 @@ export default function LiveStage({ blocks }: { blocks: CBlock[] }) {
   const heroX = active?.type === "ac_tp" ? 74 : 0;
 
   return (
+    <>
     <div style={{
       position: "absolute", top: 44, left: "calc(50% - 180px)",
       transform: "translateX(-50%) scale(1.5)", transformOrigin: "top center",
@@ -291,5 +305,25 @@ export default function LiveStage({ blocks }: { blocks: CBlock[] }) {
         )}
       </div>
     </div>
+
+    {/* おいたブロック一覧（最小・見えるだけ。接続有無に関わらず全部出す） */}
+    {blocks.length > 0 && (
+      <div style={placedListWrap}>
+        <div style={{ fontSize: 12, fontWeight: 900, color: "#475569", textAlign: "center" }}>📦 おいたブロック（{blocks.length}）</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
+          {blocks.map(b => {
+            const vals = b.fields.map(f => f.value).filter(Boolean).join(" / ").replace(/minecraft:/g, "");
+            return (
+              <div key={b.id} style={placedChip}>
+                <span style={{ fontSize: 14 }}>{CAT_EMOJI[b.category] || "•"}</span>
+                <span style={{ fontWeight: 900 }}>{b.label}</span>
+                {vals && <span style={{ color: "#64748b", fontSize: 10 }}>{vals}</span>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    )}
+    </>
   );
 }
