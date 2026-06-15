@@ -71,7 +71,10 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
       const body=genChain(b.thenId,blocks,I+"  ");
       return`${I}for (let _ri = 0; _ri < ${f("n","3")}; _ri++) {\n${body}\n${I}}`;
     }
-    case"ct_log":    return`${I}console.log("[MMCログ] " + ${genExpr(b.innerId,blocks)});`;
+    case"ct_log":{
+      const _e=genExpr(b.innerId,blocks)||`"${escStr(f("v","ログ"))}"`;
+      return`${I}console.log("[MMCログ] " + ${_e});`;
+    }
     // 変数
     case"vv_set":    return`${I}_v_${sanitizeVarName(f("name","score"))} = ${genExpr(b.innerId,blocks)||`Number(${f("val","0")})`};`;
     case"vv_add":    return`${I}_v_${sanitizeVarName(f("name","score"))} += ${genExpr(b.innerId,blocks)||`Number(${f("val","1")})`};`;
@@ -288,9 +291,9 @@ function genExpr(id:string|null, blocks:CBlock[]):string{
     case"co_night":   return"(world.getTimeOfDay()>=13000&&world.getTimeOfDay()<23000)";
     case"co_rain":    return`(world.getDimension("overworld").weather?.precipitation==="rain"||world.getDimension("overworld").weather?.precipitation==="thunder")`;
     case"co_item":    return`(()=>{const _c=player.getComponent("minecraft:inventory")?.container;if(!_c)return false;for(let _i=0;_i<_c.size;_i++)if(_c.getItem(_i)?.typeId==="${nsId(f("item","minecraft:diamond"))}")return true;return false;})()`;
-    case"co_and":     return`(${genExpr(b.innerId,blocks)}&&${genExpr(b.thenId,blocks)})`;
-    case"co_or":      return`(${genExpr(b.innerId,blocks)}||${genExpr(b.thenId,blocks)})`;
-    case"co_not":     return`(!(${genExpr(b.innerId,blocks)}))`;
+    case"co_and":     return`((${genExpr(b.innerId,blocks)||"true"})&&(${genExpr(b.thenId,blocks)||"true"}))`;
+    case"co_or":      return`((${genExpr(b.innerId,blocks)||"false"})||(${genExpr(b.thenId,blocks)||"false"}))`;
+    case"co_not":     return`(!(${genExpr(b.innerId,blocks)||"false"}))`;
     default: return"0";
   }
 }
