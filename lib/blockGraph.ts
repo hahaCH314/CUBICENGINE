@@ -2,7 +2,8 @@ import { CBlock } from '../app/editor/_types';
 import { GAP, BW, BH, SNAP } from '../app/editor/_constants';
 
 function blockH(b: CBlock): number {
-  return 154;
+  // カード実寸112に対し縦間隔=この値。154だと42px隙間→100で約12px重なる(ソリティア風・ほんの少し)
+  return 100;
 }
 
 function getStackHeight(id: string | null, blocks: CBlock[]): number {
