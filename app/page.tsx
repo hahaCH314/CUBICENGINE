@@ -1,4 +1,11 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
+
+// ⬇ デスクトップ版(.exe)のDL先。ビルド&ホスト後にURLを差し替える(BUILD_EXE_PLAN.md)。今は空＝準備中表示。
+const DOWNLOADS: { sprout: string; grove: string } = {
+  sprout: "", // 例: https://github.com/<org>/<repo>/releases/latest/download/CubicEngine-SPROUT-Setup.exe
+  grove: "",
+};
 
 function CubeIcon({ className }: { className?: string }) {
   return (
@@ -93,6 +100,26 @@ export default function HomePage() {
             <span style={{ fontSize: 18, fontWeight: 900 }}>GROVE</span>
             <span style={{ fontSize: 11, fontWeight: 800, opacity: 0.85 }}>JAVA・MOD</span>
           </Link>
+        </div>
+
+        {/* 💻 デスクトップ版(.exe)ダウンロード（Vercelランディング用・BUILD_EXE_PLAN.md） */}
+        <div className="mt-7 flex flex-col items-center gap-2">
+          <p className="text-[11px] font-pixel" style={{ color: "#9aa0a6" }}>💻 デスクトップ版（.exe）をダウンロード</p>
+          <div className="flex flex-wrap gap-3 justify-center">
+            {(["sprout", "grove"] as const).map((ed) => {
+              const url = DOWNLOADS[ed];
+              const label = ed === "sprout" ? "🌱 SPROUT" : "🌿 GROVE";
+              const base: CSSProperties = {
+                display: "inline-flex", alignItems: "center", gap: 6,
+                padding: "8px 16px", borderRadius: 10, fontWeight: 900, fontSize: 12,
+                border: "2px solid rgba(255,255,255,0.15)", color: "#e8eaed",
+                background: "rgba(255,255,255,0.06)", textDecoration: "none",
+              };
+              return url
+                ? <a key={ed} href={url} download style={base}>⬇ {label}.exe</a>
+                : <span key={ed} title="ビルド準備中" style={{ ...base, opacity: 0.4, cursor: "not-allowed" }}>⬇ {label}.exe（準備中）</span>;
+            })}
+          </div>
         </div>
 
         <p className="mt-6 text-[11px] text-muted/50 font-sans">
