@@ -486,6 +486,10 @@ function ThreeViewport({paintMode, setPaintMode, mode = "blocks", simple = true,
     };
     window.addEventListener("mmc-reset-camera", handleResetCamera);
 
+    // ★ 初期化完了マーク。これが無いと同期useEffect(if(!scene||!ready)return)が
+    //   永久に走らず、ブロックのメッシュがsceneに追加されない＝描画されない。
+    setReady(true);
+
     return () => {
       window.removeEventListener("mmc-reset-camera", handleResetCamera);
       cancelAnimationFrame(frameRef.current);
