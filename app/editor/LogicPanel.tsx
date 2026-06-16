@@ -6,6 +6,7 @@ import { McButton, McBadge } from "../_mc";
 import { CodeRevealOverlay } from "./CodeRevealOverlay";
 import LiveStage from "./LiveStage";
 import * as LucideIcons from "lucide-react";
+import { useThemeStore } from "./worldThemes";
 
 import { Category, FieldDef, CBlock, Tmpl, CalcSubCat, CatDef } from "./_types";
 import { BW, BH, GAP, SNAP, BASE_ZOOM } from "./_constants";
@@ -549,6 +550,39 @@ function ToyFloor() {
   );
 }
 
+function LandBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: number } }) {
+  return (
+    <div style={{ position: "absolute", inset: "-20%", overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        @keyframes cloud-drift {
+          0% { transform: translateX(-10%); }
+          100% { transform: translateX(110%); }
+        }
+        @keyframes sun-glow {
+          0% { box-shadow: 0 0 40px rgba(255,215,0,0.4), 0 0 100px rgba(255,140,0,0.2); }
+          100% { box-shadow: 0 0 60px rgba(255,215,0,0.6), 0 0 140px rgba(255,140,0,0.3); }
+        }
+      `}} />
+      <div style={{
+        position: "absolute", inset: 0,
+        background: "linear-gradient(to bottom, #87CEEB 0%, #B0E0E6 40%, #E0F6FF 70%, #F0F8FF 100%)",
+      }} />
+      <div style={{
+        position: "absolute", top: "10%", left: "15%",
+        width: 120, height: 120, borderRadius: "50%",
+        background: "radial-gradient(circle, #FFFBEB 0%, #FFD700 60%, transparent 100%)",
+        animation: "sun-glow 4s infinite alternate ease-in-out",
+        zIndex: 1
+      }} />
+      {/* 雲 */}
+      <div style={{ position: "absolute", top: "20%", left: "-20%", width: 200, height: 60, background: "rgba(255,255,255,0.8)", filter: "blur(20px)", borderRadius: "100px", animation: "cloud-drift 60s infinite linear", zIndex: 2 }} />
+      <div style={{ position: "absolute", top: "40%", left: "-30%", width: 300, height: 80, background: "rgba(255,255,255,0.6)", filter: "blur(30px)", borderRadius: "100px", animation: "cloud-drift 90s infinite linear 10s", zIndex: 2 }} />
+      <div style={{ position: "absolute", top: "15%", left: "-10%", width: 150, height: 50, background: "rgba(255,255,255,0.9)", filter: "blur(15px)", borderRadius: "100px", animation: "cloud-drift 45s infinite linear 25s", zIndex: 2 }} />
+    </div>
+  );
+}
+
 function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: number } }) {
   return (
     <div style={{ position: "absolute", inset: "-20%", overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
@@ -907,6 +941,8 @@ function CyberBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: numbe
 }
 
 function ThemeBackdrop({ theme, zoom, pan }: { theme: "workshop" | "cyber"; zoom: number; pan: { x: number; y: number } }) {
+  const { themeId } = useThemeStore();
+  if (themeId === "land") return <LandBackdrop zoom={zoom} pan={pan} />;
   return <WorkshopBackdrop zoom={zoom} pan={pan} />;
 }
 
@@ -1894,6 +1930,8 @@ export default function LogicPanel() {
   }, [activeCategory]);
 
   const [fieldVals, setFieldVals] = useState<Record<string, string>>({});
+  // 手札トレイ：スポーンしたカードの一時置き場（クリックでキャンバスへ配置）
+  const [tray, setTray] = useState<{ key: string; tmpl: Tmpl; vals: Record<string, string> }[]>([]);
   useEffect(() => {
     if (!selectedTemplate) { setFieldVals({}); return; }
     const init: Record<string, string> = {};
@@ -2868,7 +2906,9 @@ export default function LogicPanel() {
             disabled={!selectedTemplate}
             onClick={() => {
               if (selectedTemplate) {
-                addBlock(selectedTemplate, fieldVals);
+                // 直接キャンバスへ置かず、まず手札トレイに積む（右パネル下）
+                setTray(t => [...t, { key: uid(), tmpl: selectedTemplate, vals: { ...fieldVals } }]);
+                playAddSound();
               }
             }}
             style={{
@@ -2925,7 +2965,7 @@ export default function LogicPanel() {
           【中央】プレイ面（ソリティア風キャンバス）
           ======================================================== */}
         <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
-          <WorkshopBackdrop zoom={zoom} pan={pan} />
+          <ThemeBackdrop theme="workshop" zoom={zoom} pan={pan} />
 
           {/* 操作キャンバス復元（カード描画＋ドラッグ/接続。背景はWorkshopBackdropを透過。色はヒマワリが後で） */}
           <div ref={containerRef} onMouseDown={handleBgDown} onWheel={handleWheel}
@@ -3650,6 +3690,36 @@ export default function LogicPanel() {
             >
               <span>EXPORT<br />▶ マイクラ</span>
             </button>
+
+            {/* 🃏 手札トレイ：スポーンしたカードの置き場（クリックでキャンバスへ。色はヒマワリが後で） */}
+            {tray.length > 0 && (
+              <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 6, marginTop: 4 }}>
+                <div style={{ fontSize: 10, fontWeight: 900, color: "#64748b", textAlign: "center" }}>
+                  🃏 手札（{tray.length}）クリックで配置
+                </div>
+                {tray.map((it) => {
+                  const c = CAT[it.tmpl.category];
+                  const vals = it.tmpl.fields.map(f => it.vals[f.id] ?? f.value).filter(Boolean).join(" / ").replace(/minecraft:/g, "");
+                  return (
+                    <button
+                      key={it.key}
+                      onClick={() => { addBlock(it.tmpl, it.vals); setTray(t => t.filter(x => x.key !== it.key)); }}
+                      title="クリックでキャンバスに置く"
+                      style={{
+                        width: "100%", display: "flex", alignItems: "center", gap: 6, textAlign: "left",
+                        padding: "6px 8px", borderRadius: 10, cursor: "pointer",
+                        background: "rgba(255,255,255,0.92)", border: `2px solid ${c?.bg ?? "#cbd5e1"}`,
+                        boxShadow: "0 2px 0 rgba(0,0,0,0.08)",
+                      }}>
+                      <span style={{ width: 8, height: 8, borderRadius: 2, background: c?.bg ?? "#94a3b8", flexShrink: 0 }} />
+                      <span style={{ fontSize: 11, fontWeight: 900, color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {it.tmpl.label}{vals ? <span style={{ color: "#64748b", fontWeight: 700 }}> {vals}</span> : null}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>
