@@ -4,12 +4,12 @@ import type { CSSProperties } from "react";
 // ⬇ デスクトップ版のDL先。ビルド&ホスト後にURLを差し替える(BUILD_EXE_PLAN.md)。
 const DOWNLOADS = {
   sprout: {
-    win: "https://github.com/CubicEngine/Studio/releases/latest/download/SPROUT_editor.exe",
-    mac: "https://github.com/CubicEngine/Studio/releases/latest/download/SPROUT_editor.dmg",
+    win: "https://github.com/hahaCH314/CUBICENGINE/releases/latest/download/SPROUT_editor.exe",
+    mac: "https://github.com/hahaCH314/CUBICENGINE/releases/latest/download/SPROUT_editor.dmg",
   },
   grove: {
-    win: "https://github.com/CubicEngine/Studio/releases/latest/download/GROVE_editor.exe",
-    mac: "https://github.com/CubicEngine/Studio/releases/latest/download/GROVE_editor.dmg",
+    win: "https://github.com/hahaCH314/CUBICENGINE/releases/latest/download/GROVE_editor.exe",
+    mac: "https://github.com/hahaCH314/CUBICENGINE/releases/latest/download/GROVE_editor.dmg",
   },
 };
 
