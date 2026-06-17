@@ -1566,10 +1566,10 @@ export default function ModelPanel() {
         <div className="ml-auto mb-1.5 inline-flex items-center bg-[#151411] border-2 border-[#1f1e1a] mc-bevel-inset p-0.5 text-xs font-bold" style={{ borderRadius: "6px" }}>
           <button onClick={() => switchSimple(true)}
             className={`px-3 py-1 font-pixel text-[11px] rounded transition-all cursor-pointer ${simple ? "bg-[#10b981] text-white shadow-[0_2px_0_#064e3b,inset_0_1px_0_rgba(255,255,255,0.3)]" : "text-muted hover:text-foreground/70"}`}
-            style={{ textShadow: simple ? "1px 1px 0px #064e3b" : "none" }}>🟢 SPROUT</button>
+            style={{ textShadow: simple ? "1px 1px 0px #064e3b" : "none" }}>🟢 かんたん</button>
           <button onClick={() => switchSimple(false)}
             className={`px-3 py-1 font-pixel text-[11px] rounded transition-all cursor-pointer ${!simple ? "bg-gradient-to-r from-cyan-500 to-violet-500 text-white shadow-[0_2px_0_#3b0764,inset_0_1px_0_rgba(255,255,255,0.3)]" : "text-muted hover:text-foreground/70"}`}
-            style={{ textShadow: !simple ? "1px 1px 0px #3b0764" : "none" }}>⚡ GROVE</button>
+            style={{ textShadow: !simple ? "1px 1px 0px #3b0764" : "none" }}>⚡ プロ</button>
         </div>
       </div>
 

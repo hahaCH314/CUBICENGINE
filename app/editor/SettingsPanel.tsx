@@ -322,14 +322,14 @@ export default function SettingsPanel() {
             className={`mc-btn mc-btn--sm ${mode === "simple" ? "mc-btn--primary" : ""}`}
             style={{ border: mode === "simple" ? undefined : "3px solid transparent", boxShadow: mode === "simple" ? undefined : "none" }}
           >
-            🟢 SPROUT
+            🟢 かんたん
           </button>
           <button
             onClick={() => switchMode("pro")}
             className={`mc-btn mc-btn--sm ${mode === "pro" ? "mc-btn--grape" : ""}`}
             style={{ border: mode === "pro" ? undefined : "3px solid transparent", boxShadow: mode === "pro" ? undefined : "none" }}
           >
-            ⚡ GROVE
+            ⚡ プロ
           </button>
         </div>
       </div>

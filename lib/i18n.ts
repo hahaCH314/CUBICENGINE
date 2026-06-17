@@ -28,6 +28,7 @@ export const DICT: Record<string, Entry> = {
   "sprout.desc":      { ja: "ブロックやアイテム、エンティティをノンコーディングで制作。楽しいビジュアル環境でアドオン開発。", en: "Create blocks, items and entities with zero code. Build add-ons in a fun visual workspace." },
   "grove.tag":        { ja: "Java版・MOD", en: "Java · Mod" },
   "grove.desc":       { ja: "Java版のMODを強力なビジュアルエディタで開発。Gradle連携と高速自動ビルドをサポート。", en: "Build Java mods in a powerful visual editor. Gradle integration with fast auto-build." },
+  "cta.tryWeb":       { ja: "🌐 ブラウザで試す", en: "🌐 Try in browser" },
   "dl.win":           { ja: "💻 Windows版 (.exe)", en: "💻 Windows (.exe)" },
   "dl.mac":           { ja: "🍎 macOS版 (.dmg)", en: "🍎 macOS (.dmg)" },
   "dl.go":            { ja: "⬇ DL", en: "⬇ DL" },

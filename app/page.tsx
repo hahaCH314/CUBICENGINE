@@ -173,6 +173,16 @@ export default function HomePage() {
             </div>
 
             <div className="w-full flex flex-col gap-2.5 mt-auto">
+              <Link
+                href="/editor?mode=tsumiki"
+                className="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl font-bold text-sm text-white transition-all hover:scale-[1.03]"
+                style={{
+                  background: "linear-gradient(135deg, #a3e635, #16a34a)",
+                  boxShadow: "0 6px 18px rgba(22,163,74,0.45)",
+                }}
+              >
+                {t(locale, "cta.tryWeb")}
+              </Link>
               <DlButton
                 href={DOWNLOADS.sprout.win}
                 kind="win"
@@ -225,6 +235,16 @@ export default function HomePage() {
             </div>
 
             <div className="w-full flex flex-col gap-2.5 mt-auto">
+              <Link
+                href="/editor?mode=grape"
+                className="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl font-bold text-sm text-white transition-all hover:scale-[1.03]"
+                style={{
+                  background: "linear-gradient(135deg, #22d3ee, #0891b2)",
+                  boxShadow: "0 6px 18px rgba(8,145,178,0.45)",
+                }}
+              >
+                {t(locale, "cta.tryWeb")}
+              </Link>
               <DlButton
                 href={DOWNLOADS.grove.win}
                 kind="win"
