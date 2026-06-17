@@ -43,5 +43,6 @@ next-env.d.ts
 # build & temp
 /dist/
 /dist-electron/
+/dist-exe/
 /scratch/
 /.vscode/
