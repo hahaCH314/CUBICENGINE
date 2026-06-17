@@ -26,6 +26,7 @@ function ThreeViewport({paintMode, setPaintMode, mode = "blocks", simple = true,
   const gridRef      = useRef<THREE.GridHelper | null>(null);
   const frameRef     = useRef<number>(0);
   const [ready, setReady] = useState(false);
+  const [glError, setGlError] = useState(false); // WebGL(3D)が使えない環境用のフォールバック
 
   // 3大エフェクト管理用 refs
   const effectsRef   = useRef<Array<{ mesh: THREE.Object3D; update: (delta: number) => boolean }>>([]);
@@ -241,7 +242,15 @@ function ThreeViewport({paintMode, setPaintMode, mode = "blocks", simple = true,
     if (!containerRef.current || rendererRef.current) return;
     const el = containerRef.current;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+    } catch (err) {
+      // WebGL無効環境(サンドボックス/HWアクセラ無効 等)では落とさず案内表示に切替
+      console.warn("[CUBICENGINE] WebGL を初期化できませんでした:", err);
+      setGlError(true);
+      return;
+    }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(el.clientWidth, el.clientHeight);
     renderer.setClearColor(0x23211e, 1); // コブルストーン背景の深い石グレー
@@ -606,6 +615,21 @@ function ThreeViewport({paintMode, setPaintMode, mode = "blocks", simple = true,
     }
   }, [workingData, showWireframe, selectedIds, ready, mode]);
 
+  if (glError) {
+    return (
+      <div className="w-full h-full flex items-center justify-center text-center p-6" style={{ background: "#23211e" }}>
+        <div className="max-w-sm">
+          <div className="text-3xl mb-3">🧊</div>
+          <p className="text-sm font-bold text-white mb-2">3Dビューを表示できません</p>
+          <p className="text-xs text-[#9aa0a6] leading-relaxed">
+            この環境では WebGL（3D描画）が無効です。<br />
+            ブラウザのハードウェアアクセラレーションを有効にするか、別のブラウザ/PCでお試しください。<br />
+            <span className="text-[#a3e635]">他の機能（ロジック・書き出し等）はそのまま使えます。</span>
+          </p>
+        </div>
+      </div>
+    );
+  }
   return <div ref={containerRef} className="w-full h-full" />;
 }
 
