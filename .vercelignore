@@ -1,0 +1,15 @@
+# Vercel はソースだけアップロードして自前で next build する。
+# ローカルのビルド成果物/巨大バイナリはアップロード対象から除外（100MB制限回避）。
+node_modules
+.next
+out
+dist
+dist-electron
+dist-exe
+scratch
+.git
+.claude
+*.exe
+*.dmg
+*.asar
+*.node
