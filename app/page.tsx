@@ -21,6 +21,9 @@ const DOWNLOADS = {
 // false の間は DL ボタンを「準備中」表示にして 404 を踏ませない。
 const RELEASES_READY = false;
 
+// GROVE(Java)はまだ準備中。true にすると GROVE のWeb入口(ブラウザで試す)が有効に。
+const JAVA_READY = false;
+
 // DLボタン：リリース公開済みなら実DL、未公開なら「準備中」の非リンク表示
 function DlButton({
   href,
@@ -235,16 +238,27 @@ export default function HomePage() {
             </div>
 
             <div className="w-full flex flex-col gap-2.5 mt-auto">
-              <Link
-                href="/editor?mode=grape"
-                className="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl font-bold text-sm text-white transition-all hover:scale-[1.03]"
-                style={{
-                  background: "linear-gradient(135deg, #22d3ee, #0891b2)",
-                  boxShadow: "0 6px 18px rgba(8,145,178,0.45)",
-                }}
-              >
-                {t(locale, "cta.tryWeb")}
-              </Link>
+              {JAVA_READY ? (
+                <Link
+                  href="/editor?mode=grape"
+                  className="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl font-bold text-sm text-white transition-all hover:scale-[1.03]"
+                  style={{
+                    background: "linear-gradient(135deg, #22d3ee, #0891b2)",
+                    boxShadow: "0 6px 18px rgba(8,145,178,0.45)",
+                  }}
+                >
+                  {t(locale, "cta.tryWeb")}
+                </Link>
+              ) : (
+                <span
+                  aria-disabled="true"
+                  title={t(locale, "dl.soonTitle")}
+                  className="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl font-bold text-sm text-white border border-white/10 cursor-not-allowed"
+                  style={{ background: "rgba(255,255,255,0.05)", opacity: 0.6 }}
+                >
+                  {t(locale, "dl.soon")}
+                </span>
+              )}
               <DlButton
                 href={DOWNLOADS.grove.win}
                 kind="win"
