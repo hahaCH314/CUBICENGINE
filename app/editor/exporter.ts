@@ -1,5 +1,17 @@
 import JSZip from "jszip";
 import type { EditorState } from "./store";
+import type { CBlock } from "./_types";
+import { buildJavaModEventHandler } from "../../lib/codegenJava";
+
+/** store.logicGraphJson から積み木グラフ(CBlock[])を復元（壊れていたら空配列） */
+function parseLogicBlocks(json: string): CBlock[] {
+  try {
+    const data = JSON.parse(json || "{}");
+    return Array.isArray(data?.blocks) ? (data.blocks as CBlock[]) : [];
+  } catch {
+    return [];
+  }
+}
 
 /* ═══════════════════════════════════════════
    Security Sanitizers
@@ -552,37 +564,18 @@ export async function exportJava(state: EditorState, jsCode: string) {
     ].join("\n"),
   );
 
-  // ─── Event Handler (Logic blocks → Java stub) ───
+  // ─── Event Handler (積み木グラフ → 実 Java ロジック) ───
+  // ★ 旧版は Bedrock用JSをコメント化するだけで何も動かなかった。
+  //   logicGraphJson から CBlock[] を復元し、codegenJava で本物の
+  //   @SubscribeEvent ハンドラを生成する。
+  const logicBlocks = parseLogicBlocks(state.logicGraphJson);
   src.file(
     "ModEventHandler.java",
-    [
-      `package ${pkg};`,
-      ``,
-      `import net.minecraftforge.event.entity.player.PlayerEvent;`,
-      `import net.minecraftforge.eventbus.api.SubscribeEvent;`,
-      `import net.minecraftforge.fml.common.Mod;`,
-      `import net.minecraft.server.level.ServerPlayer;`,
-      `import net.minecraft.network.chat.Component;`,
-      `import org.apache.logging.log4j.LogManager;`,
-      `import org.apache.logging.log4j.Logger;`,
-      ``,
-      `@Mod.EventBusSubscriber(modid = ${className}Mod.MOD_ID)`,
-      `public class ModEventHandler {`,
-      `    private static final Logger LOGGER = LogManager.getLogger();`,
-      ``,
-      `    // ─── Logic generated from Blockly (Bedrock Script reference) ───`,
-      ...jsCode.split("\n").map((l) => `    // ${l.replace(/\r/g, "")}`),
-      ``,
-      `    @SubscribeEvent`,
-      `    public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {`,
-      `        if (event.getEntity() instanceof ServerPlayer player) {`,
-      `            player.sendSystemMessage(Component.literal(`,
-      `                "[${escJava(state.projectName)}] Welcome, " + player.getName().getString() + "!"`,
-      `            ));`,
-      `        }`,
-      `    }`,
-      `}`,
-    ].join("\n"),
+    buildJavaModEventHandler(logicBlocks, {
+      pkg,
+      className,
+      projectName: state.projectName,
+    }),
   );
 
   // ─── mods.toml ───
