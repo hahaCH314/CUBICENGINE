@@ -13,6 +13,50 @@ const DOWNLOADS = {
   },
 };
 
+// .exe/.dmg をビルド&リリース(GitHub Releases等)したら true に。
+// false の間は DL ボタンを「準備中」表示にして 404 を踏ませない。
+const RELEASES_READY = false;
+
+// DLボタン：リリース公開済みなら実DL、未公開なら「準備中」の非リンク表示
+function DlButton({
+  href,
+  label,
+  kind,
+  style,
+}: {
+  href: string;
+  label: string;
+  kind: "win" | "mac";
+  style: CSSProperties;
+}) {
+  const cls =
+    "w-full inline-flex items-center justify-between px-5 py-3 rounded-xl font-bold text-xs text-white transition-all";
+  if (!RELEASES_READY) {
+    return (
+      <span
+        aria-disabled="true"
+        title="近日公開予定です"
+        className={`${cls} border border-white/10 cursor-not-allowed`}
+        style={{ background: "rgba(255,255,255,0.05)", opacity: 0.55 }}
+      >
+        <span>{label}</span>
+        <span className="text-[10px] tracking-wide">🔒 準備中</span>
+      </span>
+    );
+  }
+  return (
+    <a
+      href={href}
+      download
+      className={`${cls} hover:scale-[1.03]${kind === "mac" ? " border border-white/10" : ""}`}
+      style={style}
+    >
+      <span>{label}</span>
+      <span className="opacity-90">⬇ DL</span>
+    </a>
+  );
+}
+
 function CubeIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -111,30 +155,24 @@ export default function HomePage() {
             </div>
 
             <div className="w-full flex flex-col gap-2.5 mt-auto">
-              <a
+              <DlButton
                 href={DOWNLOADS.sprout.win}
-                download
-                className="w-full inline-flex items-center justify-between px-5 py-3 rounded-xl font-bold text-xs text-white transition-all hover:scale-[1.03]"
+                kind="win"
+                label="💻 Windows版 (.exe)"
                 style={{
                   background: "linear-gradient(135deg, #a3e635, #16a34a)",
                   boxShadow: "0 4px 12px rgba(22,163,74,0.3)",
                 }}
-              >
-                <span>💻 Windows版 (.exe)</span>
-                <span className="opacity-90">⬇ DL</span>
-              </a>
-              <a
+              />
+              <DlButton
                 href={DOWNLOADS.sprout.mac}
-                download
-                className="w-full inline-flex items-center justify-between px-5 py-3 rounded-xl font-bold text-xs text-white transition-all hover:scale-[1.03] border border-white/10"
+                kind="mac"
+                label="🍎 macOS版 (.dmg)"
                 style={{
                   background: "rgba(255, 255, 255, 0.08)",
                   boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                 }}
-              >
-                <span>🍎 macOS版 (.dmg)</span>
-                <span className="opacity-95">⬇ DL</span>
-              </a>
+              />
             </div>
           </div>
 
@@ -169,30 +207,24 @@ export default function HomePage() {
             </div>
 
             <div className="w-full flex flex-col gap-2.5 mt-auto">
-              <a
+              <DlButton
                 href={DOWNLOADS.grove.win}
-                download
-                className="w-full inline-flex items-center justify-between px-5 py-3 rounded-xl font-bold text-xs text-white transition-all hover:scale-[1.03]"
+                kind="win"
+                label="💻 Windows版 (.exe)"
                 style={{
                   background: "linear-gradient(135deg, #22d3ee, #0891b2)",
                   boxShadow: "0 4px 12px rgba(8,145,178,0.3)",
                 }}
-              >
-                <span>💻 Windows版 (.exe)</span>
-                <span className="opacity-90">⬇ DL</span>
-              </a>
-              <a
+              />
+              <DlButton
                 href={DOWNLOADS.grove.mac}
-                download
-                className="w-full inline-flex items-center justify-between px-5 py-3 rounded-xl font-bold text-xs text-white transition-all hover:scale-[1.03] border border-white/10"
+                kind="mac"
+                label="🍎 macOS版 (.dmg)"
                 style={{
                   background: "rgba(255, 255, 255, 0.08)",
                   boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                 }}
-              >
-                <span>🍎 macOS版 (.dmg)</span>
-                <span className="opacity-95">⬇ DL</span>
-              </a>
+              />
             </div>
           </div>
         </div>
