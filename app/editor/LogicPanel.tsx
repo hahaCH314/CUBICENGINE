@@ -1670,8 +1670,8 @@ function SlotReel<T>({
         margin: "0 auto",
         background: "linear-gradient(to bottom, #e0f2fe 0%, #f0f9ff 15%, #ffffff 50%, #f0f9ff 85%, #e0f2fe 100%)", // ソーダブルーグラデーション
         borderRadius: 12,
-        border: "3px solid #7dd3fc", // パステルブルーのおもちゃ枠
-        boxShadow: "inset 0 1px 8px rgba(14,165,233,0.08), 0 4px 10px rgba(0,0,0,0.05)",
+        border: "3px solid #1e293b", // 太い黒いフチに変更
+        boxShadow: "0 4px 0 #1e293b, inset 0 2px 8px rgba(14,165,233,0.12)", // おもちゃ風の立体シャドウ ＋ 内側のシャドウ
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
@@ -3312,22 +3312,27 @@ export default function LogicPanel() {
             boxShadow: "inset -2px -2px 6px rgba(0,0,0,0.1), 0 8px 20px rgba(0,0,0,0.15)",
             zIndex: 40,
           }}>
-            {/* 🃏 手札トレイ：スポーンしたカードの置き場 */}
+            {/* 🃏 手札トレイ：スポーンしたカードの置き場（白カードが映えるようにダークカラー背景に更新） */}
             <div style={{
               width: "100%",
               flex: 1,
               display: "flex",
               flexDirection: "column",
-              alignItems: "center", // 中央揃えにして縦長カードを綺麗に配置
+              alignItems: "center", // 中揃えにして縦長カードを綺麗に配置
               gap: 12,
               minHeight: 120,
               overflowY: "auto",
-              paddingRight: 2
+              padding: "12px 6px",
+              boxSizing: "border-box",
+              background: "#1e293b", // 白いカードが最も美しく映えるダークスレートグレー
+              borderRadius: "16px",
+              border: "3.5px solid #1e293b", // 黒いおもちゃフチでボタンと統一
+              boxShadow: "inset 0 4px 10px rgba(0,0,0,0.4)", // 深みのある内側シャドウ
             }}>
               <div style={{
                 fontSize: 10,
                 fontWeight: 900,
-                color: "#64748b",
+                color: "#94a3b8", // 暗い背景に映えるやや明るいグレーに変更
                 textAlign: "center",
                 letterSpacing: "0.05em",
                 marginBottom: 4,
@@ -3353,17 +3358,17 @@ export default function LogicPanel() {
                 // 空の時のカード枠プレースホルダー
                 <div style={{
                   flex: 1,
-                  width: "100%",
-                  border: "2px dashed #cbd5e1",
+                  width: "90%",
+                  border: "2.5px dashed rgba(255,255,255,0.2)", // 暗い背景用の破線に変更
                   borderRadius: 14,
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
                   padding: 12,
-                  color: "#94a3b8",
+                  color: "rgba(255,255,255,0.35)", // やや透過した白
                   gap: 6,
-                  background: "rgba(255,255,255,0.3)"
+                  background: "rgba(255,255,255,0.03)"
                 }}>
                   <span style={{ fontSize: 24 }}>✨</span>
                   <span style={{ fontSize: 9, fontWeight: 900, textAlign: "center", lineHeight: 1.3 }}>
