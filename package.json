@@ -53,8 +53,7 @@
   },
   "build": {
     "appId": "com.cubicengine.${env.MMC_EDITION}",
-    "productName": "CubicEngine ${env.MMC_EDITION_UPPER}",
-    "//": "main.js はインプロセスNext(require('next'))で起動するため standalone は使わない。.next 全体＋node_modules(本番依存)を同梱し、asar無効で .next を直接読めるようにする。",
+    "productName": "CubicEngine",
     "asar": false,
     "npmRebuild": false,
     "files": [
