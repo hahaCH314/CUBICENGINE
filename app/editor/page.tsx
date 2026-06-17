@@ -193,9 +193,13 @@ function StatusBar() {
 export default function EditorPage() {
   const [activeTab, setActiveTab] = useState<Tab>("logic");
   const [logicView, setLogicView] = useState<"tsumiki" | "grape">("tsumiki");
+  const [isElectron, setIsElectron] = useState<boolean | null>(null);
 
   // スタート画面の選択（?mode=tsumiki|grape）で初期モードを決める（Next固有APIを避け window から取得）
   useEffect(() => {
+    const hasElectronApi = !!(window as any).electronAPI?.isElectron;
+    setIsElectron(hasElectronApi);
+
     const mode = new URLSearchParams(window.location.search).get("mode");
     if (mode === "grape" || mode === "tsumiki") {
       setLogicView(mode);
@@ -213,6 +217,40 @@ export default function EditorPage() {
   );
 
   const closeMenu = useCallback(() => setOpenMenu(null), []);
+
+  if (isElectron === false) {
+    return (
+      <div className="h-screen bg-[#0d0d0f] flex flex-col items-center justify-center p-6 text-center text-foreground font-sans">
+        <div className="max-w-md p-8 bg-[#16161a] border-2 border-[#ff4757]/30 rounded-2xl shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-[#ff4757]" />
+          <span className="text-5xl mb-4 block animate-bounce">⚠️</span>
+          <h2 className="text-xl font-bold mb-3 font-pixel tracking-wide text-white" style={{ textShadow: "2px 2px 0px #1e1208" }}>
+            デスクトップ専用エディタ
+          </h2>
+          <p className="text-xs text-[#9aa0a6] mb-6 leading-relaxed">
+            CubicEngine Studio エディタはデスクトップアプリ版でのみ動作します。<br />
+            ブラウザ（Web公開URL）からはご利用いただけません。
+          </p>
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center px-6 py-2.5 rounded-lg bg-accent text-[#0d0d0f] font-bold text-xs hover:scale-105 transition-transform"
+            style={{ backgroundColor: "#fbbf24", textShadow: "none" }}
+          >
+            ← ホームページに戻る
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (isElectron === null) {
+    return (
+      <div className="h-screen bg-[#0d0d0f] flex items-center justify-center text-muted font-pixel text-xs">
+        LOADING...
+      </div>
+    );
+  }
+
 
   return (
     <div className="h-screen flex flex-col overflow-hidden select-none">

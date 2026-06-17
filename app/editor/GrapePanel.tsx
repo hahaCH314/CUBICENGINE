@@ -14,11 +14,11 @@ import { GrapeIcons, type IconProps } from "./grapeIcons";
 type Cat = "trigger" | "action" | "ifelse" | "value" | "loop";
 
 const CAT_STYLE: Record<Cat, { label: string; color: string; glow: string }> = {
-  trigger: { label: "きっかけ",   color: "#e0554f", glow: "#ff9089" },
-  action:  { label: "すること",   color: "#3d7ec0", glow: "#74b4f0" },
-  ifelse:  { label: "じょうけん", color: "#2fa37d", glow: "#5fe0b8" },
-  value:   { label: "あたい",     color: "#d99a3c", glow: "#ffd166" },
-  loop:    { label: "くりかえし", color: "#d9743f", glow: "#ffa96e" },
+  trigger: { label: "きっかけ",   color: "#ff6b8b", glow: "#ffb3c1" }, // いちごピンク
+  action:  { label: "すること",   color: "#4dabf7", glow: "#a5d8ff" }, // ソーダブルー
+  ifelse:  { label: "じょうけん", color: "#2bcbba", glow: "#a5f3fc" }, // ミントグリーン
+  value:   { label: "あたい",     color: "#ffc048", glow: "#ffeaa7" }, // れもんイエロー
+  loop:    { label: "くりかえし", color: "#ff9f43", glow: "#ffd2a1" }, // あんずオレンジ
 };
 const CAT_ORDER: Cat[] = ["trigger", "action", "ifelse", "value", "loop"];
 
@@ -179,20 +179,63 @@ export default function GrapePanel() {
           <span style={{ fontSize: 18 }}>🌿</span> GROVE <span style={{ fontSize: 10, fontWeight: 800, opacity: 0.7, letterSpacing: "0.1em" }}>JAVA</span>
         </div>
 
+        {/* 蔦（つる）のSVG線を描画 (ハブから各実へしなやかに伸ばす) */}
+        {(() => {
+          const hub = fruits.find((x) => x.item.cat === "trigger");
+          if (!hub) return null;
+          return (
+            <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 1 }}>
+              {fruits.filter(f => f.id !== hub.id).map(spoke => {
+                const cx = (hub.x + spoke.x) / 2;
+                const cy = Math.max(hub.y, spoke.y) + 30; // しなだれるようなベジェカーブ
+                const pathD = `M ${hub.x} ${hub.y} Q ${cx} ${cy} ${spoke.x} ${spoke.y}`;
+                return (
+                  <g key={spoke.id}>
+                    {/* 外側の発光シャドウ線 */}
+                    <path d={pathD} fill="none" stroke="rgba(125,240,192,0.18)" strokeWidth={6} strokeLinecap="round" />
+                    {/* 内側の実線（蔦のメイン） */}
+                    <path d={pathD} fill="none" stroke="#2fa37d" strokeWidth={3} strokeLinecap="round" strokeDasharray="1 1" />
+                    {/* 蔦の節目に小さな葉っぱや芽をあしらうと可愛い */}
+                    <circle cx={cx} cy={(hub.y + cy)/2} r={3} fill="#aef7df" />
+                  </g>
+                );
+              })}
+            </svg>
+          );
+        })()}
+
         {/* 空状態：シンプルな案内（前の版に戻す） */}
         {fruits.length === 0 && (
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-            <div style={{ padding: "16px 28px", borderRadius: 24, border: "2px dashed rgba(150,235,200,0.45)", color: "#cdeede", fontWeight: 900, fontSize: 16, letterSpacing: "0.18em", textAlign: "center", background: "rgba(255,255,255,0.06)", animation: "grape-breathe 3s ease-in-out infinite" }}>
-              🌱 TAP
+            <div style={{
+              padding: "20px 36px",
+              borderRadius: 30,
+              border: "3px dashed #7df0c0",
+              color: "#cdeede",
+              fontWeight: 900,
+              fontSize: 18,
+              letterSpacing: "0.2em",
+              textAlign: "center",
+              background: "rgba(20, 50, 40, 0.6)",
+              backdropFilter: "blur(4px)",
+              boxShadow: "0 8px 32px rgba(13, 37, 31, 0.5), inset 0 0 12px rgba(150, 235, 200, 0.15)",
+              animation: "tap-breathe 2.4s ease-in-out infinite",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 6
+            }}>
+              <span style={{ fontSize: 36, filter: "drop-shadow(0 4px 8px rgba(125,240,192,0.4))" }}>🌱</span>
+              <span style={{ fontSize: 14, color: "#aef7df", opacity: 0.9 }}>TAP HERE TO PLANT</span>
             </div>
           </div>
         )}
 
         {/* 植えた場所で育つ：実は植えた点の上に生り、下へ芽の茎が伸びる */}
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", animation: sending ? "suck-to-mc 0.62s cubic-bezier(0.55,0,0.85,0.35) forwards" : undefined, transformOrigin: "center bottom" }}>
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", animation: sending ? "suck-to-mc 0.62s cubic-bezier(0.55,0,0.85,0.35) forwards" : undefined, transformOrigin: "center bottom", zIndex: 2 }}>
           {fruits.map((fr) => (
             <div key={fr.id} style={{ position: "absolute", left: fr.x, top: fr.y, transform: "translate(-50%, -50%)", pointerEvents: "auto" }}>
-              <Grape fr={fr} selected={fr.id === selectedId} onSelect={openEdit} onDelete={() => removeFruit(fr.id)} />
+              <Grape fr={fr} selected={fr.id === selectedId} isHub={fr.item.cat === "trigger"} onSelect={openEdit} onDelete={() => removeFruit(fr.id)} />
             </div>
           ))}
         </div>
@@ -291,22 +334,65 @@ function Grape({ fr, selected, isHub, onSelect, onDelete }: {
   const cs = CAT_STYLE[fr.item.cat];
   const fresh = Date.now() - fr.born < 700;
   return (
-    <div onClick={(e) => { e.stopPropagation(); onSelect(fr, e); }} style={{ position: "relative", animation: fresh ? "grape-pop 0.6s cubic-bezier(0.34,1.56,0.64,1)" : (selected ? "grape-breathe 2.6s ease-in-out infinite" : undefined), cursor: "pointer" }}>
-      <button type="button" onClick={(e) => { e.stopPropagation(); onDelete(); }} style={{ position: "absolute", top: -6, right: -6, zIndex: 3, width: 18, height: 18, borderRadius: "50%", border: "none", cursor: "pointer", background: "rgba(0,0,0,0.35)", color: "#fff", fontSize: 11, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+    <div onClick={(e) => { e.stopPropagation(); onSelect(fr, e); }} style={{ position: "relative", animation: fresh ? "grape-pop 0.6s cubic-bezier(0.34,1.56,0.64,1)" : (selected ? "grape-jelly-breathe 2s ease-in-out infinite" : "grape-breathe 2.6s ease-in-out infinite"), cursor: "pointer" }}>
+      {/* 葉っぱ（ヘタ）のあしらい */}
       <div style={{
-        minWidth: isHub ? 175 : 145, maxWidth: 230, padding: isHub ? "13px 20px" : "10px 16px", borderRadius: isHub ? 26 : 22,
-        background: `radial-gradient(120% 120% at 32% 25%, #ffffff66 0%, ${cs.color} 42%, ${shade(cs.color)} 100%)`,
-        boxShadow: selected ? `0 0 0 3px #fff, 0 0 22px ${cs.glow}, 0 6px 16px rgba(0,0,0,0.18)` : isHub ? `0 0 0 2px #ffffffcc, 0 0 18px ${cs.glow}, 0 6px 15px rgba(0,0,0,0.18)` : `0 0 14px ${cs.glow}aa, 0 5px 13px rgba(0,0,0,0.16), inset 0 2px 4px rgba(255,255,255,0.4)`,
-        textAlign: "center", position: "relative",
+        position: "absolute",
+        top: -12,
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: 28,
+        height: 16,
+        zIndex: 2,
+        pointerEvents: "none",
+        animation: "leaf-float 3s ease-in-out infinite",
       }}>
+        <svg viewBox="0 0 28 16" fill="none" style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.25))" }}>
+          {/* 茎 */}
+          <path d="M14 16 Q13 9 10 4" stroke="#3f6212" strokeWidth="2.5" strokeLinecap="round" />
+          {/* 葉っぱ1 */}
+          <path d="M10 6 C6 3 4 8 10 9 C13 9 14 6 10 6Z" fill="#a3e635" stroke="#2d4a0d" strokeWidth="1" />
+          {/* 葉っぱ2 */}
+          <path d="M11 5 C15 2 18 6 12 8 C10 8 9 6 11 5Z" fill="#84cc16" stroke="#2d4a0d" strokeWidth="1" />
+        </svg>
+      </div>
+
+      <button type="button" onClick={(e) => { e.stopPropagation(); onDelete(); }} style={{
+        position: "absolute", top: -8, right: -8, zIndex: 4,
+        width: 20, height: 20, borderRadius: "50%", border: "2px solid #fff",
+        cursor: "pointer", background: "#ff6b8b", color: "#fff",
+        fontSize: 10, fontWeight: 900, lineHeight: 1,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+        transition: "transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.15s",
+      }}
+      onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.2) rotate(90deg)"; e.currentTarget.style.background = "#ff477e"; }}
+      onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1) rotate(0deg)"; e.currentTarget.style.background = "#ff6b8b"; }}
+      >
+        ✕
+      </button>
+
+      <div style={{
+        minWidth: isHub ? 175 : 145, maxWidth: 230, padding: isHub ? "13px 20px" : "10px 16px",
+        borderRadius: isHub ? "32px 32px 28px 28px" : "26px 26px 22px 22px",
+        background: `radial-gradient(125% 125% at 30% 25%, #ffffffaa 0%, #ffffff33 20%, ${cs.color} 55%, ${shade(cs.color)} 100%)`,
+        boxShadow: selected
+          ? `0 0 0 4px #ffffff, 0 0 28px ${cs.glow}, 0 8px 20px rgba(0,0,0,0.3), inset 0 4px 8px rgba(255,255,255,0.6), inset 0 -4px 8px rgba(0,0,0,0.2)`
+          : isHub
+            ? `0 0 0 2.5px #ffffffcc, 0 0 22px ${cs.glow}, 0 6px 18px rgba(0,0,0,0.25), inset 0 4px 6px rgba(255,255,255,0.5), inset 0 -3px 6px rgba(0,0,0,0.18)`
+            : `0 0 16px ${cs.glow}bb, 0 5px 14px rgba(0,0,0,0.2), inset 0 3px 6px rgba(255,255,255,0.55), inset 0 -3px 6px rgba(0,0,0,0.15)`,
+        textAlign: "center", position: "relative",
+        transition: "box-shadow 0.2s ease, border-radius 0.2s ease",
+      }}>
+        {/* 光沢ハイライト */}
         <div style={{ position: "absolute", top: 7, left: 16, width: 22, height: 14, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,255,255,0.85), transparent 70%)", pointerEvents: "none" }} />
-        <div style={{ fontSize: isHub ? 12 : 11, fontWeight: 900, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 5, textShadow: "0 1px 2px rgba(0,0,0,0.35)" }}>
+        <div style={{ fontSize: isHub ? 12 : 11, fontWeight: 900, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 5, textShadow: "0 1px 2px rgba(0,0,0,0.35)", fontFamily: "'M PLUS Rounded 1c', sans-serif" }}>
           <ItemGlyph type={fr.item.type} size={isHub ? 16 : 14} />{fr.item.label}
         </div>
         {fr.item.needsText && (fr.text ? (
-          <div style={{ fontSize: 13, fontWeight: 800, color: "#fff", marginTop: 2, wordBreak: "break-word", textShadow: "0 1px 2px rgba(0,0,0,0.4)" }}>{fr.text}</div>
+          <div style={{ fontSize: 13, fontWeight: 800, color: "#fff", marginTop: 2, wordBreak: "break-word", textShadow: "0 1px 2px rgba(0,0,0,0.4)", fontFamily: "'M PLUS Rounded 1c', sans-serif" }}>{fr.text}</div>
         ) : (
-          <div style={{ fontSize: 10, fontWeight: 700, color: "#ffffffcc", marginTop: 2 }}>✎ タップして書く</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: "#ffffffcc", marginTop: 2, fontFamily: "'M PLUS Rounded 1c', sans-serif" }}>✎ タップして書く</div>
         ))}
       </div>
     </div>
@@ -367,8 +453,27 @@ function playSend() {
 }
 
 const KEYFRAMES = `
-  @keyframes grape-pop { 0%{transform:scale(0) translateY(-8px);opacity:0} 55%{transform:scale(1.18);opacity:1} 72%{transform:scale(0.92)} 86%{transform:scale(1.05)} 100%{transform:scale(1)} }
-  @keyframes grape-breathe { 0%,100%{transform:scale(1)} 50%{transform:scale(1.035)} }
+  @keyframes grape-pop { 
+    0% { transform: scale(0) translateY(-12px); opacity: 0; } 
+    50% { transform: scale(1.25) translateY(2px); opacity: 1; } 
+    75% { transform: scale(0.9) translateY(-1px); } 
+    90% { transform: scale(1.08); } 
+    100% { transform: scale(1) translateY(0); } 
+  }
+  @keyframes grape-breathe { 
+    0%, 100% { transform: scale(1) rotate(0deg); } 
+    50% { transform: scale(1.025) rotate(0.5deg); } 
+  }
+  @keyframes grape-jelly-breathe {
+    0%, 100% { transform: scale(1, 1); }
+    25% { transform: scale(1.08, 0.92); }
+    50% { transform: scale(0.93, 1.07); }
+    75% { transform: scale(1.04, 0.96); }
+  }
+  @keyframes leaf-float {
+    0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+    50% { transform: translateY(-1.5px) rotate(3deg) scale(1.05); }
+  }
   @keyframes hub-pump { 0%{opacity:0.9;transform:scale(0.9)} 100%{opacity:0;transform:scale(1.45)} }
   @keyframes stem-pulse { 0%{transform:translateY(8px) scale(0.6);opacity:0} 30%{opacity:1} 100%{transform:translateY(-20px) scale(1.1);opacity:0} }
   @keyframes suck-to-mc { 0%{transform:translateY(0) scale(1);opacity:1} 55%{transform:translateY(40px) scale(0.55);opacity:0.85} 100%{transform:translateY(150px) scale(0.04);opacity:0;filter:blur(2px)} }
@@ -379,4 +484,8 @@ const KEYFRAMES = `
   @keyframes code-line-in { 0%{opacity:0;transform:translateX(-6px)} 100%{opacity:1;transform:translateX(0)} }
   @keyframes mote { 0%,100%{opacity:0.18;transform:translateY(0)} 50%{opacity:0.85;transform:translateY(-14px)} }
   @keyframes code-ascend { 0%{transform:translateY(0);opacity:1} 100%{transform:translateY(-100px);opacity:0;filter:blur(3px)} }
+  @keyframes tap-breathe {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 12px rgba(150,235,200,0.15); }
+    50% { transform: scale(1.05); box-shadow: 0 0 24px rgba(150,235,200,0.4); }
+  }
 `;

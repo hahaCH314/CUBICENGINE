@@ -11,7 +11,14 @@
     "start": "next start",
     "lint": "eslint",
     "electron:dev": "ELECTRON_DEV=true electron .",
-    "electron:build": "next build && electron-builder --win"
+    "electron:build": "next build && electron-builder --win",
+    "build:sprout:win": "cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT next build && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT electron-builder --win",
+    "build:sprout:mac": "cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT next build && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT electron-builder --mac",
+    "build:grove:win": "cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE next build && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE electron-builder --win",
+    "build:grove:mac": "cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE next build && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE electron-builder --mac",
+    "build:all:win": "npm run build:sprout:win && npm run build:grove:win",
+    "build:all:mac": "npm run build:sprout:mac && npm run build:grove:mac",
+    "build:all": "npm run build:all:win && npm run build:all:mac"
   },
   "dependencies": {
     "@types/three": "^0.184.0",
@@ -36,11 +43,33 @@
     "@types/nodemailer": "^8.0.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cross-env": "^7.0.3",
     "electron": "^33.2.0",
     "electron-builder": "^25.1.8",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "build": {
+    "appId": "com.cubicengine.${env.MMC_EDITION}",
+    "productName": "CubicEngine",
+    "files": [
+      "electron/**",
+      ".next/standalone/**",
+      ".next/static/**",
+      "public/**"
+    ],
+    "directories": {
+      "output": "dist-exe/${env.MMC_EDITION}"
+    },
+    "win": {
+      "target": "nsis",
+      "artifactName": "${env.MMC_EDITION_UPPER}_editor.${ext}"
+    },
+    "mac": {
+      "target": "dmg",
+      "artifactName": "${env.MMC_EDITION_UPPER}_editor.${ext}"
+    }
   }
 }

@@ -259,9 +259,16 @@ const chip: React.CSSProperties = { background: "#1f2937", color: "#fff", border
 const ring: React.CSSProperties = { position: "absolute", left: "50%", top: "50%", width: 10, height: 10, marginLeft: -5, marginTop: -5, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.7)", animation: "ls-ring 0.7s ease-out forwards" };
 
 const placedListWrap: React.CSSProperties = {
-  position: "absolute", top: 408, left: "50%", transform: "translateX(-50%)",
-  width: "min(760px, 92%)", zIndex: 24, pointerEvents: "auto",
-  display: "flex", flexDirection: "column", gap: 6,
+  position: "absolute",
+  top: 320, // LiveStageの下端に合わせる (top 20 + height 232 * scale 1.25 + margin)
+  right: 190, // LiveStageの右寄せと合わせる
+  width: 575, // LiveStageの見かけの幅 (460 * scale 1.25)
+  zIndex: 24,
+  pointerEvents: "auto",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 6,
 };
 const placedChip: React.CSSProperties = {
   display: "inline-flex", alignItems: "center", gap: 6,
@@ -303,9 +310,15 @@ export default function LiveStage({ blocks }: { blocks: CBlock[] }) {
   return (
     <>
     <div style={{
-      position: "absolute", top: 44, left: "calc(50% - 180px)",
-      transform: "translateX(-50%) scale(1.5)", transformOrigin: "top center",
-      width: 460, height: 232, zIndex: 25, pointerEvents: "none",
+      position: "absolute",
+      top: 20,
+      right: 190, // 右ペイン（幅170px + 余白）の左隣にぴったり配置
+      transform: "scale(1.25)",
+      transformOrigin: "top right", // 右上起点でスケールさせてズレを防ぐ
+      width: 460,
+      height: 232,
+      zIndex: 25,
+      pointerEvents: "none",
     }}>
       <style>{`
         @keyframes ls-bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }

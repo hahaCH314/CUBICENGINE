@@ -1,10 +1,16 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 
-// ⬇ デスクトップ版(.exe)のDL先。ビルド&ホスト後にURLを差し替える(BUILD_EXE_PLAN.md)。今は空＝準備中表示。
-const DOWNLOADS: { sprout: string; grove: string } = {
-  sprout: "", // 例: https://github.com/<org>/<repo>/releases/latest/download/CubicEngine-SPROUT-Setup.exe
-  grove: "",
+// ⬇ デスクトップ版のDL先。ビルド&ホスト後にURLを差し替える(BUILD_EXE_PLAN.md)。
+const DOWNLOADS = {
+  sprout: {
+    win: "https://github.com/CubicEngine/Studio/releases/latest/download/SPROUT_editor.exe",
+    mac: "https://github.com/CubicEngine/Studio/releases/latest/download/SPROUT_editor.dmg",
+  },
+  grove: {
+    win: "https://github.com/CubicEngine/Studio/releases/latest/download/GROVE_editor.exe",
+    mac: "https://github.com/CubicEngine/Studio/releases/latest/download/GROVE_editor.dmg",
+  },
 };
 
 function CubeIcon({ className }: { className?: string }) {
@@ -73,57 +79,126 @@ export default function HomePage() {
           <br />
           アドオン・MODを設計・構築・エクスポート。
         </p>
-
-        <div className="flex flex-wrap gap-5 justify-center">
-          {/* 統合版＝積み木＝アドオン */}
-          <Link href="/editor?mode=tsumiki" id="cta-create-now"
-            className="group"
+        <div className="flex flex-col md:flex-row gap-6 justify-center items-stretch max-w-4xl mx-auto mt-2 px-4 py-4 shrink-0 w-full">
+          {/* SPROUT Card */}
+          <div
             style={{
-              display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
-              minWidth: 210, padding: "18px 26px", borderRadius: 16, textDecoration: "none",
-              background: "linear-gradient(135deg, #a3e635, #16a34a)", color: "#fff",
-              boxShadow: "0 6px 18px rgba(22,163,74,0.45), inset 0 1px 0 rgba(255,255,255,0.35)",
-            }}>
-            <span style={{ fontSize: 30 }}>🌱</span>
-            <span style={{ fontSize: 18, fontWeight: 900 }}>SPROUT</span>
-            <span style={{ fontSize: 11, fontWeight: 800, opacity: 0.9 }}>統合版・アドオン</span>
-          </Link>
-          {/* JAVA＝ぶどう＝MOD（新） */}
-          <Link href="/editor?mode=grape"
-            style={{
-              display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
-              minWidth: 210, padding: "18px 26px", borderRadius: 16, textDecoration: "none",
-              background: "linear-gradient(135deg, #0d9488, #115e59)", color: "#fff",
-              boxShadow: "0 6px 18px rgba(17,94,89,0.45), inset 0 1px 0 rgba(255,255,255,0.35)",
-            }}>
-            <span style={{ fontSize: 30 }}>🌿</span>
-            <span style={{ fontSize: 18, fontWeight: 900 }}>GROVE</span>
-            <span style={{ fontSize: 11, fontWeight: 800, opacity: 0.85 }}>JAVA・MOD</span>
-          </Link>
-        </div>
+              flex: "1 1 300px",
+              maxWidth: "350px",
+              padding: "24px",
+              borderRadius: "20px",
+              background: "rgba(255, 255, 255, 0.03)",
+              border: "2px solid rgba(163, 230, 53, 0.15)",
+              boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
+              backdropFilter: "blur(4px)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "14px",
+              transition: "transform 0.2s ease, border-color 0.2s ease",
+            }}
+            className="hover:scale-[1.02] hover:border-[#a3e635]/40"
+          >
+            <span style={{ fontSize: 44, filter: "drop-shadow(0 0 10px rgba(163,230,53,0.3))" }}>🌱</span>
+            <div>
+              <h2 className="text-xl font-bold font-pixel tracking-wider text-[#a3e635] mb-1">
+                SPROUT
+              </h2>
+              <p className="text-[10px] font-pixel text-[#a3e635]/90 mb-2">統合版・アドオン</p>
+              <p className="text-xs text-muted leading-relaxed text-center font-sans max-w-[280px] mx-auto">
+                ブロックやアイテム、エンティティをノンコーディングで制作。楽しいビジュアル環境でアドオン開発。
+              </p>
+            </div>
 
-        {/* 💻 デスクトップ版(.exe)ダウンロード（Vercelランディング用・BUILD_EXE_PLAN.md） */}
-        <div className="mt-7 flex flex-col items-center gap-2">
-          <p className="text-[11px] font-pixel" style={{ color: "#9aa0a6" }}>💻 デスクトップ版（.exe）をダウンロード</p>
-          <div className="flex flex-wrap gap-3 justify-center">
-            {(["sprout", "grove"] as const).map((ed) => {
-              const url = DOWNLOADS[ed];
-              const label = ed === "sprout" ? "🌱 SPROUT" : "🌿 GROVE";
-              const base: CSSProperties = {
-                display: "inline-flex", alignItems: "center", gap: 6,
-                padding: "8px 16px", borderRadius: 10, fontWeight: 900, fontSize: 12,
-                border: "2px solid rgba(255,255,255,0.15)", color: "#e8eaed",
-                background: "rgba(255,255,255,0.06)", textDecoration: "none",
-              };
-              return url
-                ? <a key={ed} href={url} download style={base}>⬇ {label}.exe</a>
-                : <span key={ed} title="ビルド準備中" style={{ ...base, opacity: 0.4, cursor: "not-allowed" }}>⬇ {label}.exe（準備中）</span>;
-            })}
+            <div className="w-full flex flex-col gap-2.5 mt-auto">
+              <a
+                href={DOWNLOADS.sprout.win}
+                download
+                className="w-full inline-flex items-center justify-between px-5 py-3 rounded-xl font-bold text-xs text-white transition-all hover:scale-[1.03]"
+                style={{
+                  background: "linear-gradient(135deg, #a3e635, #16a34a)",
+                  boxShadow: "0 4px 12px rgba(22,163,74,0.3)",
+                }}
+              >
+                <span>💻 Windows版 (.exe)</span>
+                <span className="opacity-90">⬇ DL</span>
+              </a>
+              <a
+                href={DOWNLOADS.sprout.mac}
+                download
+                className="w-full inline-flex items-center justify-between px-5 py-3 rounded-xl font-bold text-xs text-white transition-all hover:scale-[1.03] border border-white/10"
+                style={{
+                  background: "rgba(255, 255, 255, 0.08)",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                }}
+              >
+                <span>🍎 macOS版 (.dmg)</span>
+                <span className="opacity-95">⬇ DL</span>
+              </a>
+            </div>
+          </div>
+
+          {/* GROVE Card */}
+          <div
+            style={{
+              flex: "1 1 300px",
+              maxWidth: "350px",
+              padding: "24px",
+              borderRadius: "20px",
+              background: "rgba(255, 255, 255, 0.03)",
+              border: "2px solid rgba(34, 211, 238, 0.15)",
+              boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
+              backdropFilter: "blur(4px)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "14px",
+              transition: "transform 0.2s ease, border-color 0.2s ease",
+            }}
+            className="hover:scale-[1.02] hover:border-[#22d3ee]/40"
+          >
+            <span style={{ fontSize: 44, filter: "drop-shadow(0 0 10px rgba(34,211,238,0.3))" }}>🌿</span>
+            <div>
+              <h2 className="text-xl font-bold font-pixel tracking-wider text-[#22d3ee] mb-1">
+                GROVE
+              </h2>
+              <p className="text-[10px] font-pixel text-[#22d3ee]/90 mb-2">Java版・MOD</p>
+              <p className="text-xs text-muted leading-relaxed text-center font-sans max-w-[280px] mx-auto">
+                Java版のMODを強力なビジュアルエディタで開発。Gradle連携と高速自動ビルドをサポート。
+              </p>
+            </div>
+
+            <div className="w-full flex flex-col gap-2.5 mt-auto">
+              <a
+                href={DOWNLOADS.grove.win}
+                download
+                className="w-full inline-flex items-center justify-between px-5 py-3 rounded-xl font-bold text-xs text-white transition-all hover:scale-[1.03]"
+                style={{
+                  background: "linear-gradient(135deg, #22d3ee, #0891b2)",
+                  boxShadow: "0 4px 12px rgba(8,145,178,0.3)",
+                }}
+              >
+                <span>💻 Windows版 (.exe)</span>
+                <span className="opacity-90">⬇ DL</span>
+              </a>
+              <a
+                href={DOWNLOADS.grove.mac}
+                download
+                className="w-full inline-flex items-center justify-between px-5 py-3 rounded-xl font-bold text-xs text-white transition-all hover:scale-[1.03] border border-white/10"
+                style={{
+                  background: "rgba(255, 255, 255, 0.08)",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                }}
+              >
+                <span>🍎 macOS版 (.dmg)</span>
+                <span className="opacity-95">⬇ DL</span>
+              </a>
+            </div>
           </div>
         </div>
 
-        <p className="mt-6 text-[11px] text-muted/50 font-sans">
-          ローカル/オフラインで動く・アカウント不要
+        <p className="mt-6 text-[10px] text-muted/50 font-sans shrink-0">
+          ローカル/オフラインで動く・アカウント不要・Mac & Windows対応
         </p>
       </section>
     </div>

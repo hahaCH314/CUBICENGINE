@@ -113,10 +113,16 @@ function createWindow() {
 app.whenReady().then(async () => {
   const win = createWindow();
 
+  const EDITION = process.env.MMC_EDITION || 'full'; // 'sprout' | 'grove' | 'full'
+  const startPath =
+    EDITION === 'sprout' ? '/editor?mode=tsumiki'
+  : EDITION === 'grove'  ? '/editor?mode=grape'
+  :                        '/';
+
   if (isDev) {
     // 開発時: すぐアプリを開く
     win.show();
-    await win.loadURL(`http://127.0.0.1:${PORT}`);
+    await win.loadURL(`http://127.0.0.1:${PORT}${startPath}`);
     return;
   }
 
@@ -138,7 +144,7 @@ app.whenReady().then(async () => {
     await startNextServer(appRoot, log);
     log('準備完了！');
     // アプリに切り替え（フェードなし、直接ナビ）
-    await win.loadURL(`http://127.0.0.1:${PORT}`);
+    await win.loadURL(`http://127.0.0.1:${PORT}${startPath}`);
   } catch (err) {
     console.error('[MineModCraft] Error:', err);
     dialog.showErrorBox(

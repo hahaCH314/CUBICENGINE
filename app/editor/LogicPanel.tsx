@@ -3312,7 +3312,7 @@ export default function LogicPanel() {
             boxShadow: "inset -2px -2px 6px rgba(0,0,0,0.1), 0 8px 20px rgba(0,0,0,0.15)",
             zIndex: 40,
           }}>
-            {/* 🃏 手札トレイ：スポーンしたカードの置き場（白カードが映えるようにダークカラー背景に更新） */}
+            {/* 🃏 手札トレイ：スポーンしたカードの置き場（白カードが映えるように明るいパステルカラーに更新） */}
             <div style={{
               width: "100%",
               flex: 1,
@@ -3324,15 +3324,15 @@ export default function LogicPanel() {
               overflowY: "auto",
               padding: "12px 6px",
               boxSizing: "border-box",
-              background: "#1e293b", // 白いカードが最も美しく映えるダークスレートグレー
+              background: "#bae6fd", // 暗くせず、白カードが映える明るいソーダブルーに変更！
               borderRadius: "16px",
               border: "3.5px solid #1e293b", // 黒いおもちゃフチでボタンと統一
-              boxShadow: "inset 0 4px 10px rgba(0,0,0,0.4)", // 深みのある内側シャドウ
+              boxShadow: "inset 0 3px 8px rgba(2,132,199,0.18)", // 爽やかなインナーシャドウ
             }}>
               <div style={{
                 fontSize: 10,
                 fontWeight: 900,
-                color: "#94a3b8", // 暗い背景に映えるやや明るいグレーに変更
+                color: "#0369a1", // 看板と同色の濃いソーダブルー
                 textAlign: "center",
                 letterSpacing: "0.05em",
                 marginBottom: 4,
@@ -3359,16 +3359,16 @@ export default function LogicPanel() {
                 <div style={{
                   flex: 1,
                   width: "90%",
-                  border: "2.5px dashed rgba(255,255,255,0.2)", // 暗い背景用の破線に変更
+                  border: "2px dashed #0284c7", // 濃いソーダブルーの破線
                   borderRadius: 14,
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
                   padding: 12,
-                  color: "rgba(255,255,255,0.35)", // やや透過した白
+                  color: "#0369a1", // 濃いソーダブルーの文字
                   gap: 6,
-                  background: "rgba(255,255,255,0.03)"
+                  background: "rgba(255,255,255,0.4)"
                 }}>
                   <span style={{ fontSize: 24 }}>✨</span>
                   <span style={{ fontSize: 9, fontWeight: 900, textAlign: "center", lineHeight: 1.3 }}>
