@@ -34,18 +34,38 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
+// 公開URL: Vercelでは NEXT_PUBLIC_SITE_URL を設定（無ければVERCEL_URL→localhostにフォールバック）
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
 export const metadata: Metadata = {
-  title: "CUBICENGINE Studio — Minecraft Mod Development Platform",
-  description:
-    "CUBICENGINE Studio is a professional-grade visual development environment for creating Minecraft mods with ease. Design models, build logic, and export with one click.",
-  keywords: ["minecraft", "mod", "modding", "blockbench", "editor", "visual programming"],
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "black-translucent",
-    title: "CE Studio",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "CUBICENGINE — マイクラのアドオン・MODを直感的に作る",
+    template: "%s | CUBICENGINE",
   },
-  icons: {
-    apple: "/icon-512x512.png",
+  description:
+    "コーディング不要のビジュアル開発環境。Minecraft のアドオン（統合版）・MOD（Java）を設計・構築し、ワンクリックでエクスポート。完全ローカル・オフラインで動作、アカウント不要。",
+  applicationName: "CUBICENGINE",
+  keywords: ["Minecraft", "マイクラ", "アドオン", "MOD", "統合版", "Java", "コーディング不要", "ビジュアルプログラミング", "CUBICENGINE", "SPROUT", "GROVE"],
+  authors: [{ name: "伊波さん" }],
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "CUBICENGINE" },
+  openGraph: {
+    type: "website",
+    locale: "ja_JP",
+    siteName: "CUBICENGINE",
+    url: SITE_URL,
+    title: "CUBICENGINE — マイクラのアドオン・MODを直感的に作る",
+    description: "コーディング不要。マイクラのアドオン/MODを設計・構築・エクスポート。ローカル/オフライン・アカウント不要。",
+    // ※ヒマワリ: /public/og.png（1200×630のSNSサムネ）を用意するとシェア時に表示される
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "CUBICENGINE" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CUBICENGINE — マイクラのアドオン・MODを直感的に作る",
+    description: "コーディング不要。マイクラのアドオン/MODを直感的に作る。",
+    images: ["/og.png"],
   },
 };
 
