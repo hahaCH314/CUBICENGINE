@@ -388,25 +388,21 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
             : `drop-shadow(0 0 8px ${cat.bg}66) drop-shadow(0 4px 8px rgba(0,0,0,0.3))`,
       transition: "opacity 0.25s ease, filter 0.15s, transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1)",
     }}>
-      {/* メインカードノード（ポケカ風：白ベースカード） */}
+      {/* メインカードノード（ポケカ風：白ベースカード ＋ カテゴリカラーの細い外枠フチ） */}
       <div style={{
         position: "absolute",
         left: leftOffset, top: 0, width: cardW, height: cardH,
         background: "#ffffff", // 白いカードベース
-        borderRadius: "12px", // 角丸の強化
-        border: selected
-          ? `3px solid ${cat.bg}`
-          : hl || isAcceptable
-            ? `3px solid ${badgeColor || cat.bg}`
-            : `2.5px solid #e2e8f0`,
+        borderRadius: "16px", // 角丸の強化（画像に合わせた丸み）
+        border: "3.5px solid #ffffff", // 内側の白いフチ
         boxShadow: selected
-          ? `0 0 0 3px #ffffff, 0 0 16px ${cat.bg}88, 0 8px 20px rgba(0,0,0,0.2)`
+          ? `0 0 0 2.5px ${cat.bg}, 0 0 20px ${cat.bg}AA, 0 12px 24px rgba(0,0,0,0.25)`
           : hl || isAcceptable
-            ? `0 0 0 3px #ffffff, 0 0 16px ${badgeColor || cat.bg}`
-            : `0 4px 10px rgba(0,0,0,0.15)`,
+            ? `0 0 0 2.5px ${badgeColor || cat.bg}, 0 0 20px ${badgeColor || cat.bg}AA, 0 12px 24px rgba(0,0,0,0.25)`
+            : `0 0 0 2.5px ${cat.bg}ee, 0 8px 20px rgba(0,0,0,0.15)`, // 通常時でも外側に細いカテゴリカラーの線
         transition: "all 0.15s ease",
         display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center",
-        padding: "4px",
+        padding: "0px",
         boxSizing: "border-box",
         zIndex: 2,
         overflow: "hidden"
@@ -417,13 +413,12 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
         <div style={{
           width: "100%",
           height: "100%",
-          border: `1.5px solid ${cat.bg}33`, // カテゴリ色を薄くした内枠
-          borderRadius: "8px",
+          borderRadius: "12px", // 外枠の16pxに合わせた丸み
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
           alignItems: "center",
-          padding: "18px 2px 8px",
+          padding: "16px 2px 6px",
           boxSizing: "border-box",
           position: "relative",
           background: "radial-gradient(circle at center, #ffffff 60%, #fafafa 100%)",
@@ -431,15 +426,17 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
           {/* 左上のインデックス（タイプカラー背景のバッジ風） */}
           <div style={{
             position: "absolute",
-            left: 4, top: 4,
-            width: 14, height: 14,
+            left: 3, top: 3,
+            width: 18, height: 18,
             borderRadius: "50%",
             background: cat.bg,
+            border: "1.5px solid #ffffff",
             display: "flex", alignItems: "center", justifyContent: "center",
             color: "#ffffff",
             fontWeight: 900,
-            fontSize: 8,
-            boxShadow: "0 1px 3px rgba(0,0,0,0.15)"
+            fontSize: 9.5,
+            boxShadow: "0 2px 5px rgba(0,0,0,0.15)",
+            zIndex: 10
           }}>
             {cardIdx}
           </div>
@@ -451,39 +448,41 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
             width: 8, height: 8,
             borderRadius: "50%",
             background: cat.bg,
-            boxShadow: `0 0 6px ${cat.bg}`,
+            border: "1.5px solid #ffffff",
+            boxShadow: `0 1px 3px rgba(0,0,0,0.1)`,
+            zIndex: 10
           }} />
 
           {/* 中央の「白い丸枠」イラストフレーム */}
           <div style={{
-            width: 42,
-            height: 42,
+            width: 46,
+            height: 46,
             borderRadius: "50%",
             background: "#ffffff",
-            border: `2px solid ${cat.bg}`,
-            boxShadow: `inset 0 1px 4px rgba(0,0,0,0.08), 0 2px 6px ${cat.bg}22`,
+            border: `2.5px solid ${cat.bg}`,
+            boxShadow: `0 4px 10px ${cat.bg}18, inset 0 1px 3px rgba(0,0,0,0.05)`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            marginTop: 4,
+            marginTop: 8,
           }}>
             {/* @ts-ignore */}
-            <BlockIconComponent size={20} color={cat.bg} strokeWidth={2.5} />
+            <BlockIconComponent size={22} color={cat.bg} strokeWidth={2.2} />
           </div>
 
           {/* 下部ラベル */}
           <span style={{
-            fontSize: b.label.length > 7 ? 8 : 9.5,
+            fontSize: b.label.length > 7 ? 8.5 : 9.5,
             fontWeight: 900,
-            color: "#334155", // 暗いグレーで明るい背景上での可読性向上
+            color: "#1e293b",
             textAlign: "center",
-            lineHeight: 1.15,
-            width: "90%",
+            lineHeight: 1.25,
+            width: "92%",
             wordBreak: "break-word",
             display: "block",
             zIndex: 2,
+            marginBottom: 2,
             marginTop: "auto",
-            textShadow: "none"
           }}>
             {b.label}
           </span>
@@ -2771,6 +2770,18 @@ export default function LogicPanel() {
           transform: translateY(2px) !important;
           box-shadow: inset 0 1px 2px rgba(0,0,0,0.08), 0 0 0 #c9c3b0, 0 1px 2px rgba(120,100,60,0.08) !important;
         }
+        .btn-card {
+          box-shadow: 0 0 0 2.5px var(--card-color), 0 4px 10px rgba(0,0,0,0.15) !important;
+          transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+        }
+        .btn-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 0 0 2.5px var(--card-color), 0 8px 20px rgba(0,0,0,0.22) !important;
+        }
+        .btn-card:active {
+          transform: translateY(2px);
+          box-shadow: 0 0 0 2.5px var(--card-color), 0 2px 5px rgba(0,0,0,0.15) !important;
+        }
         @keyframes fsFlip {
           0% { transform: translateY(-40%); opacity: 0; }
           100% { transform: translateY(0); opacity: 1; }
@@ -3297,18 +3308,190 @@ export default function LogicPanel() {
             flexDirection: "column",
             justifyContent: "flex-start",
             alignItems: "center",
-            gap: 20,
+            gap: 16,
             boxShadow: "inset -2px -2px 6px rgba(0,0,0,0.1), 0 8px 20px rgba(0,0,0,0.15)",
             zIndex: 40,
           }}>
+            {/* 🃏 手札トレイ：スポーンしたカードの置き場 */}
+            <div style={{
+              width: "100%",
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center", // 中央揃えにして縦長カードを綺麗に配置
+              gap: 12,
+              minHeight: 120,
+              overflowY: "auto",
+              paddingRight: 2
+            }}>
+              <div style={{
+                fontSize: 10,
+                fontWeight: 900,
+                color: "#64748b",
+                textAlign: "center",
+                letterSpacing: "0.05em",
+                marginBottom: 4,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 4,
+                width: "100%"
+              }}>
+                <span>🃏 手札トレイ</span>
+                {tray.length > 0 && (
+                  <span style={{
+                    background: "#3b82f6",
+                    color: "#fff",
+                    padding: "1px 6px",
+                    borderRadius: 999,
+                    fontSize: 9
+                  }}>{tray.length}</span>
+                )}
+              </div>
+
+              {tray.length === 0 ? (
+                // 空の時のカード枠プレースホルダー
+                <div style={{
+                  flex: 1,
+                  width: "100%",
+                  border: "2px dashed #cbd5e1",
+                  borderRadius: 14,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 12,
+                  color: "#94a3b8",
+                  gap: 6,
+                  background: "rgba(255,255,255,0.3)"
+                }}>
+                  <span style={{ fontSize: 24 }}>✨</span>
+                  <span style={{ fontSize: 9, fontWeight: 900, textAlign: "center", lineHeight: 1.3 }}>
+                    SPAWNしたカードが<br />ここに並ぶよ
+                  </span>
+                </div>
+              ) : (
+                tray.map((it) => {
+                  const c = CAT[it.tmpl.category];
+                  const TIcon = (LucideIcons as any)[it.tmpl.emoji] || (LucideIcons as any)["HelpCircle"] || (LucideIcons as any)["CircleHelp"] || (() => null);
+                  const cardIdx = CARD_INDEX[it.tmpl.category] || "●";
+                  return (
+                    <button
+                      key={it.key}
+                      onClick={() => { addBlock(it.tmpl, it.vals); setTray(t => t.filter(x => x.key !== it.key)); }}
+                      title="クリックでキャンバスに置く"
+                      className="btn-card"
+                      style={{
+                        width: 82,
+                        height: 112,
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        borderRadius: "16px",
+                        cursor: "pointer",
+                        background: "#ffffff",
+                        border: "3.5px solid #ffffff",
+                        position: "relative",
+                        overflow: "hidden",
+                        padding: "0px",
+                        boxSizing: "border-box",
+                        // @ts-ignore
+                        "--card-color": c?.bg ?? "#94a3b8",
+                      }}
+                    >
+                      {/* インナーデザインフレーム */}
+                      <div style={{
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: "12px",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "16px 2px 6px",
+                        boxSizing: "border-box",
+                        position: "relative",
+                        background: "radial-gradient(circle at center, #ffffff 60%, #fafafa 100%)",
+                      }}>
+                        {/* 左上のインデックス（タイプカラー背景のバッジ風） */}
+                        <div style={{
+                          position: "absolute",
+                          left: 3, top: 3,
+                          width: 18, height: 18,
+                          borderRadius: "50%",
+                          background: c?.bg ?? "#94a3b8",
+                          border: "1.5px solid #ffffff",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          color: "#ffffff",
+                          fontWeight: 900,
+                          fontSize: 9.5,
+                          boxShadow: "0 2px 5px rgba(0,0,0,0.15)",
+                          zIndex: 10
+                        }}>
+                          {cardIdx}
+                        </div>
+
+                        {/* 右上の小さなタイプカラー点 */}
+                        <div style={{
+                          position: "absolute",
+                          right: 5, top: 5,
+                          width: 8, height: 8,
+                          borderRadius: "50%",
+                          background: c?.bg ?? "#94a3b8",
+                          border: "1.5px solid #ffffff",
+                          boxShadow: `0 1px 3px rgba(0,0,0,0.1)`,
+                          zIndex: 10
+                        }} />
+
+                        {/* 中央の「白い丸枠」イラストフレーム */}
+                        <div style={{
+                          width: 46,
+                          height: 46,
+                          borderRadius: "50%",
+                          background: "#ffffff",
+                          border: `2.5px solid ${c?.bg ?? "#94a3b8"}`,
+                          boxShadow: `0 4px 10px ${(c?.bg ?? "#94a3b8")}18, inset 0 1px 3px rgba(0,0,0,0.05)`,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginTop: 8,
+                        }}>
+                          <TIcon size={22} color={c?.bg ?? "#64748b"} strokeWidth={2.2} />
+                        </div>
+
+                        {/* 下部ラベル */}
+                        <span style={{
+                          fontSize: it.tmpl.label.length > 7 ? 8.5 : 9.5,
+                          fontWeight: 900,
+                          color: "#1e293b",
+                          textAlign: "center",
+                          lineHeight: 1.25,
+                          width: "92%",
+                          wordBreak: "break-word",
+                          display: "block",
+                          zIndex: 2,
+                          marginBottom: 2,
+                          marginTop: "auto",
+                        }}>
+                          {it.tmpl.label}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+
             {/* コントロールボタン群 (2列グリッド、ゲーム機風の丸ボタン) */}
             <div style={{
               display: "grid",
               gridTemplateColumns: "repeat(2, 1fr)",
-              gap: "20px 16px",
+              gap: "12px 10px",
               width: "100%",
               justifyItems: "center",
-              padding: "10px 0"
+              paddingTop: 12,
+              borderTop: "2px solid #cbd5e1",
             }}>
               {/* 1. 戻る */}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
@@ -3642,7 +3825,6 @@ export default function LogicPanel() {
                 setReveal(lines);
               }}
               style={{
-                order: -1,
                 width: "100%",
                 height: 52,
                 background: isLogicValid
@@ -3690,36 +3872,6 @@ export default function LogicPanel() {
             >
               <span>EXPORT<br />▶ マイクラ</span>
             </button>
-
-            {/* 🃏 手札トレイ：スポーンしたカードの置き場（クリックでキャンバスへ。色はヒマワリが後で） */}
-            {tray.length > 0 && (
-              <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 6, marginTop: 4 }}>
-                <div style={{ fontSize: 10, fontWeight: 900, color: "#64748b", textAlign: "center" }}>
-                  🃏 手札（{tray.length}）クリックで配置
-                </div>
-                {tray.map((it) => {
-                  const c = CAT[it.tmpl.category];
-                  const vals = it.tmpl.fields.map(f => it.vals[f.id] ?? f.value).filter(Boolean).join(" / ").replace(/minecraft:/g, "");
-                  return (
-                    <button
-                      key={it.key}
-                      onClick={() => { addBlock(it.tmpl, it.vals); setTray(t => t.filter(x => x.key !== it.key)); }}
-                      title="クリックでキャンバスに置く"
-                      style={{
-                        width: "100%", display: "flex", alignItems: "center", gap: 6, textAlign: "left",
-                        padding: "6px 8px", borderRadius: 10, cursor: "pointer",
-                        background: "rgba(255,255,255,0.92)", border: `2px solid ${c?.bg ?? "#cbd5e1"}`,
-                        boxShadow: "0 2px 0 rgba(0,0,0,0.08)",
-                      }}>
-                      <span style={{ width: 8, height: 8, borderRadius: 2, background: c?.bg ?? "#94a3b8", flexShrink: 0 }} />
-                      <span style={{ fontSize: 11, fontWeight: 900, color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {it.tmpl.label}{vals ? <span style={{ color: "#64748b", fontWeight: 700 }}> {vals}</span> : null}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
           </div>
         </div>
       </div>
