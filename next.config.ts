@@ -18,6 +18,10 @@ const CSP = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  // 開発中にトンネル(cloudflared 等)経由で動作確認/共有するため、dev リソースへの
+  // クロスオリジン要求を許可する。ワイルドカードでサブドメインも許可（毎回URLが変わるため）。
+  // 本番(next build)には影響しない dev 専用設定。
+  allowedDevOrigins: ["*.trycloudflare.com", "*.ngrok-free.app", "*.ngrok.io"],
   // Pin the Turbopack workspace root to this project directory.
   // Without this, `next dev` mis-resolved `@import "tailwindcss"` from the
   // parent folder (e:\MMC) instead of this project's node_modules, which
