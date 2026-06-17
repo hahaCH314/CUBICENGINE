@@ -1,5 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import type { CSSProperties } from "react";
+import { useEditorStore } from "./editor/store";
+import { t } from "../lib/i18n";
 
 // ⬇ デスクトップ版のDL先。ビルド&ホスト後にURLを差し替える(BUILD_EXE_PLAN.md)。
 const DOWNLOADS = {
@@ -29,18 +33,19 @@ function DlButton({
   kind: "win" | "mac";
   style: CSSProperties;
 }) {
+  const locale = useEditorStore((s) => s.locale);
   const cls =
     "w-full inline-flex items-center justify-between px-5 py-3 rounded-xl font-bold text-xs text-white transition-all";
   if (!RELEASES_READY) {
     return (
       <span
         aria-disabled="true"
-        title="近日公開予定です"
+        title={t(locale, "dl.soonTitle")}
         className={`${cls} border border-white/10 cursor-not-allowed`}
         style={{ background: "rgba(255,255,255,0.05)", opacity: 0.55 }}
       >
         <span>{label}</span>
-        <span className="text-[10px] tracking-wide">🔒 準備中</span>
+        <span className="text-[10px] tracking-wide">{t(locale, "dl.soon")}</span>
       </span>
     );
   }
@@ -52,7 +57,7 @@ function DlButton({
       style={style}
     >
       <span>{label}</span>
-      <span className="opacity-90">⬇ DL</span>
+      <span className="opacity-90">{t(locale, "dl.go")}</span>
     </a>
   );
 }
@@ -77,6 +82,8 @@ function CubeIcon({ className }: { className?: string }) {
 
 // ローカル/オフライン版: アカウント機能なし・1画面に収めたランディング
 export default function HomePage() {
+  const locale = useEditorStore((s) => s.locale);
+  const setLocale = useEditorStore((s) => s.setLocale);
   return (
     <div className="h-screen overflow-hidden flex flex-col relative">
       {/* Navigation（ログイン/新規登録は撤去・ローカル版） */}
@@ -88,7 +95,18 @@ export default function HomePage() {
               CUBICENGINE<span className="text-accent ml-1">Studio</span>
             </span>
           </Link>
-          <span className="font-pixel text-[10px]" style={{ color: "#f0a818", opacity: 0.9 }}>LOCAL EDITION</span>
+          <div className="flex items-center gap-3">
+            <span className="font-pixel text-[10px]" style={{ color: "#f0a818", opacity: 0.9 }}>{t(locale, "nav.edition")}</span>
+            <button
+              type="button"
+              onClick={() => setLocale(locale === "ja" ? "en" : "ja")}
+              aria-label="switch language"
+              className="font-pixel text-[10px] px-2.5 py-1 rounded border border-white/15 hover:border-white/40 transition-colors"
+              style={{ color: "#e5e7eb" }}
+            >
+              🌐 {t(locale, "lang.toggle")}
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -110,18 +128,18 @@ export default function HomePage() {
           className="text-xl sm:text-3xl font-bold text-foreground mb-4 tracking-wider font-pixel"
           style={{ textShadow: "3px 3px 0px #1e1208", lineHeight: 1.5 }}
         >
-          MINECRAFT add-on mod
+          {t(locale, "hero.sub")}
           <br />
-          直感的に作る
+          {t(locale, "hero.tagline")}
         </p>
 
         <p
           className="text-sm md:text-base text-muted max-w-2xl mx-auto mb-8 font-sans"
           style={{ textShadow: "1.5px 1.5px 0px #1e1208", lineHeight: 1.6 }}
         >
-          楽しいビジュアル環境、コーディング不要。
+          {t(locale, "hero.desc1")}
           <br />
-          アドオン・MODを設計・構築・エクスポート。
+          {t(locale, "hero.desc2")}
         </p>
         <div className="flex flex-col md:flex-row gap-6 justify-center items-stretch max-w-4xl mx-auto mt-2 px-4 py-4 shrink-0 w-full">
           {/* SPROUT Card */}
@@ -148,9 +166,9 @@ export default function HomePage() {
               <h2 className="text-xl font-bold font-pixel tracking-wider text-[#a3e635] mb-1">
                 SPROUT
               </h2>
-              <p className="text-[10px] font-pixel text-[#a3e635]/90 mb-2">統合版・アドオン</p>
+              <p className="text-[10px] font-pixel text-[#a3e635]/90 mb-2">{t(locale, "sprout.tag")}</p>
               <p className="text-xs text-muted leading-relaxed text-center font-sans max-w-[280px] mx-auto">
-                ブロックやアイテム、エンティティをノンコーディングで制作。楽しいビジュアル環境でアドオン開発。
+                {t(locale, "sprout.desc")}
               </p>
             </div>
 
@@ -158,7 +176,7 @@ export default function HomePage() {
               <DlButton
                 href={DOWNLOADS.sprout.win}
                 kind="win"
-                label="💻 Windows版 (.exe)"
+                label={t(locale, "dl.win")}
                 style={{
                   background: "linear-gradient(135deg, #a3e635, #16a34a)",
                   boxShadow: "0 4px 12px rgba(22,163,74,0.3)",
@@ -167,7 +185,7 @@ export default function HomePage() {
               <DlButton
                 href={DOWNLOADS.sprout.mac}
                 kind="mac"
-                label="🍎 macOS版 (.dmg)"
+                label={t(locale, "dl.mac")}
                 style={{
                   background: "rgba(255, 255, 255, 0.08)",
                   boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
@@ -200,9 +218,9 @@ export default function HomePage() {
               <h2 className="text-xl font-bold font-pixel tracking-wider text-[#22d3ee] mb-1">
                 GROVE
               </h2>
-              <p className="text-[10px] font-pixel text-[#22d3ee]/90 mb-2">Java版・MOD</p>
+              <p className="text-[10px] font-pixel text-[#22d3ee]/90 mb-2">{t(locale, "grove.tag")}</p>
               <p className="text-xs text-muted leading-relaxed text-center font-sans max-w-[280px] mx-auto">
-                Java版のMODを強力なビジュアルエディタで開発。Gradle連携と高速自動ビルドをサポート。
+                {t(locale, "grove.desc")}
               </p>
             </div>
 
@@ -210,7 +228,7 @@ export default function HomePage() {
               <DlButton
                 href={DOWNLOADS.grove.win}
                 kind="win"
-                label="💻 Windows版 (.exe)"
+                label={t(locale, "dl.win")}
                 style={{
                   background: "linear-gradient(135deg, #22d3ee, #0891b2)",
                   boxShadow: "0 4px 12px rgba(8,145,178,0.3)",
@@ -219,7 +237,7 @@ export default function HomePage() {
               <DlButton
                 href={DOWNLOADS.grove.mac}
                 kind="mac"
-                label="🍎 macOS版 (.dmg)"
+                label={t(locale, "dl.mac")}
                 style={{
                   background: "rgba(255, 255, 255, 0.08)",
                   boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
@@ -230,7 +248,7 @@ export default function HomePage() {
         </div>
 
         <p className="mt-6 text-[10px] text-muted/50 font-sans shrink-0">
-          ローカル/オフラインで動く・アカウント不要・Mac & Windows対応
+          {t(locale, "footer.note")}
         </p>
       </section>
     </div>

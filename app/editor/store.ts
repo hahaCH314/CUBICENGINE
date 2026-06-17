@@ -1,4 +1,14 @@
 import { create } from "zustand";
+import { DEFAULT_LOCALE, type Locale } from "../../lib/i18n";
+
+/** ロケール初期値: localStorage(mmc_locale) があれば復元、無ければ既定(ja) */
+function initLocale(): Locale {
+  if (typeof window !== "undefined") {
+    const v = window.localStorage.getItem("mmc_locale");
+    if (v === "ja" || v === "en") return v;
+  }
+  return DEFAULT_LOCALE;
+}
 
 export interface BlockFace {
   color: string;
@@ -90,6 +100,9 @@ export interface EditorState {
   generatedJsCode: string;
   logicGraphJson: string;
 
+  locale: Locale;
+
+  setLocale: (l: Locale) => void;
   setLogicGraphJson: (json: string) => void;
   setPackIconDataUrl: (url: string) => void;
   addBlock: (block: VoxelBlock) => void;
@@ -189,6 +202,12 @@ export const useEditorStore = create<EditorState>((set) => ({
   generatedJsCode: "",
   logicGraphJson: "",
 
+  locale: initLocale(),
+
+  setLocale: (l) => {
+    if (typeof window !== "undefined") window.localStorage.setItem("mmc_locale", l);
+    set({ locale: l });
+  },
   setLogicGraphJson:  (json) => set({ logicGraphJson: json }),
   setPackIconDataUrl: (url)  => set({ packIconDataUrl: url }),
   addBlock:    (block)        => set((s) => ({ blocks: [...s.blocks, block] })),
