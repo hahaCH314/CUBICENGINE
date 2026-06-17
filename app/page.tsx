@@ -186,24 +186,14 @@ export default function HomePage() {
               >
                 {t(locale, "cta.tryWeb")}
               </Link>
-              <DlButton
-                href={DOWNLOADS.sprout.win}
-                kind="win"
-                label={t(locale, "dl.win")}
-                style={{
-                  background: "linear-gradient(135deg, #a3e635, #16a34a)",
-                  boxShadow: "0 4px 12px rgba(22,163,74,0.3)",
-                }}
-              />
-              <DlButton
-                href={DOWNLOADS.sprout.mac}
-                kind="mac"
-                label={t(locale, "dl.mac")}
-                style={{
-                  background: "rgba(255, 255, 255, 0.08)",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                }}
-              />
+              {RELEASES_READY ? (
+                <>
+                  <DlButton href={DOWNLOADS.sprout.win} kind="win" label={t(locale, "dl.win")} style={{ background: "linear-gradient(135deg, #a3e635, #16a34a)", boxShadow: "0 4px 12px rgba(22,163,74,0.3)" }} />
+                  <DlButton href={DOWNLOADS.sprout.mac} kind="mac" label={t(locale, "dl.mac")} style={{ background: "rgba(255, 255, 255, 0.08)", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }} />
+                </>
+              ) : (
+                <p className="text-[10px] text-muted/55 text-center py-2 leading-snug">{t(locale, "dl.desktopSoon")}</p>
+              )}
             </div>
           </div>
 
@@ -259,24 +249,14 @@ export default function HomePage() {
                   {t(locale, "dl.soon")}
                 </span>
               )}
-              <DlButton
-                href={DOWNLOADS.grove.win}
-                kind="win"
-                label={t(locale, "dl.win")}
-                style={{
-                  background: "linear-gradient(135deg, #22d3ee, #0891b2)",
-                  boxShadow: "0 4px 12px rgba(8,145,178,0.3)",
-                }}
-              />
-              <DlButton
-                href={DOWNLOADS.grove.mac}
-                kind="mac"
-                label={t(locale, "dl.mac")}
-                style={{
-                  background: "rgba(255, 255, 255, 0.08)",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                }}
-              />
+              {RELEASES_READY ? (
+                <>
+                  <DlButton href={DOWNLOADS.grove.win} kind="win" label={t(locale, "dl.win")} style={{ background: "linear-gradient(135deg, #22d3ee, #0891b2)", boxShadow: "0 4px 12px rgba(8,145,178,0.3)" }} />
+                  <DlButton href={DOWNLOADS.grove.mac} kind="mac" label={t(locale, "dl.mac")} style={{ background: "rgba(255, 255, 255, 0.08)", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }} />
+                </>
+              ) : (
+                <p className="text-[10px] text-muted/55 text-center py-2 leading-snug">{t(locale, "dl.desktopSoon")}</p>
+              )}
             </div>
           </div>
         </div>
