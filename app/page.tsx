@@ -170,7 +170,7 @@ export default function HomePage() {
                 SPROUT
               </h2>
               <p className="text-[10px] font-pixel text-[#a3e635]/90 mb-2">{t(locale, "sprout.tag")}</p>
-              <p className="text-xs text-muted leading-relaxed text-center font-sans max-w-[280px] mx-auto">
+              <p className="text-xs text-muted leading-relaxed text-center font-sans max-w-[280px] mx-auto" style={{ whiteSpace: "pre-line" }}>
                 {t(locale, "sprout.desc")}
               </p>
             </div>

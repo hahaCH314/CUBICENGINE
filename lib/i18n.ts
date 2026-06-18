@@ -25,7 +25,7 @@ export const DICT: Record<string, Entry> = {
   "hero.desc1":       { ja: "楽しいビジュアル環境、コーディング不要。", en: "A fun visual workspace — no coding required." },
   "hero.desc2":       { ja: "アドオン・MODを設計・構築・エクスポート。", en: "Design, build, and export add-ons & mods." },
   "sprout.tag":       { ja: "統合版・アドオン", en: "Bedrock · Add-on" },
-  "sprout.desc":      { ja: "ブロックやアイテム、エンティティをノンコーディングで制作。楽しいビジュアル環境でアドオン開発。", en: "Create blocks, items and entities with zero code. Build add-ons in a fun visual workspace." },
+  "sprout.desc":      { ja: "統合版のブロックやアイテム、エンティティを\nノンコーディングで制作\n新しいビジュアル環境でアドオン開発", en: "Create blocks, items and entities in Bedrock with zero code.\nBuild add-ons in a new visual workspace." },
   "grove.tag":        { ja: "Java版・MOD", en: "Java · Mod" },
   "grove.desc":       { ja: "Java版のMODを強力なビジュアルエディタで開発。Gradle連携と高速自動ビルドをサポート。", en: "Build Java mods in a powerful visual editor. Gradle integration with fast auto-build." },
   "cta.tryWeb":       { ja: "🌐 ブラウザで試す", en: "🌐 Try in browser" },
