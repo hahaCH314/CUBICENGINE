@@ -21,8 +21,10 @@ const DOWNLOADS = {
 // false の間は DL ボタンを「準備中」表示にして 404 を踏ませない。
 const RELEASES_READY = false;
 
-// GROVE(Java)はまだ準備中。true にすると GROVE のWeb入口(ブラウザで試す)が有効に。
-const JAVA_READY = false;
+// GROVE(Java)はまだ準備中。本番(Vercel)では false のまま＝一般公開しない。
+// ただしローカル開発(next dev)では入口を開いて確認・制作できるようにする。
+// → 公開ビルドは NODE_ENV==="production" なので塞がれたまま。
+const JAVA_READY = process.env.NODE_ENV !== "production";
 
 // DLボタン：リリース公開済みなら実DL、未公開なら「準備中」の非リンク表示
 function DlButton({

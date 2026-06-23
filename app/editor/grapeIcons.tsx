@@ -201,6 +201,69 @@ export function NumberIcon({ size = 20, ...props }: IconProps) {
   );
 }
 
+// 10. ダメージ (Hurt): ひびの入ったハート
+export function HurtIcon({ size = 20, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z" />
+      <path d="m12 5-1.5 5 3 1.5-2 4.5" />
+    </svg>
+  );
+}
+
+// 11. 毎しゅんかん (Tick): 時計
+export function TickIcon({ size = 20, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <polyline points="12 7 12 12 16 14" />
+    </svg>
+  );
+}
+
+// 12. テレポート (Teleport): ポータルの渦
+export function TeleportIcon({ size = 20, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M12 3c-3 0-5.5 4-5.5 9s2.5 9 5.5 9 5.5-4 5.5-9-2.5-9-5.5-9Z" />
+      <path d="M12 3v18" />
+      <path d="M6.7 7.5h10.6M6.7 16.5h10.6" />
+    </svg>
+  );
+}
+
+// 13. タイトル (Title): 大きな "T"（画面に大きく出す）
+export function TitleIcon({ size = 20, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M4 7V5h16v2" />
+      <path d="M9 19h6" />
+      <path d="M12 5v14" />
+    </svg>
+  );
+}
+
+// 14. 音 (Sound): スピーカー＋音波
+export function SoundIcon({ size = 20, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+    </svg>
+  );
+}
+
+// 15. コマンド (Command): ターミナル ">_"
+export function CommandIcon({ size = 20, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <polyline points="4 17 10 11 4 5" />
+      <line x1="12" y1="19" x2="20" y2="19" />
+    </svg>
+  );
+}
+
 // 一覧オブジェクト
 export const GrapeIcons = {
   Join: JoinIcon,
@@ -212,4 +275,10 @@ export const GrapeIcons = {
   If: IfIcon,
   Loop: LoopIcon,
   Number: NumberIcon,
+  Hurt: HurtIcon,
+  Tick: TickIcon,
+  Teleport: TeleportIcon,
+  Title: TitleIcon,
+  Sound: SoundIcon,
+  Command: CommandIcon,
 };

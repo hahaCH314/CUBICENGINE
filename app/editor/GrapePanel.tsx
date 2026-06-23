@@ -2,6 +2,9 @@
 
 import { useState, useRef, useCallback, useEffect, type ComponentType } from "react";
 import { GrapeIcons, type IconProps } from "./grapeIcons";
+import { grapeToCBlock } from "../../lib/grapeToCBlock";
+import { exportProject } from "./exporter";
+import { useEditorStore } from "./store";
 
 /* ──────────────────────────────────────────────────────────────
    GrapePanel — 🌿 GROVE（JAVA / 自然×メタバース）/ 構造は「ハブ」
@@ -28,9 +31,16 @@ const ITEMS: ItemDef[] = [
   { type: "on_join",  label: "参加したとき",   emoji: "👋", cat: "trigger", needsText: false, placeholder: "" },
   { type: "on_break", label: "ブロック破壊",   emoji: "⛏️", cat: "trigger", needsText: false, placeholder: "" },
   { type: "on_chat",  label: "チャット入力",   emoji: "💬", cat: "trigger", needsText: true,  placeholder: "合言葉" },
+  { type: "on_use",   label: "アイテムを使ったとき", emoji: "🔮", cat: "trigger", needsText: true, placeholder: "diamond" },
+  { type: "on_hurt",  label: "ダメージをうけたとき", emoji: "💥", cat: "trigger", needsText: false, placeholder: "" },
+  { type: "on_tick",  label: "ずっと(毎しゅんかん)", emoji: "⏰", cat: "trigger", needsText: false, placeholder: "" },
   { type: "say",      label: "メッセージ送信", emoji: "📢", cat: "action",  needsText: true,  placeholder: "こんにちは！" },
   { type: "give",     label: "アイテムを渡す", emoji: "🎁", cat: "action",  needsText: true,  placeholder: "diamond ×1" },
   { type: "effect",   label: "効果をつける",   emoji: "✨", cat: "action",  needsText: false, placeholder: "" },
+  { type: "tp",       label: "テレポート",     emoji: "🌀", cat: "action",  needsText: true,  placeholder: "0 64 0" },
+  { type: "title",    label: "画面に大きく出す", emoji: "🎬", cat: "action", needsText: true,  placeholder: "クリア！" },
+  { type: "sound",    label: "音を鳴らす",     emoji: "🔊", cat: "action",  needsText: true,  placeholder: "random.levelup" },
+  { type: "command",  label: "コマンド",       emoji: "⌨️", cat: "action",  needsText: true,  placeholder: "time set day" },
   { type: "if",       label: "もし〜なら",     emoji: "🔀", cat: "ifelse",  needsText: true,  placeholder: "夜のとき" },
   { type: "repeat",   label: "くりかえす",     emoji: "🔄", cat: "loop",    needsText: true,  placeholder: "3 回" },
   { type: "number",   label: "数",             emoji: "💎", cat: "value",   needsText: true,  placeholder: "10" },
@@ -57,7 +67,9 @@ const MOTES: { x: string; y: string; s: number; c: string; d: number; delay: num
 // アイテム種別 → 単色SVGアイコン（ヒマワリ作 grapeIcons・currentColorで色は親に追従）
 const ICON_MAP: Record<string, ComponentType<IconProps>> = {
   on_join: GrapeIcons.Join, on_break: GrapeIcons.Break, on_chat: GrapeIcons.Chat,
+  on_use: GrapeIcons.Item, on_hurt: GrapeIcons.Hurt, on_tick: GrapeIcons.Tick,
   say: GrapeIcons.Message, give: GrapeIcons.Item, effect: GrapeIcons.Effect,
+  tp: GrapeIcons.Teleport, title: GrapeIcons.Title, sound: GrapeIcons.Sound, command: GrapeIcons.Command,
   if: GrapeIcons.If, repeat: GrapeIcons.Loop, number: GrapeIcons.Number,
 };
 function ItemGlyph({ type, size }: { type: string; size: number }) {
@@ -138,11 +150,31 @@ export default function GrapePanel() {
   const removeFruit = (id: string) => { setFruits((f) => f.filter((x) => x.id !== id)); setSelectedId((s) => s === id ? null : s); };
 
   // 放つ → あなたが書いた事になるコードが生まれる（魂＝創造のロマン）
-  const sendToMc = useCallback(() => {
+  const sendToMc = useCallback(async () => {
     const h = fruits.find((x) => x.item.cat === "trigger") || null;
     if (!h) return;
     const sp = fruits.filter((x) => x !== h);
-    setShown(0); setReveal(fruitsToCode(h, sp)); setSending(true); playSend();
+
+    // CBlock[] への変換
+    const blocks = grapeToCBlock(fruits);
+    
+    // ストアに登録し、プラットフォームを Java に固定
+    const store = useEditorStore.getState();
+    store.setLogicGraphJson(JSON.stringify({ blocks }));
+    store.setTargetPlatform("java");
+
+    // 自動でダウンロードZIPを実行
+    try {
+      await exportProject(store, "");
+    } catch (err) {
+      console.error("Failed to export project:", err);
+    }
+
+    // 従来通りのコード表示演出
+    setShown(0);
+    setReveal(fruitsToCode(h, sp));
+    setSending(true);
+    playSend();
   }, [fruits]);
 
 
@@ -400,7 +432,10 @@ function Grape({ fr, selected, isHub, onSelect, onDelete }: {
 }
 
 // 組んだ実 → "あなたが書いた事になる"コード（Java/GROVE 風・演出用の本物っぽい見せ方）
-const TRIGGER_JAVA: Record<string, string> = { on_join: "onPlayerJoin", on_break: "onBlockBreak", on_chat: "onPlayerChat" };
+const TRIGGER_JAVA: Record<string, string> = {
+  on_join: "onPlayerJoin", on_break: "onBlockBreak", on_chat: "onPlayerChat",
+  on_use: "onUseItem", on_hurt: "onPlayerHurt", on_tick: "onServerTick",
+};
 function fruitsToCode(hub: Fruit, spokes: Fruit[]): string[] {
   const ev = TRIGGER_JAVA[hub.item.type] || "onEvent";
   const lines: string[] = [];
@@ -419,6 +454,10 @@ function actionToJava(f: Fruit): string {
     case "say":    return `player.sendMessage("${t || "こんにちは！"}");`;
     case "give":   return `player.give(new ItemStack("${t || "diamond"}"));`;
     case "effect": return `player.addEffect(Effects.JUMP_BOOST, 200);`;
+    case "tp":     return `player.teleportTo(${t || "0, 64, 0"});`;
+    case "title":  return `player.showTitle("${t || "クリア！"}");`;
+    case "sound":  return `player.playSound("${t || "random.levelup"}");`;
+    case "command":return `server.runCommand("${t || "time set day"}");`;
     case "if":     return `if (world.isNight()) { /* ${t || "じょうけん"} */ }`;
     case "repeat": return `for (int i = 0; i < ${parseInt(t) || 3}; i++) { /* くりかえす */ }`;
     case "number": return `int value = ${parseInt(t) || 0};`;
