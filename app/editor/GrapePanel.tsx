@@ -260,6 +260,9 @@ function ItemGlyph({ type, size }: { type: string; size: number }) {
 interface Fruit { id: string; item: ItemDef; text: string; born: number; x: number; y: number; parentId?: string | null; slot?: GroveSlot | null; }
 interface Spawn { x: number; y: number; phase: "pick" | "type"; item?: ItemDef; editId?: string; }
 let _gid = 1;
+// HMR(Fast Refresh)で _gid だけ 1 にリセットされても、state に残った既存IDと
+// 二度と衝突しないよう、時刻(base36)＋乱数を混ぜて一意なIDを発行する。
+const newGrapeId = () => `g${Date.now().toString(36)}${(_gid++).toString(36)}${Math.random().toString(36).slice(2, 5)}`;
 
 export default function GrapePanel() {
   const [fruits, setFruits] = useState<Fruit[]>([]);
@@ -575,7 +578,7 @@ export default function GrapePanel() {
 
   // 植えた場所に実が生る
   const doGenerate = (item: ItemDef, text: string) => {
-    const id = `g${_gid++}`;
+    const id = newGrapeId();
     const targetX = spawn ? spawn.x : stageSize.width / 2;
     const targetY = spawn ? spawn.y : stageSize.height / 2;
     
