@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 // 寄付リンク：Ko-fi / Buy Me a Coffee 等のURLを用意できたら、ここに入れるだけで有効化されます。
-const DONATE_URL = "";
+const DONATE_URL = "https://ko-fi.com/ihafam";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
