@@ -392,6 +392,26 @@ export default function SettingsPanel() {
               </Row>
             </div>
           )}
+
+          {/* コミュニティ・リンク */}
+          <div className="bg-panel rounded-xl border border-border p-3">
+            <div className="text-[10px] font-bold text-accent uppercase tracking-wider mb-2">リンク & サポート</div>
+            <a
+              href="https://discord.gg/pagpxcfeC"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-[#5865F2] hover:bg-[#4752C4] active:bg-[#3C45A5] text-white font-bold text-xs transition-colors"
+              style={{ boxShadow: "0 2px 4px rgba(88,101,242,0.2)" }}
+            >
+              <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 127.14 96.36">
+                <path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,52.88,6.83,77.19,77.19,0,0,0,49.58,0,105.15,105.15,0,0,0,19.14,8.07C3,31.58-1.45,54.47,1,77.06a107.4,107.4,0,0,0,32.22,16.14,78.11,78.11,0,0,0,6.77-11,68.86,68.86,0,0,1-10.75-5.13c.91-.66,1.8-1.34,2.65-2a75.58,75.58,0,0,0,62.93,0c.84.69,1.74,1.37,2.65,2a68.86,68.86,0,0,1-10.75,5.13,78.11,78.11,0,0,0,6.77,11,107.4,107.4,0,0,0,32.22-16.14C128.87,54.47,124.1,31.58,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.83,46,53.83,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.07,46,96.07,53,91,65.69,84.69,65.69Z"/>
+              </svg>
+              公式Discordに参加する
+            </a>
+            <p className="text-[9px] text-muted/50 mt-1.5 text-center leading-tight">
+              ※Discordの利用規約に基づき、13歳以上の方が対象です。
+            </p>
+          </div>
         </div>
 
         {/* ▌ 中央：ビルドターゲット & 出力設定 */}
