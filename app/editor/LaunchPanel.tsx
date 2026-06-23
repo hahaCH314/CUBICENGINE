@@ -134,7 +134,7 @@ export default function LaunchPanel() {
           ランチャーは .exe 版のみ利用できます
         </h2>
         <p style={{ color: "#888", fontSize: 13 }}>
-          デスクトップアプリ（MineModCraft Studio.exe）を使用してください。
+          デスクトップアプリ（CUBICENGINE デスクトップ版）を使用してください。
         </p>
       </div>
     );

@@ -266,6 +266,15 @@ export default function HomePage() {
         <p className="mt-6 text-[10px] text-muted/50 font-sans shrink-0">
           {t(locale, "footer.note")}
         </p>
+        <nav className="mt-2 mb-1 flex items-center justify-center gap-3 text-[11px] text-muted/70 font-sans shrink-0">
+          <Link href="/privacy" className="underline underline-offset-2 hover:text-foreground transition-colors">
+            プライバシーポリシー
+          </Link>
+          <span className="opacity-40">·</span>
+          <Link href="/terms" className="underline underline-offset-2 hover:text-foreground transition-colors">
+            利用規約
+          </Link>
+        </nav>
       </section>
     </div>
   );

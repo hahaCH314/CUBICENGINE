@@ -91,18 +91,24 @@ export default function RootLayout({
             bottom: 3,
             transform: "translateX(-50%)",
             zIndex: 99999,
-            fontSize: 13,
-            fontWeight: 700,
-            lineHeight: 1,
-            color: "#f0a818",
             pointerEvents: "none",
-            whiteSpace: "nowrap",
-            letterSpacing: "0.02em",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 2,
+            maxWidth: "96vw",
+            textAlign: "center",
             fontFamily: "'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', 'Noto Sans JP', system-ui, sans-serif",
             textShadow: "0 1px 2px rgba(0,0,0,0.9)",
           }}
         >
-          © 2026 伊波さん ・ 開発マネージャー：なっとうサイダー
+          {/* 非公式ディスクレーマ（Mojangブランドガイドライン対応・全ページ表示） */}
+          <span style={{ fontSize: 9, fontWeight: 600, lineHeight: 1.25, color: "#cbd5e1", opacity: 0.85 }}>
+            ※非公式ツールです。Mojang Studios・Microsoft とは関係ありません。Minecraft は Mojang Studios の商標です。
+          </span>
+          <span style={{ fontSize: 13, fontWeight: 700, lineHeight: 1, color: "#f0a818", letterSpacing: "0.02em", whiteSpace: "nowrap" }}>
+            © 2026 伊波さん ・ 開発マネージャー：なっとうサイダー
+          </span>
         </div>
       </body>
     </html>

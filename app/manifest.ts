@@ -2,9 +2,9 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'MineModCraft Studio',
-    short_name: 'MMC Studio',
-    description: 'Visual Minecraft Modding IDE — コーディング不要でMinecraft Modを作成',
+    name: 'CUBICENGINE',
+    short_name: 'CUBICENGINE',
+    description: 'コーディング不要のビジュアルModding環境。非公式（Mojang/Microsoftとは無関係）。',
     start_url: '/',
     display: 'standalone',
     background_color: '#0a0a0c',
