@@ -37,6 +37,18 @@ const SLOT_HEAD: Record<string, { glyph: string; jp: string }> = {
   else: { glyph: "✗", jp: "ちがうなら" },
 };
 
+/* ══════════════════════════════════════════════════════════
+   やさしいカテゴリ（物語順）— SPROUT は非コーダー全振り。
+   頭の中の「いつ → どうなる → もっと(上級)」の3つだけに集約。
+   上級(条件/くりかえし/数/計算/変数)は "もっと" に畳む＝消さない。
+   ══════════════════════════════════════════════════════════ */
+interface FriendlyGroup { key: string; label: string; sub: string; icon: string; cats: Category[]; bg: string; top: string; side: string; text: string; }
+const FRIENDLY_GROUPS: FriendlyGroup[] = [
+  { key: "when", label: "きっかけ", sub: "〜したとき",   icon: "Zap",      cats: ["trigger"],                                     bg: "#facc15", top: "#fef9c3", side: "#ca8a04", text: "#451a03" },
+  { key: "do",   label: "すること", sub: "〜する",       icon: "Wand2",    cats: ["action", "ui"],                                bg: "#38bdf8", top: "#e0f2fe", side: "#0284c7", text: "#0c4a6e" },
+  { key: "more", label: "もっと",   sub: "上級・そのほか", icon: "Sparkles", cats: ["ifelse", "loop", "value", "calc", "variable"], bg: "#a855f7", top: "#f3e8ff", side: "#9333ea", text: "#4c1d95" },
+];
+
 function getRootBlockId(blockId: string, blocks: CBlock[]): string {
   const parent = blocks.find(x => x.nextId === blockId || x.innerId === blockId || x.thenId === blockId || x.elseId === blockId);
   if (!parent) return blockId;
@@ -1916,17 +1928,14 @@ export default function LogicPanel() {
   const [selected, setSelected] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [showLib, setShowLib] = useState(true);
-  const [activeCategory, setActiveCategory] = useState<Category>("trigger");
+  const [activeGroup, setActiveGroup] = useState<string>("when");
   const [selectedTemplate, setSelectedTemplate] = useState<Tmpl | null>(null);
 
   useEffect(() => {
-    const defaultTemplates = TEMPLATES.filter(t => t.category === activeCategory);
-    if (defaultTemplates.length > 0) {
-      setSelectedTemplate(defaultTemplates[0]);
-    } else {
-      setSelectedTemplate(null);
-    }
-  }, [activeCategory]);
+    const g = FRIENDLY_GROUPS.find(x => x.key === activeGroup) ?? FRIENDLY_GROUPS[0];
+    const defaultTemplates = TEMPLATES.filter(t => g.cats.includes(t.category));
+    setSelectedTemplate(defaultTemplates.length > 0 ? defaultTemplates[0] : null);
+  }, [activeGroup]);
 
   const [fieldVals, setFieldVals] = useState<Record<string, string>>({});
   // 手札トレイ：スポーンしたカードの一時置き場（クリックでキャンバスへ配置）
@@ -1944,9 +1953,10 @@ export default function LogicPanel() {
   const [mouseCanvasPos, setMouseCanvasPos] = useState({ x: 0, y: 0 });
 
   const searching = search.trim().length > 0;
+  const currentGroup = FRIENDLY_GROUPS.find(g => g.key === activeGroup) ?? FRIENDLY_GROUPS[0];
   const filtered = searching
     ? TEMPLATES.filter(t => t.label.includes(search) || t.sublabel.includes(search))
-    : TEMPLATES.filter(t => t.category === activeCategory);
+    : TEMPLATES.filter(t => currentGroup.cats.includes(t.category));
   const [showCode, setShowCode] = useState(false);
   const [showHelp, setShowHelp] = useState(true);
   const [genCode, setGenCode] = useState("");
@@ -2655,8 +2665,6 @@ export default function LogicPanel() {
     }
   }
 
-  const cats: Category[] = ["trigger", "action", "ifelse", "value", "loop", "calc", "ui", "variable"];
-
   return (
     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "row", overflow: "hidden", background: "#f0f9ff" }}>
         <style>{`
@@ -2782,6 +2790,14 @@ export default function LogicPanel() {
           transform: translateY(2px);
           box-shadow: 0 0 0 2.5px var(--card-color), 0 2px 5px rgba(0,0,0,0.15) !important;
         }
+        .toy-key {
+          transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s ease !important;
+        }
+        .toy-key:hover { filter: brightness(1.05); }
+        .toy-key:active {
+          transform: translateY(4px) !important;
+          box-shadow: 0 1px 0 var(--leg, #cbd5e1), 0 1px 4px rgba(0,0,0,0.15), inset 0 1px 2px rgba(0,0,0,0.1) !important;
+        }
         @keyframes fsFlip {
           0% { transform: translateY(-40%); opacity: 0; }
           100% { transform: translateY(0); opacity: 1; }
@@ -2806,25 +2822,8 @@ export default function LogicPanel() {
           overflowY: "auto",
           boxShadow: "inset -4px 0 12px rgba(0,0,0,0.03), 4px 0 10px rgba(0,0,0,0.05)"
         }}>
-          {/* スロット看板 */}
-          <div style={{
-            background: "linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%)", // ソーダブループレート
-            border: "3px solid #1e293b", // 他のおもちゃボタンと合わせた黒枠
-            borderRadius: 12,
-            padding: "8px 0",
-            textAlign: "center",
-            boxShadow: "0 4px 0 #0284c7, inset 0 2px 0 rgba(255,255,255,0.4)" // ぷっくり立体感
-          }}>
-            <span style={{
-              fontSize: 12, fontWeight: 900,
-              color: "#0369a1", // ソーダブルーの濃い文字色
-              fontFamily: "var(--font-pixel), monospace",
-              letterSpacing: "0.15em",
-            }}>🌱 SPROUT SLOTS 🌱</span>
-          </div>
-
           {/* 検索窓 */}
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 ブロックを検索..."
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 検索…"
             style={{
               width: "100%", boxSizing: "border-box", padding: "6px 10px", fontSize: 11,
               background: "#ffffff",
@@ -2836,62 +2835,109 @@ export default function LogicPanel() {
               boxShadow: "0 2px 0 #cbd5e1, inset 0 2px 3px rgba(0,0,0,0.06)",
             }} />
 
-          {/* カテゴリドラム */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          {/* STEP 1：やさしいカテゴリ（物語順 いつ→どうなる→もっと） */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <div style={{ fontSize: 10, fontWeight: 900, color: "#64748b", letterSpacing: "0.08em", paddingLeft: 4 }}>
-              STEP 1: カテゴリをまわす
+              STEP 1: まず えらぶ
             </div>
-            <SlotReel
-              items={cats}
-              value={activeCategory}
-              onChange={(cat) => {
-                setActiveCategory(cat);
-                if (searching) setSearch("");
-              }}
-              renderItem={(cat, active) => {
-                const c = CAT[cat];
+            <div style={{ display: "flex", gap: 8 }}>
+              {FRIENDLY_GROUPS.map(g => {
+                const TIcon = (LucideIcons as any)[g.icon] || LucideIcons.HelpCircle;
+                const active = !searching && activeGroup === g.key;
+                const leg = active ? g.side : "#cbd5e1";
                 return (
-                  <div style={{
-                    display: "flex", alignItems: "center", gap: 8,
-                    color: active ? c.text : "#64748b",
-                    fontWeight: 900, fontSize: active ? 13 : 11,
-                  }}>
-                    <span style={{ fontSize: active ? 16 : 13 }}>{c.icon}</span>
-                    <span>{c.label}</span>
-                  </div>
+                  <button
+                    key={g.key}
+                    className="toy-key"
+                    title={`${g.label}（${g.sub}）`}
+                    onClick={() => {
+                      setActiveGroup(g.key);
+                      if (searching) setSearch("");
+                      playClickSound();
+                    }}
+                    style={{
+                      flex: 1,
+                      minWidth: 0,
+                      minHeight: 78,
+                      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4,
+                      padding: "10px 4px",
+                      borderRadius: 14,
+                      border: "3px solid #1e293b",
+                      cursor: "pointer",
+                      background: active
+                        ? `linear-gradient(135deg, ${g.top} 0%, ${g.bg} 100%)`
+                        : "linear-gradient(135deg, #ffffff 0%, #eef1f5 100%)",
+                      color: active ? g.text : "#64748b",
+                      boxShadow: `0 5px 0 ${leg}, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)`,
+                      filter: active ? `drop-shadow(0 0 6px ${g.bg}aa)` : "none",
+                      textShadow: active ? "0 1px 1px rgba(0,0,0,0.15)" : "none",
+                      ["--leg" as any]: leg,
+                    }}
+                  >
+                    <TIcon size={24} color={active ? g.text : g.bg} strokeWidth={2.5} style={{ flexShrink: 0 }} />
+                    <span style={{ fontSize: 12.5, fontWeight: 900, lineHeight: 1 }}>{g.label}</span>
+                    <span style={{ fontSize: 8.5, fontWeight: 800, opacity: 0.8, lineHeight: 1, whiteSpace: "nowrap" }}>{g.sub}</span>
+                  </button>
                 );
-              }}
-            />
+              })}
+            </div>
           </div>
 
-          {/* アイテムドラム */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          {/* アイテム選択（スロットなし・ボタンリスト） */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <div style={{ fontSize: 10, fontWeight: 900, color: "#64748b", letterSpacing: "0.08em", paddingLeft: 4 }}>
-              STEP 2: アイテムをまわす
+              STEP 2: {searching ? "けんさく結果" : `${currentGroup.label} をえらぶ`} <span style={{ color: "#94a3b8", fontWeight: 700 }}>（{filtered.length}）</span>
             </div>
-            <SlotReel
-              items={filtered}
-              value={selectedTemplate || filtered[0]}
-              onChange={(tmpl) => setSelectedTemplate(tmpl)}
-              renderItem={(tmpl, active) => {
-                if (!tmpl) return null;
+            <div style={{
+              display: "flex", flexDirection: "column", gap: 5,
+              maxHeight: 260, overflowY: "auto",
+              padding: 6,
+              borderRadius: 10,
+              background: "#f4f1ea",
+              border: "2px solid #e4dfd5",
+              boxShadow: "inset 0 2px 5px rgba(0,0,0,0.06)",
+            }}>
+              {filtered.length === 0 && (
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textAlign: "center", padding: "16px 0" }}>
+                  みつからなかった…
+                </div>
+              )}
+              {filtered.map(tmpl => {
                 const c = CAT[tmpl.category];
                 const TIcon = (LucideIcons as any)[tmpl.emoji] || LucideIcons.HelpCircle;
+                const active = selectedTemplate?.type === tmpl.type;
+                const leg = active ? c.side : "#dfe4ea";
                 return (
-                  <div style={{
-                    display: "flex", alignItems: "center", gap: 8,
-                    color: active ? c.text : "#64748b",
-                    fontWeight: 900, fontSize: active ? 12 : 10,
-                    width: "100%", justifyContent: "center"
-                  }}>
-                    <TIcon size={active ? 16 : 13} color={active ? c.text : "#94a3b8"} strokeWidth={2.5} />
-                    <span style={{
-                      maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"
-                    }}>{tmpl.label}</span>
-                  </div>
+                  <button
+                    key={tmpl.type}
+                    className="toy-key"
+                    title={tmpl.label}
+                    onClick={() => { setSelectedTemplate(tmpl); playClickSound(); }}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 8,
+                      width: "100%",
+                      padding: "9px 10px",
+                      borderRadius: 10,
+                      border: "3px solid #1e293b",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      fontWeight: 900, fontSize: 11.5,
+                      background: active
+                        ? `linear-gradient(135deg, ${c.top} 0%, ${c.bg} 100%)`
+                        : "linear-gradient(135deg, #ffffff 0%, #eef1f5 100%)",
+                      color: active ? c.text : "#475569",
+                      boxShadow: `0 4px 0 ${leg}, 0 3px 7px rgba(0,0,0,0.08), inset 0 2px 0 rgba(255,255,255,0.6)`,
+                      filter: active ? `drop-shadow(0 0 4px ${c.bg}99)` : "none",
+                      textShadow: active ? "0 1px 1px rgba(0,0,0,0.15)" : "none",
+                      ["--leg" as any]: leg,
+                    }}
+                  >
+                    <TIcon size={16} color={active ? c.text : c.bg} strokeWidth={2.5} style={{ flexShrink: 0 }} />
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{tmpl.label}</span>
+                  </button>
                 );
-              }}
-            />
+              })}
+            </div>
           </div>
 
           {/* STEP 3：テキストごとにスロット（中身をセット） */}
@@ -3834,13 +3880,13 @@ export default function LogicPanel() {
                 height: 52,
                 background: isLogicValid
                   ? "linear-gradient(135deg, #a7f3d0 0%, #10b981 100%)" // 爽やかなエメラルドグリーン
-                  : "linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%)",
+                  : "linear-gradient(135deg, #dcfce7 0%, #b6e7c9 100%)", // 待機中もやさしいミントグリーン
                 border: "3px solid #1e293b",
                 borderRadius: 24, // 可愛い完全角丸
                 boxShadow: isLogicValid
                   ? "0 5px 0 #047857, 0 6px 12px rgba(16,185,129,0.15), inset 0 3px 0 rgba(255,255,255,0.6)"
-                  : "0 4px 0 #94a3b8, 0 2px 4px rgba(0,0,0,0.05)",
-                color: isLogicValid ? "#064e3b" : "#94a3b8",
+                  : "0 4px 0 #a7d7bf, 0 2px 4px rgba(0,0,0,0.05), inset 0 2px 0 rgba(255,255,255,0.5)",
+                color: isLogicValid ? "#064e3b" : "#5a9e80",
                 fontWeight: 900,
                 fontSize: 12,
                 letterSpacing: "0.05em",
