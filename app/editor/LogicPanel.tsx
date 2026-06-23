@@ -2811,8 +2811,8 @@ export default function LogicPanel() {
           width: 360,
           display: "flex",
           flexDirection: "column",
-          background: "#fdfbf7", // 上品なココナッツミルク色
-          borderRight: "5px solid #e4dfd5", // 優しいトーンの仕切り枠
+          background: "#bfe8cc", // SPROUTグリーンをより強調した淡いグリーン色
+          borderRight: "5px solid #9fcca9", // グリーン調の仕切り枠
           borderTop: "3px solid #fff", // 上部ハイライト
           zIndex: 30,
           flexShrink: 0,
@@ -2893,8 +2893,8 @@ export default function LogicPanel() {
               maxHeight: 260, overflowY: "auto",
               padding: 6,
               borderRadius: 10,
-              background: "#f4f1ea",
-              border: "2px solid #e4dfd5",
+              background: "#abdcb8", // さらにグリーン感を高めたリスト背景
+              border: "2px solid #8bc79e",
               boxShadow: "inset 0 2px 5px rgba(0,0,0,0.06)",
             }}>
               {filtered.length === 0 && (
@@ -3346,8 +3346,8 @@ export default function LogicPanel() {
             right: 10,
             bottom: 10,
             width: 170,
-            background: "#eef2f6", // パステルグレーブルーのプラスチック筐体風
-            border: "4px solid #cbd5e1", // おもちゃの太いプラスチック枠
+            background: "#bfeecf", // SPROUTグリーンをより強調した筐体風グリーン
+            border: "4px solid #8bc79e", // おもちゃの太いグリーン枠
             borderRadius: 20,
             padding: "16px 12px",
             display: "flex",

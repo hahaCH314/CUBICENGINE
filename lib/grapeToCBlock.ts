@@ -1,5 +1,5 @@
 import type { CBlock, FieldDef, Category } from "../app/editor/_types";
-import { buildGroveStructure, type GroveSlot } from "./groveTree";
+import { buildGroveStructure, type GroveSlot, type GroveStructure } from "./groveTree";
 
 export interface Fruit {
   id: string;
@@ -51,7 +51,7 @@ function buildTriggerBlock(f: Fruit): CBlock {
 }
 
 /** アクション／制御の実 → CBlock。if の条件ブロック等は extra で返す。鎖は後段で結線。 */
-function buildActionBlock(f: Fruit): { block: CBlock; extra: CBlock[] } {
+function buildActionBlock(f: Fruit, struct: GroveStructure<Fruit>): { block: CBlock; extra: CBlock[] } {
   let type = "ac_msg";
   let category: Category = "action";
   let fields: FieldDef[] = [];
@@ -119,19 +119,25 @@ function buildActionBlock(f: Fruit): { block: CBlock; extra: CBlock[] } {
   } else if (f.item.type === "if") {
     type = "co_if";
     category = "ifelse";
-    // 条件用の子ブロック（穴の中の条件）を生成して innerId に紐付け
-    const condId = `${f.id}_cond`;
-    let condType = "co_night";
-    const txt = f.text || "";
-    if (txt.includes("雨")) condType = "co_rain";
-    else if (txt.includes("スニーク") || txt.includes("しゃがむ")) condType = "co_sneak";
-    else if (txt.includes("夜")) condType = "co_night";
-    extra.push({
-      id: condId, type: condType, emoji: "🔍", label: f.text || "条件", sublabel: "",
-      category: "value", fields: [], x: f.x, y: f.y - 40,
-      nextId: null, innerId: null, thenId: null, elseId: null,
-    });
-    innerId = condId;
+    // condスロットに入っている子ノードがあるか確認
+    const condNodes = struct.childrenOf(f.id, "cond");
+    if (condNodes.length > 0) {
+      innerId = condNodes[0].id;
+    } else {
+      // 条件用の子ブロック（穴の中の条件）を生成して innerId に紐付け
+      const condId = `${f.id}_cond`;
+      let condType = "co_night";
+      const txt = f.text || "";
+      if (txt.includes("雨")) condType = "co_rain";
+      else if (txt.includes("スニーク") || txt.includes("しゃがむ")) condType = "co_sneak";
+      else if (txt.includes("夜")) condType = "co_night";
+      extra.push({
+        id: condId, type: condType, emoji: "🔍", label: f.text || "条件", sublabel: "",
+        category: "value", fields: [], x: f.x, y: f.y - 40,
+        nextId: null, innerId: null, thenId: null, elseId: null,
+      });
+      innerId = condId;
+    }
   } else if (f.item.type === "repeat") {
     type = "ct_rep";
     category = "loop";
@@ -171,22 +177,23 @@ export function grapeToCBlock(fruits: Fruit[]): CBlock[] {
   const blocks: CBlock[] = [];
   const blockById = new Map<string, CBlock>();
 
-  // 1. 全ブロック生成（鎖はまだ張らない）
+  // 1. 構造導出（正本）
+  const struct = buildGroveStructure(fruits);
+
+  // 2. 全ブロック生成（鎖はまだ張らない）
   const triggerBlock = buildTriggerBlock(triggerFruit);
   blocks.push(triggerBlock);
   blockById.set(triggerBlock.id, triggerBlock);
 
   const actionFruits = fruits.filter((f) => f.item.cat !== "trigger");
   for (const f of actionFruits) {
-    const { block, extra } = buildActionBlock(f);
+    const { block, extra } = buildActionBlock(f, struct);
     blocks.push(block);
     blockById.set(block.id, block);
     for (const e of extra) blocks.push(e);
   }
 
-  // 2. 構造導出（正本）
   const structured = fruits.some((f) => !!f.parentId);
-  const struct = buildGroveStructure(fruits);
 
   // 同一スロット内の兄弟を born 順に nextId で連結し、先頭idを返す
   const chain = (list: Fruit[]): string | null => {

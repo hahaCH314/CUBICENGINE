@@ -11,7 +11,7 @@
 /** ドーナツの穴のどのスロットに入っているか。
  *  - if  : then(真/そうなら) / else(偽/ちがうなら)
  *  - loop: body(中身/くりかえす対象)            */
-export type GroveSlot = "then" | "else" | "body";
+export type GroveSlot = "cond" | "then" | "else" | "body";
 
 /** 構造導出に必要な最小ノード形。GrapePanel の Fruit も grapeToCBlock の Fruit も
  *  これを満たす（構造的部分型）ので、両者ともこの関数を使える。 */

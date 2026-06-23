@@ -89,19 +89,19 @@ const tabConfig: { key: Tab; label: string; color: string; icon: string }[] = [
   {
     key: "logic",
     label: "ロジック",
-    color: "#facc15", // ヒーリング・ポーションピンク
+    color: "#00ddb5", // SPROUT×GROVE中間色（アクアマリン）
     icon: "🧩",
   },
   {
     key: "model",
     label: "モデル",
-    color: "#facc15",
+    color: "#3cd070",
     icon: "📦",
   },
   {
     key: "settings",
     label: "設定",
-    color: "#facc15",
+    color: "#3cd070",
     icon: "⚙️",
   },
 ];
