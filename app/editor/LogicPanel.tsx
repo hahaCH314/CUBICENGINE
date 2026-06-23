@@ -1924,7 +1924,15 @@ export default function LogicPanel() {
     return makeInitial();
   });
   const [pan, setPan] = useState({ x: 60, y: 60 });
+  const getDefaultZoom = useCallback(() => {
+    if (typeof window === "undefined") return BASE_ZOOM;
+    const w = window.innerWidth;
+    if (w < 1024) return 0.65; // タブレット等
+    if (w < 1366) return 0.8;  // ノートPC等
+    return BASE_ZOOM;          // デスクトップ
+  }, []);
   const [zoom, setZoom] = useState(BASE_ZOOM);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [showLib, setShowLib] = useState(true);
@@ -2077,13 +2085,15 @@ export default function LogicPanel() {
   }, []);
 
   const resetPanZoom = useCallback(() => {
-    setZoom(BASE_ZOOM);
+    const defaultZoom = getDefaultZoom();
+    setZoom(defaultZoom);
     const { blocks } = live.current;
     const rect = containerRef.current?.getBoundingClientRect();
+    const PAD_B = 80;
     if (blocks.length === 0) {
       if (rect) {
-        const groundY = 408 + BH;
-        setPan({ x: rect.width / 2 - 200 * BASE_ZOOM, y: rect.height - groundY * BASE_ZOOM });
+        const groundY = 408 + BH + PAD_B;
+        setPan({ x: rect.width / 2 - 200 * defaultZoom, y: rect.height - groundY * defaultZoom });
       } else {
         setPan({ x: 60, y: 60 });
       }
@@ -2094,12 +2104,12 @@ export default function LogicPanel() {
     const maxX = Math.max(...positions.map(p => p.x + BW));
     const cx = (minX + maxX) / 2;
     if (rect) {
-      const groundY = 408 + BH;
-      setPan({ x: rect.width / 2 - cx * BASE_ZOOM, y: rect.height - groundY * BASE_ZOOM });
+      const groundY = 408 + BH + PAD_B;
+      setPan({ x: rect.width / 2 - cx * defaultZoom, y: rect.height - groundY * defaultZoom });
     } else {
       setPan({ x: 60, y: 60 });
     }
-  }, []);
+  }, [getDefaultZoom]);
 
   useEffect(() => {
     if (blocks.length === 0) {
@@ -2191,6 +2201,7 @@ export default function LogicPanel() {
     const mx = (e.clientX - rect.left) / zoom - pan.x / zoom;
     const my = (e.clientY - rect.top) / zoom - pan.y / zoom;
     blockDrag.current = { active: true, id, offX: mx - visX, offY: my - visY };
+    setDraggingId(id);
     setSelected(id);
   }, []);
 
@@ -2307,6 +2318,7 @@ export default function LogicPanel() {
     function onUp() {
       if (panDrag.current.active) { panDrag.current.active = false; return; }
       if (!blockDrag.current.active) return;
+      setDraggingId(null);
       const { blocks, pan, zoom } = live.current;
       const id = blockDrag.current.id;
       const b = blocks.find(b => b.id === id)!;
@@ -2358,8 +2370,9 @@ export default function LogicPanel() {
           return !hasParent;
         });
 
+        const PAD_B = 80;
         const landY = _rect
-          ? (_rect.height - 8 - pan.y) / zoom - dragH
+          ? (_rect.height - 8 - PAD_B * zoom - pan.y) / zoom - dragH
           : 408 + BH - dragH;
 
         const myW = blockWidth(droppedBlock, blocks);
@@ -3070,7 +3083,7 @@ export default function LogicPanel() {
                       wireDrag={wireDrag}
                       onSlotClick={handleSlotClick}
                       isShaking={shakeAnim === b.id}
-                      isDragging={blockDrag.current.active && blockDrag.current.id === b.id}
+                      isDragging={draggingId === b.id}
                       isPopping={popBlocks[b.id]}
                       isRolling={rollAnim?.id === b.id}
                       rollFrom={rollAnim?.id === b.id ? rollAnim.from : 0}

@@ -94,7 +94,18 @@ export default function GrapePanel() {
   const [launchPhase, setLaunchPhase] = useState<null | "gather" | "coalesce" | "launch">(null);
   
   const [stageSize, setStageSize] = useState({ width: 800, height: 600 });
+  const getDefaultZoom = useCallback(() => {
+    if (typeof window === "undefined") return 1.0;
+    const w = window.innerWidth;
+    if (w < 1024) return 0.65; // タブレット等
+    if (w < 1366) return 0.8;  // ノートPC等
+    return 1.0;                // デスクトップ
+  }, []);
   const [zoom, setZoom] = useState(1.0);
+
+  useEffect(() => {
+    setZoom(getDefaultZoom());
+  }, [getDefaultZoom]);
   
   // 💫 生命の樹ドラッグ状態
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -505,7 +516,7 @@ export default function GrapePanel() {
             ー
           </button>
           <span
-            onClick={(e) => { e.stopPropagation(); setZoom(1.0); }}
+            onClick={(e) => { e.stopPropagation(); setZoom(getDefaultZoom()); }}
             style={{ color: "#fff", fontSize: 10, fontWeight: 900, minWidth: 38, textAlign: "center", cursor: "pointer", userSelect: "none", fontFamily: "monospace" }}
           >
             {Math.round(zoom * 100)}%
@@ -520,7 +531,7 @@ export default function GrapePanel() {
           <div style={{ width: 1, height: 16, background: "rgba(0,200,255,0.22)", margin: "0 2px" }} />
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); setZoom(1.0); stageRef.current?.scrollTo({ left: 0, top: 0 }); }}
+            onClick={(e) => { e.stopPropagation(); setZoom(getDefaultZoom()); stageRef.current?.scrollTo({ left: 0, top: 0 }); }}
             title="表示を元に戻す（100%・中央）"
             style={{ border: "none", background: "none", color: "#5ae3f0", cursor: "pointer", fontSize: 15, fontWeight: 900, width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", outline: "none" }}
           >
