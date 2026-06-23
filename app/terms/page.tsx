@@ -91,7 +91,18 @@ export default function TermsPage() {
         </Section>
 
         <Section title="10. お問い合わせ">
-          <p>本規約に関するお問い合わせは、公式 Discord までお願いします。</p>
+          <p>
+            本規約に関するお問い合わせは、公式{" "}
+            <a
+              href="https://discord.gg/pagpxcfeC"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-foreground transition-colors"
+            >
+              Discord
+            </a>
+            {" "}までお願いします。
+          </p>
         </Section>
 
         <p className="mt-10 text-xs text-muted/60">制定日：2026年6月23日 ・ CUBICENGINE</p>

@@ -59,7 +59,18 @@ export default function PrivacyPage() {
         </Section>
 
         <Section title="6. お問い合わせ">
-          <p>本ポリシーに関するお問い合わせは、公式 Discord までお願いします。</p>
+          <p>
+            本ポリシーに関するお問い合わせは、公式{" "}
+            <a
+              href="https://discord.gg/pagpxcfeC"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-foreground transition-colors"
+            >
+              Discord
+            </a>
+            {" "}までお願いします。
+          </p>
         </Section>
 
         <Section title="7. 改定">
