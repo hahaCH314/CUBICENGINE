@@ -2205,6 +2205,31 @@ export default function LogicPanel() {
     setSelected(id);
   }, []);
 
+  const handleTrayDragStart = useCallback((e: React.MouseEvent, it: { key: string; tmpl: Tmpl; vals: Record<string, string> }) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const { pan, zoom, blocks } = live.current;
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const mx = (e.clientX - rect.left) / zoom - pan.x / zoom;
+    const my = (e.clientY - rect.top) / zoom - pan.y / zoom;
+
+    const nb = spawnBlock(it.tmpl, mx - BW / 2, my - BH / 2);
+    nb.fields = nb.fields.map(f => it.vals[f.id] !== undefined ? { ...f, value: it.vals[f.id] } : f);
+
+    setBlocks(p => [...p, nb]);
+    setTray(t => t.filter(x => x.key !== it.key));
+
+    const nbH = blockH(nb);
+    blockDrag.current = { active: true, id: nb.id, offX: BW / 2, offY: nbH / 2 };
+    setDraggingId(nb.id);
+    setSelected(nb.id);
+
+    playClickSound();
+  }, []);
+
   const handleSlotClick = useCallback((blockId: string, slot: string) => {
     const accepts: Category[] = slot === "inner"
       ? ["ifelse", "value", "calc", "variable"]
@@ -3442,8 +3467,8 @@ export default function LogicPanel() {
                   return (
                     <button
                       key={it.key}
-                      onClick={() => { addBlock(it.tmpl, it.vals); setTray(t => t.filter(x => x.key !== it.key)); }}
-                      title="クリックでキャンバスに置く"
+                      onMouseDown={(e) => handleTrayDragStart(e, it)}
+                      title="ドラッグしてキャンバスに置く"
                       className="btn-card"
                       style={{
                         width: 82,
