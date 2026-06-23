@@ -972,7 +972,7 @@ function Grape({ fr, selected, isHub, onSelect, onDelete, onMouseDown, dockSlot 
     if (!dockSlot) {
       if (selected) {
         // 選択中: 3層の強いグロー + 内部スペキュラ
-        return `0 0 28px 8px ${cs.glow}80, 0 0 60px 18px ${cs.color}40, 0 0 100px 28px ${cs.color}15, inset 0 0 18px rgba(255,255,255,0.28), inset 0 -5px 15px rgba(0,0,0,0.55)`;
+        return `0 0 0 4px #5ae3f0, 0 0 26px 9px #5ae3f0cc, 0 0 55px 16px #5ae3f055, inset 0 0 18px rgba(255,255,255,0.25), inset 0 -5px 15px rgba(0,0,0,0.55)`;
       }
       // 通常: 柔らかい2層グロー + 内部深み
       return `0 0 14px 3px ${cs.glow}55, 0 0 35px 8px ${cs.color}28, 0 0 70px 14px ${cs.color}10, inset 0 0 10px rgba(255,255,255,0.15), inset 0 -3px 10px rgba(0,0,0,0.5)`;
@@ -994,6 +994,7 @@ function Grape({ fr, selected, isHub, onSelect, onDelete, onMouseDown, dockSlot 
 
   const getDockBorder = () => {
     if (!dockSlot) {
+      if (selected) return "2.5px solid #5ae3f0"; // 選択中＝シアン枠で明確化
       if (isDocked) {
         const c = fr.slot === "then" ? "#10b981" : fr.slot === "else" ? "#ef4444" : fr.slot === "cond" ? "#ffd075" : "#f59e0b";
         return `1.5px solid ${c}90`;
@@ -1062,6 +1063,19 @@ function Grape({ fr, selected, isHub, onSelect, onDelete, onMouseDown, dockSlot 
           overflow: "hidden",
         }}
       >
+        {/* ✨ ガラスに光がスーッと走る（glint sweep）。選択中は速く・強く＝魅力的に光る */}
+        {!isDonut && (
+          <div style={{
+            position: "absolute",
+            top: "-30%", left: 0,
+            width: "50%", height: "160%",
+            background: `linear-gradient(105deg, transparent 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,${selected ? 0.75 : 0.4}) 50%, rgba(255,255,255,0) 70%, transparent 100%)`,
+            pointerEvents: "none",
+            zIndex: 4,
+            animation: `glass-sheen ${selected ? "2.4s" : "5s"} ease-in-out infinite`,
+            animationDelay: selected ? "0s" : `${(fr.born % 5) * 0.7}s`,
+          }} />
+        )}
         {/* ✨ スペキュラハイライト（主）— 左上に小さく鮮少な反射光 */}
         {!isDonut && (
           <div style={{
@@ -1234,6 +1248,13 @@ const KEYFRAMES = `
     25% { transform: scale(1.08, 0.92); }
     50% { transform: scale(0.93, 1.07); }
     75% { transform: scale(1.04, 0.96); }
+  }
+  @keyframes glass-sheen {
+    0%   { transform: translateX(-130%) skewX(-14deg); opacity: 0; }
+    10%  { opacity: 1; }
+    40%  { opacity: 1; }
+    52%  { transform: translateX(260%) skewX(-14deg); opacity: 0; }
+    100% { transform: translateX(260%) skewX(-14deg); opacity: 0; }
   }
   @keyframes leaf-float {
     0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
