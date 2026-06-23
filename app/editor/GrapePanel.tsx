@@ -161,6 +161,20 @@ export default function GrapePanel() {
     return () => resizeObserver.disconnect();
   }, []);
 
+  // 🖱️ マウスホイールでズーム（カーソルで拡大縮小）。stage は overflow:auto のため
+  //    既定スクロールを止めてズームに割り当てる（passive:false が必須）。範囲は +/- ボタンと同じ 0.5〜1.5。
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const step = e.deltaY * -0.0015; // 上スクロール=拡大 / 下=縮小
+      setZoom((z) => Math.min(1.5, Math.max(0.5, Math.round((z + step) * 100) / 100)));
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
+
   const coords = (e: React.MouseEvent) => {
     const r = stageRef.current?.getBoundingClientRect();
     const scrollLeft = stageRef.current?.scrollLeft ?? 0;
@@ -503,6 +517,15 @@ export default function GrapePanel() {
           >
             ＋
           </button>
+          <div style={{ width: 1, height: 16, background: "rgba(0,200,255,0.22)", margin: "0 2px" }} />
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setZoom(1.0); stageRef.current?.scrollTo({ left: 0, top: 0 }); }}
+            title="表示を元に戻す（100%・中央）"
+            style={{ border: "none", background: "none", color: "#5ae3f0", cursor: "pointer", fontSize: 15, fontWeight: 900, width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", outline: "none" }}
+          >
+            ⟲
+          </button>
         </div>
 
         {/* 🌟 ズーム対象のコンテンツラッパー */}
@@ -728,7 +751,7 @@ export default function GrapePanel() {
                     left: displayCoords.x,
                     top: displayCoords.y,
                     transform: getTransformStyle(),
-                    zIndex: isDockedChild ? 3 : (isHub ? 4 : 2),
+                    zIndex: fr.id === draggingId ? 50 : (isDockedChild ? 3 : (isHub ? 4 : 2)),
                     pointerEvents: launchPhase ? "none" : "auto",
                     ...getLaunchStyle(),
                   }}
@@ -914,10 +937,11 @@ function Grape({ fr, selected, isHub, onSelect, onDelete, onMouseDown, dockSlot 
   // eslint-disable-next-line react-hooks/purity -- 生成直後700msだけpop演出する一時判定（意図的）
   const fresh = Date.now() - fr.born < 700;
   const isDonut = fr.item.cat === "ifelse" || fr.item.cat === "loop";
+  const isIf = fr.item.cat === "ifelse"; // 条件分岐は then/else 両枝を抱えるので一回り大きく
   const isDocked = !!fr.parentId; // ドーナツの穴に収まった子（枠色でスロットを示す）
 
-  const containerSize = isHub ? 116 : (isDonut ? 160 : 96);
-  const orbSize = isHub ? 92 : (isDonut ? 140 : 82);
+  const containerSize = isHub ? 116 : (isIf ? 200 : isDonut ? 160 : 96);
+  const orbSize = isHub ? 92 : (isIf ? 180 : isDonut ? 140 : 82);
 
   const getOrbBackground = () => {
     if (isDonut) {
