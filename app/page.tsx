@@ -118,7 +118,7 @@ export default function HomePage() {
       {/* Hero（1画面に収まる中央配置） */}
       <section className="flex-1 min-h-0 flex flex-col items-center justify-center px-6 text-center overflow-hidden">
         <h1
-          className="text-5xl sm:text-7xl md:text-8xl font-pixel tracking-wider mb-5 animate-float-slow"
+          className="text-5xl sm:text-7xl md:text-8xl font-pixel tracking-wider mb-3 animate-float-slow"
           style={{
             color: "#fbbf24",
             textShadow: "6px 6px 0px #1e1208, 12px 12px 0px rgba(0,0,0,0.25)",
@@ -130,7 +130,7 @@ export default function HomePage() {
         </h1>
 
         <p
-          className="text-xl sm:text-3xl font-bold text-foreground mb-4 tracking-wider font-pixel"
+          className="text-xl sm:text-3xl font-bold text-foreground mb-2 tracking-wider font-pixel"
           style={{ textShadow: "3px 3px 0px #1e1208", lineHeight: 1.5 }}
         >
           {t(locale, "hero.sub")}
@@ -139,14 +139,14 @@ export default function HomePage() {
         </p>
 
         <p
-          className="text-sm md:text-base text-muted max-w-2xl mx-auto mb-8 font-sans"
+          className="text-sm md:text-base text-muted max-w-2xl mx-auto mb-4 font-sans"
           style={{ textShadow: "1.5px 1.5px 0px #1e1208", lineHeight: 1.6 }}
         >
           {t(locale, "hero.desc1")}
           <br />
           {t(locale, "hero.desc2")}
         </p>
-        <div className="flex flex-col md:flex-row gap-6 justify-center items-stretch max-w-4xl mx-auto mt-2 px-4 py-4 shrink-0 w-full">
+        <div className="flex flex-col md:flex-row gap-6 justify-center items-stretch max-w-4xl mx-auto mt-1 px-4 py-2 shrink-0 w-full">
           {/* SPROUT Card */}
           <div
             style={{
@@ -267,26 +267,30 @@ export default function HomePage() {
           href="https://discord.gg/pagpxcfeC"
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-7 inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-white transition-all hover:scale-[1.03] shrink-0"
+          className="mt-3 inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-white transition-all hover:scale-[1.03] shrink-0"
           style={{ background: "linear-gradient(135deg, #5865F2, #4752c4)", boxShadow: "0 6px 18px rgba(88,101,242,0.45)" }}
         >
           <span style={{ fontSize: 16 }}>💬</span>
           {locale === "en" ? "Join our Discord" : "Discord に参加"}
         </a>
-        <p className="mt-2 text-[10px] text-muted/40 font-sans shrink-0">
+        <p className="mt-1 text-[10px] text-muted/40 font-sans shrink-0">
           {locale === "en" ? "Discord requires users to be 13 or older." : "※ Discord のご利用は13歳以上が対象です"}
         </p>
 
-        <p className="mt-5 text-[10px] text-muted/50 font-sans shrink-0">
+        <p className="mt-2 text-[10px] text-muted/50 font-sans shrink-0">
           {t(locale, "footer.note")}
         </p>
-        <nav className="mt-2 mb-1 flex items-center justify-center gap-3 text-[11px] text-muted/70 font-sans shrink-0">
+        <nav className="mt-1 mb-1 flex items-center justify-center gap-3 text-[11px] text-muted/70 font-sans shrink-0">
           <Link href="/privacy" className="underline underline-offset-2 hover:text-foreground transition-colors">
             プライバシーポリシー
           </Link>
           <span className="opacity-40">·</span>
           <Link href="/terms" className="underline underline-offset-2 hover:text-foreground transition-colors">
             利用規約
+          </Link>
+          <span className="opacity-40">·</span>
+          <Link href="/support" className="underline underline-offset-2 hover:text-foreground transition-colors">
+            応援する
           </Link>
         </nav>
       </section>
