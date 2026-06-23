@@ -263,7 +263,21 @@ export default function HomePage() {
           </div>
         </div>
 
-        <p className="mt-6 text-[10px] text-muted/50 font-sans shrink-0">
+        <a
+          href="https://discord.gg/pagpxcfeC"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-7 inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-white transition-all hover:scale-[1.03] shrink-0"
+          style={{ background: "linear-gradient(135deg, #5865F2, #4752c4)", boxShadow: "0 6px 18px rgba(88,101,242,0.45)" }}
+        >
+          <span style={{ fontSize: 16 }}>💬</span>
+          {locale === "en" ? "Join our Discord" : "Discord に参加"}
+        </a>
+        <p className="mt-2 text-[10px] text-muted/40 font-sans shrink-0">
+          {locale === "en" ? "Discord requires users to be 13 or older." : "※ Discord のご利用は13歳以上が対象です"}
+        </p>
+
+        <p className="mt-5 text-[10px] text-muted/50 font-sans shrink-0">
           {t(locale, "footer.note")}
         </p>
         <nav className="mt-2 mb-1 flex items-center justify-center gap-3 text-[11px] text-muted/70 font-sans shrink-0">
