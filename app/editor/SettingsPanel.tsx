@@ -310,7 +310,7 @@ export default function SettingsPanel() {
   }, [setPackIconDataUrl]);
 
   return (
-    <div className="h-full overflow-hidden p-4 flex flex-col gap-3 select-none">
+    <div className="h-full overflow-y-auto p-4 flex flex-col gap-3 select-none">
       {/* ── ヘッダー：タイトル＋モード切替 ── */}
       <div className="flex items-center justify-between shrink-0">
         <h2 className="text-sm font-bold text-foreground/90 flex items-center gap-2">
@@ -335,7 +335,7 @@ export default function SettingsPanel() {
       </div>
 
       {/* ── 本体グリッド（スクロールなし・1画面） ── */}
-      <div className={`flex-1 min-h-0 grid gap-3 ${pro ? "grid-cols-1 lg:grid-cols-3" : "grid-cols-1 md:grid-cols-2 max-w-3xl mx-auto w-full"}`}>
+      <div className={`grid gap-3 ${pro ? "flex-1 min-h-0 grid-cols-1 lg:grid-cols-3" : "grid-cols-1 sm:grid-cols-2 max-w-2xl mx-auto w-full content-start"}`}>
 
         {/* ▌ 左：アイデンティティ（アイコン＋なまえ） */}
         <div className="flex flex-col gap-3 min-h-0">
@@ -463,7 +463,7 @@ export default function SettingsPanel() {
 
         {/* ▌ 右：開発ターミナル & ライブツリー */}
         <div className="flex flex-col gap-3 min-h-0">
-          <div className="bg-panel rounded-xl border border-border p-3 flex flex-col min-h-0" style={{ flex: "1 1 0" }}>
+          <div className="bg-panel rounded-xl border border-border p-3 flex flex-col min-h-0" style={{ flex: pro ? "1 1 0" : "0 0 auto", maxHeight: pro ? undefined : 200 }}>
             <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> ビルド出力
             </div>
