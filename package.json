@@ -61,7 +61,8 @@
       ".next/**",
       "!.next/cache/**",
       "public/**",
-      "package.json"
+      "package.json",
+      "THIRD_PARTY_NOTICES.md"
     ],
     "directories": {
       "output": "dist-exe/${env.MMC_EDITION}"
