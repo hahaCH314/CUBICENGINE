@@ -277,28 +277,31 @@ export default function GrapePanel() {
     y: number; // %
     scale: number;
     id: number;
+    animationName: string;
   }
   const [constellation, setConstellation] = useState<ActiveConstellation | null>(null);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
+    const animNames = ["const-float-up", "const-float-left", "const-float-diagonal", "const-fade-depth"];
     const triggerNext = () => {
-      // 10秒〜20秒の間隔で星座が出現 (見つけやすく頻度アップ)
+      // 10秒〜20秒の間隔で星座が出現 (ランダムなアニメーションパターンで動的に出現)
       const delay = 10000 + Math.random() * 10000;
       timer = setTimeout(() => {
         setConstellation({
           index: Math.floor(Math.random() * CONSTELLATIONS.length),
           x: 10 + Math.random() * 80, 
           y: 15 + Math.random() * 55,
-          scale: 0.75 + Math.random() * 0.45, // 最小サイズを少しアップして見やすく
-          id: Date.now()
+          scale: 1.4 + Math.random() * 0.8, // もっと大きく表示 (1.4〜2.2倍)
+          id: Date.now(),
+          animationName: animNames[Math.floor(Math.random() * animNames.length)]
         });
         
-        // 12秒間表示
+        // 14秒間表示 (ゆっくりとした移動演出)
         setTimeout(() => {
           setConstellation(null);
           triggerNext();
-        }, 12000);
+        }, 14000);
       }, delay);
     };
 
@@ -746,54 +749,42 @@ export default function GrapePanel() {
               transform: `translate(-50%, -50%) scale(${constellation.scale})`,
               pointerEvents: "none",
               zIndex: 0,
-              animation: "constellation-fade 12s ease-in-out forwards",
             }}
           >
-            {(() => {
-              const data = CONSTELLATIONS[constellation.index];
-              return (
-                <svg width={data.width} height={data.height} style={{ overflow: "visible" }}>
-                  {/* 星座の結び線 */}
-                  {data.edges.map(([from, to], idx) => {
-                    const p1 = data.nodes[from];
-                    const p2 = data.nodes[to];
-                    return (
-                      <line
-                        key={idx}
-                        x1={p1.x}
-                        y1={p1.y}
-                        x2={p2.x}
-                        y2={p2.y}
-                        stroke="rgba(90, 227, 240, 0.45)"
-                        strokeWidth={1}
-                        strokeDasharray="2, 2"
-                      />
-                    );
-                  })}
-                  {/* 星座の星（点） */}
-                  {data.nodes.map((n, idx) => (
-                    <g key={idx}>
-                      {/* 外枠のにじむ光 */}
-                      <circle
-                        cx={n.x}
-                        cy={n.y}
-                        r={3.5}
-                        fill="#5ae3f0"
-                        opacity={0.5}
-                      />
-                      {/* コアの白い星 */}
-                      <circle
-                        cx={n.x}
-                        cy={n.y}
-                        r={1.2}
-                        fill="#fff"
-                        opacity={0.95}
-                      />
-                    </g>
-                  ))}
-                </svg>
-              );
-            })()}
+            <div
+              style={{
+                animation: `${constellation.animationName} 14s ease-in-out forwards`,
+              }}
+            >
+              {(() => {
+                const data = CONSTELLATIONS[constellation.index];
+                return (
+                  <svg width={data.width} height={data.height} style={{ overflow: "visible" }}>
+                    {/* 星座の星（点）のみでキャラクターを描画（繋ぐ線は非表示にしてよりさりげなく上品に） */}
+                    {data.nodes.map((n, idx) => (
+                      <g key={idx}>
+                        {/* 外枠のにじむ光 */}
+                        <circle
+                          cx={n.x}
+                          cy={n.y}
+                          r={2.2}
+                          fill="#cff8fb"
+                          opacity={0.3}
+                        />
+                        {/* コアの白い星 */}
+                        <circle
+                          cx={n.x}
+                          cy={n.y}
+                          r={0.8}
+                          fill="#fff"
+                          opacity={0.7}
+                        />
+                      </g>
+                    ))}
+                  </svg>
+                );
+              })()}
+            </div>
           </div>
         )}
         {/* 周辺ビネット（中央へ集中させる） */}
@@ -1658,10 +1649,24 @@ const KEYFRAMES = `
     0%, 100% { transform: translateY(0px) scale(0.98); opacity: 0.45; }
     50% { transform: translateY(-2px) scale(1.02); opacity: 0.75; }
   }
-  @keyframes constellation-fade {
-    0% { opacity: 0; filter: blur(2px); }
-    15% { opacity: 0.65; filter: blur(0px); }
-    85% { opacity: 0.65; filter: blur(0px); }
-    100% { opacity: 0; filter: blur(2px); }
+  @keyframes const-float-up {
+    0% { opacity: 0; transform: translateY(30px); filter: blur(1.5px); }
+    20%, 80% { opacity: 0.22; filter: blur(0px); }
+    100% { opacity: 0; transform: translateY(-40px); filter: blur(1.5px); }
+  }
+  @keyframes const-float-left {
+    0% { opacity: 0; transform: translateX(40px); filter: blur(1.5px); }
+    20%, 80% { opacity: 0.22; filter: blur(0px); }
+    100% { opacity: 0; transform: translateX(-50px); filter: blur(1.5px); }
+  }
+  @keyframes const-float-diagonal {
+    0% { opacity: 0; transform: translate(-30px, 30px); filter: blur(1.5px); }
+    20%, 80% { opacity: 0.22; filter: blur(0px); }
+    100% { opacity: 0; transform: translate(40px, -40px); filter: blur(1.5px); }
+  }
+  @keyframes const-fade-depth {
+    0% { opacity: 0; transform: scale(1.3); filter: blur(0.5px); }
+    20%, 75% { opacity: 0.22; filter: blur(0px); }
+    100% { opacity: 0; transform: scale(0.65); filter: blur(2px); }
   }
 `;
