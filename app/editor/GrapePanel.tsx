@@ -49,20 +49,198 @@ const ITEMS: ItemDef[] = [
 
 // 漂う発光の粒（両脇に多め＝遊び場の息づかい）
 const MOTES: { x: string; y: string; s: number; c: string; d: number; delay: number }[] = [
-  { x: "6%",  y: "30%", s: 4,   c: "#5ae3f0", d: 7,  delay: 0 },
-  { x: "10%", y: "62%", s: 3,   c: "#aef7fc", d: 9,  delay: 1 },
-  { x: "4%",  y: "78%", s: 5,   c: "#38b9e0", d: 8,  delay: 2 },
-  { x: "14%", y: "45%", s: 2.5, c: "#cff8fb", d: 11, delay: 0.5 },
-  { x: "20%", y: "15%", s: 2.5, c: "#7cd7f5", d: 11, delay: 2 },
-  { x: "90%", y: "35%", s: 4,   c: "#5ae3f0", d: 8,  delay: 1.5 },
-  { x: "94%", y: "60%", s: 3,   c: "#aef7fc", d: 10, delay: 0 },
-  { x: "88%", y: "75%", s: 5,   c: "#38b9e0", d: 9,  delay: 2.5 },
-  { x: "84%", y: "50%", s: 2.5, c: "#cff8fb", d: 12, delay: 1 },
-  { x: "78%", y: "18%", s: 2.5, c: "#7cd7f5", d: 12, delay: 1.2 },
-  { x: "30%", y: "85%", s: 3,   c: "#aef7fc", d: 10, delay: 0.8 },
-  { x: "65%", y: "82%", s: 3.5, c: "#5ae3f0", d: 9,  delay: 1.8 },
-  { x: "48%", y: "20%", s: 2,   c: "#cff8fb", d: 13, delay: 0.3 },
-  { x: "50%", y: "70%", s: 2,   c: "#aef7fc", d: 14, delay: 0.6 },
+  // 左エリア
+  { x: "4%",  y: "20%", s: 2,   c: "#5ae3f0", d: 9,  delay: 0 },
+  { x: "12%", y: "15%", s: 1.5, c: "#aef7fc", d: 11, delay: 2 },
+  { x: "8%",  y: "40%", s: 2.5, c: "#38b9e0", d: 10, delay: 1.5 },
+  { x: "18%", y: "48%", s: 1.5, c: "#5ae3f0", d: 12, delay: 3.5 },
+  { x: "6%",  y: "65%", s: 3,   c: "#cff8fb", d: 13, delay: 0.5 },
+  { x: "14%", y: "72%", s: 2,   c: "#7cd7f5", d: 8,  delay: 4 },
+  { x: "5%",  y: "88%", s: 2.5, c: "#38b9e0", d: 11, delay: 2.5 },
+  { x: "22%", y: "82%", s: 1.5, c: "#aef7fc", d: 14, delay: 1.2 },
+
+  // 右エリア
+  { x: "94%", y: "18%", s: 2,   c: "#5ae3f0", d: 10, delay: 1 },
+  { x: "82%", y: "25%", s: 1.5, c: "#7cd7f5", d: 12, delay: 3 },
+  { x: "88%", y: "38%", s: 3,   c: "#aef7fc", d: 9,  delay: 0.2 },
+  { x: "95%", y: "52%", s: 2.5, c: "#38b9e0", d: 11, delay: 2.7 },
+  { x: "84%", y: "62%", s: 1.8, c: "#cff8fb", d: 13, delay: 4.2 },
+  { x: "90%", y: "78%", s: 2.2, c: "#5ae3f0", d: 8,  delay: 1.8 },
+  { x: "80%", y: "85%", s: 1.5, c: "#aef7fc", d: 15, delay: 0.9 },
+  { x: "92%", y: "92%", s: 2.8, c: "#38b9e0", d: 10, delay: 3.1 },
+
+  // 中央付近 (ノードと被りすぎないよう透明度やサイズを小さめに配置)
+  { x: "32%", y: "12%", s: 1.5, c: "#5ae3f0", d: 14, delay: 5 },
+  { x: "42%", y: "18%", s: 2,   c: "#aef7fc", d: 12, delay: 0.8 },
+  { x: "58%", y: "15%", s: 1.5, c: "#7cd7f5", d: 11, delay: 2.3 },
+  { x: "68%", y: "22%", s: 2.5, c: "#cff8fb", d: 13, delay: 4.5 },
+  
+  { x: "35%", y: "85%", s: 2,   c: "#5ae3f0", d: 10, delay: 1.6 },
+  { x: "48%", y: "78%", s: 1.5, c: "#aef7fc", d: 12, delay: 3.2 },
+  { x: "62%", y: "84%", s: 2.5, c: "#38b9e0", d: 11, delay: 0.4 },
+  { x: "70%", y: "89%", s: 1.5, c: "#7cd7f5", d: 14, delay: 2.9 },
+  
+  { x: "28%", y: "45%", s: 1.8, c: "#aef7fc", d: 13, delay: 2.1 },
+  { x: "72%", y: "50%", s: 2,   c: "#5ae3f0", d: 12, delay: 0.7 },
+];
+
+// 🌠 たまに浮き上がるマイクラ星座のデータ定義 (13歳〜20代のマイクラプレイヤーが喜ぶイースターエッグ)
+const CONSTELLATIONS = [
+  // クリーパーの顔
+  {
+    name: "creeper",
+    width: 100, height: 100,
+    nodes: [
+      {x:15, y:15}, {x:85, y:15}, {x:85, y:85}, {x:15, y:85}, // 外枠
+      {x:25, y:30}, {x:40, y:30}, {x:40, y:45}, {x:25, y:45}, // 左目
+      {x:60, y:30}, {x:75, y:30}, {x:75, y:45}, {x:60, y:45}, // 右目
+      {x:40, y:45}, {x:60, y:45}, {x:60, y:65}, {x:70, y:65}, {x:70, y:80}, {x:30, y:80}, {x:30, y:65}, {x:40, y:65} // 口
+    ],
+    edges: [
+      [0,1], [1,2], [2,3], [3,0], // 外枠
+      [4,5], [5,6], [6,7], [7,4], // 左目
+      [8,9], [9,10], [10,11], [11,8], // 右目
+      [12,13], [13,14], [14,15], [15,16], [16,17], [17,18], [18,19], [19,12] // 口
+    ]
+  },
+  // 豚の顔
+  {
+    name: "pig",
+    width: 100, height: 100,
+    nodes: [
+      {x:15, y:20}, {x:85, y:20}, {x:85, y:80}, {x:15, y:80}, // 外枠
+      {x:20, y:35}, {x:35, y:35}, {x:65, y:35}, {x:80, y:35}, // 目
+      {x:35, y:50}, {x:65, y:50}, {x:65, y:70}, {x:35, y:70}  // 鼻
+    ],
+    edges: [
+      [0,1], [1,2], [2,3], [3,0],
+      [4,5], [6,7],
+      [8,9], [9,10], [10,11], [11,8]
+    ]
+  },
+  // ダイヤの剣
+  {
+    name: "sword",
+    width: 100, height: 100,
+    nodes: [
+      {x:85, y:15}, {x:70, y:30}, {x:55, y:45}, // 刃
+      {x:45, y:35}, {x:35, y:45}, {x:45, y:55}, {x:55, y:45}, // つば左
+      {x:55, y:55}, {x:65, y:65}, {x:55, y:75}, // つば右
+      {x:45, y:55}, {x:35, y:65}, {x:20, y:80}  // 柄
+    ],
+    edges: [
+      [0,1], [1,2],
+      [2,3], [3,4], [4,5], [5,2],
+      [2,7], [7,8], [8,9], [9,2],
+      [5,11], [11,12]
+    ]
+  },
+  // ウーパールーパーの顔
+  {
+    name: "axolotl",
+    width: 100, height: 100,
+    nodes: [
+      {x:30, y:30}, {x:70, y:30}, {x:70, y:70}, {x:30, y:70}, // 0,1,2,3 (顔の輪郭)
+      {x:15, y:22}, {x:15, y:35}, // 4,5 (左上エラ先)
+      {x:10, y:50}, // 6 (左中エラ先)
+      {x:15, y:62}, // 7 (左下エラ先)
+      {x:85, y:22}, {x:85, y:35}, // 8,9 (右上エラ先)
+      {x:90, y:50}, // 10 (右中エラ先)
+      {x:85, y:62}, // 11 (右下エラ先)
+      {x:42, y:45}, {x:58, y:45}, // 12,13 (両目)
+      {x:46, y:58}, {x:54, y:58}  // 14,15 (口)
+    ],
+    edges: [
+      [0,1], [1,2], [2,3], [3,0], // 顔の輪郭
+      [0,4], [4,5], [5,0], // 左上エラ
+      [0,6], // 左中エラ（顔の角から伸ばす）
+      [3,7], // 左下エラ
+      [1,8], [8,9], [9,1], // 右上エラ
+      [1,10], // 右中エラ
+      [2,11], // 右下エラ
+      [14,15] // 口
+    ]
+  },
+  // アヒルの横向き (Chicken)
+  {
+    name: "duck",
+    width: 100, height: 100,
+    nodes: [
+      // 頭・クチバシ
+      {x:40, y:20}, {x:25, y:20}, {x:25, y:28}, {x:15, y:28}, // 0, 1, 2, 3 (後頭部, 頭頂, クチバシ上角, クチバシ先上)
+      {x:15, y:35}, {x:28, y:35}, {x:40, y:35}, // 4, 5, 6 (クチバシ先下, クチバシ付け根下, 首後ろ上)
+      // 目
+      {x:32, y:26}, // 7 (目)
+      // 胴体
+      {x:20, y:48}, {x:28, y:48}, {x:40, y:48}, {x:68, y:48}, // 8, 9, 10, 11 (胸前上, 首前下, 首後ろ下, お尻上)
+      {x:68, y:70}, {x:20, y:70}, // 12, 13 (お尻下, 胸前下)
+      // 羽
+      {x:35, y:54}, {x:55, y:54}, {x:50, y:64}, {x:35, y:64}, // 14, 15, 16, 17 (羽の四角)
+      // 足1
+      {x:38, y:70}, {x:38, y:85}, {x:30, y:85}, // 18, 19, 20 (足1付け根, 足元, つまさき)
+      // 足2
+      {x:50, y:70}, {x:50, y:85}, {x:42, y:85}  // 21, 22, 23 (足2付け根, 足元, つまさき)
+    ],
+    edges: [
+      // 頭とクチバシ
+      [0,1], [1,2], [2,3], [3,4], [4,5], [5,6], [6,0],
+      // 首
+      [5,9], [6,10],
+      // 胴体のアウトライン
+      [8,9], [10,11], [11,12], [12,13], [13,8],
+      // 羽
+      [14,15], [15,16], [16,17], [17,14],
+      // 足1
+      [18,19], [19,20],
+      // 足2
+      [21,22], [22,23]
+    ]
+  },
+  // ハチの横向き (Bee)
+  {
+    name: "bee",
+    width: 100, height: 100,
+    nodes: [
+      // 体の四角 (0〜3)
+      {x:25, y:30}, {x:85, y:30}, {x:85, y:70}, {x:25, y:70},
+      // しま模様の縦線 (4〜7)
+      {x:45, y:30}, {x:45, y:70}, {x:65, y:30}, {x:65, y:70},
+      // 触角1 (8, 9)
+      {x:15, y:32}, {x:15, y:22},
+      // 触角2 (10, 11)
+      {x:12, y:42}, {x:12, y:32},
+      // 羽1 (12, 13)
+      {x:40, y:15}, {x:55, y:15},
+      // 羽2 (14, 15)
+      {x:60, y:18}, {x:70, y:18},
+      // お尻の針 (16)
+      {x:93, y:50},
+      // 目 (17, 18, 19, 20)
+      {x:25, y:52}, {x:35, y:52}, {x:35, y:62}, {x:25, y:62},
+      // 脚 (21, 22, 23)
+      {x:35, y:80}, {x:55, y:80}, {x:75, y:80}
+    ],
+    edges: [
+      // 体の輪郭
+      [0,1], [1,2], [2,3], [3,0],
+      // しま模様
+      [4,5], [6,7],
+      // 触角1
+      [0,8], [8,9],
+      // 触角2
+      [3,10], [10,11],
+      // 羽1
+      [4,12], [12,13], [13,6],
+      // 羽2
+      [6,14], [14,15], [15,1],
+      // 針
+      [1,16], [2,16],
+      // 目
+      [17,18], [18,19], [19,20], [20,17],
+      // 脚
+      [3,21], [5,22], [7,23]
+    ]
+  }
 ];
 
 // アイテム種別 → 単色SVGアイコン（ヒマワリ作 grapeIcons・currentColorで色は親に追従）
@@ -92,6 +270,41 @@ export default function GrapePanel() {
   const [reveal, setReveal] = useState<string[] | null>(null); // コード誕生の演出
   const [shown, setShown] = useState(0);                       // 何行まで生まれたか
   const [launchPhase, setLaunchPhase] = useState<null | "gather" | "coalesce" | "launch">(null);
+
+  interface ActiveConstellation {
+    index: number;
+    x: number; // %
+    y: number; // %
+    scale: number;
+    id: number;
+  }
+  const [constellation, setConstellation] = useState<ActiveConstellation | null>(null);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    const triggerNext = () => {
+      // 10秒〜20秒の間隔で星座が出現 (見つけやすく頻度アップ)
+      const delay = 10000 + Math.random() * 10000;
+      timer = setTimeout(() => {
+        setConstellation({
+          index: Math.floor(Math.random() * CONSTELLATIONS.length),
+          x: 10 + Math.random() * 80, 
+          y: 15 + Math.random() * 55,
+          scale: 0.75 + Math.random() * 0.45, // 最小サイズを少しアップして見やすく
+          id: Date.now()
+        });
+        
+        // 12秒間表示
+        setTimeout(() => {
+          setConstellation(null);
+          triggerNext();
+        }, 12000);
+      }, delay);
+    };
+
+    triggerNext();
+    return () => clearTimeout(timer);
+  }, []);
   
   const [stageSize, setStageSize] = useState({ width: 800, height: 600 });
   const getDefaultZoom = useCallback(() => {
@@ -132,26 +345,46 @@ export default function GrapePanel() {
     if (f.parentId) {
       const parent = fruits.find(p => p.id === f.parentId);
       if (parent) {
-        // eslint-disable-next-line react-hooks/immutability -- 親座標を辿る意図的な自己再帰（実行時は宣言済みで安全）
+        // eslint-disable-next-line react-hooks/immutability -- 親座標を辿る意図的な自己再帰
         const parentCoords = getDisplayCoords(parent, visited);
         
-        // 穴の中に配置：親の全子を実行順(cond→then→else→body / 各born順)で縦に積み、中央寄せ。
-        // 増えたら穴の下へあふれる（ハイブリッド）。then/else の区別はオーブの枠色で示す。
-        const SLOT_ORDER: (GroveSlot | null | undefined)[] = ["cond", "then", "else", "body"];
-        const allChildren = fruits
-          .filter(x => x.parentId === f.parentId)
-          .sort((a, b) => {
-            const sa = SLOT_ORDER.indexOf(a.slot);
-            const sb = SLOT_ORDER.indexOf(b.slot);
-            if (sa !== sb) return sa - sb;
-            return a.born - b.born;
-          });
-        const gIdx = Math.max(0, allChildren.findIndex(x => x.id === f.id));
-        const STEP = 36;
-        return {
-          x: parentCoords.x,
-          y: parentCoords.y + (gIdx - (allChildren.length - 1) / 2) * STEP,
-        };
+        // スロットごとに物理的な配置エリアを完全に分ける（直感的なビジュアルロジック）
+        if (f.slot === "cond") {
+          // 条件ブロック（値）は、親ドーナツの真ん中の「穴」にすっぽり収まる
+          return {
+            x: parentCoords.x,
+            y: parentCoords.y,
+          };
+        }
+
+        // 同一スロット内の順序を計算
+        const siblings = fruits
+          .filter(x => x.parentId === f.parentId && x.slot === f.slot)
+          .sort((a, b) => a.born - b.born);
+        const idx = Math.max(0, siblings.findIndex(x => x.id === f.id));
+        const STEP_Y = 64; // 子要素同士の縦の間隔
+
+        if (f.slot === "then") {
+          // then（真のとき）: 左下にぶら下がる
+          return {
+            x: parentCoords.x - 70,
+            y: parentCoords.y + 110 + idx * STEP_Y,
+          };
+        }
+        if (f.slot === "else") {
+          // else（偽のとき）: 右下にぶら下がる
+          return {
+            x: parentCoords.x + 70,
+            y: parentCoords.y + 110 + idx * STEP_Y,
+          };
+        }
+        if (f.slot === "body") {
+          // loop body: 真下にぶら下がる
+          return {
+            x: parentCoords.x,
+            y: parentCoords.y + 95 + idx * STEP_Y,
+          };
+        }
       }
     }
 
@@ -274,8 +507,8 @@ export default function GrapePanel() {
         minDockDistance = dist;
         activeParentId = other.id;
         if (other.item.cat === "ifelse") {
-          // 条件ブロック（value）かつ中心の穴（28px以内）なら cond スロット
-          if (isDraggingValue && dist < 28) {
+          // 中心の穴（35px以内）に近づけたら、どのブロックでも cond スロット（中）に入れるように緩和
+          if (dist < 35) {
             activeSlot = "cond";
           } else {
             activeSlot = newX < otherCoords.x ? "then" : "else";
@@ -287,7 +520,14 @@ export default function GrapePanel() {
     });
 
     if (activeParentId && activeSlot) {
-      setDockPreview({ parentId: activeParentId, slot: activeSlot });
+      const pId = activeParentId;
+      const slot = activeSlot;
+      setDockPreview(prev => {
+        if (!prev || prev.parentId !== pId || prev.slot !== slot) {
+          playDockSound();
+        }
+        return { parentId: pId, slot };
+      });
     } else {
       setDockPreview(null);
     }
@@ -447,7 +687,11 @@ export default function GrapePanel() {
           position: "absolute",
           inset: 0,
           overflow: "auto",
-          background: "radial-gradient(120% 95% at 50% 2%, #0a2530 0%, #05141b 42%, #02090d 100%)",
+          background: `
+            radial-gradient(120% 95% at 50% 2%, #0a2530 0%, #05141b 42%, #02090d 100%),
+            repeating-linear-gradient(0deg, rgba(0, 200, 255, 0.012) 0px, rgba(0, 200, 255, 0.012) 1px, transparent 1px, transparent 40px),
+            repeating-linear-gradient(90deg, rgba(0, 200, 255, 0.012) 0px, rgba(0, 200, 255, 0.012) 1px, transparent 1px, transparent 40px)
+          `,
           cursor: sending ? "default" : draggingId ? "grabbing" : "crosshair",
         }}
       >
@@ -491,6 +735,67 @@ export default function GrapePanel() {
             </div>
           ))}
         </div>
+        {/* 🌠 たまに出現するマイクラの星座イースターエッグ */}
+        {constellation && (
+          <div
+            key={constellation.id}
+            style={{
+              position: "absolute",
+              left: `${constellation.x}%`,
+              top: `${constellation.y}%`,
+              transform: `translate(-50%, -50%) scale(${constellation.scale})`,
+              pointerEvents: "none",
+              zIndex: 0,
+              animation: "constellation-fade 12s ease-in-out forwards",
+            }}
+          >
+            {(() => {
+              const data = CONSTELLATIONS[constellation.index];
+              return (
+                <svg width={data.width} height={data.height} style={{ overflow: "visible" }}>
+                  {/* 星座の結び線 */}
+                  {data.edges.map(([from, to], idx) => {
+                    const p1 = data.nodes[from];
+                    const p2 = data.nodes[to];
+                    return (
+                      <line
+                        key={idx}
+                        x1={p1.x}
+                        y1={p1.y}
+                        x2={p2.x}
+                        y2={p2.y}
+                        stroke="rgba(90, 227, 240, 0.45)"
+                        strokeWidth={1}
+                        strokeDasharray="2, 2"
+                      />
+                    );
+                  })}
+                  {/* 星座の星（点） */}
+                  {data.nodes.map((n, idx) => (
+                    <g key={idx}>
+                      {/* 外枠のにじむ光 */}
+                      <circle
+                        cx={n.x}
+                        cy={n.y}
+                        r={3.5}
+                        fill="#5ae3f0"
+                        opacity={0.5}
+                      />
+                      {/* コアの白い星 */}
+                      <circle
+                        cx={n.x}
+                        cy={n.y}
+                        r={1.2}
+                        fill="#fff"
+                        opacity={0.95}
+                      />
+                    </g>
+                  ))}
+                </svg>
+              );
+            })()}
+          </div>
+        )}
         {/* 周辺ビネット（中央へ集中させる） */}
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none", boxShadow: "inset 0 0 200px rgba(0,0,0,0.72)" }} />
 
@@ -570,7 +875,8 @@ export default function GrapePanel() {
 
             const getRadius = (cat: string) => {
               if (cat === "trigger") return 46;
-              if (cat === "ifelse" || cat === "loop") return 70;
+              if (cat === "ifelse") return 90;
+              if (cat === "loop") return 70;
               return 41;
             };
 
@@ -656,21 +962,20 @@ export default function GrapePanel() {
 
                   return (
                     <g key={idx}>
-                      {/* 背景のにじむライン */}
-                      <path d={pathD} fill="none" stroke={p.color} strokeWidth={3} opacity={0.25} strokeLinecap="round" />
-                      {/* コアの明るいライン */}
-                      <path d={pathD} fill="none" stroke={p.glow} strokeWidth={1.5} opacity={0.6} strokeLinecap="round" />
-                      {/* かすかに呼吸するように明滅する光の糸 */}
+                      {/* 背景の太いエネルギーグロー */}
+                      <path d={pathD} fill="none" stroke={p.color} strokeWidth={7} opacity={0.12} strokeLinecap="round" />
+                      {/* 中間のネオンライン */}
+                      <path d={pathD} fill="none" stroke={p.glow} strokeWidth={3} opacity={0.4} strokeLinecap="round" />
+                      {/* 中心の純白レーザーコア */}
                       <path
                         d={pathD}
                         fill="none"
-                        stroke={p.glow}
-                        strokeWidth={1.5}
+                        stroke="#fff"
+                        strokeWidth={1.2}
                         strokeLinecap="round"
                         style={{
-                          animation: "connection-glow 4s ease-in-out infinite",
-                          filter: `drop-shadow(0 0 4px ${p.glow})`,
-                          opacity: launchPhase === "coalesce" ? 0.95 : launchPhase === "launch" ? 0 : 0.65,
+                          animation: "connection-glow 3s ease-in-out infinite",
+                          opacity: launchPhase === "coalesce" ? 0.95 : launchPhase === "launch" ? 0 : 0.85,
                           transition: "opacity 0.2s ease",
                         }}
                       />
@@ -944,6 +1249,7 @@ function Grape({ fr, selected, isHub, onSelect, onDelete, onMouseDown, dockSlot 
   onMouseDown: (id: string, e: React.MouseEvent) => void;
   dockSlot?: GroveSlot | null;
 }) {
+  const [hovered, setHovered] = useState(false);
   const cs = CAT_STYLE[fr.item.cat];
   // eslint-disable-next-line react-hooks/purity -- 生成直後700msだけpop演出する一時判定（意図的）
   const fresh = Date.now() - fr.born < 700;
@@ -956,76 +1262,71 @@ function Grape({ fr, selected, isHub, onSelect, onDelete, onMouseDown, dockSlot 
 
   const getOrbBackground = () => {
     if (isDonut) {
-      // ガラスリング: 穴は完全透明、リング自体は半透明のカラーティント
-      return `radial-gradient(circle,
-        transparent 41%,
-        rgba(255,255,255,0.25) 42%,
-        ${cs.color}40 44%,
-        ${cs.color}18 60%,
-        rgba(255,255,255,0.08) 74%,
-        rgba(255,255,255,0.30) 88%,
-        rgba(255,255,255,0.10) 100%
-      )`;
+      // ハイテク・ホログラムリング (13歳〜20代向けゲーミングSFスタイル)
+      return `
+        radial-gradient(circle at center, transparent 42%, ${cs.color}35 50%, transparent 92%),
+        radial-gradient(circle at center, transparent 42%, ${cs.color}55 70%, ${cs.glow}cc 100%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 4px)
+      `;
     }
-    // ガラス球: 完全に透明な中心 + カテゴリ色の微妙な色彩 + フレネルリム
-    return `radial-gradient(circle at 35% 32%,
-      rgba(255,255,255,0.15) 0%,
-      ${cs.color}22 25%,
-      ${cs.color}08 52%,
-      transparent 68%,
-      ${cs.color}08 80%,
-      rgba(255,255,255,0.18) 90%,
-      rgba(255,255,255,0.05) 100%
-    )`;
+    // ホログラム球体
+    return `
+      radial-gradient(circle at center,
+        ${cs.color}45 0%,
+        ${cs.color}25 55%,
+        ${cs.color}90 85%,
+        rgba(255,255,255,0.2) 94%,
+        ${cs.glow}dd 98%,
+        transparent 100%
+      ),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.035) 0px, rgba(255,255,255,0.035) 1px, transparent 1px, transparent 4px)
+    `;
   };
 
   const getDockBoxShadow = () => {
     if (!dockSlot) {
       if (selected) {
-        // 選択中: 3層の強いグロー + 内部スペキュラ
-        return `0 0 0 4px #5ae3f0, 0 0 26px 9px #5ae3f0cc, 0 0 55px 16px #5ae3f055, inset 0 0 18px rgba(255,255,255,0.25), inset 0 -5px 15px rgba(0,0,0,0.55)`;
+        return `0 0 25px 6px #5ae3f0cc, inset 0 0 15px rgba(90,227,240,0.5)`;
       }
-      // 通常: 柔らかい2層グロー + 内部深み
-      return `0 0 14px 3px ${cs.glow}55, 0 0 35px 8px ${cs.color}28, 0 0 70px 14px ${cs.color}10, inset 0 0 10px rgba(255,255,255,0.15), inset 0 -3px 10px rgba(0,0,0,0.5)`;
+      if (hovered) {
+        return `0 0 35px 8px ${cs.glow}cc, 0 0 70px 15px ${cs.color}44, inset 0 0 18px rgba(255,255,255,0.25)`;
+      }
+      return `0 0 18px 3px ${cs.glow}55, 0 0 40px 8px ${cs.color}22, inset 0 0 10px rgba(255,255,255,0.12)`;
     }
-    if (dockSlot === "cond") {
-      return "0 0 30px 10px #ffd075, inset 0 0 16px rgba(255,208,117,0.5)";
-    }
-    if (dockSlot === "then") {
-      return "0 0 30px 10px #10b981, inset 0 0 16px rgba(16,185,129,0.5)";
-    }
-    if (dockSlot === "else") {
-      return "0 0 30px 10px #ef4444, inset 0 0 16px rgba(239,68,68,0.5)";
-    }
-    if (dockSlot === "body") {
-      return "0 0 30px 10px #f59e0b, inset 0 0 16px rgba(245,158,11,0.5)";
-    }
+    if (dockSlot === "cond") return "0 0 45px 10px #ffd075ee, inset 0 0 15px rgba(255,208,117,0.4)";
+    if (dockSlot === "then") return "0 0 45px 10px #10b981ee, inset 0 0 15px rgba(16,185,129,0.4)";
+    if (dockSlot === "else") return "0 0 45px 10px #ef4444ee, inset 0 0 15px rgba(239,68,68,0.4)";
+    if (dockSlot === "body") return "0 0 45px 10px #f59e0bee, inset 0 0 15px rgba(245,158,11,0.4)";
     return "";
   };
 
   const getDockBorder = () => {
     if (!dockSlot) {
-      if (selected) return "2.5px solid #5ae3f0"; // 選択中＝シアン枠で明確化
+      if (selected) return "2.5px solid #5ae3f0"; 
       if (isDocked) {
         const c = fr.slot === "then" ? "#10b981" : fr.slot === "else" ? "#ef4444" : fr.slot === "cond" ? "#ffd075" : "#f59e0b";
-        return `1.5px solid ${c}90`;
+        return `1.5px solid ${c}bb`; 
       }
-      // カテゴリ色の淡いリム発光（白い固定枠より自然で高級感が出る）
-      return `1.5px solid ${cs.glow}50`;
+      return `1.5px solid ${cs.glow}60`; 
     }
-    if (dockSlot === "cond") return "2px solid #ffd075cc";
-    if (dockSlot === "then") return "2px solid #10b981cc";
-    if (dockSlot === "else") return "2px solid #ef4444cc";
-    return "2px solid #f59e0bcc";
+    if (dockSlot === "cond") return "2px solid #ffd075ee";
+    if (dockSlot === "then") return "2px solid #10b981ee";
+    if (dockSlot === "else") return "2px solid #ef4444ee";
+    return "2px solid #f59e0bee";
   };
 
   return (
     <div
       onClick={(e) => { e.stopPropagation(); onSelect(fr, e); }}
       onMouseDown={(e) => onMouseDown(fr.id, e)}
+      onMouseEnter={() => {
+        setHovered(true);
+        playHoverWater();
+      }}
+      onMouseLeave={() => setHovered(false)}
       style={{
         position: "relative",
-        animation: fresh ? "grape-pop 0.6s cubic-bezier(0.34,1.56,0.64,1)" : (selected ? "grape-jelly-breathe 2s ease-in-out infinite" : "grape-breathe 2.6s ease-in-out infinite"),
+        animation: fresh ? "grape-pop 0.6s cubic-bezier(0.34,1.56,0.64,1)" : (selected ? "grape-pulse-selected 2s ease-in-out infinite" : "grape-breathe 4s ease-in-out infinite"),
         cursor: "grab",
         display: "flex",
         flexDirection: "column",
@@ -1052,7 +1353,7 @@ function Grape({ fr, selected, isHub, onSelect, onDelete, onMouseDown, dockSlot 
         ✕
       </button>
 
-      {/* 🔮 ガラスオーブ — 完全透明ベースにカテゴリ色ティント+フレネルリム */}
+      {/* 🔮 深海3D円形・ドーナツ発光体 */}
       <div 
         style={{
           position: "relative",
@@ -1065,83 +1366,51 @@ function Grape({ fr, selected, isHub, onSelect, onDelete, onMouseDown, dockSlot 
           borderRadius: "50%",
           padding: "4px 8px",
           background: getOrbBackground(),
-          backdropFilter: "blur(18px)",
-          WebkitBackdropFilter: "blur(18px)",
+          backdropFilter: "blur(6px)",
+          WebkitBackdropFilter: "blur(6px)",
           border: getDockBorder(),
           boxShadow: getDockBoxShadow(),
+          transform: hovered ? "scale(1.08)" : "scale(1)",
           transition: "all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
           zIndex: 1,
           overflow: "hidden",
         }}
       >
-        {/* ✨ ガラスに光がスーッと走る（glint sweep）。選択中は速く・強く＝魅力的に光る */}
-        {!isDonut && (
-          <div style={{
-            position: "absolute",
-            top: "-30%", left: 0,
-            width: "50%", height: "160%",
-            background: `linear-gradient(105deg, transparent 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,${selected ? 0.75 : 0.4}) 50%, rgba(255,255,255,0) 70%, transparent 100%)`,
-            pointerEvents: "none",
-            zIndex: 4,
-            animation: `glass-sheen ${selected ? "2.4s" : "5s"} ease-in-out infinite`,
-            animationDelay: selected ? "0s" : `${(fr.born % 5) * 0.7}s`,
-          }} />
-        )}
-        {/* ✨ スペキュラハイライト（主）— 左上に小さく鮮少な反射光 */}
-        {!isDonut && (
-          <div style={{
-            position: "absolute",
-            top: "8%", left: "14%",
-            width: "44%", height: "30%",
-            borderRadius: "50%",
-            background: "radial-gradient(ellipse at 38% 42%, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.55) 30%, rgba(255,255,255,0.18) 60%, transparent 80%)",
-            filter: "blur(2.5px)",
-            pointerEvents: "none",
-            zIndex: 3,
-            transform: "rotate(-20deg)",
-          }} />
-        )}
-        {/* ✨ スペキュラハイライト（副）— 右下に微妙な期届光 */}
-        {!isDonut && (
-          <div style={{
-            position: "absolute",
-            bottom: "10%", right: "10%",
-            width: "22%", height: "14%",
-            borderRadius: "50%",
-            background: "radial-gradient(ellipse, rgba(255,255,255,0.4) 0%, transparent 70%)",
-            filter: "blur(3px)",
-            pointerEvents: "none",
-            zIndex: 3,
-          }} />
-        )}
-        {/* ✨ ドーナツのスペキュラ */}
-        {isDonut && (
-          <div style={{
-            position: "absolute",
-            top: "5%", left: "18%",
-            width: "36%", height: "22%",
-            borderRadius: "50%",
-            background: "radial-gradient(ellipse at 40% 50%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.35) 40%, transparent 72%)",
-            filter: "blur(3px)",
-            pointerEvents: "none",
-            zIndex: 3,
-            transform: "rotate(-15deg)",
-          }} />
-        )}
+
+
+
+
+
+        {/* 🌟 ゲーミング・ホログラムアイコン (13歳〜20代のゲーマーが喜ぶSFテック表現) */}
+        <div style={{ 
+          color: cs.glow, 
+          filter: `drop-shadow(0 0 5px ${cs.glow}) drop-shadow(0 0 2px rgba(255,255,255,0.5))`, 
+          marginBottom: isHub ? 6 : isDonut ? 12 : 3,
+          opacity: hovered ? 1 : 0.85,
+          transition: "all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1)",
+          transform: hovered ? "scale(1.12)" : "scale(1)",
+          zIndex: 2,
+          // ドーナツ（条件分岐、ループ）はアイコンを中央に大きく表示（ラベルが上部にあるため）
+          ...(isDonut ? { marginTop: 12 } : {})
+        }}>
+          <ItemGlyph type={fr.item.type} size={isHub ? 28 : isDonut ? 36 : 20} />
+        </div>
+
         <div style={{
           fontFamily: "'M PLUS Rounded 1c', sans-serif",
-          fontSize: isHub ? 10 : isDonut ? 11 : 8.5,
+          fontSize: isHub ? 9.5 : isDonut ? 10.5 : 8,
           fontWeight: 900,
           color: "#fff",
-          textShadow: "0 1px 2px rgba(0,0,0,0.85)",
+          textShadow: `0 0 6px ${cs.glow}bb, 0 1px 3px rgba(0,0,0,0.9)`,
           textAlign: "center",
           lineHeight: 1.25,
           whiteSpace: "nowrap",
           overflow: "hidden",
           textOverflow: "ellipsis",
           maxWidth: isHub ? 80 : isDonut ? 124 : 74,
-          // ドーナツは文言を穴の中央でなく上のリング上に置く（穴は中身用に空ける）
-          ...(isDonut ? { position: "absolute" as const, top: 18, left: "50%", transform: "translateX(-50%)", maxWidth: 120 } : {}),
+          zIndex: 2,
+          // ドーナツは文言を穴の中央でなく上のリング上に置く
+          ...(isDonut ? { position: "absolute" as const, top: 15, left: "50%", transform: "translateX(-50%)", maxWidth: 120 } : {}),
         }}>
           {fr.item.label}
           {!isHub && fr.item.needsText && (
@@ -1193,6 +1462,66 @@ function shade(hex: string): string {
   const n = parseInt(hex.slice(1), 16);
   const r = Math.max(0, ((n >> 16) & 255) - 55), g = Math.max(0, ((n >> 8) & 255) - 55), b = Math.max(0, (n & 255) - 55);
   return `rgb(${r},${g},${b})`;
+}
+
+function playHoverWater() {
+  try {
+    const AC = (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext);
+    const ctx = new AC();
+    const now = ctx.currentTime;
+    
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    
+    o.type = "sine";
+    o.frequency.setValueAtTime(850, now);
+    o.frequency.exponentialRampToValueAtTime(140, now + 0.16);
+    
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.06, now + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+    
+    o.connect(g);
+    g.connect(ctx.destination);
+    o.start(now);
+    o.stop(now + 0.2);
+    
+    setTimeout(() => ctx.close(), 250);
+  } catch { /* noop */ }
+}
+
+function playDockSound() {
+  try {
+    const AC = (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext);
+    const ctx = new AC();
+    const now = ctx.currentTime;
+    
+    const o1 = ctx.createOscillator();
+    const o2 = ctx.createOscillator();
+    const g = ctx.createGain();
+    
+    o1.type = "sine";
+    o1.frequency.setValueAtTime(600, now);
+    o1.frequency.exponentialRampToValueAtTime(180, now + 0.22);
+    
+    o2.type = "sine";
+    o2.frequency.setValueAtTime(1200, now);
+    o2.frequency.exponentialRampToValueAtTime(300, now + 0.12);
+    
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.12, now + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    
+    o1.connect(g);
+    o2.connect(g);
+    g.connect(ctx.destination);
+    
+    o1.start();
+    o2.start();
+    o1.stop(now + 0.35);
+    o2.stop(now + 0.35);
+    setTimeout(() => ctx.close(), 400);
+  } catch { /* noop */ }
 }
 
 function playPop() {
@@ -1251,25 +1580,16 @@ const KEYFRAMES = `
     100% { transform: scale(1) translateY(0); } 
   }
   @keyframes grape-breathe { 
-    0%, 100% { transform: scale(1) rotate(0deg); } 
-    50% { transform: scale(1.025) rotate(0.5deg); } 
+    0%, 100% { transform: scale(1); } 
+    50% { transform: scale(1.015); } 
   }
-  @keyframes grape-jelly-breathe {
-    0%, 100% { transform: scale(1, 1); }
-    25% { transform: scale(1.08, 0.92); }
-    50% { transform: scale(0.93, 1.07); }
-    75% { transform: scale(1.04, 0.96); }
-  }
-  @keyframes glass-sheen {
-    0%   { transform: translateX(-130%) skewX(-14deg); opacity: 0; }
-    10%  { opacity: 1; }
-    40%  { opacity: 1; }
-    52%  { transform: translateX(260%) skewX(-14deg); opacity: 0; }
-    100% { transform: translateX(260%) skewX(-14deg); opacity: 0; }
+  @keyframes grape-pulse-selected {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.045); }
   }
   @keyframes leaf-float {
     0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
-    50% { transform: translateY(-1.5px) rotate(3deg) scale(1.05); }
+    50% { transform: translateY(-1px) scale(1.02); }
   }
   @keyframes hub-pump { 0%{opacity:0.9;transform:scale(0.9)} 100%{opacity:0;transform:scale(1.45)} }
   @keyframes stem-pulse { 0%{transform:translateY(8px) scale(0.6);opacity:0} 30%{opacity:1} 100%{transform:translateY(-20px) scale(1.1);opacity:0} }
@@ -1280,18 +1600,26 @@ const KEYFRAMES = `
   @keyframes reveal-fade { 0%{opacity:0} 100%{opacity:1} }
   @keyframes code-line-in { 0%{opacity:0;transform:translateX(-6px)} 100%{opacity:1;transform:translateX(0)} }
   @keyframes float-particle {
-    0% { transform: translateY(0) scale(0.9); opacity: 0.15; }
-    50% { transform: translateY(-35px) translateX(8px) scale(1.1); opacity: 0.8; }
-    100% { transform: translateY(-70px) scale(0.9); opacity: 0.15; }
+    0% {
+      transform: translate(0, 0) scale(0.4);
+      opacity: 0;
+    }
+    30%, 70% {
+      opacity: 0.65;
+    }
+    100% {
+      transform: translate(12px, -50px) scale(0.4);
+      opacity: 0;
+    }
   }
   @keyframes connection-glow {
-    0%, 100% { opacity: 0.4; }
-    50% { opacity: 0.75; }
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 0.7; }
   }
   @keyframes code-ascend { 0%{transform:translateY(0);opacity:1} 100%{transform:translateY(-100px);opacity:0;filter:blur(3px)} }
   @keyframes ripple-breathe {
-    0%, 100% { transform: scale(0.97); opacity: 0.2; }
-    50% { transform: scale(1.03); opacity: 0.6; }
+    0%, 100% { transform: scale(0.98); opacity: 0.35; }
+    50% { transform: scale(1.02); opacity: 0.55; }
   }
   @keyframes spin-orbit {
     0% { transform: rotate(0deg); }
@@ -1299,11 +1627,7 @@ const KEYFRAMES = `
   }
   @keyframes particle-pulse {
     0%, 100% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.25); opacity: 0.9; }
-  }
-  @keyframes stroke-flow {
-    0% { stroke-dashoffset: 36; }
-    100% { stroke-dashoffset: 0; }
+    50% { transform: scale(1.2) opacity: 0.8; }
   }
   @keyframes plasma-surge {
     0% { transform: scale(0.9) rotate(0deg); opacity: 0.85; }
@@ -1325,6 +1649,19 @@ const KEYFRAMES = `
   }
   @keyframes tap-breathe {
     0%, 100% { transform: scale(1); box-shadow: 0 0 12px rgba(0,200,255,0.2); }
-    50% { transform: scale(1.05); box-shadow: 0 0 28px rgba(0,220,255,0.5); }
+    50% { transform: scale(1.03); box-shadow: 0 0 24px rgba(0,220,255,0.4); }
+  }
+  @keyframes deepsea-jelly {
+    0%, 100% { transform: scale(1); }
+  }
+  @keyframes marine-snow {
+    0%, 100% { transform: translateY(0px) scale(0.98); opacity: 0.45; }
+    50% { transform: translateY(-2px) scale(1.02); opacity: 0.75; }
+  }
+  @keyframes constellation-fade {
+    0% { opacity: 0; filter: blur(2px); }
+    15% { opacity: 0.65; filter: blur(0px); }
+    85% { opacity: 0.65; filter: blur(0px); }
+    100% { opacity: 0; filter: blur(2px); }
   }
 `;
