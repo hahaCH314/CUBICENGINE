@@ -283,7 +283,7 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
         // unit_cube = 標準の1×1×1キューブ（カスタムジオメトリ不要）
         "minecraft:unit_cube": {},
         "minecraft:material_instances": {
-          "*": { texture: `mmc_${block.name}`, render_method: "opaque" },
+          "*": { texture: `cubicengine_${block.name}`, render_method: "opaque" },
         },
       };
       // 本格モード(registered)のブロックは設定を反映
@@ -302,7 +302,7 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
             format_version: "1.20.10",
             "minecraft:block": {
               description: {
-                identifier: `mmc:${block.name}`,
+                identifier: `cubicengine:${block.name}`,
                 menu_category: { category: "construction" },
               },
               components,
@@ -341,8 +341,8 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
     const textureData: Record<string, { textures: string }> = {};
     const blocksJson: Record<string, { textures: string; sound: string }> = {};
     for (const block of state.blocks) {
-      textureData[`mmc_${block.name}`] = { textures: `textures/blocks/${block.name}` };
-      blocksJson[`mmc:${block.name}`] = { textures: `mmc_${block.name}`, sound: "stone" };
+      textureData[`cubicengine_${block.name}`] = { textures: `textures/blocks/${block.name}` };
+      blocksJson[`cubicengine:${block.name}`] = { textures: `cubicengine_${block.name}`, sound: "stone" };
     }
 
     rp.file(
@@ -363,7 +363,7 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
 
     // 表示名(lang): 本格ブロックは displayName を、それ以外はブロック名をゲーム内名に
     const langLines = state.blocks
-      .map((b) => `tile.mmc:${b.name}.name=${(b.registered && b.displayName) ? b.displayName : b.name}`)
+      .map((b) => `tile.cubicengine:${b.name}.name=${(b.registered && b.displayName) ? b.displayName : b.name}`)
       .join("\n");
     rp.file("texts/en_US.lang", langLines + "\n");
     rp.file("texts/languages.json", JSON.stringify(["en_US"], null, 2));
@@ -413,8 +413,8 @@ export async function exportJava(state: EditorState, jsCode: string) {
   const name = sanitizeSlug(state.projectName);
   const className = sanitizeClassName(state.projectName);
   const modId = sanitizeModId(name);
-  const pkg = `com.mmc.${modId}`;
-  const pkgPath = `com/mmc/${modId}`;
+  const pkg = `com.cubicengine.${modId}`;
+  const pkgPath = `com/cubicengine/${modId}`;
   const compression = (state.compress ? "DEFLATE" : "STORE") as "DEFLATE" | "STORE";
   const compressionOptions = state.compress ? { level: 6 } : undefined;
 

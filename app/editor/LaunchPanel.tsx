@@ -360,8 +360,8 @@ async function buildFileList(projectName: string): Promise<ProjectFile[]> {
   const name  = slug(projectName);
   const cls   = className(projectName);
   const modId = modid(name);
-  const pkg   = `com.mmc.${modId}`;
-  const pkgPath = `com/mmc/${modId}`;
+  const pkg   = `com.cubicengine.${modId}`;
+  const pkgPath = `com/cubicengine/${modId}`;
 
   // build.gradle
   files.push({ path: "build.gradle", content: [
