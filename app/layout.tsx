@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Press_Start_2P, M_PLUS_Rounded_1c } from "next/font/
 import "./globals.css";
 import ServiceWorkerRegistration from "./ServiceWorkerRegistration";
 import { SITE_URL } from "../lib/site";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -80,6 +81,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ServiceWorkerRegistration />
         {children}
+        <Analytics />
         {/* 全ページ共通クレジット（クリック透過・控えめ表示） */}
         <div
           aria-label="credit"
