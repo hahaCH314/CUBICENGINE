@@ -171,6 +171,9 @@ export default function HomePage() {
               <h2 className="text-xl font-bold font-pixel tracking-wider text-[#a3e635] mb-1">
                 SPROUT
               </h2>
+              {locale === "ja" && (
+                <p className="text-[11px] font-sans tracking-wide text-[#a3e635]/70 -mt-0.5 mb-1">スプラウト</p>
+              )}
               <p className="text-[10px] font-pixel text-[#a3e635]/90 mb-2">{t(locale, "sprout.tag")}</p>
               <p className="text-xs text-muted leading-relaxed text-center font-sans max-w-[280px] mx-auto" style={{ whiteSpace: "pre-line" }}>
                 {t(locale, "sprout.desc")}
@@ -223,6 +226,9 @@ export default function HomePage() {
               <h2 className="text-xl font-bold font-pixel tracking-wider text-[#22d3ee] mb-1">
                 GROVE
               </h2>
+              {locale === "ja" && (
+                <p className="text-[11px] font-sans tracking-wide text-[#22d3ee]/70 -mt-0.5 mb-1">グローブ</p>
+              )}
               <p className="text-[10px] font-pixel text-[#22d3ee]/90 mb-2">{t(locale, "grove.tag")}</p>
               <p className="text-xs text-muted leading-relaxed text-center font-sans max-w-[280px] mx-auto">
                 {t(locale, "grove.desc")}
