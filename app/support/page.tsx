@@ -26,7 +26,7 @@ export default function SupportPage() {
         <Link href="/" className="text-sm text-muted hover:text-foreground transition-colors">
           ← ホームに戻る
         </Link>
-        <h1 className="text-2xl font-bold mt-4 mb-2">開発を応援する 🌱</h1>
+        <h1 className="text-2xl font-bold mt-4 mb-2">開発や運営を応援お願いします 🌱</h1>
         <p className="text-xs text-muted/70 mb-8">
           CUBICENGINE は「作るって面白い」をすべての人に届けたくて作っています。
           コア機能はこれからもずっと無料です。
