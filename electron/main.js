@@ -88,7 +88,7 @@ function createWindow() {
   Menu.setApplicationMenu(null);
   const win = new BrowserWindow({
     width: 1440, height: 900, minWidth: 1100, minHeight: 700,
-    title: 'MineModCraft Studio',
+    title: 'CUBICENGINE Studio',
     icon:  path.join(__dirname, '..', 'public', 'icon-512x512.png'),
     backgroundColor: '#0d0d0f',
     show: false,

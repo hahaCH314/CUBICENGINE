@@ -188,7 +188,7 @@ function genBlockJava(b: CBlock, blocks: CBlock[], indent: string): string {
     case "ca_gt": case "ca_lt": case "ca_gte": case "ca_lte": case "ca_eq": case "ca_neq":
     case "ca_concat": case "ca_strlen": case "ca_numstr": case "ca_strnum":
     case "ca_substr": case "ca_replace": case "ca_upper": case "ca_lower": case "ca_contains":
-      return `${I}LOGGER.info("[MMC演算] " + (${genExprJava(b.id,blocks)}));`;
+      return `${I}LOGGER.info("[CUBICENGINE演算] " + (${genExprJava(b.id,blocks)}));`;
     // ── 制御 ──
     case "ct_rep": {
       const body = genChainJava(b.thenId, blocks, I + "    ");
@@ -196,7 +196,7 @@ function genBlockJava(b: CBlock, blocks: CBlock[], indent: string): string {
     }
     case "ct_log": {
       const e = genExprJava(b.innerId, blocks) || `"${escJava(f("v","ログ"))}"`;
-      return `${I}LOGGER.info("[MMCログ] " + (${e}));`;
+      return `${I}LOGGER.info("[CUBICENGINEログ] " + (${e}));`;
     }
     // ── 変数（int フィールド）──
     case "vv_set":    return `${I}${v()} = (int)(${genExprJava(b.innerId,blocks) || jnum(f("val","0"),"0")});`;

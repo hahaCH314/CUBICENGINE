@@ -518,7 +518,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
       {/* 削除ボタン */}
       {!isEating && selected && (
         <button
-          onMouseDown={e => {
+          onPointerDown={e => {
             e.stopPropagation();
             e.preventDefault();
             onDelete(b.id);
@@ -526,19 +526,20 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
           title="削除"
           style={{
             position: "absolute",
-            top: -8,
-            right: leftOffset - 6, // カードの右上端に合わせる
-            width: 22, height: 22, borderRadius: "50%",
+            top: -10,
+            right: leftOffset - 9, // カードの右上端に合わせる
+            width: 28, height: 28, borderRadius: "50%",
             background: "#e74c3c", border: `2px solid #fff`,
             color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
             cursor: "pointer", zIndex: 30,
             boxShadow: "0 2px 5px rgba(0,0,0,0.3)",
             transition: "transform 0.1s",
+            touchAction: "none", // タッチで確実に拾う(スクロール等に奪われない)
           }}
           onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
           onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
         >
-          <LucideIcons.X size={12} strokeWidth={3} />
+          <LucideIcons.X size={15} strokeWidth={3} />
         </button>
       )}
     </div>
@@ -1868,6 +1869,7 @@ export default function LogicPanel() {
 
   const setGeneratedJsCode = useEditorStore(s => s.setGeneratedJsCode);
   const setLogicGraphJson = useEditorStore(s => s.setLogicGraphJson);
+  const setExportArmed = useEditorStore(s => s.setExportArmed);
 
   const migrateBlocks = (blocks: any[]): CBlock[] => {
     const migrated = blocks.map(b => {
@@ -1966,7 +1968,7 @@ export default function LogicPanel() {
     ? TEMPLATES.filter(t => t.label.includes(search) || t.sublabel.includes(search))
     : TEMPLATES.filter(t => currentGroup.cats.includes(t.category));
   const [showCode, setShowCode] = useState(false);
-  const [showHelp, setShowHelp] = useState(true);
+  const [showHelp, setShowHelp] = useState(false); // 起動時は閉じておく（ユーザーが ? で開く）
   const [genCode, setGenCode] = useState("");
   const [reveal, setReveal] = useState<string[] | null>(null); 
   const [revShown, setRevShown] = useState(0);
@@ -3169,11 +3171,12 @@ export default function LogicPanel() {
               </div>
               <div style={{ padding: "12px 14px 6px" }}>
                 {[
-                  { s: "1", t: "左側のスロットでアイテムを選んでSPAWNで配置" },
-                  { s: "2", t: "条件のスロット（もしも/そうなら）をタップ → つなげる相手が光る" },
-                  { s: "3", t: "光った相手をタップで接続（カチッ！）" },
-                  { s: "4", t: "ブロックを選んで Delete で削除 / Ctrl+D でコピー" },
-                  { s: "Esc", t: "Esc で接続をキャンセル" },
+                  { s: "1", t: "左でアイテムを選び、SPAWN で手札に入れる" },
+                  { s: "2", t: "手札（右側）からブロックをドラッグして置く" },
+                  { s: "3", t: "つなぐ穴（もしも / そうなら）をタップ → 相手が光る" },
+                  { s: "4", t: "光った相手をタップしてつなぐ（カチッ！）" },
+                  { s: "5", t: "消すときは選んで × か Delete ／ コピーは Ctrl+D" },
+                  { s: "Esc", t: "つなぐのをやめる" },
                 ].map((s, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 12 }}>
                     <span style={{
@@ -3911,7 +3914,8 @@ export default function LogicPanel() {
               onClick={() => {
                 playSuccessSound();
                 const lines = (genCode || "// まず きっかけ ブロックを置いて繋げよう").split("\n");
-                setReveal(lines);
+                setReveal(lines);          // ← お祝い演出(実際のコードを見る瞬間)は必ず通す
+                setExportArmed(true);      // ← このボタンを押して初めて設定画面の書き出しを解錠
               }}
               style={{
                 width: "100%",

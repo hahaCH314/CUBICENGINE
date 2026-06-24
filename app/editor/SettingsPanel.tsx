@@ -47,6 +47,7 @@ function BuildTerminal() {
 
   const projectName = useEditorStore((s) => s.projectName);
   const blocks = useEditorStore((s) => s.blocks);
+  const exportArmed = useEditorStore((s) => s.exportArmed); // メインEXPORTボタンを押して初めて解錠
 
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
@@ -57,13 +58,18 @@ function BuildTerminal() {
 
   const handleBuild = useCallback(async () => {
     if (building) return;
+    // 抜け道防止：メインの「EXPORT ▶ マイクラ」ボタンを押して解錠していないと書き出さない
+    if (!useEditorStore.getState().exportArmed) {
+      setLog(["⚠ まず ロジック画面の「EXPORT ▶ マイクラ」ボタンを押してください。"]);
+      return;
+    }
     setBuilding(true);
     setError(null);
     setLog([]);
     try {
       const state = useEditorStore.getState();
       const plat = state.targetPlatform as "bedrock" | "java";
-      push("$ mmc build --release");
+      push("$ cubicengine build --release");
       await wait(220);
       push("  ▸ manifest.json を生成 …");
       await wait(260);
@@ -130,9 +136,10 @@ function BuildTerminal() {
       <button
         id="export-btn"
         onClick={handleBuild}
-        disabled={building}
-        className={`mc-btn ${building ? "" : "mc-btn--primary"} w-full py-3`}
-        style={{ fontSize: 13, borderRadius: 16 }}
+        disabled={building || !exportArmed}
+        title={!exportArmed ? "先にロジック画面の「EXPORT ▶ マイクラ」ボタンを押してください" : undefined}
+        className={`mc-btn ${building || !exportArmed ? "" : "mc-btn--primary"} w-full py-3`}
+        style={{ fontSize: 13, borderRadius: 16, opacity: !building && !exportArmed ? 0.6 : 1 }}
       >
         {building ? (
           <>
@@ -142,6 +149,8 @@ function BuildTerminal() {
             </svg>
             ビルド中…
           </>
+        ) : !exportArmed ? (
+          <>🔒 まず「EXPORT ▶ マイクラ」を押してね</>
         ) : (
           <>⚡ ビルド＆ダウンロード</>
         )}

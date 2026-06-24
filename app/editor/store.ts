@@ -93,6 +93,8 @@ export interface EditorState {
   projectDescription: string;
   targetPlatform: "bedrock" | "java";
   exportFormat: "mcaddon" | "mcpack" | "zip";
+  /** メインのEXPORTボタンを押して解錠したか（設定画面の出力ゲート用） */
+  exportArmed: boolean;
   compress: boolean;
   mcVersion: "1.26.x" | "1.21.40+" | "1.21.0" | "1.20.x";
   packIconDataUrl: string;       // アドオンアイコン（data URL、空なら規定）
@@ -119,6 +121,7 @@ export interface EditorState {
   setProjectDescription: (d: string) => void;
   setTargetPlatform: (p: "bedrock" | "java") => void;
   setExportFormat: (f: "mcaddon" | "mcpack" | "zip") => void;
+  setExportArmed: (v: boolean) => void;
   setCompress: (v: boolean) => void;
   setMcVersion: (v: "1.26.x" | "1.21.40+" | "1.21.0" | "1.20.x") => void;
   setGeneratedJsCode: (code: string) => void;
@@ -195,6 +198,7 @@ export const useEditorStore = create<EditorState>((set) => ({
   projectDescription: "An amazing Minecraft mod",
   targetPlatform: "bedrock",
   exportFormat: "mcaddon",
+  exportArmed: false,
   compress: true,
   mcVersion: "1.26.x" as const,
   packIconDataUrl: "",
@@ -253,6 +257,7 @@ export const useEditorStore = create<EditorState>((set) => ({
   setProjectDescription:(d)  => set({ projectDescription: d }),
   setTargetPlatform:    (p)  => set({ targetPlatform: p }),
   setExportFormat:      (f)  => set({ exportFormat: f }),
+  setExportArmed:       (v)  => set({ exportArmed: v }),
   setCompress:          (v)  => set({ compress: v }),
   setMcVersion:         (v)  => set({ mcVersion: v }),
   setGeneratedJsCode:   (code) => set({ generatedJsCode: code }),

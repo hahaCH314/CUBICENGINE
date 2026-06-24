@@ -28,6 +28,8 @@ interface MenuItem {
 function useMenuItems() {
   const handleExport = useCallback(async () => {
     const state = useEditorStore.getState();
+    // 抜け道防止：メインの「EXPORT ▶ マイクラ」ボタンを押して解錠していないと書き出さない
+    if (!state.exportArmed) return;
     await exportProject(state, state.generatedJsCode);
   }, []);
 

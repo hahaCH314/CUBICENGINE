@@ -65,7 +65,7 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
     case"ca_gt":case"ca_lt":case"ca_gte":case"ca_lte":case"ca_eq":case"ca_neq":
     case"ca_concat":case"ca_strlen":case"ca_numstr":case"ca_strnum":
     case"ca_substr":case"ca_replace":case"ca_upper":case"ca_lower":case"ca_contains":
-      return`${I}console.log("[MMC演算]", ${genExpr(b.id,blocks)});`;
+      return`${I}console.log("[CUBICENGINE演算]", ${genExpr(b.id,blocks)});`;
     // 制御
     case"ct_rep":{
       const body=genChain(b.thenId,blocks,I+"  ");
@@ -73,7 +73,7 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
     }
     case"ct_log":{
       const _e=genExpr(b.innerId,blocks)||`"${escStr(f("v","ログ"))}"`;
-      return`${I}console.log("[MMCログ] " + ${_e});`;
+      return`${I}console.log("[CUBICENGINEログ] " + ${_e});`;
     }
     // 変数
     case"vv_set":    return`${I}_v_${sanitizeVarName(f("name","score"))} = ${genExpr(b.innerId,blocks)||`Number(${f("val","0")})`};`;
