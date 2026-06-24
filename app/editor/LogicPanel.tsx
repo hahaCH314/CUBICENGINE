@@ -512,22 +512,34 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
             <BlockIconComponent size={22} color={cat.bg} strokeWidth={2.2} />
           </div>
 
-          {/* 下部ラベル */}
-          <span style={{
-            fontSize: b.label.length > 7 ? 8.5 : 9.5,
-            fontWeight: 900,
-            color: "#1e293b",
-            textAlign: "center",
-            lineHeight: 1.25,
-            width: "92%",
-            wordBreak: "break-word",
-            display: "block",
-            zIndex: 2,
-            marginBottom: 2,
-            marginTop: "auto",
-          }}>
-            {b.label}
-          </span>
+          {/* 下部ラベル（co_if は選んだ条件を「もしも〇〇なら」と表示＝中身が見える） */}
+          {b.type === "co_if" ? (
+            <span style={{
+              fontSize: 8.5, fontWeight: 900, color: "#1e293b", textAlign: "center",
+              lineHeight: 1.3, width: "94%", wordBreak: "break-word", display: "block",
+              zIndex: 2, marginBottom: 2, marginTop: "auto",
+            }}>
+              もしも<br />
+              <b style={{ color: cat.bg, fontSize: 10 }}>{b.fields.find(f => f.id === "cond")?.value || "？"}</b><br />
+              なら
+            </span>
+          ) : (
+            <span style={{
+              fontSize: b.label.length > 7 ? 8.5 : 9.5,
+              fontWeight: 900,
+              color: "#1e293b",
+              textAlign: "center",
+              lineHeight: 1.25,
+              width: "92%",
+              wordBreak: "break-word",
+              display: "block",
+              zIndex: 2,
+              marginBottom: 2,
+              marginTop: "auto",
+            }}>
+              {b.label}
+            </span>
+          )}
         </div>
       </div>
 
@@ -540,7 +552,9 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
           transform: "translateX(-50%)",
           display: "flex", gap: 6, zIndex: 3
         }}>
-          {isCond && <>{renderSlotButton("inner")}{renderSlotButton("then")}{renderSlotButton("else")}</>}
+          {/* もしも〜なら（co_if）は条件をカード内に仕込む方式＝inner(もしも)/else(ちがうなら)
+              ポートは出さない。動作を重ねる「そうなら」だけ。 */}
+          {isCond && renderSlotButton("then")}
           {isLoop && renderSlotButton("then")}
         </div>
       )}
