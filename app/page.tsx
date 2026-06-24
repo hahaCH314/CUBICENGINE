@@ -123,7 +123,7 @@ export default function HomePage() {
       </nav>
 
       {/* Hero（1画面に収まる中央配置） */}
-      <section className="flex-1 min-h-0 flex flex-col items-center justify-center px-6 text-center overflow-hidden">
+      <section className="flex-1 min-h-0 flex flex-col items-center justify-center px-6 pb-16 text-center overflow-hidden">
         <h1
           className="text-5xl sm:text-7xl md:text-8xl font-pixel tracking-wider mb-3 animate-float-slow"
           style={{
@@ -311,7 +311,7 @@ export default function HomePage() {
           </Link>
           <span className="opacity-40">·</span>
           <Link href="/support" className="underline underline-offset-2 hover:text-foreground transition-colors">
-            応援する
+            応援お願いします
           </Link>
         </nav>
       </section>
