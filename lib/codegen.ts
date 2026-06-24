@@ -195,7 +195,9 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
       ].join("\n");
     }
     case"co_if":{
-      const cond=genCond(b.innerId,blocks);
+      // 後方互換：内側に条件カードを挿してあれば従来どおりそれを使う。
+      // 無ければ co_if 自身の「条件」フィールド（キラキラカードで選んだ条件）から生成。
+      const cond=b.innerId?genCond(b.innerId,blocks):genCondFromField(b);
       const bodyThen=genChain(b.thenId,blocks,I+"  ");
       const bodyElse=genChain(b.elseId,blocks,I+"  ");
       return[
@@ -302,6 +304,19 @@ function genCond(id:string|null, blocks:CBlock[]):string{
   if(!id)return"true";
   const expr=genExpr(id,blocks);
   return(expr==="0"||expr==="")?"true":expr;
+}
+
+/** co_if(もしも〜なら)カード自身の「条件」フィールドから条件式を生成（キラキラカード方式）。
+ *  既存の条件式を再利用。未設定なら true。 */
+function genCondFromField(b:CBlock):string{
+  const f=(id:string,fb="")=>gf(b,id,fb);
+  switch(f("cond","")){
+    case"スニーク中":  return"player.isSneaking";
+    case"夜間":       return"(world.getTimeOfDay()>=13000&&world.getTimeOfDay()<23000)";
+    case"雨天":       return`(world.getDimension("overworld").weather?.precipitation==="rain"||world.getDimension("overworld").weather?.precipitation==="thunder")`;
+    case"HPが少ない":  return`((player.getComponent("minecraft:health")?.currentValue??20)<=10)`;
+    default:          return"true";
+  }
 }
 
 function genTrigger(b:CBlock,blocks:CBlock[]):string{

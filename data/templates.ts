@@ -60,7 +60,7 @@ const TEMPLATES: Tmpl[] = [
   {type:"ac_tag",   emoji:"Tags",label:"タグ操作",            sublabel:"プレイヤーにタグを付ける",category:"action",fields:[fv("op","操作","追加",["追加","削除"]),fv("tag","タグ名","vip",TAGS)]},
   {type:"ac_kick",  emoji:"Ban",label:"キック",              sublabel:"プレイヤーをサーバーから追い出す",category:"action",fields:[fv("msg","理由","ルール違反",REASONS)]},
   // ─── 条件 ───
-  {type:"co_if",    emoji:"Split",label:"条件分岐",            sublabel:"条件によって処理を分ける（ドーナツ）",category:"ifelse",fields:[]},
+  {type:"co_if",    emoji:"Split",label:"もしも〜なら",        sublabel:"えらんだ条件のときだけ実行する",category:"ifelse",fields:[fv("cond","もしも","スニーク中",["スニーク中","夜間","雨天","HPが少ない"])]},
   {type:"co_tag",   emoji:"Tags",label:"タグを持っているか",  sublabel:"指定タグの確認",           category:"ifelse",fields:[fv("tag","タグ名","vip")]},
   {type:"co_sneak", emoji:"EyeOff",label:"スニーク中か",        sublabel:"しゃがんでいるか確認",     category:"ifelse",fields:[]},
   {type:"co_item",  emoji:"Search",label:"アイテム所持確認",    sublabel:"インベントリに指定アイテムがあるか",category:"ifelse",fields:[fv("item","アイテム","minecraft:diamond",ITEMS)]},
