@@ -107,7 +107,7 @@ export default function HomePage() {
               className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-bold text-white transition-transform hover:scale-105"
               style={{ background: "linear-gradient(135deg,#34a17c,#258a66)", boxShadow: "0 2px 8px rgba(0,0,0,0.22)" }}
             >
-              ☕ {locale === "en" ? "Support" : "応援する"}
+              ☕ {locale === "en" ? "Support" : "応援お願いします"}
             </Link>
             <button
               type="button"
