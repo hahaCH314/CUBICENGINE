@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Press_Start_2P, M_PLUS_Rounded_1c } from "next/font/google";
 import "./globals.css";
 import ServiceWorkerRegistration from "./ServiceWorkerRegistration";
+import { SITE_URL } from "../lib/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,10 +35,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
-// 公開URL: Vercelでは NEXT_PUBLIC_SITE_URL を設定（無ければVERCEL_URL→localhostにフォールバック）
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+// 公開URL（正規URL）は lib/site.ts に集約。VERCEL_URL(使い捨て)は使わない。
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
