@@ -102,6 +102,13 @@ export default function HomePage() {
           </Link>
           <div className="flex items-center gap-3">
             <span className="font-pixel text-[10px]" style={{ color: "#f0a818", opacity: 0.9 }}>{t(locale, "nav.edition")}</span>
+            <Link
+              href="/support"
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-bold text-white transition-transform hover:scale-105"
+              style={{ background: "linear-gradient(135deg,#34d399,#10b981)", boxShadow: "0 3px 10px rgba(16,185,129,0.35)" }}
+            >
+              ☕ {locale === "en" ? "Support" : "応援する"}
+            </Link>
             <button
               type="button"
               onClick={() => setLocale(locale === "ja" ? "en" : "ja")}
