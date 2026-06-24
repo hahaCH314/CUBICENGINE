@@ -37,22 +37,6 @@ const SLOT_HEAD: Record<string, { glyph: string; jp: string }> = {
   else: { glyph: "✗", jp: "ちがうなら" },
 };
 
-// HOWTOPLAY用：アプリ実物の「色つきの丸ボタン」を文中に埋め込んで見せる
-function HelpDot({ color, glyph, label }: { color: string; glyph: string; label: string }) {
-  return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, verticalAlign: "middle", whiteSpace: "nowrap" }}>
-      <span style={{
-        width: 20, height: 20, borderRadius: "50%",
-        background: "rgba(0,0,0,0.7)", border: `2px solid ${color}`,
-        color, fontSize: 11, fontWeight: 900,
-        display: "inline-flex", alignItems: "center", justifyContent: "center",
-        boxShadow: `0 0 6px ${color}66`,
-      }}>{glyph}</span>
-      <b style={{ color }}>{label}</b>
-    </span>
-  );
-}
-
 /* ══════════════════════════════════════════════════════════
    やさしいカテゴリ（物語順）— SPROUT は非コーダー全振り。
    頭の中の「いつ → どうなる → もっと(上級)」の3つだけに集約。
@@ -3193,26 +3177,36 @@ export default function LogicPanel() {
                     fontSize: 15, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center",
                   }}>✕</button>
                 </div>
-                <div style={{ padding: "18px 22px 22px" }}>
+                <div style={{ padding: "16px 22px 22px" }}>
                   {[
-                    { s: "1", t: <>左でアイテムを選び、<b>SPAWN</b> で手札に入れる</> },
-                    { s: "2", t: <>手札（右側）から ブロックを<b>ドラッグして置く</b></> },
-                    { s: "3", t: <>ブロックの下の小さな丸 <HelpDot color="#9b59b6" glyph="⬦" label="もしも" /> <HelpDot color="#2ecc71" glyph="✓" label="そうなら" /> を<b>タップ</b> → つなげる相手が<b style={{ color: "#0ea5e9" }}>光る</b></> },
-                    { s: "4", t: <>光った相手を<b>タップ</b>してつなぐ（カチッ！）</> },
-                    { s: "5", t: <>消すときは選んで <b>×</b> か <b>Delete</b> ／ コピーは <b>Ctrl+D</b></> },
-                    { s: "Esc", t: <>つなぐのをやめる</> },
+                    { icon: "🛒", title: "えらんで SPAWN", t: <>左のリストでアイテムをえらび、黄色い <b>SPAWN!</b> ボタン。<br />右下の <b>🃏 手札トレイ</b> にカードがたまるよ</> },
+                    { icon: "✋", title: "手札から出す", t: <>トレイのカードを <b>つまんでキャンバスへドラッグ</b>。すきな場所に置けるよ</> },
+                    { icon: "🃏", title: "重ねるだけ！", t: <>カードを 別のカードに <b>かさねると ピタッ！</b> と上から順番につながる。<br />これだけでプログラムになるよ ✨</> },
+                    { icon: "❓", title: "「もしも」もかさねる", t: <><b>もしも</b> カードに 動きのカードを <b>かさねる</b> だけで、条件として組みこまれるよ</> },
+                    { icon: "✅", title: "マイクラへ", t: <>右上の <b style={{ color: "#16a34a" }}>EXPORT ▶ マイクラ</b> でコードが完成！</> },
                   ].map((s, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 15 }}>
+                    <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 13, marginBottom: 16 }}>
                       <span style={{
-                        flexShrink: 0, width: 28, height: 28, borderRadius: "50%",
-                        background: "linear-gradient(160deg, #6366f1, #4f46e5)",
-                        boxShadow: "0 2px 6px rgba(79,70,229,0.35)",
-                        color: "#fff", fontSize: s.s.length > 1 ? 11 : 14, fontWeight: 900,
+                        flexShrink: 0, width: 38, height: 38, borderRadius: 12,
+                        background: "linear-gradient(160deg, #f8fafc, #eef2ff)",
+                        border: "1px solid rgba(148,163,184,0.3)",
+                        boxShadow: "0 2px 5px rgba(15,23,42,0.08)",
+                        fontSize: 20,
                         display: "flex", alignItems: "center", justifyContent: "center",
-                      }}>{s.s}</span>
-                      <div style={{ fontSize: 13.5, color: "#334155", fontWeight: 500, lineHeight: 1.6, paddingTop: 3 }}>{s.t}</div>
+                      }}>{s.icon}</span>
+                      <div style={{ paddingTop: 1 }}>
+                        <div style={{ fontSize: 13.5, fontWeight: 900, color: "#1e293b", marginBottom: 2 }}>{s.title}</div>
+                        <div style={{ fontSize: 12.5, color: "#475569", fontWeight: 500, lineHeight: 1.55 }}>{s.t}</div>
+                      </div>
                     </div>
                   ))}
+                  {/* ショートカット（ちいさく） */}
+                  <div style={{
+                    marginTop: 4, paddingTop: 12, borderTop: "1px dashed rgba(148,163,184,0.4)",
+                    fontSize: 11.5, color: "#64748b", fontWeight: 600, lineHeight: 1.8,
+                  }}>
+                    🗑 消す = えらんで <b>×</b> / <b>Delete</b>　　📑 コピー = <b>Ctrl+D</b>　　🚫 やめる = <b>Esc</b>
+                  </div>
                 </div>
               </div>
             </div>
