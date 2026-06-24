@@ -58,9 +58,9 @@ function BuildTerminal() {
 
   const handleBuild = useCallback(async () => {
     if (building) return;
-    // 抜け道防止：メインの「EXPORT ▶ マイクラ」ボタンを押して解錠していないと書き出さない
+    // 抜け道防止：メインの「アドオン完成！」ボタンを押して解錠していないと書き出さない
     if (!useEditorStore.getState().exportArmed) {
-      setLog(["⚠ まず ロジック画面の「EXPORT ▶ マイクラ」ボタンを押してください。"]);
+      setLog(["⚠ まず ロジック画面の「アドオン完成！🎉」ボタンを押してください。"]);
       return;
     }
     setBuilding(true);
@@ -137,7 +137,7 @@ function BuildTerminal() {
         id="export-btn"
         onClick={handleBuild}
         disabled={building || !exportArmed}
-        title={!exportArmed ? "先にロジック画面の「EXPORT ▶ マイクラ」ボタンを押してください" : undefined}
+        title={!exportArmed ? "先にロジック画面の「アドオン完成！🎉」ボタンを押してください" : undefined}
         className={`mc-btn ${building || !exportArmed ? "" : "mc-btn--primary"} w-full py-3`}
         style={{ fontSize: 13, borderRadius: 16, opacity: !building && !exportArmed ? 0.6 : 1 }}
       >
@@ -150,7 +150,7 @@ function BuildTerminal() {
             ビルド中…
           </>
         ) : !exportArmed ? (
-          <>🔒 まず「EXPORT ▶ マイクラ」を押してね</>
+          <>🔒 まず「アドオン完成！🎉」を押してね</>
         ) : (
           <>⚡ ビルド＆ダウンロード</>
         )}

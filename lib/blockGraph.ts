@@ -1,5 +1,5 @@
 import { CBlock } from '../app/editor/_types';
-import { GAP, BW, BH, SNAP } from '../app/editor/_constants';
+import { GAP, BW, BH } from '../app/editor/_constants';
 
 function blockH(b: CBlock): number {
   // カード実寸112に対し縦間隔=この値。154だと42px隙間→100で約12px重なる(ソリティア風・ほんの少し)
@@ -88,12 +88,14 @@ function dist(a: { x: number; y: number }, b: { x: number; y: number }): number 
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-/** 縦積み方向のスナップ判定（上空高めからの落下対応） */
+/** 縦積み方向のスナップ判定。
+ *  「ターゲットにしっかり重なった時だけ」くっつける＝吸着レンジを狭く。
+ *  横は半カード分(45)、縦は所定位置の上80px〜下45pxの範囲に重なった時だけ。 */
 function canSnapVertical(
   center: { x: number; y: number },
   snap: { x: number; y: number },
-  limitX = 65,
-  limitYUp = 260,
+  limitX = 45,
+  limitYUp = 80,
   limitYDown = 45
 ): boolean {
   const dx = Math.abs(center.x - snap.x);
@@ -139,7 +141,7 @@ function findSnap(
           return { targetId: target.id, slot: "then" };
       } else {
         // 条件分岐
-        if (!target.innerId && dist(center, { x: tp.x + BW + GAP + BW / 2, y: tp.y + BH / 2 }) < SNAP)
+        if (!target.innerId && dist(center, { x: tp.x + BW + GAP + BW / 2, y: tp.y + BH / 2 }) < 42)
           return { targetId: target.id, slot: "inner" };
         
         const thenSnap = { x: tp.x + BW / 2, y: tp.y - GAP - dh / 2 };

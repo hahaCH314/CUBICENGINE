@@ -2128,7 +2128,7 @@ export default function LogicPanel() {
   live.current = { pan, zoom, blocks, selected, snapHint, wireDrag };
 
   const panDrag = useRef({ active: false, sx: 0, sy: 0, sp: { x: 0, y: 0 } });
-  const blockDrag = useRef({ active: false, id: "", offX: 0, offY: 0, fromTray: false });
+  const blockDrag = useRef({ active: false, id: "", offX: 0, offY: 0 });
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
@@ -2202,7 +2202,7 @@ export default function LogicPanel() {
     });
     const mx = (e.clientX - rect.left) / zoom - pan.x / zoom;
     const my = (e.clientY - rect.top) / zoom - pan.y / zoom;
-    blockDrag.current = { active: true, id, offX: mx - visX, offY: my - visY, fromTray: false };
+    blockDrag.current = { active: true, id, offX: mx - visX, offY: my - visY };
     setDraggingId(id);
     setSelected(id);
   }, []);
@@ -2225,7 +2225,7 @@ export default function LogicPanel() {
     setTray(t => t.filter(x => x.key !== it.key));
 
     const nbH = blockH(nb);
-    blockDrag.current = { active: true, id: nb.id, offX: BW / 2, offY: nbH / 2, fromTray: true };
+    blockDrag.current = { active: true, id: nb.id, offX: BW / 2, offY: nbH / 2 };
     setDraggingId(nb.id);
     setSelected(nb.id);
 
@@ -2297,8 +2297,7 @@ export default function LogicPanel() {
       const b = blocks.find(x => x.id === id)!;
       const dragH = blockH(b);
       const center = { x: cx + BW / 2, y: cy + dragH / 2 };
-      // トレイから出した一発目はスナップしないので、くっつくヒントも出さない
-      const snap = blockDrag.current.fromTray ? null : findSnap(id, center, blocks);
+      const snap = findSnap(id, center, blocks);
 
       let finalX = cx;
       let finalY = cy;
@@ -2352,9 +2351,7 @@ export default function LogicPanel() {
       const b = blocks.find(b => b.id === id)!;
       const dragH = blockH(b);
       const center = { x: b.x + BW / 2, y: b.y + dragH / 2 };
-      // 手札トレイから出した一発目は自動スナップさせない（勝手にくっつくのを防止）。
-      // 重ねたいときは、置いたカードをもう一度ドラッグして重ねればスナップする。
-      const snap = blockDrag.current.fromTray ? null : findSnap(id, center, blocks);
+      const snap = findSnap(id, center, blocks);
       if (snap) {
         setBlocks(prev => attach(id, snap.targetId, snap.slot, prev));
         playSnapSound();
@@ -3186,7 +3183,7 @@ export default function LogicPanel() {
                     { icon: "✋", title: "手札から出す", t: <>トレイのカードを <b>つまんでキャンバスへドラッグ</b>。すきな場所に置けるよ</> },
                     { icon: "🃏", title: "重ねるだけ！", t: <>カードを 別のカードに <b>かさねると ピタッ！</b> と上から順番につながる。<br />これだけでプログラムになるよ ✨</> },
                     { icon: "❓", title: "「もしも」もかさねる", t: <><b>もしも</b> カードに 動きのカードを <b>かさねる</b> だけで、条件として組みこまれるよ</> },
-                    { icon: "✅", title: "マイクラへ", t: <>右下の緑の <b style={{ color: "#16a34a" }}>EXPORT ▶ マイクラ</b> ボタンでコードが完成！</> },
+                    { icon: "✅", title: "マイクラへ", t: <>右下の緑の <b style={{ color: "#16a34a" }}>アドオン完成！🎉</b> ボタンを押すとコードができあがる！</> },
                   ].map((s, i) => (
                     <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 13, marginBottom: 16 }}>
                       <span style={{
@@ -3983,7 +3980,7 @@ export default function LogicPanel() {
                 }
               }}
             >
-              <span>EXPORT<br />▶ マイクラ</span>
+              <span>アドオン<br />完成！🎉</span>
             </button>
           </div>
         </div>
