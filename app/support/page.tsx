@@ -77,7 +77,7 @@ export default function SupportPage() {
             感想・バグ報告・「こんなの作れた！」のシェアも、とても大きな支えになります。
             公式{" "}
             <a
-              href="https://discord.gg/pagpxcfeC"
+              href="https://discord.gg/Hm82tUUY8g"
               target="_blank"
               rel="noopener noreferrer"
               className="underline underline-offset-2 hover:text-foreground transition-colors"

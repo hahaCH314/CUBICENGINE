@@ -397,7 +397,7 @@ export default function SettingsPanel() {
           <div className="bg-panel rounded-xl border border-border p-3">
             <div className="text-[10px] font-bold text-accent uppercase tracking-wider mb-2">リンク & サポート</div>
             <a
-              href="https://discord.gg/pagpxcfeC"
+              href="https://discord.gg/Hm82tUUY8g"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-[#5865F2] hover:bg-[#4752C4] active:bg-[#3C45A5] text-white font-bold text-xs transition-colors"

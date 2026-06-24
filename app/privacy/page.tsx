@@ -62,7 +62,7 @@ export default function PrivacyPage() {
           <p>
             本ポリシーに関するお問い合わせは、公式{" "}
             <a
-              href="https://discord.gg/pagpxcfeC"
+              href="https://discord.gg/Hm82tUUY8g"
               target="_blank"
               rel="noopener noreferrer"
               className="underline underline-offset-2 hover:text-foreground transition-colors"

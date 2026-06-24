@@ -285,7 +285,7 @@ export default function HomePage() {
         </div>
 
         <a
-          href="https://discord.gg/pagpxcfeC"
+          href="https://discord.gg/Hm82tUUY8g"
           target="_blank"
           rel="noopener noreferrer"
           className="mt-3 inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-white transition-all hover:scale-[1.03] shrink-0"
