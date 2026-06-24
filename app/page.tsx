@@ -105,7 +105,7 @@ export default function HomePage() {
             <Link
               href="/support"
               className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-bold text-white transition-transform hover:scale-105"
-              style={{ background: "linear-gradient(135deg,#34d399,#10b981)", boxShadow: "0 3px 10px rgba(16,185,129,0.35)" }}
+              style={{ background: "linear-gradient(135deg,#34a17c,#258a66)", boxShadow: "0 2px 8px rgba(0,0,0,0.22)" }}
             >
               ☕ {locale === "en" ? "Support" : "応援する"}
             </Link>
@@ -113,7 +113,7 @@ export default function HomePage() {
               type="button"
               onClick={() => setLocale(locale === "ja" ? "en" : "ja")}
               aria-label="switch language"
-              className="font-pixel text-[10px] px-2.5 py-1 rounded border border-white/15 hover:border-white/40 transition-colors"
+              className="ml-2 font-pixel text-[10px] px-2.5 py-1 rounded border border-white/15 hover:border-white/40 transition-colors"
               style={{ color: "#e5e7eb" }}
             >
               🌐 {t(locale, "lang.toggle")}
