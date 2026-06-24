@@ -17,7 +17,16 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
   )
-  self.skipWaiting()
+  // ここでは skipWaiting しない＝新SWは「待機」状態で止める。
+  // ユーザーが画面の「更新する」バーを押したら SKIP_WAITING メッセージで切替える。
+  // （編集中に勝手にリロードして作業が飛ぶのを防ぐため）
+})
+
+// クライアント(ページ)から「更新する」が押されたら待機を解除して新SWを有効化。
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting()
+  }
 })
 
 self.addEventListener('activate', (event) => {
