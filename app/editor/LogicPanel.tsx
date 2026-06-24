@@ -2382,41 +2382,9 @@ export default function LogicPanel() {
         }
         setSnapHint(null);
       } else {
+        // 手動配置：スナップしなければ「離した位置」にそのまま留める（自動整列しない）。
+        // 整列はユーザーが自分でドラッグ＆重ね（snap）で行う。旧ブロックの転がり/床整列はしない。
         playClickSound();
-        // スナップしなかったカードは「床」にきれいに左から整列させる＝定位置で予測できる
-        // （散らばり・宙に浮く・行方不明を防ぐ）。旧版の転がり演出 rollAnim だけは廃止。
-        const droppedBlock = blocks.find(bl => bl.id === id)!;
-        const dragH = blockH(droppedBlock);
-
-        const _rect = containerRef.current?.getBoundingClientRect();
-        const targetLandX = _rect ? Math.round((40 - pan.x) / zoom) : 60;
-
-        const myFamily = getFamily(id, blocks);
-        const otherRoots = blocks.filter(bl => {
-          if (myFamily.includes(bl.id)) return false;
-          return !blocks.some(p => p.nextId === bl.id || p.innerId === bl.id || p.thenId === bl.id || p.elseId === bl.id);
-        });
-
-        const PAD_B = 80;
-        const landY = _rect
-          ? (_rect.height - 8 - PAD_B * zoom - pan.y) / zoom - dragH
-          : 408 + BH - dragH;
-
-        const myW = blockWidth(droppedBlock, blocks);
-        const occupied = otherRoots.map(r => ({ x: getPos(r.id, blocks).x, w: blockWidth(r, blocks) }));
-        const gapX = 12;
-        let landX = targetLandX;
-        let guard = 0;
-        while (guard++ < 300) {
-          const hit = occupied.find(o => landX < o.x + o.w + gapX && landX + myW + gapX > o.x);
-          if (!hit) break;
-          landX = hit.x + hit.w + gapX;
-        }
-
-        const nextBlocks = blocks.map(bl => bl.id === id ? { ...bl, x: landX, y: landY } : bl);
-        setBlocks(nextBlocks);
-        normalizeCanvas(nextBlocks);
-
         blockDrag.current.active = false;
         setSnapHint(null);
         return;
