@@ -408,6 +408,21 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
             : `drop-shadow(0 0 8px ${cat.bg}66) drop-shadow(0 4px 8px rgba(0,0,0,0.3))`,
       transition: "opacity 0.25s ease, filter 0.15s, transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1)",
     }}>
+      {/* ✨キラキラカード：もしも〜なら／くりかえし は“作って出す特別カード”。ホログラム調リング＋✨で区別 */}
+      {(isCond || isLoop) && (
+        <>
+          <div style={{
+            position: "absolute",
+            left: leftOffset - 4, top: -4, width: cardW + 8, height: cardH + 8,
+            borderRadius: 20,
+            background: "conic-gradient(from 35deg, #fbcfe8, #c7d2fe, #a5f3fc, #fef9c3, #fbcfe8)",
+            boxShadow: "0 0 16px rgba(196,181,253,0.6)",
+            zIndex: 1,
+            pointerEvents: "none",
+          }} />
+          <div style={{ position: "absolute", left: leftOffset - 7, top: -9, fontSize: 14, zIndex: 12, pointerEvents: "none", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.25))" }}>✨</div>
+        </>
+      )}
       {/* くりかえしカード＝中身を上方向に「囲む」オリジナル枠（このアプリのループ色／点線／🔁）。
           ※ Scratch等のトレードドレス(オレンジ/パズル凹凸/特定の矢印)は使わない。 */}
       {isLoop && (
