@@ -37,6 +37,22 @@ const SLOT_HEAD: Record<string, { glyph: string; jp: string }> = {
   else: { glyph: "✗", jp: "ちがうなら" },
 };
 
+// HOWTOPLAY用：アプリ実物の「色つきの丸ボタン」を文中に埋め込んで見せる
+function HelpDot({ color, glyph, label }: { color: string; glyph: string; label: string }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, verticalAlign: "middle", whiteSpace: "nowrap" }}>
+      <span style={{
+        width: 20, height: 20, borderRadius: "50%",
+        background: "rgba(0,0,0,0.7)", border: `2px solid ${color}`,
+        color, fontSize: 11, fontWeight: 900,
+        display: "inline-flex", alignItems: "center", justifyContent: "center",
+        boxShadow: `0 0 6px ${color}66`,
+      }}>{glyph}</span>
+      <b style={{ color }}>{label}</b>
+    </span>
+  );
+}
+
 /* ══════════════════════════════════════════════════════════
    やさしいカテゴリ（物語順）— SPROUT は非コーダー全振り。
    頭の中の「いつ → どうなる → もっと(上級)」の3つだけに集約。
@@ -3148,49 +3164,56 @@ export default function LogicPanel() {
           )}
 
           {showHelp && (
-            <div style={{
-              position: "absolute", bottom: 10, right: 190, zIndex: 40, width: 244,
-              background: "rgba(255, 255, 255, 0.95)",
-              backdropFilter: "blur(8px)",
-              border: "1px solid rgba(148, 163, 184, 0.22)",
-              borderRadius: 12,
-              boxShadow: "0 10px 30px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8)",
-              overflow: "hidden",
-            }}>
-              <div style={{
-                padding: "11px 14px",
-                display: "flex", justifyContent: "space-between", alignItems: "center",
-                borderBottom: "1px solid rgba(148,163,184,0.15)",
-              }}>
-                <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "#64748b", textTransform: "uppercase" }}>How to play</span>
-                <button onClick={() => setShowHelp(false)} style={{
-                  width: 20, height: 20, borderRadius: 6, border: "none",
-                  background: "rgba(0,0,0,0.05)", color: "#64748b", cursor: "pointer",
-                  fontSize: 12, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center",
-                }}>✕</button>
-              </div>
-              <div style={{ padding: "12px 14px 6px" }}>
-                {[
-                  { s: "1", t: "左でアイテムを選び、SPAWN で手札に入れる" },
-                  { s: "2", t: "手札（右側）からブロックをドラッグして置く" },
-                  { s: "3", t: "つなぐ穴（もしも / そうなら）をタップ → 相手が光る" },
-                  { s: "4", t: "光った相手をタップしてつなぐ（カチッ！）" },
-                  { s: "5", t: "消すときは選んで × か Delete ／ コピーは Ctrl+D" },
-                  { s: "Esc", t: "つなぐのをやめる" },
-                ].map((s, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 12 }}>
-                    <span style={{
-                      flexShrink: 0, width: 22, height: 22, borderRadius: "50%",
-                      background: "linear-gradient(160deg, #f1f5f9, #e2e8f0)",
-                      border: "1px solid rgba(148,163,184,0.3)",
-                      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 1px 2px rgba(0,0,0,0.05)",
-                      color: "#475569", fontSize: s.s.length > 1 ? 9 : 11, fontWeight: 800,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontFamily: "monospace",
-                    }}>{s.s}</span>
-                    <div style={{ fontSize: 11.5, color: "#475569", fontWeight: 500, lineHeight: 1.45, paddingTop: 2 }}>{s.t}</div>
-                  </div>
-                ))}
+            <div
+              onClick={() => setShowHelp(false)}
+              style={{
+                position: "absolute", inset: 0, zIndex: 50,
+                background: "rgba(15,23,42,0.5)", backdropFilter: "blur(3px)",
+                display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
+              }}
+            >
+              <div
+                onClick={e => e.stopPropagation()}
+                style={{
+                  width: "min(440px, 92%)", maxHeight: "86%", overflowY: "auto",
+                  background: "#ffffff", borderRadius: 20,
+                  boxShadow: "0 24px 70px rgba(0,0,0,0.4)",
+                  border: "1px solid rgba(148,163,184,0.25)",
+                }}
+              >
+                <div style={{
+                  padding: "16px 22px",
+                  display: "flex", justifyContent: "space-between", alignItems: "center",
+                  borderBottom: "1px solid rgba(148,163,184,0.15)",
+                }}>
+                  <span style={{ fontSize: 16, fontWeight: 900, letterSpacing: "0.06em", color: "#334155" }}>🎮 あそびかた</span>
+                  <button onClick={() => setShowHelp(false)} style={{
+                    width: 28, height: 28, borderRadius: 8, border: "none",
+                    background: "rgba(0,0,0,0.05)", color: "#64748b", cursor: "pointer",
+                    fontSize: 15, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>✕</button>
+                </div>
+                <div style={{ padding: "18px 22px 22px" }}>
+                  {[
+                    { s: "1", t: <>左でアイテムを選び、<b>SPAWN</b> で手札に入れる</> },
+                    { s: "2", t: <>手札（右側）から ブロックを<b>ドラッグして置く</b></> },
+                    { s: "3", t: <>ブロックの下の小さな丸 <HelpDot color="#9b59b6" glyph="⬦" label="もしも" /> <HelpDot color="#2ecc71" glyph="✓" label="そうなら" /> を<b>タップ</b> → つなげる相手が<b style={{ color: "#0ea5e9" }}>光る</b></> },
+                    { s: "4", t: <>光った相手を<b>タップ</b>してつなぐ（カチッ！）</> },
+                    { s: "5", t: <>消すときは選んで <b>×</b> か <b>Delete</b> ／ コピーは <b>Ctrl+D</b></> },
+                    { s: "Esc", t: <>つなぐのをやめる</> },
+                  ].map((s, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 15 }}>
+                      <span style={{
+                        flexShrink: 0, width: 28, height: 28, borderRadius: "50%",
+                        background: "linear-gradient(160deg, #6366f1, #4f46e5)",
+                        boxShadow: "0 2px 6px rgba(79,70,229,0.35)",
+                        color: "#fff", fontSize: s.s.length > 1 ? 11 : 14, fontWeight: 900,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                      }}>{s.s}</span>
+                      <div style={{ fontSize: 13.5, color: "#334155", fontWeight: 500, lineHeight: 1.6, paddingTop: 3 }}>{s.t}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
