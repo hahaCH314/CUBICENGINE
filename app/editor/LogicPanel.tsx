@@ -3170,7 +3170,7 @@ export default function LogicPanel() {
                   display: "flex", justifyContent: "space-between", alignItems: "center",
                   borderBottom: "1px solid rgba(148,163,184,0.15)",
                 }}>
-                  <span style={{ fontSize: 16, fontWeight: 900, letterSpacing: "0.06em", color: "#334155" }}>🎮 あそびかた</span>
+                  <span style={{ fontSize: 16, fontWeight: 900, letterSpacing: "0.06em", color: "#334155" }}>🛠️ アドオンの作り方</span>
                   <button onClick={() => setShowHelp(false)} style={{
                     width: 28, height: 28, borderRadius: 8, border: "none",
                     background: "rgba(0,0,0,0.05)", color: "#64748b", cursor: "pointer",
@@ -3183,7 +3183,8 @@ export default function LogicPanel() {
                     { icon: "✋", title: "手札から出す", t: <>トレイのカードを <b>つまんでキャンバスへドラッグ</b>。すきな場所に置けるよ</> },
                     { icon: "🃏", title: "重ねるだけ！", t: <>カードを 別のカードに <b>かさねると ピタッ！</b> と上から順番につながる。<br />これだけでプログラムになるよ ✨</> },
                     { icon: "❓", title: "「もしも」もかさねる", t: <><b>もしも</b> カードに 動きのカードを <b>かさねる</b> だけで、条件として組みこまれるよ</> },
-                    { icon: "✅", title: "マイクラへ", t: <>右下の緑の <b style={{ color: "#16a34a" }}>アドオン完成！🎉</b> ボタンを押すとコードができあがる！</> },
+                    { icon: "🎉", title: "アドオン完成！", t: <>右下の緑の <b style={{ color: "#16a34a" }}>アドオン完成！🎉</b> ボタンを押すと、コードができあがる</> },
+                    { icon: "🚀", title: "ダウンロードしてマイクラへ", t: <>上の <b>🚀 マイクラへ</b> タブを開いて <b style={{ color: "#16a34a" }}>⚡ ビルド＆ダウンロード</b>。<br />できた <b>.mcaddon</b> をマイクラに読みこめば完成！</> },
                   ].map((s, i) => (
                     <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 13, marginBottom: 16 }}>
                       <span style={{
@@ -3921,7 +3922,7 @@ export default function LogicPanel() {
                 >
                   ❓
                 </button>
-                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>ヘルプ</span>
+                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>作り方</span>
               </div>
             </div>
 

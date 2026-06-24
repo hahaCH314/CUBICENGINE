@@ -102,9 +102,9 @@ const tabConfig: { key: Tab; label: string; color: string; icon: string }[] = [
   },
   {
     key: "settings",
-    label: "設定",
+    label: "マイクラへ",
     color: "#3cd070",
-    icon: "⚙️",
+    icon: "🚀",
   },
 ];
 

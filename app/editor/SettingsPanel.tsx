@@ -293,8 +293,9 @@ export default function SettingsPanel() {
     document.documentElement.setAttribute("data-theme", t);
   };
 
-  // かんたん / プロ モード（localStorage 記憶）
-  const [mode, setMode] = useState<"simple" | "pro">("pro");
+  // かんたん / プロ モード（localStorage 記憶）。
+  // 初期は「かんたん」＝非コーダーが開いた瞬間に開発者コックピットを見せない（SPROUT=やさしく）。
+  const [mode, setMode] = useState<"simple" | "pro">("simple");
   useEffect(() => {
     const saved = localStorage.getItem("mmc-settings-mode");
     if (saved === "simple" || saved === "pro") setMode(saved);
@@ -323,7 +324,7 @@ export default function SettingsPanel() {
       {/* ── ヘッダー：タイトル＋モード切替 ── */}
       <div className="flex items-center justify-between shrink-0">
         <h2 className="text-sm font-bold text-foreground/90 flex items-center gap-2">
-          <span className="text-accent">⚙️</span> 設定 <span className="text-muted/50 text-xs font-mono">— addon studio</span>
+          <span className="text-accent">🚀</span> マイクラへ <span className="text-muted/50 text-xs font-mono">— ビルド＆ダウンロード</span>
         </h2>
         <div className="inline-flex items-center bg-[#1e293b]/10 border border-[#1e293b]/20 rounded-xl p-0.5 text-xs font-bold gap-1">
           <button
