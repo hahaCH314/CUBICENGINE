@@ -412,18 +412,43 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
             : `drop-shadow(0 0 8px ${cat.bg}66) drop-shadow(0 4px 8px rgba(0,0,0,0.3))`,
       transition: "opacity 0.25s ease, filter 0.15s, transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1)",
     }}>
-      {/* ✨キラキラカード：もしも〜なら／くりかえし は“作って出す特別カード”。ホログラム調リング＋✨で区別 */}
+      {/* ✨キラキラカード＝ホログラム箔（ビックリマンシール風の虹プリズム＋流れる光沢）。
+          ※箔のテカリ(一般的な視覚効果)のみ。特定キャラ/デザインは使わない。 */}
       {(isCond || isLoop) && (
         <>
+          <style>{`
+            @keyframes holoFlow { from { background-position: 0% 50%; } to { background-position: 300% 50%; } }
+            @keyframes holoSheen { 0% { background-position: 140% 0; } 100% { background-position: -40% 0; } }
+          `}</style>
+          {/* 外周の虹リング */}
           <div style={{
-            position: "absolute",
-            left: leftOffset - 4, top: -4, width: cardW + 8, height: cardH + 8,
+            position: "absolute", left: leftOffset - 4, top: -4, width: cardW + 8, height: cardH + 8,
             borderRadius: 20,
-            background: "conic-gradient(from 35deg, #fbcfe8, #c7d2fe, #a5f3fc, #fef9c3, #fbcfe8)",
-            boxShadow: "0 0 16px rgba(196,181,253,0.6)",
-            zIndex: 1,
-            pointerEvents: "none",
+            background: "conic-gradient(from 35deg, #ff5db1, #ffd23c, #3cff8e, #3cd0ff, #b53cff, #ff5db1)",
+            boxShadow: "0 0 16px rgba(196,181,253,0.65)",
+            zIndex: 1, pointerEvents: "none",
           }} />
+          {/* カード面のホロ箔 */}
+          <div style={{
+            position: "absolute", left: leftOffset, top: 0, width: cardW, height: cardH,
+            borderRadius: 16, overflow: "hidden", zIndex: 6, pointerEvents: "none",
+          }}>
+            <div style={{
+              position: "absolute", inset: 0,
+              background: "linear-gradient(115deg, #ff3ca6, #ffd23c, #3cff8e, #3cd0ff, #b53cff, #ff3ca6)",
+              backgroundSize: "300% 100%",
+              mixBlendMode: "color-dodge",
+              opacity: 0.5,
+              animation: "holoFlow 4s linear infinite",
+            }} />
+            <div style={{
+              position: "absolute", inset: 0,
+              background: "linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.75) 50%, transparent 60%)",
+              backgroundSize: "300% 100%",
+              mixBlendMode: "screen",
+              animation: "holoSheen 3.2s ease-in-out infinite",
+            }} />
+          </div>
           <div style={{ position: "absolute", left: leftOffset - 7, top: -9, fontSize: 14, zIndex: 12, pointerEvents: "none", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.25))" }}>✨</div>
         </>
       )}
