@@ -2381,50 +2381,9 @@ export default function LogicPanel() {
         }
         setSnapHint(null);
       } else {
-        playClickSound(); 
-        const droppedBlock = blocks.find(bl => bl.id === id)!;
-        const dragH = blockH(droppedBlock);
-
-        const _rect = containerRef.current?.getBoundingClientRect();
-        const targetLandX = _rect ? Math.round((40 - pan.x) / zoom) : 60;
-
-        const myFamily = getFamily(id, blocks);
-        const otherRoots = blocks.filter(bl => {
-          if (myFamily.includes(bl.id)) return false;
-          const hasParent = blocks.some(p =>
-            p.nextId === bl.id || p.innerId === bl.id || p.thenId === bl.id || p.elseId === bl.id
-          );
-          return !hasParent;
-        });
-
-        const PAD_B = 80;
-        const landY = _rect
-          ? (_rect.height - 8 - PAD_B * zoom - pan.y) / zoom - dragH
-          : 408 + BH - dragH;
-
-        const myW = blockWidth(droppedBlock, blocks);
-        const occupied = otherRoots.map(r => ({ x: getPos(r.id, blocks).x, w: blockWidth(r, blocks) }));
-        const gapX = 12;
-        let landX = targetLandX;
-        let guard = 0;
-        while (guard++ < 300) {
-          const hit = occupied.find(o => landX < o.x + o.w + gapX && landX + myW + gapX > o.x);
-          if (!hit) break;
-          landX = hit.x + hit.w + gapX; 
-        }
-
-        const nextBlocks = blocks.map(bl => bl.id === id ? { ...bl, x: landX, y: landY } : bl);
-        setBlocks(nextBlocks);
-        normalizeCanvas(nextBlocks);
-
-        const rolledRight = landX - targetLandX;
-        if (rolledRight > 4) {
-          const bounceRot = (Math.random() > 0.5 ? 1 : -1) * (3 + Math.random() * 5); 
-          const dur = 0.45 + Math.random() * 0.12; 
-          setRollAnim({ id, from: rolledRight, rot: bounceRot, dur });
-          setTimeout(() => setRollAnim(null), dur * 1000 + 20);
-        }
-
+        // スナップしなかったカードは自動整列せず「離した場所」にそのまま留める。
+        // （ドラッグ中に x,y は更新済み。旧ブロック版の床への転がり整列＝rollAnim は廃止）
+        playClickSound();
         blockDrag.current.active = false;
         setSnapHint(null);
         return;
