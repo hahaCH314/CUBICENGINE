@@ -1,7 +1,7 @@
 {
-  "name": "MineModCraft Studio",
-  "short_name": "MMC Studio",
-  "description": "Visual Minecraft Modding IDE",
+  "name": "CUBICENGINE Studio",
+  "short_name": "CUBICENGINE",
+  "description": "コーディング不要のビジュアル開発環境。非公式（Mojang/Microsoftとは無関係）。",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0c",
