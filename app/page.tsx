@@ -243,12 +243,20 @@ export default function HomePage() {
                 </Link>
               ) : (
                 <span
-                  aria-disabled="true"
+                  aria-label={t(locale, "grove.soon")}
                   title={t(locale, "dl.soonTitle")}
-                  className="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl font-bold text-sm text-white border border-white/10 cursor-not-allowed"
-                  style={{ background: "rgba(255,255,255,0.05)", opacity: 0.6 }}
+                  className="animate-grove-soon w-full inline-flex flex-col items-center justify-center px-5 py-3 rounded-xl font-bold text-sm cursor-default"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(34,211,238,0.16), rgba(8,145,178,0.12))",
+                    border: "1.5px solid rgba(34,211,238,0.45)",
+                  }}
                 >
-                  {t(locale, "dl.soon")}
+                  <span style={{ color: "#7fe9f7", textShadow: "0 0 10px rgba(34,211,238,0.4)" }}>
+                    {t(locale, "grove.soon")}
+                  </span>
+                  <span className="text-[10px] font-normal mt-0.5" style={{ color: "rgba(127,233,247,0.7)" }}>
+                    {t(locale, "grove.soonSub")}
+                  </span>
                 </span>
               )}
               {RELEASES_READY ? (

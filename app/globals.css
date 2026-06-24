@@ -164,6 +164,15 @@ button, a, input, select, textarea {
   animation: pulse-glow 3s ease-in-out infinite;
 }
 
+/* GROVE(Java)「近日公開」ティザー用：シアンの淡い明滅（死んだ"準備中"に見せない） */
+@keyframes grove-soon-glow {
+  0%, 100% { box-shadow: 0 0 16px rgba(34,211,238,0.20), inset 0 0 10px rgba(34,211,238,0.06); border-color: rgba(34,211,238,0.40); }
+  50%      { box-shadow: 0 0 30px rgba(34,211,238,0.40), inset 0 0 16px rgba(34,211,238,0.12); border-color: rgba(34,211,238,0.72); }
+}
+.animate-grove-soon {
+  animation: grove-soon-glow 2.6s ease-in-out infinite;
+}
+
 .animate-float {
   animation: float 4s ease-in-out infinite;
 }
