@@ -43,6 +43,10 @@ const SLOT_HEAD: Record<string, { glyph: string; jp: string }> = {
    上級(条件/くりかえし/数/計算/変数)は "もっと" に畳む＝消さない。
    ══════════════════════════════════════════════════════════ */
 interface FriendlyGroup { key: string; label: string; sub: string; icon: string; cats: Category[]; bg: string; top: string; side: string; text: string; }
+// ドロップダウン(co_ifの「もしも」)に格上げした条件は、盤面パレットから隠す。
+// ※パラメータ付き(co_tag/co_item)はv2まで従来どおり置けるよう残す。
+const HIDDEN_COND_TYPES = new Set(["co_sneak", "co_night", "co_rain", "co_hp"]);
+
 const FRIENDLY_GROUPS: FriendlyGroup[] = [
   { key: "when", label: "きっかけ", sub: "〜したとき",   icon: "Zap",      cats: ["trigger"],                                     bg: "#facc15", top: "#fef9c3", side: "#ca8a04", text: "#451a03" },
   { key: "do",   label: "すること", sub: "〜する",       icon: "Wand2",    cats: ["action", "ui"],                                bg: "#38bdf8", top: "#e0f2fe", side: "#0284c7", text: "#0c4a6e" },
@@ -2002,7 +2006,7 @@ export default function LogicPanel() {
 
   useEffect(() => {
     const g = FRIENDLY_GROUPS.find(x => x.key === activeGroup) ?? FRIENDLY_GROUPS[0];
-    const defaultTemplates = TEMPLATES.filter(t => g.cats.includes(t.category));
+    const defaultTemplates = TEMPLATES.filter(t => g.cats.includes(t.category) && !HIDDEN_COND_TYPES.has(t.type));
     setSelectedTemplate(defaultTemplates.length > 0 ? defaultTemplates[0] : null);
   }, [activeGroup]);
 
@@ -2023,9 +2027,10 @@ export default function LogicPanel() {
 
   const searching = search.trim().length > 0;
   const currentGroup = FRIENDLY_GROUPS.find(g => g.key === activeGroup) ?? FRIENDLY_GROUPS[0];
-  const filtered = searching
+  const filtered = (searching
     ? TEMPLATES.filter(t => t.label.includes(search) || t.sublabel.includes(search))
-    : TEMPLATES.filter(t => currentGroup.cats.includes(t.category));
+    : TEMPLATES.filter(t => currentGroup.cats.includes(t.category))
+  ).filter(t => !HIDDEN_COND_TYPES.has(t.type));
   const [showCode, setShowCode] = useState(false);
   const [showHelp, setShowHelp] = useState(false); // 起動時は閉じておく（ユーザーが ? で開く）
   const [genCode, setGenCode] = useState("");
