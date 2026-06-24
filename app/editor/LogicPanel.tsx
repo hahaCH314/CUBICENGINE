@@ -330,32 +330,38 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
     const isInner = slotKey === "inner";
 
     return (
-      <div
-        key={slotKey}
-        className={isArmedThis ? "slot-btn slot-btn--armed" : "slot-btn"}
-        onMouseDown={e => {
-          e.stopPropagation();
-          onSlotClick(b.id, slotKey);
-        }}
-        style={{
-          width: 18, height: 18, borderRadius: "50%",
-          background: isArmedThis ? badge.color : "rgba(0,0,0,0.6)",
-          border: `2px solid ${isArmedThis ? "#fff" : badge.color}`,
-          cursor: "pointer",
-          boxShadow: isArmedThis ? `0 0 10px ${badge.color}` : "inset 0 2px 4px rgba(0,0,0,0.5)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          transition: "all 0.15s ease",
-          position: "relative"
-        }}
-        title={`${head.jp} (${targetBlock ? targetBlock.label : "Empty"})`}
-        onMouseEnter={e => {
-          if (!isArmedThis) e.currentTarget.style.transform = "scale(1.2)";
-        }}
-        onMouseLeave={e => {
-          if (!isArmedThis) e.currentTarget.style.transform = "scale(1)";
-        }}
-      >
-        {targetBlock && <div style={{ width: 8, height: 8, borderRadius: "50%", background: badge.color }} />}
+      <div key={slotKey} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+        <div
+          className={isArmedThis ? "slot-btn slot-btn--armed" : "slot-btn"}
+          onMouseDown={e => {
+            e.stopPropagation();
+            onSlotClick(b.id, slotKey);
+          }}
+          style={{
+            width: 18, height: 18, borderRadius: "50%",
+            background: isArmedThis ? badge.color : "rgba(0,0,0,0.6)",
+            border: `2px solid ${isArmedThis ? "#fff" : badge.color}`,
+            cursor: "pointer",
+            boxShadow: isArmedThis ? `0 0 10px ${badge.color}` : "inset 0 2px 4px rgba(0,0,0,0.5)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            transition: "all 0.15s ease",
+            position: "relative"
+          }}
+          title={`${head.jp} (${targetBlock ? targetBlock.label : "Empty"})`}
+          onMouseEnter={e => {
+            if (!isArmedThis) e.currentTarget.style.transform = "scale(1.2)";
+          }}
+          onMouseLeave={e => {
+            if (!isArmedThis) e.currentTarget.style.transform = "scale(1)";
+          }}
+        >
+          {targetBlock && <div style={{ width: 8, height: 8, borderRadius: "50%", background: badge.color }} />}
+        </div>
+        {/* ノードのポート名を明示（もしも/そうなら/ちがうなら）＝条件分岐をわかりやすく */}
+        <span style={{
+          fontSize: 8.5, fontWeight: 900, color: badge.color, lineHeight: 1,
+          whiteSpace: "nowrap", textShadow: "0 1px 2px rgba(255,255,255,0.85)"
+        }}>{head.jp}</span>
       </div>
     );
   };
@@ -368,9 +374,11 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
   const BlockIconComponent = (b.emoji && LucideIcons[b.emoji]) ? LucideIcons[b.emoji] : IconComponent;
 
   // カードサイズを黄金比に近く、横幅をしっかり持たせたトランプサイズに調整（幅82, 高さ112）
-  const cardW = 82;
-  const cardH = 112;
-  const leftOffset = (w - cardW) / 2; // -9px センタリング
+  // 条件・値などスロットに挿す「部品カード」は少し小さく（co_if＝条件分岐ノードは大きいまま）
+  const isSlotPiece = ["ifelse", "calc", "value", "variable"].includes(b.category) && b.type !== "co_if";
+  const cardW = isSlotPiece ? 62 : 82;
+  const cardH = isSlotPiece ? 86 : 112;
+  const leftOffset = (w - cardW) / 2; // センタリング
 
   return (
     <div onMouseDown={e => onDown(e, b.id)} style={{
