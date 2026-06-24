@@ -2384,7 +2384,31 @@ export default function LogicPanel() {
       } else {
         // 手動配置：スナップしなければ「離した位置」にそのまま留める（自動整列しない）。
         // 整列はユーザーが自分でドラッグ＆重ね（snap）で行う。旧ブロックの転がり/床整列はしない。
+        // ただし右パネル/LIVEプレビューの“裏”に隠れて行方不明にならないよう、見える範囲にクランプ。
         playClickSound();
+        const cont = containerRef.current?.getBoundingClientRect();
+        const b2 = blocks.find(bl => bl.id === id);
+        if (cont && b2) {
+          const CW = 82, CH = 112, M = 8; // カード実寸＋余白
+          const pr = (document.querySelector('[data-right-panel]') as HTMLElement | null)?.getBoundingClientRect();
+          const lr = (document.querySelector('[data-live-stage]') as HTMLElement | null)?.getBoundingClientRect();
+          let leftS = b2.x * zoom + pan.x;   // cont 左基準のスクリーンX
+          let topS = b2.y * zoom + pan.y;    // cont 上基準のスクリーンY
+          const wS = CW * zoom, hS = CH * zoom;
+          // 右の許容端：右パネルは全高なので常に。LIVEは上部のみ＝カード上端がLIVE下端より上の時だけ。
+          let maxRight = cont.width - M;
+          if (pr) maxRight = Math.min(maxRight, (pr.left - cont.left) - M);
+          if (lr && topS < (lr.bottom - cont.top)) maxRight = Math.min(maxRight, (lr.left - cont.left) - M);
+          if (leftS + wS > maxRight) leftS = maxRight - wS;
+          if (leftS < M) leftS = M;
+          if (topS + hS > cont.height - M) topS = cont.height - M - hS;
+          if (topS < M) topS = M;
+          const nx = (leftS - pan.x) / zoom;
+          const ny = (topS - pan.y) / zoom;
+          if (Math.abs(nx - b2.x) > 0.5 || Math.abs(ny - b2.y) > 0.5) {
+            setBlocks(prev => prev.map(bl => bl.id === id ? { ...bl, x: nx, y: ny } : bl));
+          }
+        }
         blockDrag.current.active = false;
         setSnapHint(null);
         return;
@@ -3364,7 +3388,7 @@ export default function LogicPanel() {
           ))}
 
           {/* 右ペイン：コントロールパネル */}
-          <div style={{
+          <div data-right-panel="1" style={{
             position: "absolute",
             top: 10,
             right: 10,

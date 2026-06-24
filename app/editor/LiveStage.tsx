@@ -309,7 +309,7 @@ export default function LiveStage({ blocks }: { blocks: CBlock[] }) {
 
   return (
     <>
-    <div style={{
+    <div data-live-stage="1" style={{
       position: "absolute",
       top: 20,
       right: 190, // 右ペイン（幅170px + 余白）の左隣にぴったり配置
