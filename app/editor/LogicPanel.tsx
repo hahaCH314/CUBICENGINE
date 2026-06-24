@@ -357,11 +357,11 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
         >
           {targetBlock && <div style={{ width: 8, height: 8, borderRadius: "50%", background: badge.color }} />}
         </div>
-        {/* ノードのポート名を明示（もしも/そうなら/ちがうなら）＝条件分岐をわかりやすく */}
+        {/* ノードのポート名を明示（もしも/そうなら/ちがうなら／ループは「なかみ」）＝わかりやすく */}
         <span style={{
           fontSize: 8.5, fontWeight: 900, color: badge.color, lineHeight: 1,
           whiteSpace: "nowrap", textShadow: "0 1px 2px rgba(255,255,255,0.85)"
-        }}>{head.jp}</span>
+        }}>{isLoop && slotKey === "then" ? "なかみ" : head.jp}</span>
       </div>
     );
   };
@@ -408,6 +408,28 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
             : `drop-shadow(0 0 8px ${cat.bg}66) drop-shadow(0 4px 8px rgba(0,0,0,0.3))`,
       transition: "opacity 0.25s ease, filter 0.15s, transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1)",
     }}>
+      {/* くりかえしカード＝中身を上方向に「囲む」オリジナル枠（このアプリのループ色／点線／🔁）。
+          ※ Scratch等のトレードドレス(オレンジ/パズル凹凸/特定の矢印)は使わない。 */}
+      {isLoop && (
+        <div style={{
+          position: "absolute",
+          left: leftOffset - 9,
+          top: -(thenH + 8),
+          width: cardW + 18,
+          height: thenH + cardH + 14,
+          borderRadius: 20,
+          border: `3px dashed ${cat.bg}`,
+          background: `${cat.bg}14`,
+          boxShadow: `inset 0 0 0 2px rgba(255,255,255,0.45)`,
+          zIndex: 0,
+          pointerEvents: "none",
+        }}>
+          <div style={{ position: "absolute", left: 9, top: 5, fontSize: 10, fontWeight: 900, color: cat.bg, display: "flex", alignItems: "center", gap: 3 }}>
+            <span>🔁</span><span>くりかえす</span>
+          </div>
+          <div style={{ position: "absolute", right: 10, bottom: 5, fontSize: 15, fontWeight: 900, color: cat.bg, transform: "scaleX(-1)" }}>↻</div>
+        </div>
+      )}
       {/* メインカードノード（ポケカ風：白ベースカード ＋ カテゴリカラーの細い外枠フチ） */}
       <div style={{
         position: "absolute",
