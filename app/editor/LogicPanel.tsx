@@ -2516,18 +2516,20 @@ export default function LogicPanel() {
         const b2 = blocks.find(bl => bl.id === id);
         if (cont && b2) {
           const CW = 82, CH = 112, M = 8; // カード実寸＋余白
-          const pr = (document.querySelector('[data-right-panel]') as HTMLElement | null)?.getBoundingClientRect();
           const lr = (document.querySelector('[data-live-stage]') as HTMLElement | null)?.getBoundingClientRect();
+          const kb = (document.querySelector('[data-keyboard]') as HTMLElement | null)?.getBoundingClientRect();
           let leftS = b2.x * zoom + pan.x;   // cont 左基準のスクリーンX
           let topS = b2.y * zoom + pan.y;    // cont 上基準のスクリーンY
           const wS = CW * zoom, hS = CH * zoom;
-          // 右の許容端：右パネルは全高なので常に。LIVEは上部のみ＝カード上端がLIVE下端より上の時だけ。
+          // 右端：基本はコンテナ右。カード上端がLIVE下端より上ならLIVE左端まで（LIVEの裏に隠さない）。
           let maxRight = cont.width - M;
-          if (pr) maxRight = Math.min(maxRight, (pr.left - cont.left) - M);
-          if (lr && topS < (lr.bottom - cont.top)) maxRight = Math.min(maxRight, (lr.left - cont.left) - M);
+          if (lr && lr.width > 0 && topS < (lr.bottom - cont.top)) maxRight = Math.min(maxRight, (lr.left - cont.left) - M);
           if (leftS + wS > maxRight) leftS = maxRight - wS;
           if (leftS < M) leftS = M;
-          if (topS + hS > cont.height - M) topS = cont.height - M - hS;
+          // 下端：下部キーボードの上まで（キーボードの裏に隠さない）。無ければコンテナ下。
+          let maxBottom = cont.height - M;
+          if (kb && kb.width > 0) maxBottom = Math.min(maxBottom, (kb.top - cont.top) - M);
+          if (topS + hS > maxBottom) topS = maxBottom - hS;
           if (topS < M) topS = M;
           const nx = (leftS - pan.x) / zoom;
           const ny = (topS - pan.y) / zoom;
@@ -3294,11 +3296,11 @@ export default function LogicPanel() {
                 </div>
                 <div style={{ padding: "16px 22px 22px" }}>
                   {[
-                    { icon: "🛒", title: "えらんで SPAWN", t: <>左のリストでアイテムをえらび、黄色い <b>SPAWN!</b> ボタン。<br />右下の <b>🃏 手札トレイ</b> にカードがたまるよ</> },
-                    { icon: "✋", title: "手札から出す", t: <>トレイのカードを <b>つまんでキャンバスへドラッグ</b>。すきな場所に置けるよ</> },
+                    { icon: "🎹", title: "キーをえらぶ", t: <>画面の <b>下のキーボード</b> で、カテゴリ（<b>きっかけ・すること…</b>）をえらぶよ</> },
+                    { icon: "⬇️", title: "キーを押す → カードが出る", t: <>キーを押すと、カードが <b>そのままキャンバスに出る</b>。中身は <b>カードの上で</b> なおせるよ（手札トレイはもう無いよ）</> },
                     { icon: "🃏", title: "重ねるだけ！", t: <>カードを 別のカードに <b>かさねると ピタッ！</b> と上から順番につながる。<br />これだけでプログラムになるよ ✨</> },
                     { icon: "❓", title: "「もしも」もかさねる", t: <><b>もしも</b> カードに 動きのカードを <b>かさねる</b> だけで、条件として組みこまれるよ</> },
-                    { icon: "🎉", title: "アドオン完成！", t: <>右下の緑の <b style={{ color: "#16a34a" }}>アドオン完成！🎉</b> ボタンを押すと、コードができあがる</> },
+                    { icon: "🎉", title: "アドオン完成！", t: <>右下の明るい緑の <b style={{ color: "#16a34a" }}>アドオン完成！🎉</b> キーを押すと、コードができあがる</> },
                     { icon: "🚀", title: "ダウンロードしてマイクラへ", t: <>上の <b>🚀 マイクラへ</b> タブを開いて <b style={{ color: "#16a34a" }}>⚡ ビルド＆ダウンロード</b>。<br />できた <b>.mcaddon</b> をマイクラに読みこめば完成！</> },
                   ].map((s, i) => (
                     <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 13, marginBottom: 16 }}>
@@ -3429,9 +3431,12 @@ export default function LogicPanel() {
                       style={{
                         display: "flex", alignItems: "center", gap: 5, height: 34, padding: "0 11px",
                         borderRadius: 9, border: "2.5px solid #1e293b", cursor: "pointer",
-                        background: on ? `linear-gradient(135deg,${c.top},${c.bg})` : "linear-gradient(135deg,#ffffff,#e9eef3)",
-                        color: on ? c.text : "#475569",
-                        boxShadow: on ? `0 3px 0 ${c.side}, 0 3px 7px rgba(0,0,0,0.12)` : "0 3px 0 #cbd5e1, 0 2px 5px rgba(0,0,0,0.07)",
+                        background: on ? `linear-gradient(135deg,${c.top},${c.bg})` : `linear-gradient(135deg,#ffffff,${c.top})`,
+                        color: c.text,
+                        boxShadow: on
+                          ? `0 3px 0 ${c.side}, 0 0 9px ${c.bg}aa, 0 3px 7px rgba(0,0,0,0.14)`
+                          : `0 3px 0 ${c.side}, 0 2px 5px rgba(0,0,0,0.07)`,
+                        transform: on ? "translateY(-1px)" : "translateY(0)",
                         fontWeight: 900, fontSize: 12, whiteSpace: "nowrap",
                       }}>
                       <TIcon size={15} color={on ? c.text : c.bg} strokeWidth={2.6} />
@@ -3465,7 +3470,7 @@ export default function LogicPanel() {
               )}
 
               {/* アイテムキー：押すと即カードがキャンバスへ */}
-              <div style={{ flex: 1, display: "flex", flexWrap: "wrap", gap: 6, alignContent: "flex-start", overflowY: "auto", paddingRight: 2 }}>
+              <div style={{ flex: 1, display: "flex", flexWrap: "wrap", gap: 6, alignContent: "flex-start", overflowY: "auto", padding: 8, background: "rgba(255,255,255,0.5)", border: "2px solid #b9e0c8", borderRadius: 12, boxShadow: "inset 0 2px 5px rgba(0,0,0,0.05)" }}>
                 {kbItems.map(tmpl => {
                   const c = CAT[tmpl.category];
                   const TIcon = (LucideIcons as any)[tmpl.emoji] || LucideIcons.HelpCircle;
@@ -3523,9 +3528,14 @@ export default function LogicPanel() {
                 style={{
                   marginTop: "auto", height: 44, borderRadius: 12, border: "3px solid #1e293b",
                   cursor: isLogicValid ? "pointer" : "not-allowed",
-                  background: isLogicValid ? "linear-gradient(135deg,#bbf7d0,#22c55e)" : "linear-gradient(135deg,#e2e8f0,#cbd5e1)",
-                  boxShadow: isLogicValid ? "0 4px 0 #15803d, 0 4px 10px rgba(34,197,94,0.25)" : "0 3px 0 #94a3b8",
-                  color: isLogicValid ? "#052e16" : "#94a3b8", fontWeight: 900, fontSize: 14, letterSpacing: "0.04em",
+                  background: isLogicValid
+                    ? "linear-gradient(135deg,#bef264 0%, #4ade80 55%, #22c55e 100%)"
+                    : "linear-gradient(135deg,#d9f99d 0%, #a3e635 100%)",
+                  boxShadow: isLogicValid
+                    ? "0 4px 0 #15803d, 0 5px 14px rgba(74,222,128,0.5)"
+                    : "0 3px 0 #84cc16, 0 3px 8px rgba(132,204,22,0.25)",
+                  color: isLogicValid ? "#052e16" : "#3f6212", fontWeight: 900, fontSize: 14, letterSpacing: "0.04em",
+                  opacity: isLogicValid ? 1 : 0.85,
                 }}>
                 アドオン完成！🎉
               </button>
@@ -3534,7 +3544,7 @@ export default function LogicPanel() {
 
           {/* コードプレビュー */}
           {showCode && (
-            <div className="mc-panel" style={{ position: "absolute", bottom: 10, left: 8, right: 8, zIndex: 40, maxHeight: 240, background: "#ffffff", display: "flex", flexDirection: "column", border: "2px solid #cbd5e1", boxShadow: "0 8px 32px rgba(0,0,0,0.1)" }}>
+            <div className="mc-panel" style={{ position: "absolute", bottom: 10, left: 8, right: 8, zIndex: 45, maxHeight: 240, background: "#ffffff", display: "flex", flexDirection: "column", border: "2px solid #cbd5e1", boxShadow: "0 8px 32px rgba(0,0,0,0.1)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 14px", borderBottom: "2px solid #e2e8f0" }}>
                 <span className="font-pixel text-[11px] text-[#0ea5e9] font-bold">⚡ GENERATED CODE</span>
                 <button onClick={() => setShowCode(false)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 14, color: "#64748b" }}>✕</button>
