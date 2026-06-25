@@ -2006,6 +2006,47 @@ function CreeperShadow() {
   );
 }
 
+/* ───────── たまに上から落ちて来るエンダーマンの影（着地→テレポート消失） ─────────
+   ※色つき再現はせず暗いシルエット＋紫に光る目＝オマージュ。非公式ツール。 */
+function EndermanShadow() {
+  const col = "rgba(12,12,20,0.34)";
+  const eye = "#d8b4fe";
+  return (
+    <div style={{ position: "absolute", left: "57%", bottom: 191, zIndex: 3, pointerEvents: "none", overflow: "visible" }}>
+      <style>{`
+        @keyframes endermanDrop {
+          0%   { transform: translateY(-160px); opacity: 0; }
+          5%   { opacity: 0.95; }
+          11%  { transform: translateY(0); opacity: 0.95; }
+          13%  { transform: translateY(-3px); }
+          15%  { transform: translateY(0); }
+          21%  { opacity: 0.95; }
+          24%  { transform: translateY(0) scaleY(1.12); opacity: 0; }
+          100% { opacity: 0; }
+        }
+        @keyframes endermanSway { 0%,100% { transform: translateX(0) } 50% { transform: translateX(1px) } }
+        @keyframes endermanEye { 0%,100% { opacity: 0.8 } 50% { opacity: 1 } }
+      `}</style>
+      <div style={{ animation: "endermanDrop 33s ease-in infinite 19s", willChange: "transform" }}>
+        <div style={{ animation: "endermanSway 2.2s ease-in-out infinite", transformOrigin: "bottom center", filter: "blur(0.6px)" }}>
+          {/* 頭＋紫に光る目 */}
+          <div style={{ width: 11, height: 11, margin: "0 auto", background: col, borderRadius: 2, position: "relative" }}>
+            <div style={{ position: "absolute", left: 2, top: 5, width: 2.5, height: 2, background: eye, boxShadow: `0 0 4px ${eye}`, animation: "endermanEye 1.6s ease-in-out infinite" }} />
+            <div style={{ position: "absolute", right: 2, top: 5, width: 2.5, height: 2, background: eye, boxShadow: `0 0 4px ${eye}`, animation: "endermanEye 1.6s ease-in-out infinite" }} />
+          </div>
+          {/* 細長い胴 */}
+          <div style={{ width: 8, height: 30, margin: "0 auto", background: col, borderRadius: 2 }} />
+          {/* 長い脚 */}
+          <div style={{ display: "flex", justifyContent: "center", gap: 4 }}>
+            <div style={{ width: 3, height: 16, background: col }} />
+            <div style={{ width: 3, height: 16, background: col }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function LogicPanel() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -3487,8 +3528,9 @@ export default function LogicPanel() {
 
           <LiveStage blocks={blocks} />
 
-          {/* たまにキーボードの上を横切るクリーパーの影 */}
+          {/* たまにキーボードの上を横切るクリーパーの影／上から落ちるエンダーマンの影 */}
           <CreeperShadow />
+          <EndermanShadow />
 
           {/* ⌨️ 下部キーボード：カードを“打つ”入力面（左右パネルを統合） */}
           <div data-keyboard="1" style={{
