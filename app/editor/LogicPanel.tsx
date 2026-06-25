@@ -53,6 +53,18 @@ const FRIENDLY_GROUPS: FriendlyGroup[] = [
   { key: "more", label: "もっと",   sub: "上級・そのほか", icon: "Sparkles", cats: ["ifelse", "loop", "value", "calc", "variable"], bg: "#a855f7", top: "#f3e8ff", side: "#9333ea", text: "#4c1d95" },
 ];
 
+/* 下部キーボード：カテゴリを8つに直割り（カードを“打つ”ための入力キー） */
+const KEYBOARD_CATS: { cat: Category; label: string; icon: string }[] = [
+  { cat: "trigger",  label: "きっかけ",   icon: "Zap" },
+  { cat: "action",   label: "すること",   icon: "Wand2" },
+  { cat: "ui",       label: "みため",     icon: "LayoutGrid" },
+  { cat: "ifelse",   label: "もしも",     icon: "Split" },
+  { cat: "loop",     label: "くりかえし", icon: "Repeat" },
+  { cat: "value",    label: "あたい",     icon: "Hash" },
+  { cat: "calc",     label: "けいさん",   icon: "Plus" },
+  { cat: "variable", label: "へんすう",   icon: "Package" },
+];
+
 function getRootBlockId(blockId: string, blocks: CBlock[]): string {
   const parent = blocks.find(x => x.nextId === blockId || x.innerId === blockId || x.thenId === blockId || x.elseId === blockId);
   if (!parent) return blockId;
@@ -2056,6 +2068,14 @@ export default function LogicPanel() {
     ? TEMPLATES.filter(t => t.label.includes(search) || t.sublabel.includes(search))
     : TEMPLATES.filter(t => currentGroup.cats.includes(t.category))
   ).filter(t => !HIDDEN_COND_TYPES.has(t.type));
+
+  // 下部キーボード：8カテゴリ直割り＋計算だけサブタブ。キーを押すと即カードがキャンバスへ
+  const [kbCat, setKbCat] = useState<Category>("trigger");
+  const [kbCalcSub, setKbCalcSub] = useState<CalcSubCat>("arith");
+  const kbItems = (kbCat === "calc"
+    ? TEMPLATES.filter(t => t.category === "calc" && getCalcSubCat(t) === kbCalcSub)
+    : TEMPLATES.filter(t => t.category === kbCat)
+  ).filter(t => !HIDDEN_COND_TYPES.has(t.type));
   const [showCode, setShowCode] = useState(false);
   const [showHelp, setShowHelp] = useState(false); // 起動時は閉じておく（ユーザーが ? で開く）
   const [genCode, setGenCode] = useState("");
@@ -2320,6 +2340,23 @@ export default function LogicPanel() {
     setSelected(nb.id);
 
     playClickSound();
+  }, []);
+
+  // ⌨️ キーを押したら“即”カードをキャンバスへ（手札トレイ廃止＝直接配置）
+  const spawnToCanvas = useCallback((tmpl: Tmpl) => {
+    const { pan, zoom, blocks } = live.current;
+    const rect = containerRef.current?.getBoundingClientRect();
+    const vw = rect?.width ?? 800;
+    // 見える範囲の上のほうに、少しずつズラして出す（重ならない・逆ソリティアで自分で並べる）
+    const cascade = (blocks.length % 6) * 26;
+    const sx = vw * 0.32 + cascade;
+    const sy = 80 + cascade;
+    const nx = (sx - pan.x) / zoom - BW / 2;
+    const ny = (sy - pan.y) / zoom - BH / 2;
+    const nb = spawnBlock(tmpl, nx, ny);
+    setBlocks(p => [...p, nb]);
+    setSelected(nb.id);
+    playAddSound();
   }, []);
 
   const handleSlotClick = useCallback((blockId: string, slot: string) => {
@@ -2922,7 +2959,7 @@ export default function LogicPanel() {
           ======================================================== */}
         <div className="casino-border" style={{
           width: 360,
-          display: "flex",
+          display: "none", // ⌨️ 下部キーボードへ統合したため非表示
           flexDirection: "column",
           background: "#bfe8cc", // SPROUTグリーンをより強調した淡いグリーン色
           borderRight: "5px solid #9fcca9", // グリーン調の仕切り枠
@@ -3369,6 +3406,132 @@ export default function LogicPanel() {
 
           <LiveStage blocks={blocks} />
 
+          {/* ⌨️ 下部キーボード：カードを“打つ”入力面（左右パネルを統合） */}
+          <div data-keyboard="1" style={{
+            position: "absolute", left: 12, right: 12, bottom: 12, height: 178,
+            display: "flex", gap: 12, padding: 12, boxSizing: "border-box",
+            background: "#cfeede",
+            border: "4px solid #8bc79e", borderRadius: 18,
+            boxShadow: "inset 0 2px 0 rgba(255,255,255,0.6), 0 10px 24px rgba(0,0,0,0.18)",
+            zIndex: 42,
+          }}>
+            {/* 左：プリミティブ（カテゴリ＋アイテムキー） */}
+            <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+              {/* カテゴリタブ列 */}
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {KEYBOARD_CATS.map(kc => {
+                  const c = CAT[kc.cat];
+                  const TIcon = (LucideIcons as any)[kc.icon] || LucideIcons.HelpCircle;
+                  const on = kbCat === kc.cat;
+                  return (
+                    <button key={kc.cat} className="toy-key"
+                      onClick={() => { setKbCat(kc.cat); playClickSound(); }}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 5, height: 34, padding: "0 11px",
+                        borderRadius: 9, border: "2.5px solid #1e293b", cursor: "pointer",
+                        background: on ? `linear-gradient(135deg,${c.top},${c.bg})` : "linear-gradient(135deg,#ffffff,#e9eef3)",
+                        color: on ? c.text : "#475569",
+                        boxShadow: on ? `0 3px 0 ${c.side}, 0 3px 7px rgba(0,0,0,0.12)` : "0 3px 0 #cbd5e1, 0 2px 5px rgba(0,0,0,0.07)",
+                        fontWeight: 900, fontSize: 12, whiteSpace: "nowrap",
+                      }}>
+                      <TIcon size={15} color={on ? c.text : c.bg} strokeWidth={2.6} />
+                      {kc.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* 計算のサブタブ（けいさん選択時のみ・スクロール回避） */}
+              {kbCat === "calc" && (
+                <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                  {CALC_SUBTABS.map(s => {
+                    const on = kbCalcSub === s.key;
+                    const SIcon = (LucideIcons as any)[s.icon] || LucideIcons.HelpCircle;
+                    return (
+                      <button key={s.key} className="toy-key"
+                        onClick={() => { setKbCalcSub(s.key); playClickSound(); }}
+                        style={{
+                          display: "flex", alignItems: "center", gap: 4, height: 26, padding: "0 9px",
+                          borderRadius: 999, border: "2px solid #1e293b", cursor: "pointer",
+                          background: on ? "linear-gradient(135deg,#fde68a,#fbbf24)" : "#ffffff",
+                          color: on ? "#7c2d12" : "#64748b", fontWeight: 800, fontSize: 10.5, whiteSpace: "nowrap",
+                          boxShadow: on ? "0 2px 0 #d97706" : "0 2px 0 #e2e8f0",
+                        }}>
+                        <SIcon size={12} strokeWidth={2.6} /> {s.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* アイテムキー：押すと即カードがキャンバスへ */}
+              <div style={{ flex: 1, display: "flex", flexWrap: "wrap", gap: 6, alignContent: "flex-start", overflowY: "auto", paddingRight: 2 }}>
+                {kbItems.map(tmpl => {
+                  const c = CAT[tmpl.category];
+                  const TIcon = (LucideIcons as any)[tmpl.emoji] || LucideIcons.HelpCircle;
+                  const sparkle = tmpl.type === "co_if" || tmpl.type === "ct_rep";
+                  return (
+                    <button key={tmpl.type} className="toy-key" title={`${tmpl.label}：${tmpl.sublabel}`}
+                      onClick={() => spawnToCanvas(tmpl)}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 6, height: 38, padding: "0 10px 0 8px",
+                        borderRadius: 9, border: "2.5px solid #1e293b", cursor: "pointer",
+                        background: "linear-gradient(135deg,#ffffff,#eef1f5)",
+                        boxShadow: `0 3px 0 ${c.side}99, 0 3px 6px rgba(0,0,0,0.08)`,
+                        fontWeight: 900, fontSize: 11.5, color: "#1e293b", whiteSpace: "nowrap",
+                      }}>
+                      <span style={{ width: 22, height: 22, borderRadius: 6, background: c.bg, border: "2px solid #1e293b", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <TIcon size={13} color="#fff" strokeWidth={2.6} />
+                      </span>
+                      {tmpl.label}
+                      {sparkle && <span style={{ marginLeft: 2 }}>✨</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 右：道具キー＋アドオン完成 */}
+            <div style={{ width: 244, flexShrink: 0, display: "flex", flexDirection: "column", gap: 8, borderLeft: "2px dashed #8bc79e", paddingLeft: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 6 }}>
+                {[
+                  { emoji: "↩", label: "戻る", on: false, fn: () => undo() },
+                  { emoji: "↪", label: "進む", on: false, fn: () => redo() },
+                  { emoji: "🎯", label: "ガイド", on: showSnapGuide, fn: () => setShowSnapGuide(v => !v) },
+                  { emoji: "🗑️", label: "クリア", on: false, fn: () => { if (window.confirm("キャンバス上のすべてのブロックを消去しますか？")) { setBlocks([]); setSelected(null); playDeleteSound(); showToast("すべてのブロックを消去しました", "warning"); } } },
+                  { emoji: "💾", label: "保存", on: showProjects, fn: () => setShowProjects(v => !v) },
+                  { emoji: "🎮", label: "サンプル", on: showTemplates, fn: () => setShowTemplates(v => !v) },
+                  { emoji: "💻", label: "コード", on: showCode, fn: () => setShowCode(v => !v) },
+                  { emoji: "❓", label: "作り方", on: showHelp, fn: () => setShowHelp(v => !v) },
+                ].map(tk => (
+                  <button key={tk.label} className="toy-key" title={tk.label} onClick={tk.fn}
+                    style={{
+                      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1,
+                      height: 42, borderRadius: 9, border: "2.5px solid #1e293b", cursor: "pointer",
+                      background: tk.on ? "linear-gradient(135deg,#c7f9cc,#80ed99)" : "linear-gradient(135deg,#ffffff,#e9eef3)",
+                      boxShadow: tk.on ? "0 3px 0 #38b000" : "0 3px 0 #cbd5e1",
+                      color: tk.on ? "#004b23" : "#475569",
+                    }}>
+                    <span style={{ fontSize: 15, lineHeight: 1 }}>{tk.emoji}</span>
+                    <span style={{ fontSize: 8.5, fontWeight: 900 }}>{tk.label}</span>
+                  </button>
+                ))}
+              </div>
+              {/* アドオン完成 */}
+              <button disabled={!isLogicValid}
+                onClick={() => { playSuccessSound(); const lines = (genCode || "// まず きっかけ ブロックを置いて繋げよう").split("\n"); setReveal(lines); setExportArmed(true); }}
+                style={{
+                  marginTop: "auto", height: 44, borderRadius: 12, border: "3px solid #1e293b",
+                  cursor: isLogicValid ? "pointer" : "not-allowed",
+                  background: isLogicValid ? "linear-gradient(135deg,#bbf7d0,#22c55e)" : "linear-gradient(135deg,#e2e8f0,#cbd5e1)",
+                  boxShadow: isLogicValid ? "0 4px 0 #15803d, 0 4px 10px rgba(34,197,94,0.25)" : "0 3px 0 #94a3b8",
+                  color: isLogicValid ? "#052e16" : "#94a3b8", fontWeight: 900, fontSize: 14, letterSpacing: "0.04em",
+                }}>
+                アドオン完成！🎉
+              </button>
+            </div>
+          </div>
+
           {/* コードプレビュー */}
           {showCode && (
             <div className="mc-panel" style={{ position: "absolute", bottom: 10, left: 8, right: 8, zIndex: 40, maxHeight: 240, background: "#ffffff", display: "flex", flexDirection: "column", border: "2px solid #cbd5e1", boxShadow: "0 8px 32px rgba(0,0,0,0.1)" }}>
@@ -3487,7 +3650,7 @@ export default function LogicPanel() {
             border: "4px solid #8bc79e", // おもちゃの太いグリーン枠
             borderRadius: 20,
             padding: "16px 12px",
-            display: "flex",
+            display: "none", // ⌨️ 下部キーボードへ統合したため非表示
             flexDirection: "column",
             justifyContent: "flex-start",
             alignItems: "center",
