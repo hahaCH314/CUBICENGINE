@@ -10,52 +10,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { CBlock } from "./_types";
 import { useThemeStore, WORLD_THEMES, WorldTheme } from "./worldThemes";
-
-/* 一手＝1ビート */
-type Beat = {
-  id: string;
-  type: string;
-  label: string;
-  category: string;
-  fields: Record<string, string>;
-  depth: number;
-};
-
-function fieldMap(b: CBlock): Record<string, string> {
-  const m: Record<string, string> = {};
-  b.fields.forEach(f => (m[f.id] = f.value));
-  return m;
-}
-
-/** trigger を起点に nextId / thenId をたどって、上演順のビート列を作る */
-function buildSequence(blocks: CBlock[]): Beat[] {
-  if (!blocks.length) return [];
-  const childIds = new Set<string>();
-  blocks.forEach(b =>
-    [b.nextId, b.thenId, b.elseId, b.innerId].forEach(c => c && childIds.add(c))
-  );
-  const root =
-    blocks.find(b => b.category === "trigger" && !childIds.has(b.id)) ??
-    blocks.find(b => b.category === "trigger") ??
-    blocks.find(b => !childIds.has(b.id));
-  if (!root) return [];
-
-  const byId = (id: string | null) => (id ? blocks.find(b => b.id === id) ?? null : null);
-  const acc: Beat[] = [];
-  const seen = new Set<string>();
-
-  function walk(startId: string | null, depth: number) {
-    let cur = byId(startId);
-    while (cur && !seen.has(cur.id)) {
-      seen.add(cur.id);
-      acc.push({ id: cur.id, type: cur.type, label: cur.label, category: cur.category, fields: fieldMap(cur), depth });
-      if (cur.thenId) walk(cur.thenId, depth + 1);
-      cur = byId(cur.nextId);
-    }
-  }
-  walk(root.id, 0);
-  return acc;
-}
+import { interpret, DEFAULT_WORLD, type World, type Beat } from "../../lib/interpret";
 
 /* ビートの長さ（ms）。待機ブロックだけ秒数を反映 */
 function beatDuration(b: Beat): number {
@@ -191,9 +146,10 @@ function Fx({ beat }: { beat: Beat }) {
   if (t === "ct_wait") {
     return <div key={beat.id} style={chipWrap}><div style={chip}>⏳ {f.s || "1"}秒…</div></div>;
   }
-  // 条件・繰り返し・その他は思考/タグで表現
-  if (beat.category === "ifelse") {
-    return <div key={beat.id} style={chipWrap}><div style={{ ...chip, background: "#3a2f4d" }}>🤔 もし「{beat.label}」？</div></div>;
+  // 条件：World で評価した結果（そうなら/ちがうなら）を見せる
+  if (beat.category === "ifelse" || t === "co_if") {
+    const yes = beat.decided;
+    return <div key={beat.id} style={chipWrap}><div style={{ ...chip, background: yes ? "#1f5d3a" : "#5d2f2f", border: `1px solid ${yes ? "#4ade80" : "#f87171"}` }}>{yes ? "✅" : "🚫"} {beat.note || `もし「${beat.label}」？`}</div></div>;
   }
   if (t === "ct_rep") {
     return <div key={beat.id} style={chipWrap}><div style={chip}>🔁 ×{f.n || "?"} くりかえし</div></div>;
@@ -277,9 +233,33 @@ const placedChip: React.CSSProperties = {
   padding: "5px 10px", fontSize: 11, boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
 };
 
+/* ───────── ワールド入力ボタン（昼夜・天気・スニーク・HP） ───────── */
+function WorldBtn({ icon, label, active, onClick }: { icon: string; label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      title={label}
+      style={{
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 1,
+        background: active ? "rgba(255,221,87,0.95)" : "rgba(20,16,12,0.6)",
+        color: active ? "#3a2a00" : "#fff",
+        border: active ? "1px solid #ffd84d" : "1px solid rgba(255,255,255,0.2)",
+        borderRadius: 9, padding: "3px 7px", cursor: "pointer",
+        boxShadow: active ? "0 0 9px rgba(255,216,77,0.75)" : "0 2px 5px rgba(0,0,0,0.3)",
+        lineHeight: 1, transition: "all 0.15s",
+      }}
+    >
+      <span style={{ fontSize: 14 }}>{icon}</span>
+      <span style={{ fontSize: 8, fontWeight: 800, whiteSpace: "nowrap" }}>{label}</span>
+    </button>
+  );
+}
+
 /* ───────── 本体 ───────── */
 export default function LiveStage({ blocks }: { blocks: CBlock[] }) {
-  const seq = useMemo(() => buildSequence(blocks), [blocks]);
+  // ワールド状態＝プログラムの“入力”。いじると同じカードでも分岐が変わる
+  const [world, setWorld] = useState<World>(DEFAULT_WORLD);
+  const { trace: seq } = useMemo(() => interpret(blocks, world), [blocks, world]);
   const [step, setStep] = useState(0);
   const [hopKey, setHopKey] = useState(0);
   
@@ -402,6 +382,39 @@ export default function LiveStage({ blocks }: { blocks: CBlock[] }) {
             </div>
           </>
         )}
+
+        {/* 📦 変数HUD：実行中に変数の値が変わるのが見える */}
+        {active && Object.keys(active.state.vars).length > 0 && (
+          <div style={{ position: "absolute", top: 8, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 4, zIndex: 10, pointerEvents: "none", flexWrap: "wrap", justifyContent: "center", maxWidth: 240 }}>
+            {Object.entries(active.state.vars).map(([k, v]) => (
+              <span key={k} style={{ background: "rgba(20,16,12,0.8)", color: "#9ef0c0", borderRadius: 999, padding: "2px 8px", fontSize: 10, fontWeight: 800, whiteSpace: "nowrap", boxShadow: "0 2px 5px rgba(0,0,0,0.3)" }}>📦 {k}={Number.isInteger(v) ? v : v.toFixed(1)}</span>
+            ))}
+          </div>
+        )}
+
+        {/* 🌍 ワールド入力：いじると同じカードでも走る分岐が変わる */}
+        <div style={{ position: "absolute", left: 8, bottom: 8, zIndex: 11, display: "flex", gap: 5, pointerEvents: "auto" }}>
+          <WorldBtn
+            icon={world.time === "night" ? "🌙" : "☀️"} label={world.time === "night" ? "よる" : "ひる"}
+            active={world.time === "night"}
+            onClick={() => setWorld(w => ({ ...w, time: w.time === "night" ? "day" : "night" }))}
+          />
+          <WorldBtn
+            icon={world.weather === "rain" ? "🌧️" : "🌤️"} label={world.weather === "rain" ? "あめ" : "はれ"}
+            active={world.weather === "rain"}
+            onClick={() => setWorld(w => ({ ...w, weather: w.weather === "rain" ? "clear" : "rain" }))}
+          />
+          <WorldBtn
+            icon="🧎" label="しゃがむ"
+            active={world.sneaking}
+            onClick={() => setWorld(w => ({ ...w, sneaking: !w.sneaking }))}
+          />
+          <WorldBtn
+            icon={world.hp <= 10 ? "💔" : "❤️"} label={`HP${world.hp}`}
+            active={world.hp <= 10}
+            onClick={() => setWorld(w => ({ ...w, hp: w.hp <= 10 ? 20 : 6 }))}
+          />
+        </div>
 
         {/* もう一回 */}
         {hasTrigger && (
