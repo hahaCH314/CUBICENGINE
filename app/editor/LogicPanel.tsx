@@ -3687,7 +3687,7 @@ export default function LogicPanel() {
                   onClick={undo}
                   title="元に戻す (Ctrl+Z)"
                   style={{
-                    width: 50, height: 50, borderRadius: "50%",
+                    width: 40, height: 40, borderRadius: "50%",
                     background: "linear-gradient(135deg, #ffd1dc 0%, #ff9ebb 100%)", // いちごミルク
                     border: "3px solid #1e293b",
                     boxShadow: "0 5px 0 #e05a80, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)",
@@ -3722,7 +3722,7 @@ export default function LogicPanel() {
                   onClick={redo}
                   title="やり直す (Ctrl+Y)"
                   style={{
-                    width: 50, height: 50, borderRadius: "50%",
+                    width: 40, height: 40, borderRadius: "50%",
                     background: "linear-gradient(135deg, #c3e0e5 0%, #8ecae6 100%)", // ラムネ
                     border: "3px solid #1e293b",
                     boxShadow: "0 5px 0 #219ebc, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)",
@@ -3757,7 +3757,7 @@ export default function LogicPanel() {
                   onClick={() => setShowSnapGuide(!showSnapGuide)}
                   title="スナップ時のガイド線の表示/非表示"
                   style={{
-                    width: 50, height: 50, borderRadius: "50%",
+                    width: 40, height: 40, borderRadius: "50%",
                     background: showSnapGuide
                       ? "linear-gradient(135deg, #c7f9cc 0%, #80ed99 100%)" // メロン
                       : "linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%)", // オフホワイト
@@ -3806,7 +3806,7 @@ export default function LogicPanel() {
                   }}
                   title="すべてのブロックを消去する"
                   style={{
-                    width: 50, height: 50, borderRadius: "50%",
+                    width: 40, height: 40, borderRadius: "50%",
                     background: "linear-gradient(135deg, #ffe5d9 0%, #ffcad4 100%)", // ピーチ
                     border: "3px solid #1e293b",
                     boxShadow: "0 5px 0 #f08080, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)",
@@ -3841,7 +3841,7 @@ export default function LogicPanel() {
                   onClick={() => setShowProjects(v => !v)}
                   title="プロジェクトの保存・読み込み"
                   style={{
-                    width: 50, height: 50, borderRadius: "50%",
+                    width: 40, height: 40, borderRadius: "50%",
                     background: showProjects
                       ? "linear-gradient(135deg, #e8dbfc 0%, #c3a6ff 100%)" // ラベンダー
                       : "linear-gradient(135deg, #f5f3ff 0%, #ddd6fe 100%)",
@@ -3883,7 +3883,7 @@ export default function LogicPanel() {
                   onClick={() => setShowTemplates(v => !v)}
                   title="テンプレートギャラリー"
                   style={{
-                    width: 50, height: 50, borderRadius: "50%",
+                    width: 40, height: 40, borderRadius: "50%",
                     background: showTemplates
                       ? "linear-gradient(135deg, #fef9c3 0%, #fde047 100%)" // レモン
                       : "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)",
@@ -3925,7 +3925,7 @@ export default function LogicPanel() {
                   onClick={() => setShowCode(v => !v)}
                   title="生成コードを表示"
                   style={{
-                    width: 50, height: 50, borderRadius: "50%",
+                    width: 40, height: 40, borderRadius: "50%",
                     background: showCode
                       ? "linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)" // チェリー
                       : "linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%)",
@@ -3967,7 +3967,7 @@ export default function LogicPanel() {
                   onClick={() => setShowHelp(v => !v)}
                   title="操作ガイドを開く"
                   style={{
-                    width: 50, height: 50, borderRadius: "50%",
+                    width: 40, height: 40, borderRadius: "50%",
                     background: showHelp
                       ? "linear-gradient(135deg, #e0f7fa 0%, #80deea 100%)" // ミント
                       : "linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)",
