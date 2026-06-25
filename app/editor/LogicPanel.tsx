@@ -1966,6 +1966,46 @@ const fsArrow: React.CSSProperties = {
   fontSize: 11, fontWeight: 900, boxShadow: "0 2px 0 #cbd5e1, inset 0 1px 0 rgba(255,255,255,0.8)",
 };
 
+/* ───────── たまにキーボードの上を横切るクリーパーの影（アンビエント） ─────────
+   ※色つき再現はせず、ぼかした暗いシルエット“影”＝オマージュ。非公式ツール。 */
+function CreeperShadow() {
+  const col = "rgba(20,32,20,0.26)";
+  const dark = "rgba(8,16,8,0.5)";
+  return (
+    <div style={{ position: "absolute", left: 0, right: 0, bottom: 191, height: 0, zIndex: 3, pointerEvents: "none", overflow: "visible" }}>
+      <style>{`
+        @keyframes creeperWalk {
+          0%   { transform: translateX(-70px); opacity: 0; }
+          3%   { opacity: 1; }
+          17%  { opacity: 1; }
+          20%  { transform: translateX(100vw); opacity: 0; }
+          100% { transform: translateX(100vw); opacity: 0; }
+        }
+        @keyframes creeperBob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-2.5px) } }
+        @keyframes creeperLegA { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-2px) } }
+        @keyframes creeperLegB { 0%,100% { transform: translateY(-2px) } 50% { transform: translateY(0) } }
+      `}</style>
+      <div style={{ position: "absolute", bottom: 0, left: 0, willChange: "transform", animation: "creeperWalk 38s linear infinite 7s" }}>
+        <div style={{ animation: "creeperBob 0.46s ease-in-out infinite", transformOrigin: "bottom center", filter: "blur(0.6px)" }}>
+          {/* 頭＋かすかな顔 */}
+          <div style={{ width: 16, height: 13, margin: "0 auto", background: col, borderRadius: 2, position: "relative" }}>
+            <div style={{ position: "absolute", left: 3.5, top: 4, width: 2.5, height: 3, background: dark }} />
+            <div style={{ position: "absolute", right: 3.5, top: 4, width: 2.5, height: 3, background: dark }} />
+            <div style={{ position: "absolute", left: "50%", top: 7, marginLeft: -2.5, width: 5, height: 5, background: dark }} />
+          </div>
+          {/* 胴 */}
+          <div style={{ width: 14, height: 19, margin: "1px auto 0", background: col, borderRadius: 2 }} />
+          {/* 脚 */}
+          <div style={{ display: "flex", justifyContent: "center", gap: 3, marginTop: 1 }}>
+            <div style={{ width: 5, height: 6, background: col, animation: "creeperLegA 0.46s ease-in-out infinite" }} />
+            <div style={{ width: 5, height: 6, background: col, animation: "creeperLegB 0.46s ease-in-out infinite" }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function LogicPanel() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -3446,6 +3486,9 @@ export default function LogicPanel() {
           )}
 
           <LiveStage blocks={blocks} />
+
+          {/* たまにキーボードの上を横切るクリーパーの影 */}
+          <CreeperShadow />
 
           {/* ⌨️ 下部キーボード：カードを“打つ”入力面（左右パネルを統合） */}
           <div data-keyboard="1" style={{
