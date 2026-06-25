@@ -1969,6 +1969,8 @@ const fsArrow: React.CSSProperties = {
 /* ───────── たまにキーボードの上を横切るクリーパーの影（アンビエント） ─────────
    ※色つき再現はせず、ぼかした暗いシルエット“影”＝オマージュ。非公式ツール。 */
 function CreeperShadow() {
+  const { themeId } = useThemeStore();
+  if (themeId !== "land") return null; // 海テーマ(隠し扉)では陸の生き物は出さない
   const col = "rgba(20,32,20,0.26)";
   const dark = "rgba(8,16,8,0.5)";
   return (
@@ -2009,6 +2011,8 @@ function CreeperShadow() {
 /* ───────── たまに上から落ちて来るエンダーマンの影（着地→テレポート消失） ─────────
    ※色つき再現はせず暗いシルエット＋紫に光る目＝オマージュ。非公式ツール。 */
 function EndermanShadow() {
+  const { themeId } = useThemeStore();
+  if (themeId !== "land") return null; // 海テーマ(隠し扉)では陸の生き物は出さない
   const col = "rgba(12,12,20,0.34)";
   const eye = "#d8b4fe";
   return (
