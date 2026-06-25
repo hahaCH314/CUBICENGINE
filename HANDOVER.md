@@ -6,6 +6,30 @@
 
 ---
 
+## 🟢 最新・最優先 2026-06-25 — 📱タッチ実機テスト＆微調整＝ヒマワリ担当
+
+> 現在 repo=**CUBICENGINE / branch=main**（上の master は旧情報）。触る前に必ず `git pull`。本番公開中（https://cubicengine.vercel.app/）＝壊さない。
+> 背景：エディタUIを「下部キーボード化」＋カードを直接キャンバスへ＝ビジュアルプログラミング言語化を進行中（左右パネルは display:none、下部 `data-keyboard` がキー入力面）。
+
+### シオンが実装済み（コア）＝触らなくてよい
+- **タッチ対応のPointer移植**（commit `5cc13b2`）：カードのドラッグ/背景パン/スロットポート/document購読を `pointerdown/move/up(+cancel)` へ。キャンバスに `touch-action:none`。**2本指ピンチズーム**追加（`pointers` Map＋`pinch` ref、中点基準）。マウスの wheel ズームは据え置き＝PC操作は不変。
+- 関連: `app/editor/LogicPanel.tsx` の `handleBgDown`/`handleBlockDown`/`onMove`/`onUp`/`startPinch`/`pointers`/`pinch`。
+
+### ヒマワリにお願い＝**iPad/Androidタブレット実機での確認と“感触”の微調整のみ**
+1. カードを指でドラッグ→**指に追従**するか。離した位置に留まるか（左に飛ばないか）。
+2. 空きキャンバスを1本指で**パン**できるか。
+3. **2本指ピンチ**でズームが自然か（感度・中心）。`pinch` の `ratio`/clamp(0.2〜2.5) を実機に合わせて微調整可。
+4. 下部キーボードのキーを**タップ**→カードが出るか。カードを**タップ**→選択＆中身エディタ（左上 `data-card-editor`）が出るか。
+5. 誤作動チェック：ページ自体がスクロール/ズームしないか、ダブルタップ拡大が暴れないか、削除ボタン(×)の誤タップ。
+6. レイアウト：**下部キーボード高さ178px**がタブレット縦/横や小画面で潰れないか。`getDefaultZoom`(幅<1024=0.65 等)の体感。LIVEプレビュー位置(`right:20`)。
+
+### 🚫 触らないこと（シオンの中身領域）
+- ドラッグ/スナップの**座標・判定ロジック**（`lib/blockGraph.ts`・`findSnap`・onMove内の計算）。**感触の数値（ピンチ感度・clamp）以外のロジックは変えない**。
+- `genCode`/`lib/codegen*`・`data/templates.ts`・条件分岐(co_if)のキーボード選択方式・中身エディタ(`FieldSlot`/`handleFieldChange`)。
+- ※「LiveStageを実行エンジン化（world入力トグル）」は**一度revert済**（伊波さんが混乱）。プレビュー側はいじらない。
+
+---
+
 ## 🟢 最新・最優先 2026-06-14 — ポケカ寄りに全面リスキン（色/見た目/背景）＝ヒマワリ担当
 
 > ※完全ローカル・オフライン完結のおもちゃアプリ。サーバーや環境は考えず画面内のUXに集中。
