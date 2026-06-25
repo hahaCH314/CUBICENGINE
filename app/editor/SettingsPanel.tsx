@@ -269,6 +269,8 @@ export default function SettingsPanel() {
   const setExportFormat = useEditorStore((s) => s.setExportFormat);
   const compress = useEditorStore((s) => s.compress);
   const setCompress = useEditorStore((s) => s.setCompress);
+  // 統合版エディタはBedrock専用。過去にGROVE(Java)を開いて永続化された "java" も戻す。
+  useEffect(() => { setTargetPlatform("bedrock"); }, [setTargetPlatform]);
   const mcVersion = useEditorStore((s) => s.mcVersion);
   const setMcVersion = useEditorStore((s) => s.setMcVersion);
   const blocks = useEditorStore((s) => s.blocks);
@@ -429,10 +431,7 @@ export default function SettingsPanel() {
           <div className="bg-panel rounded-xl border border-border p-3">
             <div className="text-[10px] font-bold text-accent uppercase tracking-wider mb-1">つくる先</div>
             <Row label="プラットフォーム">
-              <select value={targetPlatform} onChange={(e) => setTargetPlatform(e.target.value as "bedrock" | "java")} className={inputCls}>
-                <option value="bedrock">🟢 Bedrock（おすすめ）</option>
-                <option value="java">☕ Java（上級者）</option>
-              </select>
+              <div className={inputCls} style={{ cursor: "default", pointerEvents: "none" }}>🟢 Bedrock（統合版）</div>
             </Row>
             {targetPlatform === "bedrock" && (
               <Row label="MCバージョン">
