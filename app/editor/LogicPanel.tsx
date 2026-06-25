@@ -65,6 +65,11 @@ const KEYBOARD_CATS: { cat: Category; label: string; icon: string }[] = [
   { cat: "variable", label: "へんすう",   icon: "Package" },
 ];
 
+/* 条件分岐は「もしも」カテゴリでキーボード上から条件を選ぶ＝タップでその条件入りco_ifが出る */
+const CO_IF_TMPL = TEMPLATES.find(t => t.type === "co_if")!;
+const CO_IF_CONDS = CO_IF_TMPL?.fields.find(f => f.id === "cond")?.options ?? [];
+const COND_EMOJI: Record<string, string> = { "スニーク中": "🤫", "夜間": "🌙", "雨天": "🌧️", "HPが少ない": "💔" };
+
 function getRootBlockId(blockId: string, blocks: CBlock[]): string {
   const parent = blocks.find(x => x.nextId === blockId || x.innerId === blockId || x.thenId === blockId || x.elseId === blockId);
   if (!parent) return blockId;
@@ -2343,7 +2348,8 @@ export default function LogicPanel() {
   }, []);
 
   // ⌨️ キーを押したら“即”カードをキャンバスへ（手札トレイ廃止＝直接配置）
-  const spawnToCanvas = useCallback((tmpl: Tmpl) => {
+  // overrides: 条件分岐の cond など、生成時にフィールドを仕込む（キーボードで条件を選ぶ用）
+  const spawnToCanvas = useCallback((tmpl: Tmpl, overrides?: Record<string, string>) => {
     const { pan, zoom, blocks } = live.current;
     const rect = containerRef.current?.getBoundingClientRect();
     const vw = rect?.width ?? 800;
@@ -2354,6 +2360,7 @@ export default function LogicPanel() {
     const nx = (sx - pan.x) / zoom - BW / 2;
     const ny = (sy - pan.y) / zoom - BH / 2;
     const nb = spawnBlock(tmpl, nx, ny);
+    if (overrides) nb.fields = nb.fields.map(f => overrides[f.id] !== undefined ? { ...f, value: overrides[f.id] } : f);
     setBlocks(p => [...p, nb]);
     setSelected(nb.id);
     playAddSound();
@@ -3471,7 +3478,26 @@ export default function LogicPanel() {
 
               {/* アイテムキー：押すと即カードがキャンバスへ */}
               <div style={{ flex: 1, display: "flex", flexWrap: "wrap", gap: 6, alignContent: "flex-start", overflowY: "auto", padding: 8, background: "rgba(255,255,255,0.5)", border: "2px solid #b9e0c8", borderRadius: 12, boxShadow: "inset 0 2px 5px rgba(0,0,0,0.05)" }}>
-                {kbItems.map(tmpl => {
+                {kbCat === "ifelse" ? (
+                  /* 条件分岐：条件をキーボードで選ぶ＝タップでその条件入り「もしも〜なら」が出る */
+                  CO_IF_CONDS.map(cond => {
+                    const c = CAT["ifelse"];
+                    return (
+                      <button key={cond} className="toy-key" title={`もしも ${cond} なら`}
+                        onClick={() => spawnToCanvas(CO_IF_TMPL, { cond })}
+                        style={{
+                          display: "flex", alignItems: "center", gap: 6, height: 38, padding: "0 12px",
+                          borderRadius: 9, border: "2.5px solid #1e293b", cursor: "pointer",
+                          background: `linear-gradient(135deg,#fde7ff,${c.top})`,
+                          boxShadow: `0 3px 0 ${c.side}, 0 3px 6px rgba(0,0,0,0.1)`,
+                          fontWeight: 900, fontSize: 11.5, color: c.text, whiteSpace: "nowrap",
+                        }}>
+                        <span style={{ fontSize: 13 }}>{COND_EMOJI[cond] || "🔀"}</span>
+                        もしも<b style={{ color: c.side }}>{cond}</b>なら<span style={{ marginLeft: 1 }}>✨</span>
+                      </button>
+                    );
+                  })
+                ) : kbItems.map(tmpl => {
                   const c = CAT[tmpl.category];
                   const TIcon = (LucideIcons as any)[tmpl.emoji] || LucideIcons.HelpCircle;
                   const sparkle = tmpl.type === "co_if" || tmpl.type === "ct_rep";
@@ -3541,6 +3567,34 @@ export default function LogicPanel() {
               </button>
             </div>
           </div>
+
+          {/* ✏️ 選んだカードの中身エディタ（直接配置式＝旧STEP3の代わり。条件もここで変える） */}
+          {(() => {
+            const sb = selected ? blocks.find(b => b.id === selected) : null;
+            // co_if(条件分岐)はキーボードで条件を選ぶ方式なので中身エディタは出さない
+            if (!sb || sb.fields.length === 0 || sb.type === "co_if") return null;
+            const c = CAT[sb.category];
+            const EIcon = (LucideIcons as any)[sb.emoji] || LucideIcons.HelpCircle;
+            return (
+              <div data-card-editor="1" style={{
+                position: "absolute", top: 44, left: 12, zIndex: 44, width: 234, maxHeight: "52%", overflowY: "auto",
+                background: "#ffffff", border: "3px solid #1e293b", borderRadius: 16,
+                boxShadow: "0 12px 28px rgba(0,0,0,0.2)", padding: 12,
+                display: "flex", flexDirection: "column", gap: 9,
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 7, paddingBottom: 6, borderBottom: "2px solid #f1f5f9" }}>
+                  <span style={{ width: 24, height: 24, borderRadius: 7, background: c.bg, border: "2px solid #1e293b", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <EIcon size={14} color="#fff" strokeWidth={2.6} />
+                  </span>
+                  <span style={{ fontSize: 12.5, fontWeight: 900, color: "#1e293b" }}>{sb.label} の中身</span>
+                </div>
+                {sb.fields.map(f => (
+                  <FieldSlot key={f.id} label={f.label} value={f.value} options={f.options}
+                    onChange={v => handleFieldChange(sb.id, f.id, v)} />
+                ))}
+              </div>
+            );
+          })()}
 
           {/* コードプレビュー */}
           {showCode && (
