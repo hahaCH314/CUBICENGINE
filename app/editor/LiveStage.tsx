@@ -261,7 +261,7 @@ const ring: React.CSSProperties = { position: "absolute", left: "50%", top: "50%
 const placedListWrap: React.CSSProperties = {
   position: "absolute",
   top: 320, // LiveStageの下端に合わせる (top 20 + height 232 * scale 1.25 + margin)
-  right: 190, // LiveStageの右寄せと合わせる
+  right: 20, // LiveStageの右寄せと合わせる
   width: 575, // LiveStageの見かけの幅 (460 * scale 1.25)
   zIndex: 24,
   pointerEvents: "auto",
@@ -312,7 +312,7 @@ export default function LiveStage({ blocks }: { blocks: CBlock[] }) {
     <div data-live-stage="1" style={{
       position: "absolute",
       top: 20,
-      right: 190, // 右ペイン（幅170px + 余白）の左隣にぴったり配置
+      right: 20, // 右パネル廃止に伴い右端寄せ
       transform: "scale(1.25)",
       transformOrigin: "top right", // 右上起点でスケールさせてズレを防ぐ
       width: 460,

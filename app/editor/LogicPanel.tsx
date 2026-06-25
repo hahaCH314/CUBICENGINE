@@ -291,7 +291,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
   b: CBlock; pos: { x: number; y: number }; pal: Record<Category, CatDef>; cyber: boolean; selected: boolean; snapSlot: string | null;
   isEating?: boolean; isSnapping?: boolean; isAdding?: boolean; isDeleting?: boolean;
   innerBlock?: CBlock | null; blocks: CBlock[];
-  onDown: (e: React.MouseEvent, id: string) => void;
+  onDown: (e: React.PointerEvent, id: string) => void;
   onDelete: (id: string) => void;
   onFieldChange: (id: string, fid: string, val: string) => void;
   onEjectInner?: (id: string) => void;
@@ -354,7 +354,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
       <div key={slotKey} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
         <div
           className={isArmedThis ? "slot-btn slot-btn--armed" : "slot-btn"}
-          onMouseDown={e => {
+          onPointerDown={e => {
             e.stopPropagation();
             onSlotClick(b.id, slotKey);
           }}
@@ -402,7 +402,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
   const leftOffset = (w - cardW) / 2; // センタリング
 
   return (
-    <div onMouseDown={e => onDown(e, b.id)} style={{
+    <div onPointerDown={e => onDown(e, b.id)} style={{
       position: "absolute", left: pos.x, top: pos.y,
       width: w, height: h,
       cursor: isDragging ? "grabbing" : "grab", userSelect: "none",
@@ -2243,6 +2243,15 @@ export default function LogicPanel() {
 
   const panDrag = useRef({ active: false, sx: 0, sy: 0, sp: { x: 0, y: 0 } });
   const blockDrag = useRef({ active: false, id: "", offX: 0, offY: 0 });
+  // タッチ対応：複数ポインター追跡＋ピンチズーム
+  const pointers = useRef(new Map<number, { x: number; y: number }>());
+  const pinch = useRef<{ dist: number; zoom: number } | null>(null);
+  const startPinch = useCallback(() => {
+    const pts = [...pointers.current.values()];
+    if (pts.length < 2) return;
+    const d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+    pinch.current = { dist: d || 1, zoom: live.current.zoom };
+  }, []);
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
@@ -2261,8 +2270,10 @@ export default function LogicPanel() {
     });
   }, []);
 
-  const handleBgDown = useCallback((e: React.MouseEvent) => {
+  const handleBgDown = useCallback((e: React.PointerEvent) => {
     if (e.button !== 0 && e.button !== 1) return;
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.current.size >= 2) { startPinch(); panDrag.current.active = false; blockDrag.current.active = false; return; }
     if (live.current.wireDrag) {
       setWireDrag(null);
       return;
@@ -2272,8 +2283,10 @@ export default function LogicPanel() {
     e.preventDefault();
   }, []);
 
-  const handleBlockDown = useCallback((e: React.MouseEvent, id: string) => {
+  const handleBlockDown = useCallback((e: React.PointerEvent, id: string) => {
     e.stopPropagation();
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.current.size >= 2) { startPinch(); panDrag.current.active = false; blockDrag.current.active = false; return; }
     const { wireDrag, blocks, zoom, pan } = live.current;
     if (wireDrag && wireDrag.armed) {
       const b = blocks.find(x => x.id === id);
@@ -2408,7 +2421,23 @@ export default function LogicPanel() {
   }, []);
 
   useEffect(() => {
-    function onMove(e: MouseEvent) {
+    function onMove(e: PointerEvent) {
+      if (pointers.current.has(e.pointerId)) pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      // ピンチズーム（2本指）
+      if (pointers.current.size >= 2 && pinch.current) {
+        const r = containerRef.current?.getBoundingClientRect(); if (!r) return;
+        const pts = [...pointers.current.values()];
+        const nd = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+        const ratio = nd / pinch.current.dist;
+        const midX = (pts[0].x + pts[1].x) / 2 - r.left;
+        const midY = (pts[0].y + pts[1].y) / 2 - r.top;
+        setZoom(z => {
+          const nz = Math.min(2.5, Math.max(0.2, pinch.current!.zoom * ratio));
+          setPan(p => ({ x: midX - (midX - p.x) * (nz / z), y: midY - (midY - p.y) * (nz / z) }));
+          return nz;
+        });
+        return;
+      }
       const rect = containerRef.current?.getBoundingClientRect(); if (!rect) return;
       const { pan, zoom, blocks } = live.current;
 
@@ -2476,7 +2505,9 @@ export default function LogicPanel() {
         setSnapHint(null);
       }
     }
-    function onUp() {
+    function onUp(e: PointerEvent) {
+      pointers.current.delete(e.pointerId);
+      if (pointers.current.size < 2) pinch.current = null;
       if (panDrag.current.active) { panDrag.current.active = false; return; }
       if (!blockDrag.current.active) return;
       setDraggingId(null);
@@ -2551,9 +2582,10 @@ export default function LogicPanel() {
       blockDrag.current.active = false;
       setSnapHint(null);
     }
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("mouseup", onUp);
-    return () => { document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp); };
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+    document.addEventListener("pointercancel", onUp);
+    return () => { document.removeEventListener("pointermove", onMove); document.removeEventListener("pointerup", onUp); document.removeEventListener("pointercancel", onUp); };
   }, []);
 
   useEffect(() => {
@@ -3189,8 +3221,8 @@ export default function LogicPanel() {
           <ThemeBackdrop theme="workshop" zoom={zoom} pan={pan} />
 
           {/* 操作キャンバス復元（カード描画＋ドラッグ/接続。背景はWorkshopBackdropを透過。色はヒマワリが後で） */}
-          <div ref={containerRef} onMouseDown={handleBgDown} onWheel={handleWheel}
-            style={{ position: "absolute", inset: 0, cursor: "grab", background: "transparent", zIndex: 1 }}>
+          <div ref={containerRef} onPointerDown={handleBgDown} onWheel={handleWheel}
+            style={{ position: "absolute", inset: 0, cursor: "grab", background: "transparent", zIndex: 1, touchAction: "none" }}>
             {blocks.length > 0 && (
               <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 6, pointerEvents: "none" }}>
                 <ToyFloor />
