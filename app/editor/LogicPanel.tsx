@@ -631,20 +631,20 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
           title="削除"
           style={{
             position: "absolute",
-            top: -10,
-            right: leftOffset - 9, // カードの右上端に合わせる
-            width: 28, height: 28, borderRadius: "50%",
+            top: -12,
+            right: leftOffset - 11, // カードの右上端に合わせる（サイズ拡大に伴い微調整）
+            width: 32, height: 32, borderRadius: "50%",
             background: "#e74c3c", border: `2px solid #fff`,
             color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
             cursor: "pointer", zIndex: 30,
-            boxShadow: "0 2px 5px rgba(0,0,0,0.3)",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.35)",
             transition: "transform 0.1s",
             touchAction: "none", // タッチで確実に拾う(スクロール等に奪われない)
           }}
           onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
           onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
         >
-          <LucideIcons.X size={15} strokeWidth={3} />
+          <LucideIcons.X size={17} strokeWidth={3} />
         </button>
       )}
     </div>
@@ -2447,9 +2447,14 @@ export default function LogicPanel() {
     const { pan, zoom, blocks } = live.current;
     const rect = containerRef.current?.getBoundingClientRect();
     const vw = rect?.width ?? 800;
+    const lr = (document.querySelector('[data-live-stage]') as HTMLElement | null)?.getBoundingClientRect();
+    const previewLeft = lr ? lr.left - (rect?.left ?? 0) : vw - 575 - 20;
+
     // 見える範囲の上のほうに、少しずつズラして出す（重ならない・逆ソリティアで自分で並べる）
     const cascade = (blocks.length % 6) * 26;
-    const sx = vw * 0.32 + cascade;
+    // プレビューの左側の空きスペースに収まるようにスクリーン座標Xを計算
+    const targetSx = previewLeft > 120 ? Math.min(vw * 0.32, previewLeft - 90) : 20;
+    const sx = Math.max(20, targetSx) + cascade;
     const sy = 80 + cascade;
     const nx = (sx - pan.x) / zoom - BW / 2;
     const ny = (sy - pan.y) / zoom - BH / 2;
@@ -2509,7 +2514,9 @@ export default function LogicPanel() {
         const r = containerRef.current?.getBoundingClientRect(); if (!r) return;
         const pts = [...pointers.current.values()];
         const nd = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-        const ratio = nd / pinch.current.dist;
+        const rawRatio = nd / pinch.current.dist;
+        // ズーム感度を少しマイルドに調整（感度係数 0.85）
+        const ratio = 1 + (rawRatio - 1) * 0.85;
         const midX = (pts[0].x + pts[1].x) / 2 - r.left;
         const midY = (pts[0].y + pts[1].y) / 2 - r.top;
         setZoom(z => {
