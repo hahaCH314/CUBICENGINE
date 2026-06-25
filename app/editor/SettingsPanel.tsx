@@ -296,17 +296,8 @@ export default function SettingsPanel() {
   };
 
   // かんたん / プロ モード（localStorage 記憶）。
-  // 初期は「かんたん」＝非コーダーが開いた瞬間に開発者コックピットを見せない（SPROUT=やさしく）。
-  const [mode, setMode] = useState<"simple" | "pro">("simple");
-  useEffect(() => {
-    const saved = localStorage.getItem("mmc-settings-mode");
-    if (saved === "simple" || saved === "pro") setMode(saved);
-  }, []);
-  const switchMode = (m: "simple" | "pro") => {
-    setMode(m);
-    localStorage.setItem("mmc-settings-mode", m);
-  };
-  const pro = mode === "pro";
+  // プロモードは廃止＝常に「かんたん」（SPROUT=やさしく / 統合版Bedrock専用）。
+  const pro = false;
 
   const slug = projectName.replace(/\s+/g, "_").toLowerCase().replace(/[^a-z0-9_]/g, "") || "my_addon";
 
@@ -328,22 +319,7 @@ export default function SettingsPanel() {
         <h2 className="text-sm font-bold text-foreground/90 flex items-center gap-2">
           <span className="text-accent">🚀</span> マイクラへ <span className="text-muted/50 text-xs font-mono">— ビルド＆ダウンロード</span>
         </h2>
-        <div className="inline-flex items-center bg-[#1e293b]/10 border border-[#1e293b]/20 rounded-xl p-0.5 text-xs font-bold gap-1">
-          <button
-            onClick={() => switchMode("simple")}
-            className={`mc-btn mc-btn--sm ${mode === "simple" ? "mc-btn--primary" : ""}`}
-            style={{ border: mode === "simple" ? undefined : "3px solid transparent", boxShadow: mode === "simple" ? undefined : "none" }}
-          >
-            🟢 かんたん
-          </button>
-          <button
-            onClick={() => switchMode("pro")}
-            className={`mc-btn mc-btn--sm ${mode === "pro" ? "mc-btn--grape" : ""}`}
-            style={{ border: mode === "pro" ? undefined : "3px solid transparent", boxShadow: mode === "pro" ? undefined : "none" }}
-          >
-            ⚡ プロ
-          </button>
-        </div>
+        {/* モード切替（プロ）は廃止＝常にかんたん */}
       </div>
 
       {/* ── 本体グリッド（スクロールなし・1画面） ── */}
