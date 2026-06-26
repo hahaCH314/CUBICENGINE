@@ -105,7 +105,7 @@ export default function RootLayout({
             ※非公式ツールです。Mojang Studios・Microsoft とは関係ありません。Minecraft は Mojang Studios の商標です。
           </span>
           <span style={{ fontSize: 13, fontWeight: 700, lineHeight: 1, color: "#f0a818", letterSpacing: "0.02em", whiteSpace: "nowrap" }}>
-            © 2026 伊波さん ・ 開発マネージャー：なっとうサイダー
+            © 2026 CUBICENGINE studio ・ 開発マネージャー：なっとうサイダー
           </span>
         </div>
       </body>
