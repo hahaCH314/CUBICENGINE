@@ -75,7 +75,7 @@ export default function PromoPage() {
           {scene.id === "hook" && <MiniWorld title="ようこそ！🎉" />}
           {scene.id === "build" && <BuildBeat />}
           {scene.id === "done" && <DoneBeat />}
-          {scene.id === "run" && <MiniWorld title="✨ 効果はつどう！" />}
+          {scene.id === "run" && <MiniWorld title="ちゃんと動いた！🎉" />}
           {scene.id === "logo" && <LogoBeat />}
         </div>
 
