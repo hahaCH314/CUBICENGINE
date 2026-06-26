@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     "コーディング不要のビジュアル開発環境。Minecraft のアドオン（統合版）・MOD（Java）を設計・構築し、ワンクリックでエクスポート。完全ローカル・オフラインで動作、アカウント不要。",
   applicationName: "CUBICENGINE",
   keywords: ["Minecraft", "マイクラ", "アドオン", "MOD", "統合版", "Java", "コーディング不要", "ビジュアルプログラミング", "CUBICENGINE", "SPROUT", "GROVE"],
-  authors: [{ name: "伊波さん" }],
+  authors: [{ name: "CUBICENGINE studio" }],
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "CUBICENGINE" },
   openGraph: {
     type: "website",
