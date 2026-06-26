@@ -143,10 +143,10 @@ function BuildBeat() {
   return (
     <div style={{ position: "absolute", inset: 0 }}>
       {/* 落ちて重なるカード（中央やや上） */}
-      <div style={{ position: "absolute", top: "26%", left: "50%", transform: "translateX(-50%)", width: 150, height: 240 }}>
+      <div style={{ position: "absolute", bottom: "28%", left: "50%", transform: "translateX(-50%)", width: 150, height: 300 }}>
         {cards.map((c, i) => (
           <div key={c.label} style={{
-            position: "absolute", left: 0, right: 0, top: i * 58, margin: "0 auto", width: 130, height: 168,
+            position: "absolute", left: 0, right: 0, bottom: i * 58, margin: "0 auto", width: 130, height: 168,
             animation: `pp-drop 0.7s cubic-bezier(0.2,1.25,0.4,1) ${c.delay}s both`,
           }}>
             <PromoCard emoji={c.emoji} label={c.label} color={c.color} />
@@ -215,9 +215,9 @@ function DoneBeat() {
 function LogoBeat() {
   return (
     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20, background: "linear-gradient(160deg,#0b1220,#13243b)" }}>
-      <div style={{ animation: "pp-pop 0.6s cubic-bezier(0.2,1.4,0.35,1) both", textAlign: "center" }}>
-        <div style={{ fontWeight: 900, fontSize: "clamp(34px,8vh,56px)", letterSpacing: "0.06em", color: "#fff", textShadow: "0 0 28px rgba(120,200,255,0.6)" }}>CUBICENGINE</div>
-        <div style={{ marginTop: 6, fontWeight: 800, fontSize: "clamp(15px,3.2vh,22px)", color: "#9fe0ff" }}>マイクラのアドオンを、コードなしで。</div>
+      <div style={{ animation: "pp-popc 0.6s cubic-bezier(0.2,1.4,0.35,1) both", textAlign: "center", width: "100%", padding: "0 18px", boxSizing: "border-box" }}>
+        <div style={{ fontWeight: 900, fontSize: "clamp(24px,6vh,42px)", letterSpacing: "0.01em", color: "#fff", textShadow: "0 0 28px rgba(120,200,255,0.6)", whiteSpace: "nowrap" }}>CUBICENGINE</div>
+        <div style={{ marginTop: 8, fontWeight: 800, fontSize: "clamp(14px,3vh,20px)", color: "#9fe0ff" }}>マイクラのアドオンを、コードなしで。</div>
       </div>
       <div style={{ animation: "pp-capin 0.5s ease 0.3s both", display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
         <span style={{ padding: "10px 20px", borderRadius: 999, background: "#22c55e", color: "#052e16", fontWeight: 900, fontSize: "clamp(16px,3.4vh,22px)", boxShadow: "0 6px 18px rgba(34,197,94,0.5)" }}>無料・ブラウザで今すぐ</span>
@@ -231,6 +231,7 @@ const KEYFRAMES = `
   @keyframes pp-capin { 0% { transform: translateY(-14px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
   @keyframes pp-title { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.12); } 100% { transform: scale(1); opacity: 1; } }
   @keyframes pp-pop { 0% { transform: translate(-50%,-50%) scale(0.4); opacity: 0; } 70% { transform: translate(-50%,-50%) scale(1.08); } 100% { transform: translate(-50%,-50%) scale(1); opacity: 1; } }
+  @keyframes pp-popc { 0% { transform: scale(0.4); opacity: 0; } 70% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
   @keyframes pp-drop { 0% { transform: translateY(-220%) rotate(-8deg); opacity: 0; } 60% { opacity: 1; } 80% { transform: translateY(6%) rotate(1deg); } 100% { transform: translateY(0) rotate(0); opacity: 1; } }
   @keyframes pp-keypress { 0%,100% { transform: translateY(0); } 40% { transform: translateY(4px); box-shadow: 0 1px 0 #cbd5e1; } }
   @keyframes pp-slidein { 0% { transform: translateY(40px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
