@@ -245,11 +245,12 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
             },
           ],
           dependencies: [
-            // 1.6.0 = Minecraft 1.20.30 以降で利用可能な安定版（実験的機能不要）
-            { module_name: "@minecraft/server", version: "1.6.0" },
+            // ベータAPI ON=実験的スクリプトAPI(-beta / ワールドの「ベータAPI」実験が必要)
+            // OFF=安定版(1.6.0 / Minecraft 1.20.30 以降・実験的機能不要)
+            { module_name: "@minecraft/server", version: state.betaApi ? "1.6.0-beta" : "1.6.0" },
             // @minecraft/server-ui は使用時のみ追加（常時追加するとロード失敗の原因になる）
             ...(jsCode.includes("ActionFormData") || jsCode.includes("ModalFormData") || jsCode.includes("MessageFormData")
-              ? [{ module_name: "@minecraft/server-ui", version: "1.1.0" }]
+              ? [{ module_name: "@minecraft/server-ui", version: state.betaApi ? "1.1.0-beta" : "1.1.0" }]
               : []),
             { uuid: rpUuid, version: [1, 0, 0] },
           ],
@@ -469,42 +470,20 @@ export async function exportJava(state: EditorState, jsCode: string) {
     ].join("\n"),
   );
 
-  // ─── Gradle Wrapper ───
-  // gradle/wrapper/gradle-wrapper.properties points to Gradle 8.4
-  zip.file(
-    "gradle/wrapper/gradle-wrapper.properties",
-    [
-      `distributionBase=GRADLE_USER_HOME`,
-      `distributionPath=wrapper/dists`,
-      `distributionUrl=https\\://services.gradle.org/distributions/gradle-8.4-bin.zip`,
-      `networkTimeout=10000`,
-      `validateDistributionUrl=true`,
-      `zipStoreBase=GRADLE_USER_HOME`,
-      `zipStorePath=wrapper/dists`,
-    ].join("\n"),
-  );
-
-  // gradlew (Unix) — システムの gradle を呼び出す
-  zip.file(
-    "gradlew",
-    [
-      `#!/bin/sh`,
-      `# CUBICENGINE 生成ビルドスクリプト`,
-      `# 事前に Gradle 8.x が PATH に必要: https://gradle.org/install/`,
-      `gradle build --no-daemon "$@"`,
-    ].join("\n"),
-  );
-
-  // gradlew.bat (Windows) — システムの gradle を呼び出す
-  zip.file(
-    "gradlew.bat",
-    [
-      `@rem CUBICENGINE 生成ビルドスクリプト`,
-      `@rem 事前に Gradle 8.x が PATH に必要: https://gradle.org/install/`,
-      `@echo off`,
-      `gradle build --no-daemon %*`,
-    ].join("\r\n"),
-  );
+  // ─── Gradle Wrapper（本物・Forge 1.20.1 MDK 由来 / Gradle 8.8）───
+  // これを同梱することで、ユーザーは JDK17 だけで `./gradlew build` 一発で通る。
+  // ※P1.5/P1.6(2026-07-01)で final jar まで実ビルド検証済み。バイナリ(jar)や改行を壊さぬよう base64 で格納。
+  // 99KB あるため、Java出力時のみ動的importで読み込む（Bedrock利用者のバンドルを太らせない）。
+  const {
+    GRADLEW_SH_B64,
+    GRADLEW_BAT_B64,
+    GRADLE_WRAPPER_JAR_B64,
+    GRADLE_WRAPPER_PROPERTIES_B64,
+  } = await import("../../lib/gradleWrapper");
+  zip.file("gradle/wrapper/gradle-wrapper.properties", GRADLE_WRAPPER_PROPERTIES_B64, { base64: true });
+  zip.file("gradle/wrapper/gradle-wrapper.jar", GRADLE_WRAPPER_JAR_B64, { base64: true });
+  zip.file("gradlew", GRADLEW_SH_B64, { base64: true, unixPermissions: 0o755 });
+  zip.file("gradlew.bat", GRADLEW_BAT_B64, { base64: true });
 
   // ─── Main Mod Class ───
   const src = zip.folder(`src/main/java/${pkgPath}`)!;
@@ -701,13 +680,16 @@ export async function exportJava(state: EditorState, jsCode: string) {
       NOTICE_TEXT,
       "```",
       ``,
-      `## Setup`,
-      `1. Install **JDK 17+**`,
-      `2. Download the Gradle wrapper JAR:`,
-      `   \`gradle wrapper --gradle-version 8.4\``,
-      `   (or grab \`gradle-wrapper.jar\` from any existing Gradle project)`,
-      `3. Run \`./gradlew build\``,
-      `4. Place the JAR from \`build/libs/\` into your Minecraft \`mods/\` folder`,
+      `## ビルド方法 / Setup`,
+      `必要なのは **JDK 17** だけです（Gradleラッパーは同梱済み）。`,
+      ``,
+      `1. **JDK 17** をインストール（例: https://adoptium.net/ ）`,
+      `2. このフォルダで次を実行（初回は Gradle と Minecraft/Forge を自動DL）:`,
+      `   - Windows: \`gradlew.bat build\``,
+      `   - Mac / Linux: \`./gradlew build\``,
+      `3. できあがった \`build/libs/${modId}-1.0.0.jar\` を、`,
+      `   Forge 1.20.1 を導入した Minecraft の \`mods/\` フォルダに入れる`,
+      `4. Minecraft（Forge 1.20.1）を起動すれば Mod が読み込まれます`,
       ``,
       `## Blocks`,
       ...state.blocks.map((b) => `- \`${b.name}\``),

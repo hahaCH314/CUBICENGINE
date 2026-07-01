@@ -269,6 +269,8 @@ export default function SettingsPanel() {
   const setExportFormat = useEditorStore((s) => s.setExportFormat);
   const compress = useEditorStore((s) => s.compress);
   const setCompress = useEditorStore((s) => s.setCompress);
+  const betaApi = useEditorStore((s) => s.betaApi);
+  const setBetaApi = useEditorStore((s) => s.setBetaApi);
   // 統合版エディタはBedrock専用。過去にGROVE(Java)を開いて永続化された "java" も戻す。
   useEffect(() => { setTargetPlatform("bedrock"); }, [setTargetPlatform]);
   const mcVersion = useEditorStore((s) => s.mcVersion);
@@ -431,6 +433,7 @@ export default function SettingsPanel() {
                 </select>
               </Row>
               <Row label="圧縮"><Toggle value={compress} onChange={setCompress} /></Row>
+              <Row label="ベータAPI"><Toggle value={betaApi} onChange={setBetaApi} /></Row>
               <Row label="UUID自動生成"><Toggle value={autoUuid} onChange={setAutoUuid} /></Row>
               <div className="mt-1.5 pt-1.5 border-t border-border/60 font-mono text-[10px] text-muted/70 space-y-0.5">
                 <div>namespace: <span className="text-cyan-300/80">cubicengine:{slug}</span></div>

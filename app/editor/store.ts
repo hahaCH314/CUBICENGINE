@@ -96,6 +96,8 @@ export interface EditorState {
   /** メインのEXPORTボタンを押して解錠したか（設定画面の出力ゲート用） */
   exportArmed: boolean;
   compress: boolean;
+  /** 統合版: ベータAPI（実験的スクリプトAPI）を使うか。ON=beta指定 / OFF=安定版 */
+  betaApi: boolean;
   mcVersion: "1.26.x" | "1.21.40+" | "1.21.0" | "1.20.x";
   packIconDataUrl: string;       // アドオンアイコン（data URL、空なら規定）
 
@@ -123,6 +125,7 @@ export interface EditorState {
   setExportFormat: (f: "mcaddon" | "mcpack" | "zip") => void;
   setExportArmed: (v: boolean) => void;
   setCompress: (v: boolean) => void;
+  setBetaApi: (v: boolean) => void;
   setMcVersion: (v: "1.26.x" | "1.21.40+" | "1.21.0" | "1.20.x") => void;
   setGeneratedJsCode: (code: string) => void;
   setGridSnap: (enabled: boolean, size?: number) => void;
@@ -200,6 +203,7 @@ export const useEditorStore = create<EditorState>((set) => ({
   exportFormat: "mcaddon",
   exportArmed: false,
   compress: true,
+  betaApi: false,
   mcVersion: "1.26.x" as const,
   packIconDataUrl: "",
 
@@ -259,6 +263,7 @@ export const useEditorStore = create<EditorState>((set) => ({
   setExportFormat:      (f)  => set({ exportFormat: f }),
   setExportArmed:       (v)  => set({ exportArmed: v }),
   setCompress:          (v)  => set({ compress: v }),
+  setBetaApi:           (v)  => set({ betaApi: v }),
   setMcVersion:         (v)  => set({ mcVersion: v }),
   setGeneratedJsCode:   (code) => set({ generatedJsCode: code }),
   setGridSnap: (enabled, size) => set({ gridSnapEnabled: enabled, gridSnapSize: size ?? 1.0 }),
