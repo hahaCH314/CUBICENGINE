@@ -3537,7 +3537,13 @@ export default function LogicPanel() {
             />
           )}
 
-          <LiveStage blocks={blocks} />
+          <LiveStage
+            blocks={blocks}
+            onGather={() => {
+              if (!blocks.length) { showToast("まだカードがないよ 🃏", "warning"); return; }
+              zoomToFit(); playAddSound(); showToast("カードをぜんぶ集めたよ！ 🧲", "success");
+            }}
+          />
 
           {/* たまにキーボードの上を横切るクリーパーの影／上から落ちるエンダーマンの影 */}
           <CreeperShadow />

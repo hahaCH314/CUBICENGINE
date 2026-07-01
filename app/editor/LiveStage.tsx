@@ -260,7 +260,7 @@ const ring: React.CSSProperties = { position: "absolute", left: "50%", top: "50%
 
 const placedListWrap: React.CSSProperties = {
   position: "absolute",
-  top: 320, // LiveStageの下端に合わせる (top 20 + height 232 * scale 1.25 + margin)
+  top: 366, // 🧲ボタンのさらに下に置く
   right: 20, // LiveStageの右寄せと合わせる
   width: 575, // LiveStageの見かけの幅 (460 * scale 1.25)
   zIndex: 24,
@@ -270,6 +270,17 @@ const placedListWrap: React.CSSProperties = {
   alignItems: "center",
   gap: 6,
 };
+// 🧲 カードあつまれ ボタンの位置（プレビューの真下・カードが無くても常に表示）
+const gatherWrap: React.CSSProperties = {
+  position: "absolute",
+  top: 318, // LiveStage下端(≈310)のすぐ下
+  right: 20,
+  width: 575, // プレビュー幅と合わせて中央寄せ
+  zIndex: 24,
+  pointerEvents: "auto",
+  display: "flex",
+  justifyContent: "center",
+};
 const placedChip: React.CSSProperties = {
   display: "inline-flex", alignItems: "center", gap: 6,
   background: "rgba(255,255,255,0.92)", color: "#1e293b",
@@ -278,7 +289,7 @@ const placedChip: React.CSSProperties = {
 };
 
 /* ───────── 本体 ───────── */
-export default function LiveStage({ blocks }: { blocks: CBlock[] }) {
+export default function LiveStage({ blocks, onGather }: { blocks: CBlock[]; onGather?: () => void }) {
   const seq = useMemo(() => buildSequence(blocks), [blocks]);
   const [step, setStep] = useState(0);
   const [hopKey, setHopKey] = useState(0);
@@ -417,6 +428,26 @@ export default function LiveStage({ blocks }: { blocks: CBlock[] }) {
         )}
       </div>
     </div>
+
+    {/* 🧲 カードあつまれ（プレビューの下・カードが無くても常に表示） */}
+    {onGather && (
+      <div style={gatherWrap}>
+        <button
+          onClick={onGather}
+          title="出したカードを全部まとめて画面に映す（カードの位置は変わりません）"
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            padding: "7px 16px", borderRadius: 11, cursor: "pointer",
+            border: "2.5px solid #1e293b",
+            background: "linear-gradient(135deg,#ffe0b2,#ffb74d)",
+            boxShadow: "0 3px 0 #f57c00, 0 3px 6px rgba(0,0,0,0.12)",
+            color: "#7c3a00", fontWeight: 900, fontSize: 13, whiteSpace: "nowrap",
+          }}
+        >
+          🧲 カードあつまれ
+        </button>
+      </div>
+    )}
 
     {/* おいたブロック一覧 */}
     {blocks.length > 0 && (
