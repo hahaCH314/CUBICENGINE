@@ -412,13 +412,16 @@ export default function SettingsPanel() {
               <div className={inputCls} style={{ cursor: "default", pointerEvents: "none" }}>🟢 Bedrock（統合版）</div>
             </Row>
             {targetPlatform === "bedrock" && (
-              <Row label="MCバージョン">
-                <select value={mcVersion} onChange={(e) => setMcVersion(e.target.value as "1.21.40+" | "1.21.0" | "1.20.x")} className={inputCls}>
-                  <option value="1.21.40+">1.21.40+ / 1.22〜（最新）</option>
-                  <option value="1.21.0">1.21.0〜1.21.30</option>
-                  <option value="1.20.x">1.20.x（古い）</option>
-                </select>
-              </Row>
+              <>
+                <Row label="MCバージョン">
+                  <select value={mcVersion} onChange={(e) => setMcVersion(e.target.value as "1.21.40+" | "1.21.0" | "1.20.x")} className={inputCls}>
+                    <option value="1.21.40+">1.21.40+ / 1.22〜（最新）</option>
+                    <option value="1.21.0">1.21.0〜1.21.30</option>
+                    <option value="1.20.x">1.20.x（古い）</option>
+                  </select>
+                </Row>
+                <Row label="ベータAPI"><Toggle value={betaApi} onChange={setBetaApi} /></Row>
+              </>
             )}
           </div>
 
@@ -433,7 +436,6 @@ export default function SettingsPanel() {
                 </select>
               </Row>
               <Row label="圧縮"><Toggle value={compress} onChange={setCompress} /></Row>
-              <Row label="ベータAPI"><Toggle value={betaApi} onChange={setBetaApi} /></Row>
               <Row label="UUID自動生成"><Toggle value={autoUuid} onChange={setAutoUuid} /></Row>
               <div className="mt-1.5 pt-1.5 border-t border-border/60 font-mono text-[10px] text-muted/70 space-y-0.5">
                 <div>namespace: <span className="text-cyan-300/80">cubicengine:{slug}</span></div>
