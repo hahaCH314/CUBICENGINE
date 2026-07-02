@@ -121,7 +121,7 @@ export default function SupportPage() {
           )}
         </div>
 
-        {/* お知らせ・連絡（小さく1行に集約：非公式 / 返金不可 / Discord） */}
+        {/* お知らせ・連絡（非公式 / Discord は1行、返金不可はその下の行へ） */}
         <p className="mt-5 text-xs text-gray-400 leading-relaxed">
           感想・バグ報告は{" "}
           <a
@@ -132,7 +132,9 @@ export default function SupportPage() {
           >
             Discord
           </a>
-          {" "}へ ・ <span className="whitespace-nowrap">本ツールは非公式（Mojang Studios・Microsoft とは無関係）</span>・
+          {" "}へ ・ <span className="whitespace-nowrap">本ツールは非公式（Mojang Studios・Microsoft とは無関係）</span>
+        </p>
+        <p className="mt-1.5 text-xs text-gray-400 leading-relaxed">
           寄付は原則返金不可（
           <Link href="/terms" className="underline underline-offset-2 hover:text-gray-700 transition-colors">
             利用規約
