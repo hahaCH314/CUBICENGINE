@@ -280,11 +280,12 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
     bp.file("pack_icon.png", iconBytes);
 
     for (const block of state.blocks) {
+      const bn = sanitizeBlockName(block.name); // zip入口パス/識別子の安全化（path traversal防止）
       const components: Record<string, unknown> = {
         // unit_cube = 標準の1×1×1キューブ（カスタムジオメトリ不要）
         "minecraft:unit_cube": {},
         "minecraft:material_instances": {
-          "*": { texture: `cubicengine_${block.name}`, render_method: "opaque" },
+          "*": { texture: `cubicengine_${bn}`, render_method: "opaque" },
         },
       };
       // 本格モード(registered)のブロックは設定を反映
@@ -297,13 +298,13 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
         }
       }
       bp.file(
-        `blocks/${block.name}.json`,
+        `blocks/${bn}.json`,
         JSON.stringify(
           {
             format_version: "1.20.10",
             "minecraft:block": {
               description: {
-                identifier: `cubicengine:${block.name}`,
+                identifier: `cubicengine:${bn}`,
                 menu_category: { category: "construction" },
               },
               components,
@@ -342,8 +343,9 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
     const textureData: Record<string, { textures: string }> = {};
     const blocksJson: Record<string, { textures: string; sound: string }> = {};
     for (const block of state.blocks) {
-      textureData[`cubicengine_${block.name}`] = { textures: `textures/blocks/${block.name}` };
-      blocksJson[`cubicengine:${block.name}`] = { textures: `cubicengine_${block.name}`, sound: "stone" };
+      const bn = sanitizeBlockName(block.name);
+      textureData[`cubicengine_${bn}`] = { textures: `textures/blocks/${bn}` };
+      blocksJson[`cubicengine:${bn}`] = { textures: `cubicengine_${bn}`, sound: "stone" };
     }
 
     rp.file(
@@ -364,14 +366,19 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
 
     // 表示名(lang): 本格ブロックは displayName を、それ以外はブロック名をゲーム内名に
     const langLines = state.blocks
-      .map((b) => `tile.cubicengine:${b.name}.name=${(b.registered && b.displayName) ? b.displayName : b.name}`)
+      .map((b) => {
+        const bn = sanitizeBlockName(b.name);
+        const disp = ((b.registered && b.displayName) ? b.displayName : b.name).replace(/[\n\r]/g, " "); // 改行除去でlang行注入を防止
+        return `tile.cubicengine:${bn}.name=${disp}`;
+      })
       .join("\n");
     rp.file("texts/en_US.lang", langLines + "\n");
     rp.file("texts/languages.json", JSON.stringify(["en_US"], null, 2));
 
     for (const block of state.blocks) {
+      const bn = sanitizeBlockName(block.name);
       const tex = await createColoredTexture(block.faces.top.color);
-      rp.file(`textures/blocks/${block.name}.png`, tex);
+      rp.file(`textures/blocks/${bn}.png`, tex);
     }
 
     // カスタムジオメトリは不要（unit_cube を使用するため）
@@ -645,22 +652,23 @@ export async function exportJava(state: EditorState, jsCode: string) {
   // Block models, blockstates, item models, textures, lang
   const langEntries: Record<string, string> = {};
   for (const block of state.blocks) {
+    const bn = sanitizeBlockName(block.name); // zip入口パス/識別子の安全化（path traversal防止）＋Javaコード側(sanitizeBlockName)と一致
     resources.file(
-      `assets/${modId}/blockstates/${block.name}.json`,
-      JSON.stringify({ variants: { "": { model: `${modId}:block/${block.name}` } } }, null, 2),
+      `assets/${modId}/blockstates/${bn}.json`,
+      JSON.stringify({ variants: { "": { model: `${modId}:block/${bn}` } } }, null, 2),
     );
     resources.file(
-      `assets/${modId}/models/block/${block.name}.json`,
-      JSON.stringify({ parent: "block/cube_all", textures: { all: `${modId}:block/${block.name}` } }, null, 2),
+      `assets/${modId}/models/block/${bn}.json`,
+      JSON.stringify({ parent: "block/cube_all", textures: { all: `${modId}:block/${bn}` } }, null, 2),
     );
     resources.file(
-      `assets/${modId}/models/item/${block.name}.json`,
-      JSON.stringify({ parent: `${modId}:block/${block.name}` }, null, 2),
+      `assets/${modId}/models/item/${bn}.json`,
+      JSON.stringify({ parent: `${modId}:block/${bn}` }, null, 2),
     );
     const tex = await createColoredTexture(block.faces.top.color);
-    resources.file(`assets/${modId}/textures/block/${block.name}.png`, tex);
+    resources.file(`assets/${modId}/textures/block/${bn}.png`, tex);
 
-    langEntries[`block.${modId}.${block.name}`] = block.name
+    langEntries[`block.${modId}.${bn}`] = bn
       .replace(/_/g, " ")
       .replace(/\b\w/g, (c) => c.toUpperCase());
   }
