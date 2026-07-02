@@ -130,7 +130,7 @@ button, a, input, select, textarea {
 
 @keyframes float-slow {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-12px); }
+  50% { transform: translateY(-6px); }
 }
 
 @keyframes fade-in-up {

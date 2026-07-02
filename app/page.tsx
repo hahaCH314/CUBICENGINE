@@ -125,7 +125,7 @@ export default function HomePage() {
       {/* Hero（1画面に収まる中央配置） */}
       <section className="flex-1 min-h-0 flex flex-col items-center justify-center px-6 pb-16 text-center overflow-hidden">
         <h1
-          className="text-5xl sm:text-7xl md:text-8xl font-pixel tracking-wider mb-3 animate-float-slow"
+          className="text-5xl sm:text-6xl md:text-7xl font-pixel tracking-wider mb-2 animate-float-slow"
           style={{
             color: "#fbbf24",
             textShadow: "6px 6px 0px #1e1208, 12px 12px 0px rgba(0,0,0,0.25)",
@@ -137,11 +137,11 @@ export default function HomePage() {
         </h1>
 
         <p
-          className="text-xl sm:text-3xl font-bold text-foreground mb-2 tracking-wider font-pixel"
+          className="text-lg sm:text-2xl md:text-3xl font-bold text-foreground mb-2 tracking-wider font-pixel"
           style={{ textShadow: "3px 3px 0px #1e1208", lineHeight: 1.5 }}
         >
           {t(locale, "hero.sub")}
-          <br />
+          <span className="mx-2 sm:mx-3 opacity-40">·</span>
           {t(locale, "hero.tagline")}
         </p>
 
