@@ -294,9 +294,9 @@ export default function SettingsPanel() {
     document.documentElement.setAttribute("data-theme", t);
   };
 
-  // かんたん / プロ モード（localStorage 記憶）。
-  // プロモードは廃止＝常に「かんたん」（SPROUT=やさしく / 統合版Bedrock専用）。
-  const pro = false;
+  // かんたん/プロ は手動トグル廃止→プラットフォームで自動決定：
+  // SPROUT(統合版/Bedrock)=かんたん / GROVE(Java版)=プロ。
+  const pro = targetPlatform === "java";
 
   const slug = projectName.replace(/\s+/g, "_").toLowerCase().replace(/[^a-z0-9_]/g, "") || "my_addon";
 

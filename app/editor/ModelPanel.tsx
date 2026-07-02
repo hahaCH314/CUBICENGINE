@@ -1456,7 +1456,10 @@ export default function ModelPanel() {
   const [paintMode, setPaintMode] = useState(false);
   const [mode, setMode] = useState<"blocks" | "items">("blocks");
   const [showHelp, setShowHelp] = useState(false);
-  const [simple, setSimple] = useState(true); // かんたん(true) / プロ(false)
+  // かんたん/プロ は手動トグル廃止→プラットフォームで自動決定：
+  // SPROUT(統合版/Bedrock)=かんたん / GROVE(Java版)=プロ。
+  const targetPlatform = useEditorStore((s) => s.targetPlatform);
+  const simple = targetPlatform !== "java";
 
   const blocks        = useEditorStore((s) => s.blocks);
   const items         = useEditorStore((s) => s.items);
@@ -1467,18 +1470,7 @@ export default function ModelPanel() {
 
   const workingBlocks = mode === "items" ? items : blocks;
 
-  useEffect(() => {
-    const s = localStorage.getItem("mmc-model-mode");
-    if (s === "simple" || s === "pro") setSimple(s === "simple");
-  }, []);
   const [activeTool, setActiveTool] = useState<"select" | "add" | "paint" | "delete">("select");
-
-  const switchSimple = (v: boolean) => {
-    setSimple(v);
-    localStorage.setItem("mmc-model-mode", v ? "simple" : "pro");
-    setActiveTool("select");
-    setPaintMode(false);
-  };
 
   const handleAddNewFirst = useCallback(() => {
     const id = mode === "items" ? `item-${Date.now()}` : `block-${Date.now()}`;
@@ -1562,15 +1554,7 @@ export default function ModelPanel() {
           ✨ アイテム
         </button>
 
-        {/* かんたん / プロ 切替 - 立体スライドスイッチ風 */}
-        <div className="ml-auto mb-1.5 inline-flex items-center bg-[#151411] border-2 border-[#1f1e1a] mc-bevel-inset p-0.5 text-xs font-bold" style={{ borderRadius: "6px" }}>
-          <button onClick={() => switchSimple(true)}
-            className={`px-3 py-1 font-pixel text-[11px] rounded transition-all cursor-pointer ${simple ? "bg-[#10b981] text-white shadow-[0_2px_0_#064e3b,inset_0_1px_0_rgba(255,255,255,0.3)]" : "text-muted hover:text-foreground/70"}`}
-            style={{ textShadow: simple ? "1px 1px 0px #064e3b" : "none" }}>🟢 かんたん</button>
-          <button onClick={() => switchSimple(false)}
-            className={`px-3 py-1 font-pixel text-[11px] rounded transition-all cursor-pointer ${!simple ? "bg-gradient-to-r from-cyan-500 to-violet-500 text-white shadow-[0_2px_0_#3b0764,inset_0_1px_0_rgba(255,255,255,0.3)]" : "text-muted hover:text-foreground/70"}`}
-            style={{ textShadow: !simple ? "1px 1px 0px #3b0764" : "none" }}>⚡ プロ</button>
-        </div>
+        {/* かんたん/プロ 切替は廃止：モード(SPROUT=かんたん / GROVE=プロ)で自動決定 */}
       </div>
 
       <div className="flex h-full flex-1">
