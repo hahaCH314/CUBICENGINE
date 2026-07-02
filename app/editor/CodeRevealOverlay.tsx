@@ -12,6 +12,18 @@ export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop" }: C
   const [finished, setFinished] = useState(false);
   const preRef = useRef<HTMLPreElement>(null);
 
+  // ✍️「自分で書いてみる」写経モード（お手本を見ながら打つ練習。書き出しは常に正しい生成コードを使うので壊れない）
+  const [mode, setMode] = useState<"reveal" | "practice">("reveal");
+  const [typed, setTyped] = useState("");
+  const norm = (s: string) => s.trim(); // インデントは大目に見る（子ども向け）
+  const typedLines = typed.split("\n");
+  const matched = lines.map((ml, i) => norm(typedLines[i] ?? "") === norm(ml));
+  const totalCount = lines.filter((ml) => norm(ml) !== "").length;
+  const doneCount = lines.filter((ml, i) => norm(ml) !== "" && matched[i]).length;
+  const pct = totalCount === 0 ? 100 : Math.round((doneCount / totalCount) * 100);
+  const allDone = totalCount > 0 && doneCount === totalCount;
+  const nextLineIdx = lines.findIndex((ml, i) => norm(ml) !== "" && !matched[i]);
+
   // テーマ別配色
   const isWorkshop = theme === "workshop";
   const accentColor = isWorkshop ? "#ffab4d" : "#00ff66";
@@ -151,48 +163,176 @@ export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop" }: C
         textTransform: "uppercase",
         textAlign: "center",
       }}>
-        ✨ {isWorkshop ? "あなたが書いたコードが生まれた" : "電脳に放つコードの具現化"}
+        {mode === "practice"
+          ? "✍️ おてほんを見ながら書いてみよう（まちがえてもOK）"
+          : `✨ ${isWorkshop ? "あなたが書いたコードが生まれた" : "電脳に放つコードの具現化"}`}
       </div>
 
-      {/* 2. ソースコードプレビュー（タイピング風スクロール） */}
-      <pre
-        ref={preRef}
-        style={{
-          fontFamily: "'DotGothic16', monospace",
-          fontSize: 12.5,
-          lineHeight: 1.75,
-          color: textColor,
-          background: "rgba(0, 0, 0, 0.75)",
-          border: `1.8px solid ${codeBorder}`,
-          borderRadius: 14,
-          padding: "20px 24px",
-          maxWidth: 750,
-          width: "100%",
-          overflowY: "auto",
-          maxHeight: "56%",
-          margin: 0,
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-all",
-          boxShadow: `0 0 35px ${bgAccent}, inset 0 2px 8px rgba(0,0,0,0.8)`,
-          zIndex: 10,
-          position: "relative",
-          scrollbarWidth: "thin",
-          scrollbarColor: `${accentColor}22 rgba(0,0,0,0.3)`
-        }}
-      >
-        {lines.slice(0, revShown).join("\n")}
-        {revShown < lines.length && (
-          <span style={{
-            marginLeft: 2,
-            color: accentColor,
-            fontWeight: "bold",
-            animation: "typing-cursor 0.7s infinite"
-          }}>▋</span>
-        )}
-      </pre>
+      {/* 2. コード表示（reveal=タイピング演出 / practice=お手本を見て自分で書く） */}
+      {mode === "reveal" && (
+        <pre
+          ref={preRef}
+          style={{
+            fontFamily: "'DotGothic16', monospace",
+            fontSize: 12.5,
+            lineHeight: 1.75,
+            color: textColor,
+            background: "rgba(0, 0, 0, 0.75)",
+            border: `1.8px solid ${codeBorder}`,
+            borderRadius: 14,
+            padding: "20px 24px",
+            maxWidth: 750,
+            width: "100%",
+            overflowY: "auto",
+            maxHeight: "56%",
+            margin: 0,
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-all",
+            boxShadow: `0 0 35px ${bgAccent}, inset 0 2px 8px rgba(0,0,0,0.8)`,
+            zIndex: 10,
+            position: "relative",
+            scrollbarWidth: "thin",
+            scrollbarColor: `${accentColor}22 rgba(0,0,0,0.3)`
+          }}
+        >
+          {lines.slice(0, revShown).join("\n")}
+          {revShown < lines.length && (
+            <span style={{
+              marginLeft: 2,
+              color: accentColor,
+              fontWeight: "bold",
+              animation: "typing-cursor 0.7s infinite"
+            }}>▋</span>
+          )}
+        </pre>
+      )}
 
-      {/* 3. 完了時のお祝いPayoffとボタン */}
-      {finished && (
+      {/* 写経モード：お手本を見ながら自分で打つ（打った文字は出力に使わない＝一致しても出るのは正しい生成コード） */}
+      {mode === "practice" && (
+        <div style={{ width: "100%", maxWidth: 880, zIndex: 10, display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "flex", gap: 12, alignItems: "stretch", flexWrap: "wrap" }}>
+            {/* お手本（打てた行が✓＆光る／次に打つ行に▶） */}
+            <div style={{ flex: "1 1 360px", minWidth: 0, display: "flex", flexDirection: "column" }}>
+              <div style={{ fontSize: 11, color: accentColor, marginBottom: 4, fontWeight: 700, letterSpacing: "0.05em" }}>👀 おてほん</div>
+              <div style={{
+                fontFamily: "'DotGothic16', monospace",
+                fontSize: 12,
+                lineHeight: 1.7,
+                background: "rgba(0,0,0,0.75)",
+                border: `1.8px solid ${codeBorder}`,
+                borderRadius: 14,
+                padding: "12px 10px",
+                height: 300,
+                overflowY: "auto",
+                whiteSpace: "pre",
+                boxShadow: "inset 0 2px 8px rgba(0,0,0,0.8)",
+                scrollbarWidth: "thin",
+              }}>
+                {lines.map((ml, i) => {
+                  const isNext = i === nextLineIdx;
+                  const done = matched[i];
+                  const empty = norm(ml) === "";
+                  return (
+                    <div key={i} style={{
+                      color: done ? accentColor : (isNext ? "#ffffff" : textColor),
+                      opacity: empty ? 0.3 : (done ? 1 : (isNext ? 1 : 0.6)),
+                      background: isNext ? bgAccent : "transparent",
+                      borderRadius: 4,
+                      padding: "0 4px",
+                    }}>
+                      <span style={{ display: "inline-block", width: 14, opacity: 0.75 }}>{empty ? "" : (done ? "✓" : (isNext ? "▶" : "・"))}</span>
+                      {ml || " "}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            {/* 入力欄 */}
+            <div style={{ flex: "1 1 360px", minWidth: 0, display: "flex", flexDirection: "column" }}>
+              <div style={{ fontSize: 11, color: accentColor, marginBottom: 4, fontWeight: 700, letterSpacing: "0.05em" }}>✍️ ここに打ってみよう</div>
+              <textarea
+                value={typed}
+                onChange={(e) => setTyped(e.target.value)}
+                spellCheck={false}
+                autoFocus
+                placeholder="おてほんを見ながら、同じコードを打ってみよう。まちがえても大丈夫！"
+                style={{
+                  height: 300,
+                  resize: "none",
+                  fontFamily: "'DotGothic16', monospace",
+                  fontSize: 12,
+                  lineHeight: 1.7,
+                  color: "#ffffff",
+                  background: "rgba(0,0,0,0.88)",
+                  border: `1.8px solid ${allDone ? accentColor : codeBorder}`,
+                  borderRadius: 14,
+                  padding: "12px 14px",
+                  outline: "none",
+                  userSelect: "text",
+                  whiteSpace: "pre",
+                  overflow: "auto",
+                  boxShadow: allDone ? `0 0 20px ${bgAccent}` : "inset 0 2px 8px rgba(0,0,0,0.8)",
+                }}
+              />
+            </div>
+          </div>
+
+          {/* 進捗バー */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ flex: 1, height: 10, background: "rgba(255,255,255,0.1)", borderRadius: 99, overflow: "hidden" }}>
+              <div style={{ width: `${pct}%`, height: "100%", background: buttonBg, transition: "width 0.3s ease", boxShadow: `0 0 8px ${accentColor}` }} />
+            </div>
+            <span style={{ fontSize: 12, fontWeight: 900, color: allDone ? accentColor : textColor, minWidth: 96, textAlign: "right" }}>
+              {allDone ? "🎉 かんぺき！" : `${pct}% 書けた`}
+            </span>
+          </div>
+
+          {/* ボタン（もどる／全部一致で放てる。出るのはカードで作った正しいコード） */}
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 2 }}>
+            <button
+              type="button"
+              onClick={() => setMode("reveal")}
+              style={{
+                border: `1.5px solid ${codeBorder}`,
+                cursor: "pointer",
+                background: "transparent",
+                color: textColor,
+                fontWeight: 800,
+                fontSize: 12.5,
+                padding: "9px 20px",
+                borderRadius: 12,
+                letterSpacing: "0.1em",
+              }}
+            >
+              ← もどる
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={!allDone}
+              style={{
+                border: "none",
+                cursor: allDone ? "pointer" : "default",
+                background: buttonBg,
+                color: buttonText,
+                fontWeight: 900,
+                fontSize: 13.5,
+                padding: "9px 26px",
+                borderRadius: 12,
+                opacity: allDone ? 1 : 0.45,
+                boxShadow: allDone ? `0 5px 20px ${buttonGlow}, inset 0 1px 0 rgba(255,255,255,0.4)` : "none",
+                letterSpacing: "0.12em",
+                transition: "opacity 0.2s",
+              }}
+            >
+              {allDone ? "🚀 マイクラへ放つ" : "ぜんぶ書けたら放てる"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 3. reveal完了時のお祝いPayoffとボタン */}
+      {mode === "reveal" && finished && (
         <div style={{
           marginTop: 22,
           display: "flex",
@@ -214,38 +354,61 @@ export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop" }: C
             🟢 マイクラで動く — これ、<span style={{ color: isWorkshop ? "#ffe9c4" : "#adffd0", textDecoration: "underline", textUnderlineOffset: "4px" }}>あなたが創った</span>。
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            style={{
-              border: "none",
-              cursor: "pointer",
-              background: buttonBg,
-              color: buttonText,
-              fontWeight: 900,
-              fontSize: 13.5,
-              padding: "10px 28px",
-              borderRadius: 12,
-              boxShadow: `0 5px 20px ${buttonGlow}, inset 0 1px 0 rgba(255,255,255,0.4)`,
-              transition: "transform 0.15s, box-shadow 0.15s",
-              letterSpacing: "0.15em",
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.transform = "scale(1.05) translateY(-2px)";
-              e.currentTarget.style.boxShadow = `0 8px 24px ${buttonGlow}, inset 0 1px 0 rgba(255,255,255,0.5)`;
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = "none";
-              e.currentTarget.style.boxShadow = `0 5px 20px ${buttonGlow}, inset 0 1px 0 rgba(255,255,255,0.4)`;
-            }}
-          >
-            マイクラへ放つ
-          </button>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
+            {/* 軽いノリの誘い：カードで作ってもOK・もう一歩やりたい子だけ */}
+            <button
+              type="button"
+              onClick={() => { setTyped(""); setMode("practice"); }}
+              style={{
+                border: `1.5px solid ${accentColor}`,
+                cursor: "pointer",
+                background: bgAccent,
+                color: isWorkshop ? "#ffe9c4" : "#adffd0",
+                fontWeight: 900,
+                fontSize: 13,
+                padding: "10px 22px",
+                borderRadius: 12,
+                letterSpacing: "0.08em",
+                transition: "transform 0.15s",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.05) translateY(-2px)"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = "none"; }}
+            >
+              ✍️ コード書く練習してみる？
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                border: "none",
+                cursor: "pointer",
+                background: buttonBg,
+                color: buttonText,
+                fontWeight: 900,
+                fontSize: 13.5,
+                padding: "10px 28px",
+                borderRadius: 12,
+                boxShadow: `0 5px 20px ${buttonGlow}, inset 0 1px 0 rgba(255,255,255,0.4)`,
+                transition: "transform 0.15s, box-shadow 0.15s",
+                letterSpacing: "0.15em",
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = "scale(1.05) translateY(-2px)";
+                e.currentTarget.style.boxShadow = `0 8px 24px ${buttonGlow}, inset 0 1px 0 rgba(255,255,255,0.5)`;
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = "none";
+                e.currentTarget.style.boxShadow = `0 5px 20px ${buttonGlow}, inset 0 1px 0 rgba(255,255,255,0.4)`;
+              }}
+            >
+              マイクラへ放つ
+            </button>
+          </div>
         </div>
       )}
 
-      {/* 4. スパークル粒子（お祝いパーティクル） */}
-      {finished && (
+      {/* 4. スパークル粒子（お祝いパーティクル：reveal完了 or 写経コンプリート時） */}
+      {((mode === "reveal" && finished) || (mode === "practice" && allDone)) && (
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 5 }}>
           {Array.from({ length: 42 }).map((_, i) => {
             const angle = (i / 42) * 360 + (i * 23) % 45;
