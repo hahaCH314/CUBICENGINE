@@ -146,13 +146,28 @@ export default function HomePage() {
         </p>
 
         <p
-          className="text-sm md:text-base text-muted max-w-2xl mx-auto mb-4 font-sans"
+          className="text-sm md:text-base text-muted max-w-2xl mx-auto mb-3 font-sans"
           style={{ textShadow: "1.5px 1.5px 0px #1e1208", lineHeight: 1.6 }}
         >
           {t(locale, "hero.desc1")}
           <br />
           {t(locale, "hero.desc2")}
         </p>
+
+        {/* 寄付アピール：目立たず・優しいグリーンのお願いボタン（/support へ） */}
+        <Link
+          href="/support"
+          className="inline-flex items-center gap-2 mb-4 px-6 py-2.5 rounded-full text-sm font-bold transition-all hover:scale-[1.03]"
+          style={{
+            color: "#a7f3d0",
+            background: "rgba(16,185,129,0.12)",
+            border: "1.5px solid rgba(16,185,129,0.35)",
+            boxShadow: "0 2px 12px rgba(16,185,129,0.10)",
+          }}
+        >
+          🌱 {locale === "en" ? "Please support development & hosting" : "開発・運営の応援をお願いします"}
+        </Link>
+
         <div className="flex flex-col md:flex-row gap-6 justify-center items-stretch max-w-4xl mx-auto mt-1 px-4 py-2 shrink-0 w-full">
           {/* SPROUT Card */}
           <div
