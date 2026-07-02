@@ -204,7 +204,9 @@ export default function EditorPage() {
 
     const mode = new URLSearchParams(window.location.search).get("mode");
     // GROVE(Java)解禁(2026-07-02)。?mode=grape で web GROVE エディタを開けるようにした。
-    // （以前あった本番での /（トップ）への強制リダイレクト＝二重封印を撤去）
+    // プラットフォームもモード連動：grape=java / それ以外(tsumiki・無指定)=bedrock。
+    // （SettingsPanel側の「常にbedrockへ戻す」旧処理はこれに一本化して撤去）
+    useEditorStore.getState().setTargetPlatform(mode === "grape" ? "java" : "bedrock");
     if (mode === "grape" || mode === "tsumiki") {
       setLogicView(mode);
       setActiveTab("logic");
