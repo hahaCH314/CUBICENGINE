@@ -438,7 +438,7 @@ export default function SettingsPanel() {
               <Row label="UUID自動生成"><Toggle value={autoUuid} onChange={setAutoUuid} /></Row>
               <div className="mt-1.5 pt-1.5 border-t border-border/60 font-mono text-[10px] text-muted/70 space-y-0.5">
                 <div>namespace: <span className="text-cyan-300/80">cubicengine:{slug}</span></div>
-                <div>min_engine: <span className="text-cyan-300/80">{targetPlatform === "bedrock" ? mcVersion : "forge 1.20.x"}</span></div>
+                <div>min_engine: <span className="text-cyan-300/80">forge 1.20.x</span></div>
               </div>
             </div>
           )}
