@@ -191,6 +191,70 @@ function StatusBar() {
   );
 }
 
+/* ─── スマホ来訪者への案内（ブロックせず・閉じられる） ───
+   エディタ(キャンバス＋下部キーボード)は小画面と相性が悪い＝タブレット/PC推奨。
+   ただし作った作品(SPROUT=統合版)はスマホのマイクラで遊べる、という導線を伝える。
+   判定＝画面の短辺 < 600px（タブレットは短辺768px以上なので除外）。閉じたら mmc-phone-hint に記憶。 */
+function PhoneHint() {
+  const locale = useEditorStore((s) => s.locale);
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (localStorage.getItem("mmc-phone-hint") === "dismissed") return;
+    } catch {}
+    const check = () => {
+      const short = Math.min(window.innerWidth, window.innerHeight);
+      setShow(short < 600);
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  if (!show) return null;
+
+  const dismiss = () => {
+    setShow(false);
+    try { localStorage.setItem("mmc-phone-hint", "dismissed"); } catch {}
+  };
+
+  return (
+    <div
+      className="fixed left-1/2 -translate-x-1/2 z-[100] px-3"
+      style={{ top: 90, maxWidth: "min(92vw, 430px)", width: "100%" }}
+    >
+      <div
+        className="rounded-2xl px-4 py-3 flex items-start gap-3"
+        style={{
+          background: "linear-gradient(135deg,#0f766e,#134e4a)",
+          border: "1.5px solid rgba(45,212,191,0.5)",
+          boxShadow: "0 12px 32px rgba(0,0,0,0.45)",
+        }}
+      >
+        <span className="text-xl leading-none mt-0.5 shrink-0">📱</span>
+        <div className="flex-1 min-w-0 text-white">
+          <p className="text-[13px] font-bold leading-snug">
+            {locale === "en" ? "Best made on tablet or PC" : "作るのはタブレット／PCがおすすめ"}
+          </p>
+          <p className="text-[11px] leading-snug mt-0.5" style={{ color: "rgba(255,255,255,0.85)" }}>
+            {locale === "en"
+              ? "The editor needs a bigger screen. But you can still play what you make on your phone's Minecraft!"
+              : "エディタは画面が大きい方が作りやすいよ。作った作品はスマホのマイクラで遊べるよ！"}
+          </p>
+        </div>
+        <button
+          onClick={dismiss}
+          aria-label={locale === "en" ? "close" : "閉じる"}
+          className="shrink-0 text-white/70 hover:text-white text-xl leading-none px-1 -mt-0.5 transition-colors"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Main Editor Page ─── */
 export default function EditorPage() {
   const [activeTab, setActiveTab] = useState<Tab>("logic");
@@ -239,6 +303,9 @@ export default function EditorPage() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden select-none">
+      {/* スマホ来訪者への案内（タブレット/PC推奨・作品はスマホで遊べる。閉じられる） */}
+      <PhoneHint />
+
       {/* ─ Menu Bar ─ */}
       <div className="h-9 bg-panel border-b border-border flex items-center px-2 gap-0.5 shrink-0">
         {/* Logo */}
