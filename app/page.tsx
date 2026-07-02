@@ -24,7 +24,7 @@ const RELEASES_READY = false;
 // GROVE(Java)を一般公開＝解禁(2026-07-02)。カードは「Webで試す」→ /editor?mode=grape
 // （動作するWebエディタ）へ誘導。.exe/.dmg のデスクトップDLは別フラグ RELEASES_READY
 // (=false) で引き続き非表示のため、リンク切れ(404)は出ない。
-const JAVA_READY = true;
+const JAVA_READY = false; // 2026-07-02 一時停止: Java版エクスポート未完成のため準備中に戻す
 
 // DLボタン：リリース公開済みなら実DL、未公開なら「準備中」の非リンク表示
 function DlButton({
