@@ -132,7 +132,7 @@ export default function SupportPage() {
           >
             Discord
           </a>
-          {" "}へ ・ 本ツールは非公式（Mojang Studios・Microsoft とは無関係）・
+          {" "}へ ・ <span className="whitespace-nowrap">本ツールは非公式（Mojang Studios・Microsoft とは無関係）</span>・
           寄付は原則返金不可（
           <Link href="/terms" className="underline underline-offset-2 hover:text-gray-700 transition-colors">
             利用規約
