@@ -17,8 +17,8 @@ function W({ children }: { children: React.ReactNode }) {
 }
 
 // 1行（作者が意図した改行の区切り）。この単位で必ず改行し、長い行は中の W かたまりで折り返す
-function L({ children }: { children: React.ReactNode }) {
-  return <span className="block">{children}</span>;
+function L({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <span className={`block ${className}`}>{children}</span>;
 }
 
 export default function SupportPage() {
@@ -38,55 +38,57 @@ export default function SupportPage() {
           開発・運営を応援してください
         </h1>
 
-        {/* ストーリー（1画面に収まる凝縮版） */}
-        <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 text-center text-sm leading-relaxed text-gray-700 space-y-4">
+        {/* ストーリー（① きっかけ ② コア無料の理由 ③ 運営）。指定の改行・強調を反映 */}
+        <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 text-center text-sm leading-relaxed text-gray-700 space-y-3">
+          {/* ① はじまり */}
           <div>
             <L>
-              <W>はじまりは</W>
-              <W>「マイクラに、</W>
-              <W>無限にダイヤを。」</W>
-              <W>という夢でした。</W>
+              <span className="font-extrabold text-emerald-700 text-base">
+                <W>『マイクラに、</W>
+                <W>無限ダイヤを！』</W>
+              </span>
             </L>
             <L>
+              <W>という夢から</W>
+              <W>はじまりました。</W>
+            </L>
+            <L className="mt-2">
               <W>それを自分で</W>
-              <W>形にしたのが、</W>
-              <W>なっとうサイダー(12歳)が</W>
-              <W>作った CUBICENGINE です。</W>
+              <W>形にしたのが</W>
             </L>
             <L>
-              <W>運営・管理は</W>
-              <W>保護者が行っております。</W>
+              <W>なっとうサイダー(12歳)が</W>
+              <W>作った本サイト</W>
+            </L>
+            <L>
+              <span className="font-bold text-emerald-700">『CUBICENGINE』</span>
             </L>
           </div>
+          {/* ② コア機能は無料 */}
           <div>
             <L>
-              <W>「同じように</W>
-              <W>マイクラが好きな子が、</W>
-              <W>“作る楽しさ”に</W>
-              <W>出会えるように」</W>
-              <W>コア機能はずっと</W>
+              <span className="font-extrabold text-emerald-700 text-[15px]">
+                <W>「同じように</W>
+                <W>マイクラが好きな人が、</W>
+                <W>作る楽しさに</W>
+                <W>出会えるように。」</W>
+              </span>
+            </L>
+            <L className="mt-1.5">
+              <W>本人の希望により</W>
+              <W>コア機能は全て</W>
               <W>無料でご利用いただけます。</W>
             </L>
+          </div>
+          {/* ③ 運営 */}
+          <div>
             <L>
-              <W>ですが、</W>
-              <W>開発やサーバーの費用は</W>
-              <W>本人のお小遣いで</W>
-              <W>やりくりしていますので、</W>
-              <W>面白いと感じていただけたら、</W>
-              <W>この挑戦に</W>
-              <W>力を貸してほしいです。</W>
-            </L>
-            <L>
-              <W>皆様の応援が、</W>
-              <W>励みになります。</W>
+              <W>CUBICENGINE studioは</W>
+              <W>保護者が運営しております。</W>
             </L>
             <L>
               <W>寄付の受け取り・管理は</W>
-              <W>保護者（CUBICENGINE studio）が</W>
-              <W>行います。</W>
-            </L>
-            <L>
-              <W>よろしくお願いします。</W>
+              <W>CUBICENGINE studioが行います。</W>
             </L>
           </div>
         </div>
