@@ -203,14 +203,8 @@ export default function EditorPage() {
     setIsElectron(hasElectronApi);
 
     const mode = new URLSearchParams(window.location.search).get("mode");
-    // GROVE(Java)は本番では準備中。ランディングのボタンを隠すだけだと
-    // /editor?mode=grape のURL直打ちで侵入できてしまうため、ここでも塞ぐ。
-    // dev(NODE_ENV!=="production")では制作のため従来通り開く＝landingのJAVA_READYと一致。
-    // 早期returnするので setLogicView("grape") に到達せず、GROVE画面は一切描画されない。
-    if (mode === "grape" && process.env.NODE_ENV === "production") {
-      window.location.replace("/"); // 近日公開ティザーのあるトップへ戻す
-      return;
-    }
+    // GROVE(Java)解禁(2026-07-02)。?mode=grape で web GROVE エディタを開けるようにした。
+    // （以前あった本番での /（トップ）への強制リダイレクト＝二重封印を撤去）
     if (mode === "grape" || mode === "tsumiki") {
       setLogicView(mode);
       setActiveTab("logic");
