@@ -664,8 +664,11 @@ export default function GrapePanel() {
     playReleaseSound(); // 放出音
 
     // 3. 放出アニメーション中のタイミングで実際のダウンロードを実行
+    //    ※ 648行で掴んだ store は setLogicGraphJson/setTargetPlatform 前の“古いスナップショット”。
+    //      zustand は set で新オブジェクトに差し替えるため、ここで最新 state を取り直して渡す
+    //      （でないと さっき変換した blocks が入っておらず、古い/空のロジックが出力される）。
     try {
-      await exportProject(store, "");
+      await exportProject(useEditorStore.getState(), "");
     } catch (err) {
       console.error("Failed to export project:", err);
     }
