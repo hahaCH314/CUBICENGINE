@@ -6,6 +6,7 @@ import { grapeToCBlock } from "../../lib/grapeToCBlock";
 import { exportProject } from "./exporter";
 import { useEditorStore } from "./store";
 import { buildGroveStructure, type GroveSlot } from "../../lib/groveTree";
+import { CodeRevealOverlay } from "./CodeRevealOverlay";
 
 /* ──────────────────────────────────────────────────────────────
    GrapePanel — 🌿 GROVE（JAVA / 自然×メタバース）/ 構造は「ハブ」
@@ -271,7 +272,6 @@ export default function GrapePanel() {
   const [spawn, setSpawn] = useState<Spawn | null>(null);
   const [draft, setDraft] = useState("");
   const [reveal, setReveal] = useState<string[] | null>(null); // コード誕生の演出
-  const [shown, setShown] = useState(0);                       // 何行まで生まれたか
   const [launchPhase, setLaunchPhase] = useState<null | "gather" | "coalesce" | "launch">(null);
 
   interface ActiveConstellation {
@@ -673,9 +673,8 @@ export default function GrapePanel() {
       console.error("Failed to export project:", err);
     }
 
-    // 4. 放出アニメーション完了 (800ms) の後、コード表示演出へ移行
+    // 4. 放出アニメーション完了 (800ms) の後、コード表示＋写経オーバーレイへ移行
     await new Promise((r) => setTimeout(r, 800));
-    setShown(0);
     setReveal(fruitsToCode(h, sp));
     setLaunchPhase(null);
     setSending(false);
@@ -1153,25 +1152,14 @@ export default function GrapePanel() {
           </button>
         )}
 
-        {/* さりげない演出：光るコードが流れて、そのまま空へ昇って消える */}
+        {/* コード誕生＋写経（大人トーン）。GROVE=JAVA/プロ向けなので tone="adult" */}
         {reveal && (
-          <div style={{
-            position: "absolute", inset: 0, zIndex: 30, pointerEvents: "none",
-            background: "rgba(6,14,10,0.5)",
-            display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
-            animation: "reveal-fade 0.6s ease-out",
-          }}>
-            <div style={{
-              fontFamily: "monospace", fontSize: 13.5, lineHeight: 1.85, color: "#c2f7e0",
-              textShadow: "0 0 12px rgba(95,224,184,0.6)",
-              animation: shown >= reveal.length ? "code-ascend 1.6s ease-in forwards" : undefined,
-            }}>
-              {reveal.slice(0, shown).map((ln, i) => (
-                <div key={i} style={{ whiteSpace: "pre", opacity: ln.trim().startsWith("//") ? 0.6 : 1, animation: "code-line-in 0.3s ease-out" }}>{ln || " "}</div>
-              ))}
-              {shown < reveal.length && <span style={{ color: "#5fe0b8" }}>▋</span>}
-            </div>
-          </div>
+          <CodeRevealOverlay
+            revealCode={reveal.join("\n")}
+            onClose={() => setReveal(null)}
+            theme="cyber"
+            tone="adult"
+          />
         )}
 
         {/* 種まきラジアル / インライン入力（カーソルの場所に出る） */}

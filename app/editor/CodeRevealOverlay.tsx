@@ -4,9 +4,12 @@ interface CodeRevealOverlayProps {
   revealCode: string;
   onClose: () => void;
   theme?: "workshop" | "cyber";
+  // 文言のトーン: kid=SPROUT(やさしい) / adult=GROVE(大人・プロ向け)
+  tone?: "kid" | "adult";
 }
 
-export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop" }: CodeRevealOverlayProps) {
+export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop", tone = "kid" }: CodeRevealOverlayProps) {
+  const adult = tone === "adult";
   const lines = revealCode.split("\n");
   const [revShown, setRevShown] = useState(0);
   const [finished, setFinished] = useState(false);
@@ -33,7 +36,29 @@ export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop" }: C
   const buttonBg = isWorkshop ? "linear-gradient(135deg, #f0b25a, #b8742a)" : "linear-gradient(135deg, #5fe0b8, #1b8a5a)";
   const buttonText = isWorkshop ? "#3a2405" : "#022c19";
   const buttonGlow = isWorkshop ? "rgba(240, 178, 90, 0.4)" : "rgba(95, 224, 184, 0.4)";
-  
+
+  // トーン別の文言（kid=SPROUT やさしい / adult=GROVE 大人・プロ向け）
+  const T = {
+    revealTitle: adult
+      ? "⟨ SOURCE GENERATED ⟩　あなたのコード"
+      : `✨ ${isWorkshop ? "あなたが書いたコードが生まれた" : "電脳に放つコードの具現化"}`,
+    practiceTitle: adult
+      ? "✍️ お手本を見ながら書き写す"
+      : "✍️ おてほんを見ながら書いてみよう（まちがえてもOK）",
+    modelLabel: adult ? "お手本（生成コード）" : "👀 おてほん",
+    inputLabel: adult ? "ここに書き写す" : "✍️ ここに打ってみよう",
+    placeholder: adult
+      ? "お手本を見ながら、同じコードを書き写してください。"
+      : "おてほんを見ながら、同じコードを打ってみよう。まちがえても大丈夫！",
+    progressDone: adult ? "✓ 完全一致" : "🎉 かんぺき！",
+    progressUnit: adult ? "% 一致" : "% 書けた",
+    practiceRelease: adult ? "✓ 完了して閉じる" : "🚀 マイクラへ放つ",
+    practiceLocked: adult ? "全行一致で完了" : "ぜんぶ書けたら放てる",
+    back: adult ? "← 戻る" : "← もどる",
+    inviteBtn: adult ? "✍️ 自分で書いて確かめる" : "✍️ コード書く練習してみる？",
+    releaseBtn: adult ? "とじる" : "マイクラへ放つ",
+  };
+
   // タイピング進行処理
   useEffect(() => {
     let i = 0;
@@ -163,9 +188,7 @@ export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop" }: C
         textTransform: "uppercase",
         textAlign: "center",
       }}>
-        {mode === "practice"
-          ? "✍️ おてほんを見ながら書いてみよう（まちがえてもOK）"
-          : `✨ ${isWorkshop ? "あなたが書いたコードが生まれた" : "電脳に放つコードの具現化"}`}
+        {mode === "practice" ? T.practiceTitle : T.revealTitle}
       </div>
 
       {/* 2. コード表示（reveal=タイピング演出 / practice=お手本を見て自分で書く） */}
@@ -213,7 +236,7 @@ export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop" }: C
           <div style={{ display: "flex", gap: 12, alignItems: "stretch", flexWrap: "wrap" }}>
             {/* お手本（打てた行が✓＆光る／次に打つ行に▶） */}
             <div style={{ flex: "1 1 360px", minWidth: 0, display: "flex", flexDirection: "column" }}>
-              <div style={{ fontSize: 11, color: accentColor, marginBottom: 4, fontWeight: 700, letterSpacing: "0.05em" }}>👀 おてほん</div>
+              <div style={{ fontSize: 11, color: accentColor, marginBottom: 4, fontWeight: 700, letterSpacing: "0.05em" }}>{T.modelLabel}</div>
               <div style={{
                 fontFamily: "'DotGothic16', monospace",
                 fontSize: 12,
@@ -249,13 +272,13 @@ export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop" }: C
             </div>
             {/* 入力欄 */}
             <div style={{ flex: "1 1 360px", minWidth: 0, display: "flex", flexDirection: "column" }}>
-              <div style={{ fontSize: 11, color: accentColor, marginBottom: 4, fontWeight: 700, letterSpacing: "0.05em" }}>✍️ ここに打ってみよう</div>
+              <div style={{ fontSize: 11, color: accentColor, marginBottom: 4, fontWeight: 700, letterSpacing: "0.05em" }}>{T.inputLabel}</div>
               <textarea
                 value={typed}
                 onChange={(e) => setTyped(e.target.value)}
                 spellCheck={false}
                 autoFocus
-                placeholder="おてほんを見ながら、同じコードを打ってみよう。まちがえても大丈夫！"
+                placeholder={T.placeholder}
                 style={{
                   height: 300,
                   resize: "none",
@@ -283,7 +306,7 @@ export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop" }: C
               <div style={{ width: `${pct}%`, height: "100%", background: buttonBg, transition: "width 0.3s ease", boxShadow: `0 0 8px ${accentColor}` }} />
             </div>
             <span style={{ fontSize: 12, fontWeight: 900, color: allDone ? accentColor : textColor, minWidth: 96, textAlign: "right" }}>
-              {allDone ? "🎉 かんぺき！" : `${pct}% 書けた`}
+              {allDone ? T.progressDone : `${pct}${T.progressUnit}`}
             </span>
           </div>
 
@@ -304,7 +327,7 @@ export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop" }: C
                 letterSpacing: "0.1em",
               }}
             >
-              ← もどる
+              {T.back}
             </button>
             <button
               type="button"
@@ -325,7 +348,7 @@ export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop" }: C
                 transition: "opacity 0.2s",
               }}
             >
-              {allDone ? "🚀 マイクラへ放つ" : "ぜんぶ書けたら放てる"}
+              {allDone ? T.practiceRelease : T.practiceLocked}
             </button>
           </div>
         </div>
@@ -351,7 +374,11 @@ export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop" }: C
             textShadow: `0 0 12px ${accentColor}, 0 0 24px ${accentColor}`,
             letterSpacing: "0.05em",
           }}>
-            🟢 マイクラで動く — これ、<span style={{ color: isWorkshop ? "#ffe9c4" : "#adffd0", textDecoration: "underline", textUnderlineOffset: "4px" }}>あなたが創った</span>。
+            {adult ? (
+              <>🟢 これがあなたのコード。<span style={{ color: isWorkshop ? "#ffe9c4" : "#adffd0", textDecoration: "underline", textUnderlineOffset: "4px" }}>Minecraftで動きます</span>。</>
+            ) : (
+              <>🟢 マイクラで動く — これ、<span style={{ color: isWorkshop ? "#ffe9c4" : "#adffd0", textDecoration: "underline", textUnderlineOffset: "4px" }}>あなたが創った</span>。</>
+            )}
           </div>
 
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
@@ -374,7 +401,7 @@ export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop" }: C
               onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.05) translateY(-2px)"; }}
               onMouseLeave={e => { e.currentTarget.style.transform = "none"; }}
             >
-              ✍️ コード書く練習してみる？
+              {T.inviteBtn}
             </button>
             <button
               type="button"
@@ -401,7 +428,7 @@ export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop" }: C
                 e.currentTarget.style.boxShadow = `0 5px 20px ${buttonGlow}, inset 0 1px 0 rgba(255,255,255,0.4)`;
               }}
             >
-              マイクラへ放つ
+              {T.releaseBtn}
             </button>
           </div>
         </div>
