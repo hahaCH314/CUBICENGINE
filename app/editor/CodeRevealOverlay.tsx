@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 interface CodeRevealOverlayProps {
   revealCode: string;
   onClose: () => void;
-  theme?: "workshop" | "cyber";
+  theme?: "workshop" | "cyber" | "grove";
   // 文言のトーン: kid=SPROUT(やさしい) / adult=GROVE(大人・プロ向け)
   tone?: "kid" | "adult";
 }
@@ -29,13 +29,14 @@ export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop", ton
 
   // テーマ別配色
   const isWorkshop = theme === "workshop";
-  const accentColor = isWorkshop ? "#ffab4d" : "#00ff66";
-  const bgAccent = isWorkshop ? "rgba(255, 171, 77, 0.12)" : "rgba(0, 255, 102, 0.12)";
-  const textColor = isWorkshop ? "#ffe2b0" : "#d0ffd6";
-  const codeBorder = isWorkshop ? "rgba(255, 171, 77, 0.25)" : "rgba(0, 255, 102, 0.25)";
-  const buttonBg = isWorkshop ? "linear-gradient(135deg, #f0b25a, #b8742a)" : "linear-gradient(135deg, #5fe0b8, #1b8a5a)";
-  const buttonText = isWorkshop ? "#3a2405" : "#022c19";
-  const buttonGlow = isWorkshop ? "rgba(240, 178, 90, 0.4)" : "rgba(95, 224, 184, 0.4)";
+  const isGrove = theme === "grove"; // GROVE=JAVA のシアン配色
+  const accentColor = isWorkshop ? "#ffab4d" : isGrove ? "#22d3ee" : "#00ff66";
+  const bgAccent = isWorkshop ? "rgba(255, 171, 77, 0.12)" : isGrove ? "rgba(34, 211, 238, 0.12)" : "rgba(0, 255, 102, 0.12)";
+  const textColor = isWorkshop ? "#ffe2b0" : isGrove ? "#c2eeff" : "#d0ffd6";
+  const codeBorder = isWorkshop ? "rgba(255, 171, 77, 0.25)" : isGrove ? "rgba(34, 211, 238, 0.3)" : "rgba(0, 255, 102, 0.25)";
+  const buttonBg = isWorkshop ? "linear-gradient(135deg, #f0b25a, #b8742a)" : isGrove ? "linear-gradient(135deg, #38d6f0, #0891b2)" : "linear-gradient(135deg, #5fe0b8, #1b8a5a)";
+  const buttonText = isWorkshop ? "#3a2405" : isGrove ? "#022b33" : "#022c19";
+  const buttonGlow = isWorkshop ? "rgba(240, 178, 90, 0.4)" : isGrove ? "rgba(56, 214, 240, 0.4)" : "rgba(95, 224, 184, 0.4)";
 
   // トーン別の文言（kid=SPROUT やさしい / adult=GROVE 大人・プロ向け）
   const T = {
@@ -86,8 +87,10 @@ export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop", ton
       position: "absolute",
       inset: 0,
       zIndex: 500,
-      background: isWorkshop 
+      background: isWorkshop
         ? "radial-gradient(120% 100% at 50% 25%, #1f140d 0%, #080503 100%)"
+        : isGrove
+        ? "radial-gradient(120% 100% at 50% 25%, #06202b 0%, #01080c 100%)"
         : "radial-gradient(120% 100% at 50% 25%, #021a0c 0%, #000402 100%)",
       display: "flex",
       flexDirection: "column",

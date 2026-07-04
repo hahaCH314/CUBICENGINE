@@ -1157,7 +1157,7 @@ export default function GrapePanel() {
           <CodeRevealOverlay
             revealCode={reveal.join("\n")}
             onClose={() => setReveal(null)}
-            theme="cyber"
+            theme="grove"
             tone="adult"
           />
         )}
