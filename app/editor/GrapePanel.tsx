@@ -48,6 +48,21 @@ const ITEMS: ItemDef[] = [
   { type: "number",   label: "数値",           emoji: "💎", cat: "value",   needsText: true,  placeholder: "10" },
 ];
 
+// ブロックごとの候補（ドロップダウン用）。※自由入力もそのまま可（datalist＝候補＋手入力の両対応）
+const ITEM_OPTIONS: Record<string, string[]> = {
+  on_chat: ["ひらけごま", "こんにちは", "スタート", "たすけて"],
+  on_use:  ["diamond", "stick", "compass", "clock", "apple", "bow"],
+  say:     ["こんにちは！", "ようこそ！", "クリア！", "がんばって！", "レベルアップ！"],
+  give:    ["diamond ×1", "diamond ×16", "iron_ingot ×1", "golden_apple ×1", "netherite_ingot ×1", "emerald ×16", "diamond_sword ×1", "diamond_pickaxe ×1", "bread ×3", "oak_log ×16", "tnt ×1", "ender_pearl ×1"],
+  tp:      ["0 64 0", "0 100 0", "100 64 100", "0 -60 0"],
+  title:   ["クリア！", "スタート！", "ゲームオーバー", "ようこそ！", "ステージ1"],
+  sound:   ["random.levelup", "random.orb", "random.pop", "mob.villager.yes", "random.explode", "note.pling"],
+  command: ["time set day", "time set night", "weather clear", "weather rain", "gamemode creative @s", "difficulty peaceful", "give @s diamond 1"],
+  if:      ["夜のとき", "雨のとき", "スニーク中"],
+  repeat:  ["3 回", "5 回", "10 回", "100 回"],
+  number:  ["1", "5", "10", "16", "64", "100"],
+};
+
 // 漂う発光の粒（両脇に多め＝遊び場の息づかい）
 const MOTES: { x: string; y: string; s: number; c: string; d: number; delay: number }[] = [
   // 左エリア
@@ -1213,9 +1228,15 @@ export default function GrapePanel() {
                     <ItemGlyph type={spawn.item.type} size={14} />{spawn.item.label}
                   </span>
                   <input ref={inputRef} value={draft} placeholder={spawn.item.placeholder || "中身を書く…"}
+                    list={ITEM_OPTIONS[spawn.item.type] ? `grove-dl-${spawn.item.type}` : undefined}
                     onChange={(e) => setDraft(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") confirmType(); if (e.key === "Escape") setSpawn(null); }}
                     style={{ flex: 1, fontSize: 14, fontWeight: 700, color: "#fff", padding: "7px 10px", borderRadius: 9, border: `2px solid ${CAT_STYLE[spawn.item.cat].glow}`, outline: "none", background: "rgba(0,0,0,0.3)" }} />
+                  {ITEM_OPTIONS[spawn.item.type] && (
+                    <datalist id={`grove-dl-${spawn.item.type}`}>
+                      {ITEM_OPTIONS[spawn.item.type].map((o) => <option key={o} value={o} />)}
+                    </datalist>
+                  )}
                   <button type="button" onClick={confirmType} style={{ border: "none", cursor: "pointer", background: CAT_STYLE[spawn.item.cat].color, color: "#fff", fontWeight: 900, fontSize: 12, padding: "7px 11px", borderRadius: 9 }}>OK</button>
                 </div>
               ) : null}
