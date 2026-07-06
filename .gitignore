@@ -46,3 +46,13 @@ next-env.d.ts
 /dist-exe/
 /scratch/
 /.vscode/
+
+# MMC project archives to prevent AI context pollution
+/plans_archive/
+/docs/HANDOVER_ARCHIVE.md
+
+
+# local dev server logs
+dev_ps.log
+repro_dev.log
+*_dev.log
