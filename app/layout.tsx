@@ -84,20 +84,26 @@ export default function RootLayout({
         <div
           aria-label="credit"
           style={{
-            position: "fixed",
-            left: "50%",
-            bottom: 3,
-            transform: "translateX(-50%)",
+            position: "relative",
+            marginTop: "auto",
+            paddingTop: "40px",
+            paddingBottom: "16px",
+            left: "auto",
+            bottom: "auto",
+            transform: "none",
             zIndex: 99999,
             pointerEvents: "none",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             gap: 2,
+            width: "100%",
             maxWidth: "96vw",
             textAlign: "center",
             fontFamily: "'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', 'Noto Sans JP', system-ui, sans-serif",
             textShadow: "0 1px 2px rgba(0,0,0,0.9)",
+            marginRight: "auto",
+            marginLeft: "auto",
           }}
         >
           {/* 非公式ディスクレーマ（Mojangブランドガイドライン対応・全ページ表示） */}

@@ -11,6 +11,7 @@ const CSP = [
   "img-src 'self' data: blob:",
   "font-src 'self' data:",
   "connect-src 'self'",
+  "frame-src 'self' https://www.youtube.com/ https://www.youtube-nocookie.com/",
   "worker-src 'self' blob:",
   "object-src 'none'",
   "frame-ancestors 'none'",

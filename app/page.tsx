@@ -4,6 +4,30 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { useEditorStore } from "./editor/store";
 import { t } from "../lib/i18n";
+import { Gem, Sparkles } from "lucide-react";
+
+// 子どもでも読みやすいよう、意味のかたまり単位で改行する（かたまりの途中では折り返さない）
+function W({ children }: { children: React.ReactNode }) {
+  return <span className="inline-block whitespace-nowrap">{children}</span>;
+}
+
+// 1行（作者が意図した改行の区切り）。この単位で必ず改行し、長い行は中の W かたまりで折り返す
+function L({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <span className={`block ${className}`}>{children}</span>;
+}
+
+// 英語表示用: i18n文字列の \n を行区切りにしてプレーンにレンダ（JAは手組みのW/L版を使う）
+function EnLines({ text }: { text: string }) {
+  return (
+    <>
+      {text.split("\n").map((line, i) => (
+        <L key={i} className={i ? "mt-1" : ""}>
+          {line}
+        </L>
+      ))}
+    </>
+  );
+}
 
 // ⬇ デスクトップ版のDL先。ビルド&ホスト後にURLを差し替える(BUILD_EXE_PLAN.md)。
 const DOWNLOADS = {
@@ -90,7 +114,7 @@ export default function HomePage() {
   const locale = useEditorStore((s) => s.locale);
   const setLocale = useEditorStore((s) => s.setLocale);
   return (
-    <div className="h-screen overflow-hidden flex flex-col relative">
+    <div className="min-h-screen flex flex-col relative" style={{ background: "radial-gradient(circle at 25% 15%, rgba(132, 204, 22, 0.16) 0%, transparent 45%), radial-gradient(circle at 75% 15%, rgba(14, 165, 233, 0.16) 0%, transparent 45%), radial-gradient(circle at 50% 60%, rgba(245, 158, 11, 0.1) 0%, transparent 55%), #171715" }}>
       {/* Navigation（ログイン/新規登録は撤去・ローカル版） */}
       <nav className="shrink-0 bg-panel border-b-4 border-[#121210] h-14">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
@@ -115,8 +139,8 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* Hero（1画面に収まる中央配置） */}
-      <section className="flex-1 min-h-0 flex flex-col items-center justify-center px-6 pb-16 text-center overflow-hidden">
+      {/* Hero（縦スクロール型：看板→カード→作者の声） */}
+      <section className="flex-1 flex flex-col items-center justify-start px-6 pt-10 pb-16 text-center">
         <h1
           className="text-5xl sm:text-6xl md:text-7xl font-pixel tracking-wider mb-2 animate-float-slow"
           style={{
@@ -130,181 +154,429 @@ export default function HomePage() {
         </h1>
 
         <p
-          className="text-lg sm:text-2xl md:text-3xl font-bold text-foreground mb-2 tracking-wider font-pixel"
-          style={{ textShadow: "3px 3px 0px #1e1208", lineHeight: 1.5 }}
+          className="text-lg sm:text-2xl md:text-3xl font-bold text-foreground mb-1.5 tracking-wider font-sans"
+          style={{ textShadow: "3px 3px 0px #1e1208", lineHeight: 1.4 }}
         >
           {t(locale, "hero.sub")}
-          <span className="mx-2 sm:mx-3 opacity-40">·</span>
-          {t(locale, "hero.tagline")}
         </p>
 
         <p
-          className="text-sm md:text-base text-muted max-w-2xl mx-auto mb-3 font-sans"
-          style={{ textShadow: "1.5px 1.5px 0px #1e1208", lineHeight: 1.6 }}
+          className="text-sm sm:text-base md:text-lg font-medium text-foreground/80 mb-2 tracking-wider font-sans"
+          style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)", lineHeight: 1.4 }}
         >
-          {t(locale, "hero.desc1")}
-          <br />
-          {t(locale, "hero.desc2")}
+          {t(locale, "hero.tagline")}
         </p>
 
-        {/* 寄付アピール：目立たず・優しいグリーンのお願いボタン（/support へ） */}
-        <Link
-          href="/support"
-          className="inline-flex items-center gap-2 mb-4 px-6 py-2.5 rounded-full text-sm font-bold transition-all hover:scale-[1.03]"
-          style={{
-            color: "#a7f3d0",
-            background: "rgba(16,185,129,0.12)",
-            border: "1.5px solid rgba(16,185,129,0.35)",
-            boxShadow: "0 2px 12px rgba(16,185,129,0.10)",
-          }}
-        >
-          🌱 {locale === "en" ? "Please support development & hosting" : "開発・運営の応援をお願いします"}
-        </Link>
-
-        <div className="flex flex-col md:flex-row gap-6 justify-center items-stretch max-w-4xl mx-auto mt-1 px-4 py-2 shrink-0 w-full">
+        <div className="flex flex-col md:flex-row gap-8 justify-center items-stretch max-w-4xl mx-auto mt-4 px-4 py-2 shrink-0 w-full">
           {/* SPROUT Card */}
           <div
             style={{
-              flex: "1 1 300px",
-              maxWidth: "350px",
-              padding: "24px",
-              borderRadius: "20px",
-              background: "rgba(255, 255, 255, 0.03)",
-              border: "2px solid rgba(163, 230, 53, 0.15)",
-              boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
-              backdropFilter: "blur(4px)",
+              flex: "1 1 240px",
+              maxWidth: "320px",
+              padding: "28px 24px",
+              borderRadius: "24px",
+              background: "rgba(255, 255, 255, 0.05)",
+              border: "3px solid #84cc16",
+              boxShadow: "0 12px 40px -10px rgba(0, 0, 0, 0.6), 0 0 25px 0 rgba(132, 204, 22, 0.12)",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: "14px",
-              transition: "transform 0.2s ease, border-color 0.2s ease",
+              justifyContent: "center",
+              gap: "20px",
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
-            className="hover:scale-[1.02] hover:border-[#a3e635]/40"
+            className="hover:scale-[1.03] hover:border-[#a3e635] hover:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8),0_0_35px_0_rgba(132,204,22,0.2)]"
           >
-            <span style={{ fontSize: 44, filter: "drop-shadow(0 0 10px rgba(163,230,53,0.3))" }}>🌱</span>
-            <div>
-              <h2 className="text-xl font-bold font-pixel tracking-wider text-[#a3e635] mb-1">
-                SPROUT
-              </h2>
-              {locale === "ja" && (
-                <p className="text-[11px] font-sans tracking-wide text-[#a3e635]/70 -mt-0.5 mb-1">スプラウト</p>
-              )}
-              <p className="text-[10px] font-pixel text-[#a3e635]/90 mb-2">{t(locale, "sprout.tag")}</p>
-              <p className="text-xs text-muted leading-relaxed text-center font-sans max-w-[280px] mx-auto" style={{ whiteSpace: "pre-line" }}>
-                {t(locale, "sprout.desc")}
-              </p>
-            </div>
+            {/* Tag */}
+            <span className="px-4 py-1.5 rounded-full text-xs font-pixel tracking-wider" style={{ background: "rgba(132, 204, 22, 0.15)", color: "#a3e635", border: "1.5px solid rgba(132, 204, 22, 0.3)", textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>
+              {t(locale, "sprout.tag")}
+            </span>
 
-            <div className="w-full flex flex-col gap-2.5 mt-auto">
+            <div className="w-full flex flex-col items-center gap-3">
               <Link
                 href="/editor?mode=tsumiki"
-                className="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl font-bold text-sm text-white transition-all hover:scale-[1.03]"
+                className="w-20 h-20 inline-flex items-center justify-center rounded-2xl transition-all duration-75 relative hover:-translate-y-1 hover:shadow-[0_8px_0_#14532d,0_12px_24px_rgba(0,0,0,0.4)] active:translate-y-1 active:shadow-[0_2px_0_#14532d,0_4px_8px_rgba(0,0,0,0.25)]"
                 style={{
-                  background: "linear-gradient(135deg, #a3e635, #16a34a)",
-                  boxShadow: "0 6px 18px rgba(22,163,74,0.45)",
+                  background: "linear-gradient(135deg, #22c55e, #16a34a)",
+                  border: "3px solid #14532d",
+                  boxShadow: "0 6px 0 #14532d, 0 8px 16px rgba(0,0,0,0.35)",
+                  transform: "translateY(0)",
                 }}
+                aria-label={t(locale, "cta.tryWeb")}
               >
-                {t(locale, "cta.tryWeb")}
+                <CubeIcon className="w-9 h-9 text-yellow-300" />
               </Link>
-              {RELEASES_READY ? (
-                <>
-                  <DlButton href={DOWNLOADS.sprout.win} kind="win" label={t(locale, "dl.win")} style={{ background: "linear-gradient(135deg, #a3e635, #16a34a)", boxShadow: "0 4px 12px rgba(22,163,74,0.3)" }} />
-                  <DlButton href={DOWNLOADS.sprout.mac} kind="mac" label={t(locale, "dl.mac")} style={{ background: "rgba(255, 255, 255, 0.08)", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }} />
-                </>
-              ) : (
-                <p className="text-[10px] text-muted/55 text-center py-2 leading-snug">{t(locale, "dl.desktopSoon")}</p>
-              )}
+              <span className="text-xs font-bold text-white/95" style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
+                {t(locale, "cta.tryWeb")}
+              </span>
             </div>
           </div>
 
           {/* GROVE Card */}
           <div
             style={{
-              flex: "1 1 300px",
-              maxWidth: "350px",
-              padding: "24px",
-              borderRadius: "20px",
-              background: "rgba(255, 255, 255, 0.03)",
-              border: "2px solid rgba(34, 211, 238, 0.15)",
-              boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
-              backdropFilter: "blur(4px)",
+              flex: "1 1 240px",
+              maxWidth: "320px",
+              padding: "28px 24px",
+              borderRadius: "24px",
+              background: "rgba(255, 255, 255, 0.05)",
+              border: "3px solid #0ea5e9",
+              boxShadow: "0 12px 40px -10px rgba(0, 0, 0, 0.6), 0 0 25px 0 rgba(14, 165, 233, 0.12)",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: "14px",
-              transition: "transform 0.2s ease, border-color 0.2s ease",
+              justifyContent: "center",
+              gap: "20px",
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
-            className="hover:scale-[1.02] hover:border-[#22d3ee]/40"
+            className="hover:scale-[1.03] hover:border-[#38bdf8] hover:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8),0_0_35px_0_rgba(14, 165, 233, 0.2)]"
           >
-            <span style={{ fontSize: 44, filter: "drop-shadow(0 0 10px rgba(34,211,238,0.3))" }}>🌿</span>
-            <div>
-              <h2 className="text-xl font-bold font-pixel tracking-wider text-[#22d3ee] mb-1">
-                GROVE
-              </h2>
-              {locale === "ja" && (
-                <p className="text-[11px] font-sans tracking-wide text-[#22d3ee]/70 -mt-0.5 mb-1">グローブ</p>
-              )}
-              <p className="text-[10px] font-pixel text-[#22d3ee]/90 mb-2">{t(locale, "grove.tag")}</p>
-              <p className="text-xs text-muted leading-relaxed text-center font-sans max-w-[280px] mx-auto">
-                {t(locale, "grove.desc")}
-              </p>
-            </div>
+            {/* Tag */}
+            <span className="px-4 py-1.5 rounded-full text-xs font-pixel tracking-wider" style={{ background: "rgba(14, 165, 233, 0.15)", color: "#38bdf8", border: "1.5px solid rgba(14, 165, 233, 0.3)", textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>
+              {t(locale, "grove.tag")}
+            </span>
 
-            <div className="w-full flex flex-col gap-2.5 mt-auto">
+            <div className="w-full flex flex-col items-center gap-3">
               {JAVA_READY ? (
-                <Link
-                  href="/editor?mode=grape"
-                  className="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl font-bold text-sm text-white transition-all hover:scale-[1.03]"
-                  style={{
-                    background: "linear-gradient(135deg, #22d3ee, #0891b2)",
-                    boxShadow: "0 6px 18px rgba(8,145,178,0.45)",
-                  }}
-                >
-                  {t(locale, "cta.tryWeb")}
-                </Link>
-              ) : (
-                <span
-                  aria-label={t(locale, "grove.soon")}
-                  title={t(locale, "dl.soonTitle")}
-                  className="animate-grove-soon w-full inline-flex flex-col items-center justify-center px-5 py-3 rounded-xl font-bold text-sm cursor-default"
-                  style={{
-                    background: "linear-gradient(135deg, rgba(34,211,238,0.16), rgba(8,145,178,0.12))",
-                    border: "1.5px solid rgba(34,211,238,0.45)",
-                  }}
-                >
-                  <span style={{ color: "#7fe9f7", textShadow: "0 0 10px rgba(34,211,238,0.4)" }}>
-                    {t(locale, "grove.soon")}
-                  </span>
-                  <span className="text-[10px] font-normal mt-0.5" style={{ color: "rgba(127,233,247,0.7)" }}>
-                    {t(locale, "grove.soonSub")}
-                  </span>
-                </span>
-              )}
-              {RELEASES_READY ? (
                 <>
-                  <DlButton href={DOWNLOADS.grove.win} kind="win" label={t(locale, "dl.win")} style={{ background: "linear-gradient(135deg, #22d3ee, #0891b2)", boxShadow: "0 4px 12px rgba(8,145,178,0.3)" }} />
-                  <DlButton href={DOWNLOADS.grove.mac} kind="mac" label={t(locale, "dl.mac")} style={{ background: "rgba(255, 255, 255, 0.08)", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }} />
+                  <Link
+                    href="/editor?mode=grape"
+                    className="w-20 h-20 inline-flex items-center justify-center rounded-2xl transition-all duration-75 relative hover:-translate-y-1 hover:shadow-[0_8px_0_#0369a1,0_12px_24px_rgba(0,0,0,0.4)] active:translate-y-1 active:shadow-[0_2px_0_#0369a1,0_4px_8px_rgba(0,0,0,0.25)]"
+                    style={{
+                      background: "linear-gradient(135deg, #38bdf8, #0ea5e9)",
+                      border: "3px solid #0369a1",
+                      boxShadow: "0 6px 0 #0369a1, 0 8px 16px rgba(0,0,0,0.35)",
+                      transform: "translateY(0)",
+                    }}
+                    aria-label={t(locale, "cta.tryWeb")}
+                  >
+                    <CubeIcon className="w-9 h-9 text-yellow-200" />
+                  </Link>
+                  <span className="text-xs font-bold text-white/95" style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
+                    {t(locale, "cta.tryWeb")}
+                  </span>
                 </>
               ) : (
-                <p className="text-[10px] text-muted/55 text-center py-2 leading-snug">{t(locale, "dl.desktopSoon")}</p>
+                <div className="flex flex-col items-center gap-2">
+                  <span
+                    aria-label={t(locale, "grove.soon")}
+                    title={t(locale, "dl.soonTitle")}
+                    className="animate-grove-soon w-20 h-20 inline-flex items-center justify-center rounded-2xl cursor-default"
+                    style={{
+                      background: "linear-gradient(135deg, rgba(14,165,233,0.15), rgba(3,105,161,0.1))",
+                      border: "3px solid rgba(14,165,233,0.45)",
+                      boxShadow: "inset 0 0 10px rgba(14,165,233,0.2)",
+                    }}
+                  >
+                    <CubeIcon className="w-8 h-8 text-white/20" />
+                  </span>
+                  <div className="flex flex-col items-center">
+                    <span style={{ color: "#7fe9f7", textShadow: "0 0 8px rgba(14,165,233,0.3)" }} className="text-xs font-bold font-pixel">
+                      {t(locale, "grove.soon")}
+                    </span>
+                    <span className="text-[9px] font-normal mt-0.5" style={{ color: "rgba(127,233,247,0.7)" }}>
+                      {t(locale, "grove.soonSub")}
+                    </span>
+                  </div>
+                </div>
               )}
             </div>
           </div>
         </div>
 
-        <a
-          href="https://discord.gg/Hm82tUUY8g"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-3 inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-white transition-all hover:scale-[1.03] shrink-0"
-          style={{ background: "linear-gradient(135deg, #5865F2, #4752c4)", boxShadow: "0 6px 18px rgba(88,101,242,0.45)" }}
-        >
-          <span style={{ fontSize: 16 }}>💬</span>
-          {locale === "en" ? "Join our Discord" : "Discord に参加"}
-        </a>
-        <p className="mt-1 text-[10px] text-muted/40 font-sans shrink-0">
-          {locale === "en" ? "Discord requires users to be 13 or older." : "※ Discord のご利用は13歳以上が対象です"}
-        </p>
+        {/* ★紹介動画セクション */}
+        <div className="w-full max-w-2xl mx-auto mt-12 mb-4 px-4">
+          <div
+            className="relative w-full rounded-3xl overflow-hidden shadow-[0_15px_45px_rgba(0,0,0,0.5)] border-2 border-white/5"
+            style={{ aspectRatio: "16 / 9" }}
+          >
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/qk6wVNlZtoo?rel=0"
+              title="CUBICENGINE 使い方紹介動画"
+              className="absolute inset-0 w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+              style={{ border: 0 }}
+            />
+          </div>
+        </div>
+
+        {/* ★応援と作者紹介の独立カードエリア */}
+        <div className="flex flex-col md:flex-row gap-8 justify-center items-stretch max-w-4xl mx-auto mt-16 mb-12 px-4 w-full">
+          <div
+            style={{
+              flex: "5 1 340px",
+              padding: "36px 32px",
+              borderRadius: "24px",
+              background: "rgba(255, 255, 255, 0.05)",
+              border: "3px solid #10b981",
+              boxShadow: "0 12px 40px -10px rgba(0, 0, 0, 0.6), 0 0 25px 0 rgba(16, 185, 129, 0.12)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "24px",
+              position: "relative",
+              overflow: "hidden",
+            }}
+            className="group hover:border-emerald-400 hover:-translate-y-0.5 transition-all duration-300"
+          >
+            {/* カード背景にうっすら浮かぶダイヤ */}
+            <div className="absolute -right-6 -bottom-6 text-emerald-500/5 pointer-events-none group-hover:scale-110 transition-transform duration-500">
+              <Gem className="w-32 h-32 stroke-[1]" />
+            </div>
+
+            <h3 className="text-sm font-bold text-white flex items-center justify-center gap-1.5 font-pixel tracking-wide relative z-10" style={{ color: "#34d399" }}>
+              <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
+              {t(locale, "support.title")}
+              <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" style={{ animationDelay: "0.5s" }} />
+            </h3>
+
+            <div className="space-y-5 text-[13px] sm:text-[14px] text-foreground/90 leading-relaxed font-sans flex-1 text-center relative z-10">
+              {locale === "ja" ? (
+                <>
+                  {/* 1段目: はじまり */}
+                  <div>
+                    <L>
+                      <span className="font-extrabold text-[#34d399] text-[15px] inline-flex items-center justify-center gap-1">
+                        <Gem className="w-3.5 h-3.5 text-emerald-400 animate-bounce" />
+                        <W>「マイクラに</W>
+                        <W>無限ダイヤを！」</W>
+                      </span>
+                    </L>
+                    <L className="mt-1">
+                      <W>という夢から</W>
+                      <W>始まりました。</W>
+                    </L>
+                    <L className="mt-2">
+                      <W>その夢を形にし</W>
+                      <W>実現させたのが</W>
+                    </L>
+                    <L className="mt-1">
+                      <W>本サイト</W>
+                      <span className="font-bold text-white"> CUBICENGINE </span>
+                      <W>です。</W>
+                    </L>
+                  </div>
+
+                  {/* 2段目: 12歳とコア機能無料 */}
+                  <div className="pt-4 border-t border-dashed border-white/10">
+                    <L className="font-semibold text-white/95 text-[14px]">
+                      <W>なっとうサイダーは</W>
+                      <W>今12歳です。</W>
+                    </L>
+                    <L className="mt-2 text-white/95">
+                      <W>「同じようにマイクラや、</W>
+                      <W>プログラミングが好きな人に、</W>
+                      <W>作る楽しさを共有したい」</W>
+                    </L>
+                    <L className="mt-2 text-white/80">
+                      <W>との思いから</W>
+                      <W>本人の希望により</W>
+                      <W>コア機能は全て</W>
+                      <W>無料でご利用いただけます。</W>
+                    </L>
+                  </div>
+
+                  {/* 3段目: 開発費用とお小遣い */}
+                  <div className="pt-4 border-t border-dashed border-white/10 text-white/80">
+                    <L>
+                      <W>まだまだ未熟な</W>
+                      <W>開発マネージャーですが、</W>
+                    </L>
+                    <L className="mt-1">
+                      <W>お小遣いを全て</W>
+                      <W>開発費用にあててきました。</W>
+                    </L>
+                    <L className="mt-2 text-white/90">
+                      <W>頂いた寄付は今後の運営費、</W>
+                    </L>
+                    <L className="mt-1 text-white/90">
+                      <W>新たな開発費用として大切に使わせていただきます。</W>
+                    </L>
+                    <L className="mt-2.5 text-white font-bold text-[14px]">
+                      <W>よろしくお願いいたします</W>
+                    </L>
+                  </div>
+
+                  {/* 4段目: 運営情報 */}
+                  <div className="pt-4 border-t border-dashed border-white/10 text-xs text-muted/75">
+                    <L>
+                      <W>CUBICENGINE studioは</W>
+                      <W>保護者が運営しております。</W>
+                    </L>
+                    <L>
+                      <W>寄付の受け取り・管理は</W>
+                      <W>CUBICENGINE studioが行います。</W>
+                    </L>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="font-semibold text-[#34d399]">
+                    <EnLines text={t(locale, "support.story1")} />
+                  </div>
+                  <div className="pt-4 border-t border-dashed border-white/10 text-white/95">
+                    <EnLines text={t(locale, "support.story2")} />
+                  </div>
+                  <div className="pt-4 border-t border-dashed border-white/10 text-white/80">
+                    <EnLines text={t(locale, "support.story3")} />
+                  </div>
+                  <div className="pt-4 border-t border-dashed border-white/10 text-xs text-muted/75">
+                    <EnLines text={t(locale, "support.management")} />
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* 寄付ボタン */}
+            <div className="mt-auto pt-4 border-t border-white/5">
+              <a
+                href="https://ko-fi.com/ihafam"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center px-6 py-4 rounded-xl font-bold text-white text-sm transition-all hover:scale-[1.03] w-full"
+                style={{
+                  background: "linear-gradient(135deg, #8faa3c 0%, #6b8524 100%)",
+                  boxShadow: "0 4px 14px rgba(120,150,50,0.22)",
+                }}
+              >
+                {t(locale, "support.cta")}
+              </a>
+              <p className="mt-2.5 text-[10px] text-white/50 text-center leading-normal">
+                {t(locale, "support.note")}
+              </p>
+            </div>
+          </div>
+
+          {/* 右カード：作者紹介（コンパクトに写真＋自己紹介） */}
+          <div
+            style={{
+              flex: "4 1 280px",
+              maxWidth: "360px",
+              padding: "36px 32px",
+              borderRadius: "24px",
+              background: "rgba(255, 255, 255, 0.05)",
+              border: "3px solid #f59e0b",
+              boxShadow: "0 12px 40px -10px rgba(0, 0, 0, 0.6), 0 0 25px 0 rgba(240, 168, 24, 0.12)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "20px",
+            }}
+            className="group hover:border-amber-400 hover:-translate-y-0.5 transition-all duration-300"
+          >
+            <p className="font-pixel text-[10px] tracking-widest text-[#f0a818] opacity-85">
+              {t(locale, "founder.eyebrow")}
+            </p>
+            {/* 写真 */}
+            <div
+              className="w-full rounded-xl overflow-hidden relative shrink-0"
+              style={{
+                aspectRatio: "3 / 2",
+                backgroundImage: "url(/founder.jpg)",
+                backgroundSize: "cover",
+                backgroundPosition: "right 35% top 15%",
+                backgroundColor: "rgba(240, 168, 24, 0.05)",
+                border: "1.5px solid rgba(240, 168, 24, 0.25)",
+                boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
+              }}
+              role="img"
+              aria-label={t(locale, "founder.name")}
+            >
+              {/* 顔は画像ファイル自体をモザイク加工済み（身バレ防止）。CSSベールは廃止 */}
+              {/* 画像が無いとき用のフォールバック装飾 */}
+              <div 
+                className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                style={{
+                  background: "linear-gradient(135deg, rgba(240, 168, 24, 0.08), rgba(251, 191, 36, 0.03))",
+                }}
+              >
+                <span className="text-3xl font-serif text-[#f0a818]/20">“</span>
+              </div>
+            </div>
+            {/* 自己紹介文 */}
+            <div className="text-[13px] sm:text-[14px] text-foreground/90 leading-relaxed font-sans flex-1 text-center space-y-4">
+              {locale === "ja" ? (
+                <>
+                  <div>
+                    <L>
+                      <W>このアプリで</W>
+                      <W>アホほどダイヤ出せます</W>
+                    </L>
+                    <L className="mt-1">
+                      <W>作る楽しさを</W>
+                    </L>
+                    <L className="mt-1">
+                      <span className="font-bold text-[#f59e0b]">くだらない</span>
+                      <W>ことで一緒に笑える</W>
+                      <W>仲間へ届きますように(o^―^o)ﾆｺ</W>
+                    </L>
+                  </div>
+
+                  <div className="pt-4 border-t border-dashed border-white/10 text-white/80">
+                    <L>
+                      <W>ずっと学校に行けなかった</W>
+                    </L>
+                    <L className="mt-1">
+                      <W>苦しい地獄の時間だった</W>
+                    </L>
+                    <L className="mt-2 text-white/95">
+                      <W>でもね、作る楽しさに出会えて</W>
+                    </L>
+                    <L className="mt-1">
+                      <W>僕は１歩踏み出せた</W>
+                    </L>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <EnLines text={t(locale, "founder.intro1")} />
+                  </div>
+                  <div className="pt-4 border-t border-dashed border-white/10 text-white/80">
+                    <EnLines text={t(locale, "founder.intro2")} />
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="flex justify-end mt-auto">
+              <span className="font-pixel text-xs text-[#f0a818]">
+                {t(locale, "founder.name")}
+              </span>
+            </div>
+
+            {/* つながる先 */}
+            <div className="pt-4 border-t border-white/5">
+              <p className="text-[10px] text-muted/60 font-sans tracking-wide mb-2.5">{t(locale, "founder.follow")}</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <a
+                  href="https://www.instagram.com/cubic_engine"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[10px] font-bold transition-all border border-[#e1306c]/40 bg-[#1e1e1a] text-[#f472b6] hover:border-[#e1306c] hover:bg-[#e1306c] hover:text-white hover:shadow-[0_0_12px_rgba(225,48,108,0.25)] hover:scale-[1.04]"
+                >
+                  📷 Instagram
+                </a>
+                <a
+                  href="https://www.youtube.com/channel/UCLFDpyaWesF8TiuYBD5B49w"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[10px] font-bold transition-all border border-[#ff0000]/40 bg-[#1e1e1a] text-[#f87171] hover:border-[#ff0000] hover:bg-[#ff0000] hover:text-white hover:shadow-[0_0_12px_rgba(255,0,0,0.25)] hover:scale-[1.04]"
+                >
+                  ▶️ YouTube
+                </a>
+                <a
+                  href="https://discord.gg/Hm82tUUY8g"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[10px] font-bold transition-all border border-[#5865F2]/40 bg-[#1e1e1a] text-[#818cf8] hover:border-[#5865F2] hover:bg-[#5865F2] hover:text-white hover:shadow-[0_0_12px_rgba(88,101,242,0.25)] hover:scale-[1.04]"
+                >
+                  💬 Discord
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <p className="mt-2 text-[10px] text-muted/50 font-sans shrink-0">
           {t(locale, "footer.note")}
@@ -316,10 +588,6 @@ export default function HomePage() {
           <span className="opacity-40">·</span>
           <Link href="/terms" className="underline underline-offset-2 hover:text-foreground transition-colors">
             利用規約
-          </Link>
-          <span className="opacity-40">·</span>
-          <Link href="/support" className="underline underline-offset-2 hover:text-foreground transition-colors">
-            応援お願いします
           </Link>
         </nav>
       </section>
