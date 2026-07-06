@@ -373,7 +373,9 @@ const JAVA_HELPERS = `    // ─────────── ヘルパー ─�
     }
     private static Item _item(String id) {
         try {
-            Item it = ForgeRegistries.ITEMS.getValue(new ResourceLocation(id));
+            ResourceLocation rl = ResourceLocation.tryParse(id);
+            if (rl == null) return Items.AIR;
+            Item it = ForgeRegistries.ITEMS.getValue(rl);
             return it != null ? it : Items.AIR;
         } catch (Exception e) { return Items.AIR; }
     }
