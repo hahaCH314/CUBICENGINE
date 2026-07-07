@@ -23,6 +23,20 @@ function genChain(id:string|null, blocks:CBlock[], indent:string):string{
     const rest=genChain(b.nextId,blocks,indent+"  ");
     return`${indent}system.runTimeout(()=>{\n${rest||`${indent}  // まつ`}\n${indent}},${ticks});`;
   }
+  // ティック単位の待機
+  if(b.type==="ct_delay"){
+    const ticks=Math.max(1,Math.round(parseFloat(gf(b,"t","10"))));
+    const rest=genChain(b.nextId,blocks,indent+"  ");
+    return`${indent}system.runTimeout(()=>{\n${rest||`${indent}  // まつ`}\n${indent}},${ticks});`;
+  }
+  // ランダム秒待機
+  if(b.type==="ct_waitrnd"){
+    const mn=Math.round(parseFloat(gf(b,"min","1"))*20);
+    const mx=Math.round(parseFloat(gf(b,"max","5"))*20);
+    const lo=Math.min(mn,mx), hi=Math.max(mn,mx);
+    const rest=genChain(b.nextId,blocks,indent+"  ");
+    return`${indent}system.runTimeout(()=>{\n${rest||`${indent}  // まつ`}\n${indent}},${lo}+Math.floor(Math.random()*(${hi}-${lo}+1)));`;
+  }
 
   return genBlock(b,blocks,indent)+"\n"+genChain(b.nextId,blocks,indent);
 }
@@ -58,6 +72,16 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
         : `${I}player.removeTag("${escId(f("tag","vip"))}");`;
     case"ac_kick":
       return`${I}player.runCommandAsync(\`kick \${player.name} ${escStr(f("msg","ルール違反"))}\`);`;
+    case"ac_actionbar":
+      return`${I}player.onScreenDisplay.setActionBar("${escStr(f("msg","こんにちは！"))}");`;
+    case"ac_summon":
+      return`${I}player.runCommandAsync("summon ${escId(f("mob","minecraft:zombie"))} ~ ~ ~");`;
+    case"ac_particle":
+      return`${I}player.runCommandAsync("particle ${escId(f("particle","minecraft:heart_particle"))} ~ ~1 ~");`;
+    case"ac_xp":
+      return`${I}player.addExperience(Number(${f("amount","10")})||0);`;
+    case"ac_heal":
+      return`${I}{const _h=player.getComponent("minecraft:health");if(_h)_h.setCurrentValue(_h.effectiveMax);}`;
     // 演算ブロックをアクションとして単体実行（ログ出力付き）
     case"ca_add":case"ca_sub":case"ca_mul":case"ca_div":case"ca_mod":case"ca_pow":
     case"ca_abs":case"ca_floor":case"ca_ceil":case"ca_round":case"ca_sqrt":
@@ -75,6 +99,8 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
       const _e=genExpr(b.innerId,blocks)||`"${escStr(f("v","ログ"))}"`;
       return`${I}console.log("[CUBICENGINEログ] " + ${_e});`;
     }
+    case"ct_return":
+      return`${I}return;`;
     // 変数
     case"vv_set":    return`${I}_v_${sanitizeVarName(f("name","score"))} = ${genExpr(b.innerId,blocks)||`Number(${f("val","0")})`};`;
     case"vv_add":    return`${I}_v_${sanitizeVarName(f("name","score"))} += ${genExpr(b.innerId,blocks)||`Number(${f("val","1")})`};`;
@@ -194,6 +220,13 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
         `${I}});`,
       ].join("\n");
     }
+    case"ui_longtext":{
+      const title=f("title","おしらせ"), bodyText=f("body",""), btn=f("btn","とじる");
+      return[
+        `${I}const _form = new ActionFormData().title("${escStr(title)}").body("${escStr(bodyText)}").button("${escStr(btn)}");`,
+        `${I}_form.show(player);`,
+      ].join("\n");
+    }
     case"co_if":{
       // 後方互換：内側に条件カードを挿してあれば従来どおりそれを使う。
       // 無ければ co_if 自身の「条件」フィールド（キラキラカードで選んだ条件）から生成。
@@ -224,6 +257,14 @@ function genExpr(id:string|null, blocks:CBlock[]):string{
     case"va_hp":    return`(player.getComponent("minecraft:health")?.currentValue??20)`;
     case"va_pos":   return`Math.round(player.location.${f("axis","Y").toLowerCase()})`;
     case"va_score": return`(()=>{try{return world.scoreboard.getObjective("${escId(f("obj","points"))}")?.getScore(player.scoreboardIdentity)??0;}catch(_e){return 0;}})()`;
+    case"va_rot":     return`Math.round(player.getRotation().${f("axis","Yaw")==="Pitch"?"x":"y"})`;
+    case"va_dim":     return`player.dimension.id`;
+    case"va_level":   return`player.level`;
+    case"va_maxhp":   return`(player.getComponent("minecraft:health")?.effectiveMax??20)`;
+    case"va_count":   return`world.getPlayers().length`;
+    case"va_time":    return`world.getTimeOfDay()`;
+    case"va_bool":    return f("v","true")==="false"?"false":"true";
+    case"va_gamemode":return`player.getGameMode()`;
     case"ca_add":   return`(${genExpr(b.fields[0]?.id,blocks)||f("a","0")}) + (${genExpr(b.fields[1]?.id,blocks)||f("b","0")})`;
     case"ca_sub":   return`(${genExpr(b.fields[0]?.id,blocks)||f("a","0")}) - (${genExpr(b.fields[1]?.id,blocks)||f("b","0")})`;
     case"ca_mul":   return`(${genExpr(b.fields[0]?.id,blocks)||f("a","1")}) * (${genExpr(b.fields[1]?.id,blocks)||f("b","1")})`;
@@ -287,12 +328,20 @@ function genExpr(id:string|null, blocks:CBlock[]):string{
     case"vv_eq":    return`(_v_${sanitizeVarName(f("name","score"))}===${f("val","0")})`;
     case"vv_gt":    return`(_v_${sanitizeVarName(f("name","score"))}>${f("val","0")})`;
     case"vv_lt":    return`(_v_${sanitizeVarName(f("name","score"))}<${f("val","100")})`;
+    case"vv_neq":   return`(_v_${sanitizeVarName(f("name","score"))}!==${f("val","0")})`;
+    case"vv_gte":   return`(_v_${sanitizeVarName(f("name","score"))}>=${f("val","0")})`;
+    case"vv_lte":   return`(_v_${sanitizeVarName(f("name","score"))}<=${f("val","100")})`;
     case"co_tag":     return`player.hasTag("${escId(f("tag",""))}")`;
     case"co_sneak":   return"player.isSneaking";
     case"co_hp":      return`((player.getComponent("minecraft:health")?.currentValue??20)<=Number(${f("threshold","10")}))`;
     case"co_night":   return"(world.getTimeOfDay()>=13000&&world.getTimeOfDay()<23000)";
     case"co_rain":    return`(world.getDimension("overworld").weather?.precipitation==="rain"||world.getDimension("overworld").weather?.precipitation==="thunder")`;
     case"co_item":    return`(()=>{const _c=player.getComponent("minecraft:inventory")?.container;if(!_c)return false;for(let _i=0;_i<_c.size;_i++)if(_c.getItem(_i)?.typeId==="${nsId(f("item","minecraft:diamond"))}")return true;return false;})()`;
+    case"co_sprint":  return"player.isSprinting";
+    case"co_water":   return"player.isInWater";
+    case"co_ground":  return"player.isOnGround";
+    case"co_chance":  return`(Math.random()*100<Number(${f("pct","50")}))`;
+    case"co_scoregte":return`((()=>{try{return world.scoreboard.getObjective("${escId(f("obj","points"))}")?.getScore(player.scoreboardIdentity)??0;}catch(_e){return 0;}})()>=Number(${f("val","10")}))`;
     case"co_and":     return`((${genExpr(b.innerId,blocks)||"true"})&&(${genExpr(b.thenId,blocks)||"true"}))`;
     case"co_or":      return`((${genExpr(b.innerId,blocks)||"false"})||(${genExpr(b.thenId,blocks)||"false"}))`;
     case"co_not":     return`(!(${genExpr(b.innerId,blocks)||"false"}))`;
@@ -390,6 +439,81 @@ function genTrigger(b:CBlock,blocks:CBlock[]):string{
         `world.afterEvents.playerPlaceBlock.subscribe((event) => {`,
         `  const player = event.player;`,
         `  if (!player) return;`,
+        body,
+        `});`,
+      ].join("\n");
+    case"ev_respawn":
+      return[
+        `// ✨ リスポーンしたとき`,
+        `world.afterEvents.playerSpawn.subscribe((event) => {`,
+        `  if (event.initialSpawn) return;`,
+        `  const player = event.player;`,
+        `  if (!player) return;`,
+        body,
+        `});`,
+      ].join("\n");
+    case"ev_attack":
+      return[
+        `// ⚔️ エンティティを攻撃したとき`,
+        `world.afterEvents.entityHitEntity.subscribe((event) => {`,
+        `  if (event.damagingEntity?.typeId !== "minecraft:player") return;`,
+        `  const player = event.damagingEntity;`,
+        body,
+        `});`,
+      ].join("\n");
+    case"ev_kill":
+      return[
+        `// 💀 敵をたおしたとき`,
+        `world.afterEvents.entityDie.subscribe((event) => {`,
+        `  const player = event.damageSource?.damagingEntity;`,
+        `  if (!player || player.typeId !== "minecraft:player") return;`,
+        body,
+        `});`,
+      ].join("\n");
+    case"ev_useblock":
+      return[
+        `// 🤚 ブロックを使用したとき (${f("block","minecraft:chest")})`,
+        `world.afterEvents.playerInteractWithBlock.subscribe((event) => {`,
+        `  if (event.block?.typeId !== "${nsId(f("block","minecraft:chest"))}") return;`,
+        `  const player = event.player;`,
+        `  if (!player) return;`,
+        body,
+        `});`,
+      ].join("\n");
+    case"ev_useentity":
+      return[
+        `// 🫱 エンティティを使用したとき`,
+        `world.afterEvents.playerInteractWithEntity.subscribe((event) => {`,
+        `  const player = event.player;`,
+        `  if (!player) return;`,
+        body,
+        `});`,
+      ].join("\n");
+    case"ev_button":
+      return[
+        `// 🔘 ボタンを押したとき`,
+        `world.afterEvents.buttonPush.subscribe((event) => {`,
+        `  const player = event.source;`,
+        `  if (!player || player.typeId !== "minecraft:player") return;`,
+        body,
+        `});`,
+      ].join("\n");
+    case"ev_lever":
+      return[
+        `// 🎚️ レバーを操作したとき`,
+        `world.afterEvents.leverAction.subscribe((event) => {`,
+        `  const player = event.player;`,
+        `  if (!player) return;`,
+        body,
+        `});`,
+      ].join("\n");
+    case"ev_hitblock":
+      return[
+        `// 🔨 ブロックを叩いたとき (${f("block","minecraft:stone")})`,
+        `world.afterEvents.entityHitBlock.subscribe((event) => {`,
+        `  if (event.damagingEntity?.typeId !== "minecraft:player") return;`,
+        `  if (event.hitBlock?.typeId !== "${nsId(f("block","minecraft:stone"))}") return;`,
+        `  const player = event.damagingEntity;`,
         body,
         `});`,
       ].join("\n");
