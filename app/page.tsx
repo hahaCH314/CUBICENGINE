@@ -539,12 +539,12 @@ export default function HomePage() {
               )}
             </div>
 
-            <div className="flex flex-col items-end gap-1.5">
+            <div className="flex flex-col items-center gap-1.5">
               <span className="font-pixel text-xs text-[#f0a818]">
                 {t(locale, "founder.name")}
               </span>
-              <span className="flex items-center gap-1.5 text-[10px] font-sans text-muted/60">
-                <span className="tracking-wide">Special Thanks</span>
+              <span className="flex items-center gap-1.5 text-[10px] font-sans">
+                <span className="tracking-wide text-white">Special Thanks</span>
                 <span className="font-pixel text-[11px] bg-gradient-to-r from-[#ff5ca2] via-[#ffd23f] to-[#22d3ee] bg-clip-text text-transparent">
                   ドーユー☆ラボ
                 </span>
