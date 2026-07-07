@@ -344,7 +344,7 @@ export default function HomePage() {
                       </span>
                     </L>
                     <L className="mt-1">
-                      <W>という夢から</W>
+                      <W>というくだらない夢から</W>
                       <W>始まりました。</W>
                     </L>
                     <L className="mt-2">
@@ -360,7 +360,7 @@ export default function HomePage() {
 
                   {/* 2段目: 12歳とコア機能無料 */}
                   <div className="pt-4 border-t border-dashed border-white/10">
-                    <L className="font-semibold text-white/95 text-[14px]">
+                    <L className="text-white/95">
                       <W>なっとうサイダーは</W>
                       <W>今12歳です。</W>
                     </L>
@@ -494,7 +494,7 @@ export default function HomePage() {
               </div>
             </div>
             {/* 自己紹介文 */}
-            <div className="text-[13px] sm:text-[14px] text-foreground/90 leading-relaxed font-sans flex-1 text-center space-y-4">
+            <div className="text-[13px] sm:text-[14px] text-foreground/90 leading-relaxed font-sans text-center space-y-4">
               {locale === "ja" ? (
                 <>
                   <div>
@@ -539,14 +539,20 @@ export default function HomePage() {
               )}
             </div>
 
-            <div className="flex justify-end mt-auto">
+            <div className="flex flex-col items-end gap-1.5">
               <span className="font-pixel text-xs text-[#f0a818]">
                 {t(locale, "founder.name")}
+              </span>
+              <span className="flex items-center gap-1.5 text-[10px] font-sans text-muted/60">
+                <span className="tracking-wide">Special Thanks</span>
+                <span className="font-pixel text-[11px] bg-gradient-to-r from-[#ff5ca2] via-[#ffd23f] to-[#22d3ee] bg-clip-text text-transparent">
+                  ドーユー☆ラボ
+                </span>
               </span>
             </div>
 
             {/* つながる先 */}
-            <div className="pt-4 border-t border-white/5">
+            <div className="mt-auto pt-4 border-t border-white/5">
               <p className="text-[10px] text-muted/60 font-sans tracking-wide mb-2.5">{t(locale, "founder.follow")}</p>
               <div className="flex flex-wrap items-center gap-2">
                 <a
