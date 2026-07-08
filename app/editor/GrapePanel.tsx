@@ -699,6 +699,25 @@ export default function GrapePanel() {
     <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
       <style dangerouslySetInnerHTML={{ __html: KEYFRAMES }} />
 
+      {/* 開発中オーバーレイ */}
+      <div style={{
+        position: "absolute", inset: 0, zIndex: 9999,
+        background: "rgba(0, 5, 10, 0.85)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+        color: "#a8eeff"
+      }}>
+        <div style={{ fontSize: 64, marginBottom: 24 }}>🌿</div>
+        <div style={{ fontSize: 32, fontWeight: 900, letterSpacing: "0.1em", textShadow: "0 0 20px rgba(0, 180, 255, 0.5)" }}>
+          GROVE (JAVA版)
+        </div>
+        <div style={{ fontSize: 20, marginTop: 16, opacity: 0.9, letterSpacing: "0.1em", background: "rgba(212, 93, 121, 0.3)", border: "2px solid #d45d79", padding: "8px 24px", borderRadius: 99, color: "#fff", fontWeight: 700 }}>
+          🚧 現在開発中
+        </div>
+        <div style={{ marginTop: 24, fontSize: 14, opacity: 0.6 }}>
+          機能のリリースまでもうしばらくお待ちください
+        </div>
+      </div>
+
       {/* 舞台（全面＝没入背景：アバター/パンドラの夜の森／タップで種をまく） */}
       <div
         ref={stageRef}
