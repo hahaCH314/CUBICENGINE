@@ -138,13 +138,13 @@ function BuildTerminal() {
 
       {/* 規約同意チェック（セキュリティ・著作権の誓約） */}
       <label className="flex items-start gap-2 p-2 bg-rose-500/10 border border-rose-500/20 rounded-md cursor-pointer mt-2">
-        <input 
-          type="checkbox" 
-          checked={agreed} 
-          onChange={(e) => setAgreed(e.target.checked)} 
-          className="mt-0.5"
+        <input
+          type="checkbox"
+          checked={agreed}
+          onChange={(e) => setAgreed(e.target.checked)}
+          className="mt-0.5 flex-shrink-0"
         />
-        <div className="text-[11px] text-foreground/80 leading-relaxed">
+        <div className="min-w-0 break-words text-[11px] text-foreground/80 leading-relaxed">
           <strong className="text-rose-400">【重要】</strong> 私は、他者への迷惑行為（荒らし、サーバー妨害、著作権侵害など）を目的としてこのアドオンを使用しないことに同意し、自己責任でエクスポートします。
         </div>
       </label>

@@ -2492,19 +2492,29 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
 
   // ⌨️ キーを押したら“即”カードをキャンバスへ（手札トレイ廃止＝直接配置）
   // overrides: 条件分岐の cond など、生成時にフィールドを仕込む（キーボードで条件を選ぶ用）
-  const spawnToCanvas = useCallback((tmpl: Tmpl, overrides?: Record<string, string>) => {
+  const spawnToCanvas = useCallback((tmpl: Tmpl, overrides?: Record<string, string>, srcX?: number) => {
     const { pan, zoom, blocks } = live.current;
     const rect = containerRef.current?.getBoundingClientRect();
     const vw = rect?.width ?? 800;
-    const lr = (document.querySelector('[data-live-stage]') as HTMLElement | null)?.getBoundingClientRect();
-    const previewLeft = lr ? lr.left - (rect?.left ?? 0) : vw - 575 - 20;
 
-    // 見える範囲の上のほうに、少しずつズラして出す（重ならない・逆ソリティアで自分で並べる）
-    const cascade = (blocks.length % 6) * 26;
-    // プレビューの左側の空きスペースに収まるようにスクリーン座標Xを計算
-    const targetSx = previewLeft > 120 ? Math.min(vw * 0.32, previewLeft - 90) : 20;
-    const sx = Math.max(20, targetSx) + cascade;
-    const sy = 80 + cascade;
+    let sx: number, sy: number;
+    const kb = (document.querySelector('[data-keyboard="1"]') as HTMLElement | null)?.getBoundingClientRect();
+
+    if (srcX != null && rect && kb) {
+      // 押したキーの“真上”＝キーボードのすぐ上に、それぞれ出す。
+      // 同じキー連打でも埋もれないよう、少しだけ上に段差(cascade)を付ける（逆ソリティアで自分で並べる）。
+      const cascade = (blocks.length % 5) * 22;
+      sx = srcX - rect.left;                                   // キーの中央X（スクリーン→コンテナ相対）
+      sy = (kb.top - rect.top) - (BH * zoom) / 2 - 14 - cascade; // キーボード上端のすぐ上
+    } else {
+      // フォールバック（キー位置が取れない時）：従来どおり見える範囲の上に少しずつズラして出す
+      const lr = (document.querySelector('[data-live-stage]') as HTMLElement | null)?.getBoundingClientRect();
+      const previewLeft = lr ? lr.left - (rect?.left ?? 0) : vw - 575 - 20;
+      const cascade = (blocks.length % 6) * 26;
+      const targetSx = previewLeft > 120 ? Math.min(vw * 0.32, previewLeft - 90) : 20;
+      sx = Math.max(20, targetSx) + cascade;
+      sy = 80 + cascade;
+    }
     const nx = (sx - pan.x) / zoom - BW / 2;
     const ny = (sy - pan.y) / zoom - BH / 2;
     const nb = spawnBlock(tmpl, nx, ny);
@@ -3694,7 +3704,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                     const c = CAT["ifelse"];
                     return (
                       <button key={cond} className="toy-key" title={`もしも ${cond} なら`}
-                        onClick={() => spawnToCanvas(CO_IF_TMPL, { cond })}
+                        onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); spawnToCanvas(CO_IF_TMPL, { cond }, r.left + r.width / 2); }}
                         style={{
                           display: "flex", alignItems: "center", gap: 6, height: 38, padding: "0 12px",
                           borderRadius: 9, border: "2.5px solid #1e293b", cursor: "pointer",
@@ -3713,7 +3723,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                   const sparkle = tmpl.type === "co_if" || tmpl.type === "ct_rep";
                   return (
                     <button key={tmpl.type} className="toy-key" title={`${tmpl.label}：${tmpl.sublabel}`}
-                      onClick={() => spawnToCanvas(tmpl)}
+                      onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); spawnToCanvas(tmpl, undefined, r.left + r.width / 2); }}
                       style={{
                         display: "flex", alignItems: "center", gap: 6, height: 38, padding: "0 10px 0 8px",
                         borderRadius: 9, border: "2.5px solid #1e293b", cursor: "pointer",
