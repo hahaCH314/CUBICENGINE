@@ -2079,7 +2079,11 @@ function FallingWisp() {
 export default function LogicPanel({ onExportReady }: { onExportReady?: () => void } = {}) {
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [showMobileConsole, setShowMobileConsole] = useState(false);
+  const [showMobileConsole, setShowMobileConsole] = useState(false); // ➕カード（下部キーボード）
+  const [showMobileTools, setShowMobileTools] = useState(false);     // 🔧道具メニュー（独立・同時に出ない）
+  // モバイルは「カード」と「道具」を別ボタンで独立に開く。片方を開いたらもう片方は閉じる＝重ならない。
+  const openMobileCards = () => { setShowMobileTools(false); setShowMobileConsole(true); };
+  const openMobileTools = () => { setShowMobileConsole(false); setShowMobileTools(true); };
 
   useEffect(() => {
     setMounted(true);
@@ -3639,37 +3643,52 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
             </>
           )}
 
-          {/* モバイル用 FAB（ツールメニュー開閉） */}
-          {isMobile && !showMobileConsole && (
-            <button
-              onClick={() => setShowMobileConsole(true)}
-              style={{
-                position: "absolute", bottom: 20, right: 20, padding: "12px 20px",
-                borderRadius: 999, background: "linear-gradient(135deg,#bef264,#22c55e)",
-                border: "3px solid #1e293b",
-                boxShadow: "0 6px 16px rgba(0,0,0,0.25), 0 3px 0 #15803d, inset 0 2px 4px rgba(255,255,255,0.4)",
-                color: "#1e293b", fontSize: 16, fontWeight: 900,
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                zIndex: 43, cursor: "pointer",
-              }}
-            >
-              <span style={{ fontSize: 20 }}>➕</span> カードを追加
-            </button>
+          {/* モバイル用 FAB：カードと道具を独立に開く2ボタン（同時に出さない＝重ならない） */}
+          {isMobile && !showMobileConsole && !showMobileTools && (
+            <div style={{ position: "absolute", bottom: 20, right: 20, display: "flex", gap: 10, zIndex: 43 }}>
+              <button
+                onClick={openMobileTools}
+                style={{
+                  padding: "12px 18px", borderRadius: 999,
+                  background: "linear-gradient(135deg,#e2e8f0,#cbd5e1)", border: "3px solid #1e293b",
+                  boxShadow: "0 6px 16px rgba(0,0,0,0.25), 0 3px 0 #64748b, inset 0 2px 4px rgba(255,255,255,0.5)",
+                  color: "#1e293b", fontSize: 15, fontWeight: 900,
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 7, cursor: "pointer",
+                }}
+              >
+                <span style={{ fontSize: 19 }}>🔧</span> 道具
+              </button>
+              <button
+                onClick={openMobileCards}
+                style={{
+                  padding: "12px 20px", borderRadius: 999,
+                  background: "linear-gradient(135deg,#bef264,#22c55e)", border: "3px solid #1e293b",
+                  boxShadow: "0 6px 16px rgba(0,0,0,0.25), 0 3px 0 #15803d, inset 0 2px 4px rgba(255,255,255,0.4)",
+                  color: "#1e293b", fontSize: 16, fontWeight: 900,
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer",
+                }}
+              >
+                <span style={{ fontSize: 20 }}>➕</span> カード
+              </button>
+            </div>
           )}
 
           {/* ⌨️ 下部キーボード：カードを“打つ”入力面（左右パネルを統合） */}
-          {(!isMobile || showMobileConsole) && (
+          {(!isMobile || showMobileConsole || showMobileTools) && (
             <div data-keyboard="1" style={{
-              position: "absolute", left: isMobile ? 4 : 12, right: isMobile ? 4 : 12, bottom: isMobile ? 4 : 12, 
-              height: isMobile ? 140 : 178,
-              display: "flex", gap: isMobile ? 6 : 12, padding: isMobile ? 8 : 12, boxSizing: "border-box",
-              background: "#cfeede",
-              border: isMobile ? "2px solid #8bc79e" : "4px solid #8bc79e", 
+              position: "absolute", left: isMobile ? 4 : 12, right: isMobile ? 4 : 12, bottom: isMobile ? 4 : 12,
+              // 道具のみ開いている時（カード非表示）はこの箱を不可視＆非ブロックにし、fixedな道具メニュー(子)だけ見せる
+              height: isMobile ? (showMobileConsole ? 140 : 0) : 178,
+              display: "flex", gap: isMobile ? 6 : 12,
+              padding: isMobile ? (showMobileConsole ? 8 : 0) : 12, boxSizing: "border-box",
+              background: (isMobile && !showMobileConsole) ? "transparent" : "#cfeede",
+              border: (isMobile && !showMobileConsole) ? "none" : (isMobile ? "2px solid #8bc79e" : "4px solid #8bc79e"),
               borderRadius: isMobile ? 12 : 18,
-              boxShadow: "inset 0 2px 0 rgba(255,255,255,0.6), 0 10px 24px rgba(0,0,0,0.18)",
+              boxShadow: (isMobile && !showMobileConsole) ? "none" : "inset 0 2px 0 rgba(255,255,255,0.6), 0 10px 24px rgba(0,0,0,0.18)",
+              pointerEvents: (isMobile && !showMobileConsole) ? "none" : "auto",
               zIndex: 42,
             }}>
-              {isMobile && (
+              {isMobile && showMobileConsole && (
                 <button
                   onClick={() => setShowMobileConsole(false)}
                   style={{
@@ -3681,7 +3700,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 >✕</button>
               )}
             {/* 左：プリミティブ（カテゴリ＋アイテムキー） */}
-            <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: isMobile ? 4 : 8 }}>
+            <div style={{ flex: 1, minWidth: 0, display: (isMobile && !showMobileConsole) ? "none" : "flex", flexDirection: "column", gap: isMobile ? 4 : 8 }}>
               {/* カテゴリタブ列 */}
               <div className="scrollbar-hide" style={{ display: "flex", gap: 6, flexWrap: isMobile ? "nowrap" : "wrap", overflowX: isMobile ? "auto" : "visible" }}>
                 {KEYBOARD_CATS.map(kc => {
@@ -3781,10 +3800,11 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
             {/* 右：道具キー＋アドオン完成 */}
             <div style={
               isMobile ? {
-                position: "fixed", bottom: showMobileConsole ? 12 : -300, right: 12, width: 244,
+                // 道具メニューは独立トグル(showMobileTools)。fixedなので親箱がpointerEvents:noneでもauto必須。
+                position: "fixed", bottom: showMobileTools ? 12 : -300, right: 12, width: 244,
                 display: "flex", flexDirection: "column", gap: 8, padding: 12,
                 background: "#cfeede", border: "3px solid #8bc79e", borderRadius: 16,
-                boxShadow: "0 10px 25px rgba(0,0,0,0.3)", zIndex: 60,
+                boxShadow: "0 10px 25px rgba(0,0,0,0.3)", zIndex: 60, pointerEvents: "auto",
                 transition: "bottom 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)"
               } : {
                 width: 244, flexShrink: 0, display: "flex", flexDirection: "column", gap: 8,
@@ -3794,7 +3814,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               {isMobile && (
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: -4 }}>
                   <span style={{ fontSize: 13, fontWeight: 900, color: "#1e293b" }}>🔧 ツールメニュー</span>
-                  <button onClick={() => setShowMobileConsole(false)} style={{ background: "none", border: "none", fontSize: 18 }}>✕</button>
+                  <button onClick={() => setShowMobileTools(false)} style={{ background: "none", border: "none", fontSize: 18 }}>✕</button>
                 </div>
               )}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 6 }}>
