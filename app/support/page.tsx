@@ -14,7 +14,8 @@ const DONATE_URL = "https://ko-fi.com/ihafam";
 
 // 子どもでも読みやすいよう、意味のかたまり単位で改行する（かたまりの途中では折り返さない）
 function W({ children }: { children: React.ReactNode }) {
-  return <span className="inline-block whitespace-nowrap">{children}</span>;
+  // スマホでは折り返し可（狭い画面で横にはみ出さない）、sm以上は意図した改行を保つ
+  return <span className="inline-block whitespace-normal sm:whitespace-nowrap">{children}</span>;
 }
 
 // 1行（作者が意図した改行の区切り）。この単位で必ず改行し、長い行は中の W かたまりで折り返す
@@ -92,15 +93,18 @@ export default function SupportPage() {
               <W>はじまりました。</W>
             </L>
             <L className="mt-2">
-              <W>それを自分で</W>
-              <W>形にしたのが</W>
+              <W>それを自分の手で</W>
+              <W>形にしたのが、</W>
             </L>
             <L>
-              <W>なっとうサイダー(12歳)が</W>
-              <W>作った本サイト</W>
+              <W>なっとうサイダー(12歳)。</W>
+            </L>
+            <L>
+              <W>彼が作った本サイトが</W>
             </L>
             <L>
               <span className="font-bold text-emerald-600">『CUBICENGINE』</span>
+              <W>です。</W>
             </L>
           </div>
           {/* ② コア機能は無料 */}

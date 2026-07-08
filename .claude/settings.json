@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(cd /e/MMC/minemodcraft; echo \"=== status\\(空=クリーン\\) ===\"; git status --short; echo \"=== HEAD ===\"; git log --oneline -1; echo \"=== 保全\\(tag/bundle\\) ===\"; git tag -l \"tsumiki*\"; ls -1 /e/MMC/*.bundle 2>/dev/null)",
-      "Read(//e/MMC/**)"
+      "Read(//e/MMC/**)",
+      "Bash(grep -n 'flex: 1, minWidth: 0, display: \"flex\", flexDirection: \"column\"\\\\|position: \"fixed\", bottom: showMobileConsole\\\\|onClick={\\(\\) => setShowMobileConsole\\(false\\)} style={{ background: \"none\"' app/editor/LogicPanel.tsx)",
+      "Bash(npm run *)"
     ]
   }
 }
