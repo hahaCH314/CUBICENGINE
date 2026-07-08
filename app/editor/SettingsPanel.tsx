@@ -43,6 +43,8 @@ function BuildTerminal() {
   const [error, setError] = useState<string | null>(null);
   const [showGuide, setShowGuide] = useState(false);
   const [exportedPlatform, setExportedPlatform] = useState<"bedrock" | "java">("bedrock");
+  const [exportShared, setExportShared] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const logRef = useRef<HTMLDivElement>(null);
 
   const projectName = useEditorStore((s) => s.projectName);
@@ -66,6 +68,7 @@ function BuildTerminal() {
     setBuilding(true);
     setError(null);
     setLog([]);
+    setExportShared(false);
     try {
       const state = useEditorStore.getState();
       const plat = state.targetPlatform as "bedrock" | "java";
@@ -82,12 +85,13 @@ function BuildTerminal() {
       push(plat === "bedrock" ? "  ✓ resource pack" : "  ✓ src/main/java");
       push("  ▸ 圧縮中 …");
       // 実エクスポート
-      await exportProject(state, state.generatedJsCode);
+      const shared = await exportProject(state, state.generatedJsCode);
       await wait(180);
       push("  ✓ 圧縮完了");
       push("");
-      push("✅ BUILD SUCCESS — ダウンロード完了！");
+      push(shared ? "✅ BUILD SUCCESS — 共有メニューを起動しました！" : "✅ BUILD SUCCESS — ダウンロード完了！");
       setExportedPlatform(plat);
+      setExportShared(shared);
       setShowGuide(true);
     } catch (e: any) {
       push("");
@@ -132,14 +136,27 @@ function BuildTerminal() {
         )}
       </div>
 
+      {/* 規約同意チェック（セキュリティ・著作権の誓約） */}
+      <label className="flex items-start gap-2 p-2 bg-rose-500/10 border border-rose-500/20 rounded-md cursor-pointer mt-2">
+        <input 
+          type="checkbox" 
+          checked={agreed} 
+          onChange={(e) => setAgreed(e.target.checked)} 
+          className="mt-0.5"
+        />
+        <div className="text-[11px] text-foreground/80 leading-relaxed">
+          <strong className="text-rose-400">【重要】</strong> 私は、他者への迷惑行為（荒らし、サーバー妨害、著作権侵害など）を目的としてこのアドオンを使用しないことに同意し、自己責任でエクスポートします。
+        </div>
+      </label>
+
       {/* ビルドボタン */}
       <button
         id="export-btn"
         onClick={handleBuild}
-        disabled={building || !exportArmed}
-        title={!exportArmed ? "先にロジック画面の「アドオン完成！🎉」ボタンを押してください" : undefined}
-        className={`mc-btn ${building || !exportArmed ? "" : "mc-btn--primary"} w-full py-3`}
-        style={{ fontSize: 13, borderRadius: 16, opacity: !building && !exportArmed ? 0.6 : 1 }}
+        disabled={building || !exportArmed || !agreed}
+        title={!exportArmed ? "先にロジック画面の「アドオン完成！🎉」ボタンを押してください" : !agreed ? "利用規約に同意してください" : undefined}
+        className={`mc-btn ${building || !exportArmed || !agreed ? "" : "mc-btn--primary"} w-full py-3`}
+        style={{ fontSize: 13, borderRadius: 16, opacity: !building && !exportArmed ? 0.6 : !agreed ? 0.8 : 1 }}
       >
         {building ? (
           <>
@@ -151,8 +168,10 @@ function BuildTerminal() {
           </>
         ) : !exportArmed ? (
           <>🔒 まず「アドオン完成！🎉」を押してね</>
+        ) : !agreed ? (
+          <>⛔ 同意してエクスポートを解錠</>
         ) : (
-          <>⚡ ビルド＆ダウンロード</>
+          <>⚡ ビルド＆エクスポート</>
         )}
       </button>
       {error && (
@@ -164,19 +183,28 @@ function BuildTerminal() {
         <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(60,50,30,0.45)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
           <div style={{ background: "var(--panel)", border: "2px solid var(--accent)", borderRadius: 16, padding: 24, maxWidth: 480, width: "100%", color: "var(--foreground)", position: "relative" }}>
             <button onClick={() => setShowGuide(false)} style={{ position: "absolute", top: 12, right: 12, background: "none", border: "none", color: "var(--muted)", fontSize: 20, cursor: "pointer", lineHeight: 1 }}>✕</button>
-            <div style={{ fontSize: 20, fontWeight: 900, marginBottom: 16 }}>✅ ダウンロード完了！</div>
+            <div style={{ fontSize: 20, fontWeight: 900, marginBottom: 16 }}>{exportShared ? "🚀 マイクラへ送信！" : "✅ ダウンロード完了！"}</div>
             {exportedPlatform === "bedrock" ? (
               <>
-                <div style={{ fontSize: 14, fontWeight: 800, color: "var(--accent)", marginBottom: 10 }}>📱 Bedrock（スマホ・Win10・コンソール）の入れ方</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: "var(--accent)", marginBottom: 10 }}>📱 Bedrock（統合版）の入れ方</div>
                 <ol style={{ fontSize: 13, lineHeight: 2, paddingLeft: 20 }}>
-                  <li>ダウンロードした <strong>.mcaddon</strong> をダブルクリック</li>
-                  <li>Minecraft が自動で開いてインポート</li>
-                  <li>ワールドの「ビヘイビアーパック」→ 追加 ✅</li>
-                  <li>「リソースパック」→ 追加 ✅（<strong>両方必須！</strong>）</li>
-                  <li>入って <strong style={{ color: "#15803d" }}>緑の起動メッセージ</strong> が出れば成功！</li>
+                  {exportShared ? (
+                    <>
+                      <li>画面下の共有メニューから <strong>Minecraft</strong> のアイコンをタップ！</li>
+                      <li>Minecraft が自動で開いてインポートされます</li>
+                    </>
+                  ) : (
+                    <>
+                      <li>ダウンロードした <strong>.mcaddon</strong> ファイルを開く</li>
+                      <li>Minecraft が自動で開いてインポートされます</li>
+                    </>
+                  )}
+                  <li>ワールド設定の「ビヘイビアーパック」を追加 ✅</li>
+                  <li>「リソースパック」を追加 ✅（<strong>両方必須！</strong>）</li>
+                  <li>ワールドに入って <strong style={{ color: "#15803d" }}>緑の起動メッセージ</strong> が出れば成功！</li>
                 </ol>
                 <div style={{ marginTop: 12, padding: "8px 12px", background: "rgba(220,80,80,0.12)", borderRadius: 8, fontSize: 12, color: "#a83232" }}>
-                  ⚠️ BPだけ有効ではスクリプトは動きません。<strong>RPも必ず同時に有効</strong>に。
+                  ⚠️ BPだけ有効ではスクリプトは動きません。<strong>RPも必ず同時に有効</strong>にしてください。
                 </div>
               </>
             ) : (

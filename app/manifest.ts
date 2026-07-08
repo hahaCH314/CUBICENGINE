@@ -1,20 +1,24 @@
-import type { MetadataRoute } from 'next'
+import { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'CUBICENGINE',
+    name: 'CUBICENGINE Studio',
     short_name: 'CUBICENGINE',
-    description: 'コーディング不要のビジュアルModding環境。非公式（Mojang/Microsoftとは無関係）。',
+    description: 'コーディング不要のビジュアル開発環境。非公式（Mojang/Microsoftとは無関係）。',
     start_url: '/',
     display: 'standalone',
     background_color: '#0a0a0c',
     theme_color: '#8b5cf6',
     icons: [
       {
-        src: '/icon-512x512.png',
+        src: '/icon-192.png',
+        sizes: '192x192',
+        type: 'image/png',
+      },
+      {
+        src: '/icon-512.png',
         sizes: '512x512',
         type: 'image/png',
-        purpose: 'maskable',
       },
     ],
   }

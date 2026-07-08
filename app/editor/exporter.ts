@@ -130,7 +130,30 @@ function uuid(): string {
 /* ═══════════════════════════════════════════
    Download Helper
    ═══════════════════════════════════════════ */
-function downloadBlob(blob: Blob, filename: string) {
+async function downloadBlob(blob: Blob, filename: string): Promise<boolean> {
+  // モバイル向けのネイティブ共有（シェアシート）を優先
+  if (navigator.canShare) {
+    try {
+      const file = new File([blob], filename, { type: blob.type || "application/octet-stream" });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: filename,
+          text: "Minecraftで開いてインポートしてね！"
+        });
+        return true; // シェア成功
+      }
+    } catch (e: any) {
+      // ユーザーが共有をキャンセルした場合は AbortError になる
+      if (e.name !== 'AbortError') {
+        console.warn("Share API failed, falling back to download", e);
+      } else {
+        return true; // キャンセル時は成功扱い（フォールバックダウンロードをさせない）
+      }
+    }
+  }
+
+  // シェア非対応 or 失敗時は従来のダウンロードへフォールバック
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -139,6 +162,7 @@ function downloadBlob(blob: Blob, filename: string) {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+  return false; // ダウンロードを実行した
 }
 
 /* ═══════════════════════════════════════════
@@ -339,6 +363,8 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
     );
 
     rp.file("pack_icon.png", iconBytes);
+    // 悪用防止の注意喚起を同梱
+    rp.file("NOTICE.txt", NOTICE_TEXT);
 
     const textureData: Record<string, { textures: string }> = {};
     const blocksJson: Record<string, { textures: string; sound: string }> = {};
@@ -391,12 +417,13 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
     const bpZip = new JSZip();
     await fillBP(bpZip);
     const bpBlob = await bpZip.generateAsync(genOpts);
-    downloadBlob(bpBlob, `${name}_BP.mcpack`);
+    await downloadBlob(bpBlob, `${name}_BP.mcpack`);
 
     const rpZip = new JSZip();
     await fillRP(rpZip);
     const rpBlob = await rpZip.generateAsync(genOpts);
-    downloadBlob(rpBlob, `${name}_RP.mcpack`);
+    await downloadBlob(rpBlob, `${name}_RP.mcpack`);
+    return false; // 2ファイルDL時はシェア不可
   } else {
     // mcaddon or zip: bundle both packs together
     const zip = new JSZip();
@@ -407,10 +434,8 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
 
     const ext = state.exportFormat === "zip" ? ".zip" : ".mcaddon";
     const blob = await zip.generateAsync(genOpts);
-    downloadBlob(blob, `${name}${ext}`);
+    return await downloadBlob(blob, `${name}${ext}`);
   }
-
-  return true;
 }
 
 /* ═══════════════════════════════════════════
@@ -712,8 +737,7 @@ export async function exportJava(state: EditorState, jsCode: string) {
     compression,
     compressionOptions,
   });
-  downloadBlob(blob, `${name}-forge-mod.zip`);
-  return true;
+  return await downloadBlob(blob, `${name}-forge-mod.zip`);
 }
 
 /* ═══════════════════════════════════════════

@@ -2087,8 +2087,15 @@ function EndermanShadow() {
 
 export default function LogicPanel({ onExportReady }: { onExportReady?: () => void } = {}) {
   const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showMobileConsole, setShowMobileConsole] = useState(false);
+
   useEffect(() => {
     setMounted(true);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const setGeneratedJsCode = useEditorStore(s => s.setGeneratedJsCode);
@@ -3598,28 +3605,48 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
           <CreeperShadow />
           <EndermanShadow />
 
+          {/* モバイル用 FAB（ツールメニュー開閉） */}
+          {isMobile && !showMobileConsole && (
+            <button
+              onClick={() => setShowMobileConsole(true)}
+              style={{
+                position: "absolute", bottom: 155, right: 12, width: 52, height: 52,
+                borderRadius: 26, background: "linear-gradient(135deg,#bef264,#22c55e)",
+                border: "3px solid #1e293b",
+                boxShadow: "0 6px 16px rgba(0,0,0,0.25), 0 3px 0 #15803d, inset 0 2px 4px rgba(255,255,255,0.4)",
+                color: "#1e293b", fontSize: 24, fontWeight: 900,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                zIndex: 43, cursor: "pointer",
+              }}
+            >
+              🔧
+            </button>
+          )}
+
           {/* ⌨️ 下部キーボード：カードを“打つ”入力面（左右パネルを統合） */}
           <div data-keyboard="1" style={{
-            position: "absolute", left: 12, right: 12, bottom: 12, height: 178,
-            display: "flex", gap: 12, padding: 12, boxSizing: "border-box",
+            position: "absolute", left: isMobile ? 4 : 12, right: isMobile ? 4 : 12, bottom: isMobile ? 4 : 12, 
+            height: isMobile ? 140 : 178,
+            display: "flex", gap: isMobile ? 6 : 12, padding: isMobile ? 8 : 12, boxSizing: "border-box",
             background: "#cfeede",
-            border: "4px solid #8bc79e", borderRadius: 18,
+            border: isMobile ? "2px solid #8bc79e" : "4px solid #8bc79e", 
+            borderRadius: isMobile ? 12 : 18,
             boxShadow: "inset 0 2px 0 rgba(255,255,255,0.6), 0 10px 24px rgba(0,0,0,0.18)",
             zIndex: 42,
           }}>
             {/* 左：プリミティブ（カテゴリ＋アイテムキー） */}
-            <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: isMobile ? 4 : 8 }}>
               {/* カテゴリタブ列 */}
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              <div className="scrollbar-hide" style={{ display: "flex", gap: 6, flexWrap: isMobile ? "nowrap" : "wrap", overflowX: isMobile ? "auto" : "visible" }}>
                 {KEYBOARD_CATS.map(kc => {
                   const c = CAT[kc.cat];
                   const TIcon = (LucideIcons as any)[kc.icon] || LucideIcons.HelpCircle;
                   const on = kbCat === kc.cat;
                   return (
-                    <button key={kc.cat} className="toy-key"
+                    <button key={kc.cat} className="toy-key shrink-0"
                       onClick={() => { setKbCat(kc.cat); playClickSound(); }}
                       style={{
-                        display: "flex", alignItems: "center", gap: 5, height: 34, padding: "0 11px",
+                        display: "flex", alignItems: "center", gap: 5, height: isMobile ? 30 : 34, padding: isMobile ? "0 8px" : "0 11px",
                         borderRadius: 9, border: "2.5px solid #1e293b", cursor: "pointer",
                         background: on ? `linear-gradient(135deg,${c.top},${c.bg})` : `linear-gradient(135deg,#ffffff,${c.top})`,
                         color: c.text,
@@ -3706,7 +3733,24 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
             </div>
 
             {/* 右：道具キー＋アドオン完成 */}
-            <div style={{ width: 244, flexShrink: 0, display: "flex", flexDirection: "column", gap: 8, borderLeft: "2px dashed #8bc79e", paddingLeft: 12 }}>
+            <div style={
+              isMobile ? {
+                position: "fixed", bottom: showMobileConsole ? 12 : -300, right: 12, width: 244,
+                display: "flex", flexDirection: "column", gap: 8, padding: 12,
+                background: "#cfeede", border: "3px solid #8bc79e", borderRadius: 16,
+                boxShadow: "0 10px 25px rgba(0,0,0,0.3)", zIndex: 60,
+                transition: "bottom 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)"
+              } : {
+                width: 244, flexShrink: 0, display: "flex", flexDirection: "column", gap: 8,
+                borderLeft: "2px dashed #8bc79e", paddingLeft: 12
+              }
+            }>
+              {isMobile && (
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: -4 }}>
+                  <span style={{ fontSize: 13, fontWeight: 900, color: "#1e293b" }}>🔧 ツールメニュー</span>
+                  <button onClick={() => setShowMobileConsole(false)} style={{ background: "none", border: "none", fontSize: 18 }}>✕</button>
+                </div>
+              )}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 6 }}>
                 {[
                   { emoji: "↩", label: "戻る", on: false, fn: () => undo() },

@@ -10,7 +10,7 @@ const CACHE_NAME = 'cubicengine-v2'
 const STATIC_ASSETS = [
   '/',
   '/editor',
-  '/icon-512x512.png',
+  '/icon.svg',
 ]
 
 self.addEventListener('install', (event) => {

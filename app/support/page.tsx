@@ -83,8 +83,8 @@ export default function SupportPage() {
             <L>
               <span className="font-extrabold text-emerald-600 text-[17px] inline-flex items-center gap-1">
                 <Gem className="w-4 h-4 text-emerald-500 animate-bounce" />
-                <W>『マイクラに、</W>
-                <W>無限ダイヤを！』</W>
+                <W>『自分のアドオンで</W>
+                <W>マイクラに無限ダイヤを！』</W>
               </span>
             </L>
             <L className="mt-1">

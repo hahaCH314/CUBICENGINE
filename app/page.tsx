@@ -339,8 +339,8 @@ export default function HomePage() {
                     <L>
                       <span className="font-extrabold text-[#34d399] text-[15px] inline-flex items-center justify-center gap-1">
                         <Gem className="w-3.5 h-3.5 text-emerald-400 animate-bounce" />
-                        <W>「マイクラに</W>
-                        <W>無限ダイヤを！」</W>
+                        <W>「自分のアドオンで</W>
+                        <W>マイクラに無限ダイヤを！」</W>
                       </span>
                     </L>
                     <L className="mt-1">

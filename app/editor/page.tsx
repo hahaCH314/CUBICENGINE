@@ -191,68 +191,9 @@ function StatusBar() {
   );
 }
 
-/* ─── スマホ来訪者への案内（ブロックせず・閉じられる） ───
-   エディタ(キャンバス＋下部キーボード)は小画面と相性が悪い＝タブレット/PC推奨。
-   ただし作った作品(SPROUT=統合版)はスマホのマイクラで遊べる、という導線を伝える。
-   判定＝画面の短辺 < 600px（タブレットは短辺768px以上なので除外）。閉じたら mmc-phone-hint に記憶。 */
 function PhoneHint() {
-  const locale = useEditorStore((s) => s.locale);
-  const [show, setShow] = useState(false);
-
-  useEffect(() => {
-    try {
-      if (localStorage.getItem("mmc-phone-hint") === "dismissed") return;
-    } catch {}
-    const check = () => {
-      const short = Math.min(window.innerWidth, window.innerHeight);
-      setShow(short < 600);
-    };
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  if (!show) return null;
-
-  const dismiss = () => {
-    setShow(false);
-    try { localStorage.setItem("mmc-phone-hint", "dismissed"); } catch {}
-  };
-
-  return (
-    <div
-      className="fixed left-1/2 -translate-x-1/2 z-[100] px-3"
-      style={{ top: 90, maxWidth: "min(92vw, 430px)", width: "100%" }}
-    >
-      <div
-        className="rounded-2xl px-4 py-3 flex items-start gap-3"
-        style={{
-          background: "linear-gradient(135deg,#0f766e,#134e4a)",
-          border: "1.5px solid rgba(45,212,191,0.5)",
-          boxShadow: "0 12px 32px rgba(0,0,0,0.45)",
-        }}
-      >
-        <span className="text-xl leading-none mt-0.5 shrink-0">📱</span>
-        <div className="flex-1 min-w-0 text-white">
-          <p className="text-[13px] font-bold leading-snug">
-            {locale === "en" ? "Best made on tablet or PC" : "作るのはタブレット／PCがおすすめ"}
-          </p>
-          <p className="text-[11px] leading-snug mt-0.5" style={{ color: "rgba(255,255,255,0.85)" }}>
-            {locale === "en"
-              ? "The editor needs a bigger screen. But you can still play what you make on your phone's Minecraft!"
-              : "エディタは画面が大きい方が作りやすいよ。作った作品はスマホのマイクラで遊べるよ！"}
-          </p>
-        </div>
-        <button
-          onClick={dismiss}
-          aria-label={locale === "en" ? "close" : "閉じる"}
-          className="shrink-0 text-white/70 hover:text-white text-xl leading-none px-1 -mt-0.5 transition-colors"
-        >
-          ×
-        </button>
-      </div>
-    </div>
-  );
+  // モバイル完全対応（UX大工事）のため、非推奨警告は撤去
+  return null;
 }
 
 /* ─── Main Editor Page ─── */
@@ -307,11 +248,11 @@ export default function EditorPage() {
       <PhoneHint />
 
       {/* ─ Menu Bar ─ */}
-      <div className="h-9 bg-panel border-b border-border flex items-center px-2 gap-0.5 shrink-0">
+      <div className="h-9 bg-panel border-b border-border flex items-center px-2 gap-0.5 shrink-0 overflow-x-auto whitespace-nowrap scrollbar-hide">
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center justify-center px-2 py-1 mr-4 group"
+          className="flex items-center justify-center px-2 py-1 mr-4 group shrink-0"
           title="ホームへ戻る"
         >
           {/* 強めのピクセル文字（マイクラ風のアウトラインと影付き・サイズ調整版） */}
@@ -359,7 +300,7 @@ export default function EditorPage() {
 
       {/* ─ Premium Modern Tab Bar ─ */}
       <div 
-        className="h-12 flex items-center justify-center px-4 gap-2 shrink-0 relative z-10"
+        className="h-12 flex items-center justify-start md:justify-center px-4 gap-2 shrink-0 relative z-10 overflow-x-auto whitespace-nowrap scrollbar-hide"
         style={{ 
           background: "linear-gradient(to bottom, #2d3436, #222f3e)",
           borderBottom: "2px solid rgba(255,255,255,0.1)",
@@ -373,7 +314,7 @@ export default function EditorPage() {
               key={tab.key}
               id={`tab-${tab.key}`}
               onClick={() => setActiveTab(tab.key)}
-              className="relative px-6 py-1.5 flex items-center gap-2 rounded-full transition-all duration-200 ease-out outline-none"
+              className="relative px-6 py-1.5 flex items-center gap-2 rounded-full transition-all duration-200 ease-out outline-none shrink-0"
               style={{
                 background: isActive
                   ? `linear-gradient(180deg, ${lighten(tab.color)}, ${tab.color})`

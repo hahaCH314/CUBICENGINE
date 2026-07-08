@@ -35,7 +35,7 @@ export const DICT: Record<string, Entry> = {
   // 2枚のカードの前に置く"向き先"の問い（独自名SPROUT/GROVEの前に初見を迷わせない）
   "cards.pick":       { ja: "君のマイクラは、どっち？", en: "Which Minecraft do you play?" },
   "support.title":      { ja: "✨ 開発・運営を応援してください", en: "✨ Support our development" },
-  "support.story1":     { ja: "「マイクラに無限ダイヤを！」\nという夢から始まりました。\nその夢を形にし実現させたのが\n本サイト（CUBICENGINE）です。", en: "It all started with the dream: \"Infinite Diamonds in Minecraft!\"\nHe shaped that dream into reality,\ncreating this website (CUBICENGINE)." },
+  "support.story1":     { ja: "「自分のアドオンでマイクラに無限ダイヤを！」\nという夢から始まりました。\nその夢を形にし実現させたのが\n本サイト（CUBICENGINE）です。", en: "It all started with the dream: \"Infinite Diamonds in Minecraft with my own addon!\"\nHe shaped that dream into reality,\ncreating this website (CUBICENGINE)." },
   "support.story2":     { ja: "なっとうサイダーは今12歳です。\n「同じようにマイクラや、プログラミングが好きな人に、作る楽しさを共有したい」\nとの思いから本人の希望によりコア機能は全て無料でご利用いただけます。", en: "Nattō Cider is now 12 years old.\nOut of his wish to \"share the joy of creating with others who love Minecraft and programming,\"\nall core features are completely free to use." },
   "support.story3":     { ja: "まだまだ未熟な開発マネージャーですが、お小遣いを全て開発費用にあててきました。頂いた寄付は今後の運営費、新たな開発費用として使わせていただきます。\nよろしくお願いいたします", en: "Though still an inexperienced development manager, he has spent all of his allowance on development costs. Donations received will be used for future operations and new development costs.\nThank you for your support." },
   "support.management": { ja: "CUBICENGINE studioは保護者が運営しております。寄付の受け取り・管理はCUBICENGINE studioが行います。", en: "CUBICENGINE studio is operated by parents. Donation reception and management are handled by CUBICENGINE studio." },
