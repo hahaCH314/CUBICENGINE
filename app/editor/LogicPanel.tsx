@@ -2155,8 +2155,8 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
   const getDefaultZoom = useCallback(() => {
     if (typeof window === "undefined") return BASE_ZOOM;
     const w = window.innerWidth;
-    if (w < 768) return 0.55;  // スマホ等
-    if (w < 1024) return 0.65; // タブレット等
+    if (w < 768) return 0.85;  // スマホ（カードが小さすぎたので拡大）
+    if (w < 1024) return 0.75; // タブレット等
     if (w < 1366) return 0.8;  // ノートPC等
     return BASE_ZOOM;          // デスクトップ
   }, []);
@@ -3645,30 +3645,31 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
 
           {/* モバイル用 FAB：カードと道具を独立に開く2ボタン（同時に出さない＝重ならない） */}
           {isMobile && !showMobileConsole && !showMobileTools && (
-            <div style={{ position: "absolute", bottom: 20, right: 20, display: "flex", gap: 10, zIndex: 43 }}>
-              <button
-                onClick={openMobileTools}
-                style={{
-                  padding: "12px 18px", borderRadius: 999,
-                  background: "linear-gradient(135deg,#e2e8f0,#cbd5e1)", border: "3px solid #1e293b",
-                  boxShadow: "0 6px 16px rgba(0,0,0,0.25), 0 3px 0 #64748b, inset 0 2px 4px rgba(255,255,255,0.5)",
-                  color: "#1e293b", fontSize: 15, fontWeight: 900,
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: 7, cursor: "pointer",
-                }}
-              >
-                <span style={{ fontSize: 19 }}>🔧</span> 道具
-              </button>
+            <div style={{ position: "absolute", bottom: 20, right: 20, display: "flex", gap: 10, alignItems: "center", zIndex: 43 }}>
+              {/* カードがメイン＝左に大きく。ツールは右に控えめ。 */}
               <button
                 onClick={openMobileCards}
                 style={{
-                  padding: "12px 20px", borderRadius: 999,
+                  padding: "14px 24px", borderRadius: 999,
                   background: "linear-gradient(135deg,#bef264,#22c55e)", border: "3px solid #1e293b",
-                  boxShadow: "0 6px 16px rgba(0,0,0,0.25), 0 3px 0 #15803d, inset 0 2px 4px rgba(255,255,255,0.4)",
-                  color: "#1e293b", fontSize: 16, fontWeight: 900,
+                  boxShadow: "0 6px 16px rgba(0,0,0,0.25), 0 4px 0 #15803d, inset 0 2px 4px rgba(255,255,255,0.4)",
+                  color: "#1e293b", fontSize: 17, fontWeight: 900,
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer",
                 }}
               >
-                <span style={{ fontSize: 20 }}>➕</span> カード
+                <span style={{ fontSize: 22 }}>➕</span> カード
+              </button>
+              <button
+                onClick={openMobileTools}
+                style={{
+                  padding: "11px 16px", borderRadius: 999,
+                  background: "linear-gradient(135deg,#e2e8f0,#cbd5e1)", border: "3px solid #1e293b",
+                  boxShadow: "0 6px 16px rgba(0,0,0,0.25), 0 3px 0 #64748b, inset 0 2px 4px rgba(255,255,255,0.5)",
+                  color: "#1e293b", fontSize: 14, fontWeight: 900,
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 6, cursor: "pointer",
+                }}
+              >
+                <span style={{ fontSize: 17 }}>🔧</span> ツール
               </button>
             </div>
           )}
@@ -3814,7 +3815,12 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               {isMobile && (
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: -4 }}>
                   <span style={{ fontSize: 13, fontWeight: 900, color: "#1e293b" }}>🔧 ツールメニュー</span>
-                  <button onClick={() => setShowMobileTools(false)} style={{ background: "none", border: "none", fontSize: 18 }}>✕</button>
+                  <button onClick={() => setShowMobileTools(false)} style={{
+                    background: "#ef4444", color: "#fff", border: "2px solid #1e293b", borderRadius: 9,
+                    padding: "5px 12px", fontSize: 13, fontWeight: 900, cursor: "pointer",
+                    display: "flex", alignItems: "center", gap: 5,
+                    boxShadow: "0 3px 0 #991b1b",
+                  }}>✕ とじる</button>
                 </div>
               )}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 6 }}>
@@ -3841,12 +3847,13 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                   </button>
                 ))}
               </div>
-              {/* アドオン完成 */}
+              {/* アドオン完成（PCはメニュー内。スマホは独立ボタンにするのでここでは出さない） */}
+              {!isMobile && (
               <button disabled={!isLogicValid}
-                onClick={() => { 
-                  playSuccessSound(); 
-                  const lines = (genCode || "// まず きっかけ カードを置いて繋げよう").split("\n"); 
-                  setReveal(lines); 
+                onClick={() => {
+                  playSuccessSound();
+                  const lines = (genCode || "// まず きっかけ カードを置いて繋げよう").split("\n");
+                  setReveal(lines);
                   setExportArmed(true);
                 }}
                 style={{
@@ -3863,8 +3870,35 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 }}>
                 アドオン完成！🎉
               </button>
+              )}
             </div>
           </div>
+          )}
+
+          {/* スマホ：アドオン完成を独立ボタンで常時表示（ツールメニューに埋めない） */}
+          {isMobile && (
+            <button disabled={!isLogicValid}
+              onClick={() => {
+                playSuccessSound();
+                const lines = (genCode || "// まず きっかけ カードを置いて繋げよう").split("\n");
+                setReveal(lines);
+                setExportArmed(true);
+              }}
+              style={{
+                position: "fixed", top: 92, left: "50%", transform: "translateX(-50%)",
+                height: 40, padding: "0 18px", borderRadius: 999, border: "3px solid #1e293b",
+                cursor: isLogicValid ? "pointer" : "not-allowed",
+                background: isLogicValid
+                  ? "linear-gradient(135deg,#bef264 0%, #4ade80 55%, #22c55e 100%)"
+                  : "linear-gradient(135deg,#e5e7eb,#cbd5e1)",
+                boxShadow: isLogicValid
+                  ? "0 4px 0 #15803d, 0 5px 14px rgba(74,222,128,0.5)"
+                  : "0 3px 0 #94a3b8",
+                color: isLogicValid ? "#052e16" : "#64748b", fontWeight: 900, fontSize: 14,
+                letterSpacing: "0.03em", zIndex: 55, whiteSpace: "nowrap",
+              }}>
+              {isLogicValid ? "アドオン完成！🎉" : "アドオン完成（カードをつなごう）"}
+            </button>
           )}
 
           {/* ✏️ 選んだカードの中身エディタ（直接配置式＝旧STEP3の代わり。条件もここで変える） */}
