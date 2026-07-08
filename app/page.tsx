@@ -199,7 +199,7 @@ export default function HomePage() {
       {/* Hero（縦スクロール型：看板→カード→作者の声） */}
       <section className="flex-1 flex flex-col items-center justify-start px-6 pt-10 pb-16 text-center">
         <h1
-          className="text-5xl sm:text-6xl md:text-7xl font-pixel tracking-wider mb-2 animate-float-slow"
+          className="text-[clamp(1.2rem,7vw,3rem)] sm:text-6xl md:text-7xl font-pixel tracking-normal sm:tracking-wider mb-2 animate-float-slow"
           style={{
             color: "#fbbf24",
             textShadow: "6px 6px 0px #1e1208, 12px 12px 0px rgba(0,0,0,0.25)",

@@ -118,6 +118,7 @@ export default function RootLayout({
             style={{ pointerEvents: "auto", display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 10, marginTop: 4 }}
           >
             {[
+              { href: "/support", label: "❤ 応援する" },
               { href: "/privacy", label: "プライバシー" },
               { href: "/terms", label: "利用規約" },
               { href: "/licenses", label: "ライセンス表記" },
