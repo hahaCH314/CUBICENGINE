@@ -18,7 +18,14 @@
 
 ## 🔷 2026-07-08 シオン→ヒマワリ 指示（伊波さん立会い / branch: main）
 
-### A. SPROUT ロジック画面ビジュアル（シオンが実装済み・要ヒマワリ検証＆微調整）
+> 🌻 **ヒマワリへ・最初に読む状態サマリ**
+> - ✅ **A（ロジック画面ビジュアル）＝実装＆コミット済**（`e32376a2`）。**作り直さない**。美的チューニングだけ任意で。
+> - ✅ **B（スマホPWA）＝ヒマワリが実装→シオンがレビュー＆コミット済**（`f29a4b86` ＋重複掃除`4ef02b2c`）。build通過・アイコン/manifest実体OK確認済。**作り直さない**。
+> - 🔨 **D（本アイコン差し替え）＝いま着手する唯一のタスク**。↓の仕様通りに。🔒恒久ルール（生成PNGは`public/`へ実体＋`git add`）厳守。
+> - 参考：戦略の土台は [docs/WIN_STRATEGY.md](file:///e:/MMC/minemodcraft/docs/WIN_STRATEGY.md)。芯＝MAM打倒でなく「本物を作れたと証明」。
+> - baseブランチ main / 直近HEAD付近＝上記コミット群。作業前に `git pull`/最新確認。
+
+### A. SPROUT ロジック画面ビジュアル（✅実装＆コミット済 e32376a2 ／ 検証・微調整のみ）
 `app/editor/LogicPanel.tsx` と `app/editor/page.tsx` を編集済み。`npm run build` 通過確認済み。伊波さんが実機で見て「太陽/魚が消えた」→ insetバグ修正済み。**残りはヒマワリの美的チューニングのみ**。
 
 やったこと：
@@ -28,7 +35,8 @@
 3. **「カード集まれ」を100%＋中央に**：`zoomToFit`(バラバラ倍率)を廃止し`resetPanZoom`へ接続。
 4. **完成→設定画面へ自動切替**：`LogicPanel`に`onExportReady` prop追加、`page.tsx`から`setActiveTab("settings")`を渡す。流れ＝アドオン完成🎉→お祝い→「マイクラへ放つ」→自動で🚀マイクラへ(設定)へ。[[decision_export_two_step]]は維持。
 
-### B. 🍎【大注文】スマホ用PWA（伊波さんリクエスト・ヒマワリ本実装）
+### B. 🍎【大注文】スマホ用PWA（✅ヒマワリ実装→シオンレビュー＆コミット済 f29a4b86 ／以下は記録）
+> ※下の「アイコンPNGが実在しない穴」は仮ロゴ(next/og "CE")で一旦解消済み。**本ロゴ差し替えはタスクD**へ。
 現状の土台（既にある）：`app/manifest.ts`（Next16メタデータルート）/ `app/ServiceWorkerRegistration.tsx`（SW更新バー・layout.tsxにマウント済）/ `public/sw.js`（network-first HTML＋SWR・良い出来）/ layout.tsxに`appleWebApp`＋`viewport(themeColor)`。**SWとマニフェストの仕組みは動いている。**
 
 **⚠️ 致命的な穴（#1・これが無いとインストール不可）：アイコンPNGが実在しない**
