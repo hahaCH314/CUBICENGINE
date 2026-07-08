@@ -3606,8 +3606,20 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
           <LiveStage
             blocks={blocks}
             onGather={() => {
-              if (!blocks.length) { showToast("まだカードがないよ 🃏", "warning"); return; }
-              resetPanZoom(); playAddSound(); showToast("カードを100%で真ん中に集めたよ！ 🧲", "success");
+              const { blocks: bl, } = live.current;
+              if (!bl.length) { showToast("まだカードがないよ 🃏", "warning"); return; }
+              const rect = containerRef.current?.getBoundingClientRect();
+              if (!rect) return;
+              const z = getDefaultZoom(); // 100%
+              // カード全体のバウンディングボックスの中心を、キーボードの上の見える範囲の中央へ
+              const ps = bl.map(b => { const p = getPos(b.id, bl); return { x1: p.x, y1: p.y, x2: p.x + BW, y2: p.y + blockH(b) }; });
+              const cx = (Math.min(...ps.map(p => p.x1)) + Math.max(...ps.map(p => p.x2))) / 2;
+              const cy = (Math.min(...ps.map(p => p.y1)) + Math.max(...ps.map(p => p.y2))) / 2;
+              const kb = (document.querySelector('[data-keyboard="1"]') as HTMLElement | null)?.getBoundingClientRect();
+              const availH = kb ? (kb.top - rect.top) : rect.height;
+              setZoom(z);
+              setPan({ x: rect.width / 2 - cx * z, y: availH / 2 - cy * z });
+              playAddSound(); showToast("カードを100%で集めたよ！ 🧲", "success");
             }}
           />
 
@@ -3766,7 +3778,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                   { emoji: "↩", label: "戻る", on: false, fn: () => undo() },
                   { emoji: "↪", label: "進む", on: false, fn: () => redo() },
                   { emoji: "🎯", label: "ガイド", on: showSnapGuide, fn: () => setShowSnapGuide(v => !v) },
-                  { emoji: "🗑️", label: "クリア", on: false, fn: () => { if (window.confirm("キャンバス上のすべてのブロックを消去しますか？")) { setBlocks([]); setSelected(null); playDeleteSound(); showToast("すべてのブロックを消去しました", "warning"); } } },
+                  { emoji: "🗑️", label: "クリア", on: false, fn: () => { if (window.confirm("キャンバス上のすべてのカードを消去しますか？")) { setBlocks([]); setSelected(null); playDeleteSound(); showToast("すべてのカードを消去しました", "warning"); } } },
                   { emoji: "💾", label: "保存", on: showProjects, fn: () => setShowProjects(v => !v) },
                   { emoji: "🎮", label: "サンプル", on: showTemplates, fn: () => setShowTemplates(v => !v) },
                   { emoji: "💻", label: "コード", on: showCode, fn: () => setShowCode(v => !v) },
@@ -3789,7 +3801,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               <button disabled={!isLogicValid}
                 onClick={() => { 
                   playSuccessSound(); 
-                  const lines = (genCode || "// まず きっかけ ブロックを置いて繋げよう").split("\n"); 
+                  const lines = (genCode || "// まず きっかけ カードを置いて繋げよう").split("\n"); 
                   setReveal(lines); 
                   setExportArmed(true);
                 }}
@@ -4266,14 +4278,14 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                 <button
                   onClick={() => {
-                    if (window.confirm("キャンバス上のすべてのブロックを消去しますか？")) {
+                    if (window.confirm("キャンバス上のすべてのカードを消去しますか？")) {
                       setBlocks([]);
                       setSelected(null);
                       playDeleteSound();
-                      showToast("すべてのブロックを消去しました", "warning");
+                      showToast("すべてのカードを消去しました", "warning");
                     }
                   }}
-                  title="すべてのブロックを消去する"
+                  title="すべてのカードを消去する"
                   style={{
                     width: 44, height: 40, borderRadius: "9px",
                     background: "linear-gradient(135deg, #ffe5d9 0%, #ffcad4 100%)", // ピーチ
@@ -4478,7 +4490,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               disabled={!isLogicValid}
               onClick={() => {
                 playSuccessSound();
-                const lines = (genCode || "// まず きっかけ ブロックを置いて繋げよう").split("\n");
+                const lines = (genCode || "// まず きっかけ カードを置いて繋げよう").split("\n");
                 setReveal(lines);          // ← お祝い演出(実際のコードを見る瞬間)は必ず通す
                 setExportArmed(true);      // ← このボタンを押して初めて設定画面の書き出しを解錠
               }}

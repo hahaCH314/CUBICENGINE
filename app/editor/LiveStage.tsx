@@ -409,7 +409,7 @@ export default function LiveStage({ blocks, onGather }: { blocks: CBlock[]; onGa
           <>
             <Hero asleep x={0} hop={false} kind={theme.heroKind} />
             <div style={{ position: "absolute", left: 0, right: 0, top: 70, textAlign: "center", color: "rgba(255,255,255,0.8)", textShadow: "0 1px 3px rgba(0,0,0,0.4)", fontSize: 12, fontWeight: 800, pointerEvents: "none", zIndex: 10 }}>
-              {hasBlocks ? "▲ きっかけ ブロックから つなげてみて" : "ここに 作ったものが 動くよ"}
+              {hasBlocks ? "▲ きっかけ カードから つなげてみて" : "ここに 作ったものが 動くよ"}
             </div>
           </>
         )}
@@ -449,10 +449,10 @@ export default function LiveStage({ blocks, onGather }: { blocks: CBlock[]; onGa
       </div>
     )}
 
-    {/* おいたブロック一覧 */}
+    {/* 置いたカード一覧 */}
     {blocks.length > 0 && (
       <div style={placedListWrap}>
-        <div style={{ fontSize: 12, fontWeight: 900, color: "#475569", textAlign: "center" }}>📦 おいたブロック（{blocks.length}）</div>
+        <div style={{ fontSize: 12, fontWeight: 900, color: "#475569", textAlign: "center" }}>📦 置いたカード（{blocks.length}）</div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
           {blocks.map(b => {
             const vals = b.fields.map(f => f.value).filter(Boolean).join(" / ").replace(/minecraft:/g, "");
