@@ -6,20 +6,26 @@
 //     stale-while-revalidate で高速かつ古くならない。
 //   - オフライン時のみキャッシュへフォールバック（ローカル/オフライン運営の盾を維持）。
 // キャッシュ名を上げると activate で旧キャッシュ(古いHTML)を一掃する。
-const CACHE_NAME = 'cubicengine-v2'
+// ⚠️ 新しいビルドを配るたびに必ずこの版番号を上げる（activate で旧キャッシュを一掃するトリガー）。
+const CACHE_NAME = 'cubicengine-v3'
+// 実在するものだけ。存在しないURL(例: 削除した /icon.svg)を入れると addAll が丸ごと reject し、
+// install 自体が失敗 → 新SWが有効化されず旧キャッシュが永久に残る（特にiOSで顕著だった事故）。
 const STATIC_ASSETS = [
   '/',
   '/editor',
-  '/icon.svg',
 ]
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE_NAME)
+      // allSettled: 1つの404で install 全体を壊さない（キャッシュはあくまでオフライン保険）。
+      .then((cache) => Promise.allSettled(STATIC_ASSETS.map((u) => cache.add(u))))
+      // キャッシュ処理後に即時有効化＝新SWを「待機」させず即引き継ぐ。
+      // 旧設計は「更新バーを押すまで待機」だったが、PWA(特にiOS)利用者はバーに気づかず
+      // 旧SWが古いキャッシュを配り続けて "アプリにすると古い版が消えない" 事故になっていた。
+      // 開発が活発なフェーズは「常に最新」を最優先する。編集中は localStorage 自動保存で守る。
+      .then(() => self.skipWaiting())
   )
-  // ここでは skipWaiting しない＝新SWは「待機」状態で止める。
-  // ユーザーが画面の「更新する」バーを押したら SKIP_WAITING メッセージで切替える。
-  // （編集中に勝手にリロードして作業が飛ぶのを防ぐため）
 })
 
 // クライアント(ページ)から「更新する」が押されたら待機を解除して新SWを有効化。

@@ -56,3 +56,9 @@ next-env.d.ts
 dev_ps.log
 repro_dev.log
 *_dev.log
+
+# 使い捨てのデバッグ/確認スクリプト（git状態・typecheck・履歴を調べる類い。
+# 繰り返し生成されるので追跡しない＝コミット事故＆Source Controlのノイズを防ぐ）
+/check.js
+/git_check.js
+/find_history.js
