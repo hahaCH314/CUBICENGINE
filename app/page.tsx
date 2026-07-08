@@ -506,9 +506,14 @@ export default function HomePage() {
             }}
             className="group hover:border-amber-400 hover:-translate-y-0.5 transition-all duration-300"
           >
-            <p className="font-pixel text-[10px] tracking-widest text-[#f0a818] opacity-85">
-              {t(locale, "founder.eyebrow")}
-            </p>
+            <div className="flex flex-col items-center gap-1.5 text-center">
+              <p className="font-pixel text-[10px] tracking-widest text-[#f0a818] opacity-85">
+                {t(locale, "founder.eyebrow")}
+              </p>
+              <p className="font-pixel text-[13px] text-[#f0a818]">
+                {t(locale, "founder.name")}
+              </p>
+            </div>
             {/* 写真 */}
             <div
               className="w-full rounded-xl overflow-hidden relative shrink-0"
