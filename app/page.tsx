@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import { useEditorStore } from "./editor/store";
 import { t } from "../lib/i18n";
 import { Gem, Sparkles } from "lucide-react";
