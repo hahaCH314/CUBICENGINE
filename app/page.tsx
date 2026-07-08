@@ -13,6 +13,61 @@ function W({ children }: { children: React.ReactNode }) {
   return <span className="inline-block whitespace-normal sm:whitespace-nowrap">{children}</span>;
 }
 
+// 紹介動画。ブロッカー等でYouTube埋め込みが出ない時でも"空箱"にならないよう、
+// まずブランドの表紙を出し、クリックで初めてiframeを読み込む（プライバシー/表示速度も◎）。
+// うまく出ない環境向けに「YouTubeで見る」外部リンクも添える。
+const INTRO_VIDEO_ID = "qk6wVNlZtoo";
+function IntroVideo() {
+  const [play, setPlay] = useState(false);
+  return (
+    <div className="w-full max-w-2xl mx-auto mt-12 mb-4 px-4">
+      <div
+        className="relative w-full rounded-3xl overflow-hidden shadow-[0_15px_45px_rgba(0,0,0,0.5)] border-2 border-white/5"
+        style={{ aspectRatio: "16 / 9", background: "radial-gradient(circle at 50% 40%, #123, #0a0a0c 75%)" }}
+      >
+        {play ? (
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${INTRO_VIDEO_ID}?rel=0&autoplay=1`}
+            title="CUBICENGINE 使い方紹介動画"
+            className="absolute inset-0 w-full h-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+            style={{ border: 0 }}
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setPlay(true)}
+            aria-label="紹介動画を再生"
+            className="absolute inset-0 w-full h-full flex flex-col items-center justify-center gap-3 group cursor-pointer"
+          >
+            <span
+              className="flex items-center justify-center rounded-full transition-transform duration-200 group-hover:scale-110 group-active:scale-95"
+              style={{ width: 68, height: 68, background: "#00ddb5", boxShadow: "0 0 24px #00ddb5aa" }}
+            >
+              <span style={{ marginLeft: 6, borderStyle: "solid", borderWidth: "13px 0 13px 22px", borderColor: "transparent transparent transparent #0a0a0c" }} />
+            </span>
+            <span style={{ fontSize: 15, fontWeight: 800, color: "#e6fff9" }} className="font-sans">
+              ▶ 紹介動画を見る
+            </span>
+          </button>
+        )}
+      </div>
+      <div className="text-center mt-2">
+        <a
+          href={`https://www.youtube.com/watch?v=${INTRO_VIDEO_ID}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-muted/70 hover:text-foreground underline underline-offset-2 transition-colors"
+        >
+          うまく出ないときは YouTube で見る ↗
+        </a>
+      </div>
+    </div>
+  );
+}
+
 // 1行（作者が意図した改行の区切り）。この単位で必ず改行し、長い行は中の W かたまりで折り返す
 function L({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return <span className={`block ${className}`}>{children}</span>;
@@ -286,23 +341,8 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* ★紹介動画セクション */}
-        <div className="w-full max-w-2xl mx-auto mt-12 mb-4 px-4">
-          <div
-            className="relative w-full rounded-3xl overflow-hidden shadow-[0_15px_45px_rgba(0,0,0,0.5)] border-2 border-white/5"
-            style={{ aspectRatio: "16 / 9" }}
-          >
-            <iframe
-              src="https://www.youtube-nocookie.com/embed/qk6wVNlZtoo?rel=0"
-              title="CUBICENGINE 使い方紹介動画"
-              className="absolute inset-0 w-full h-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
-              allowFullScreen
-              style={{ border: 0 }}
-            />
-          </div>
-        </div>
+        {/* ★紹介動画セクション（ブロックされても空箱にならないクリック再生式） */}
+        <IntroVideo />
 
         {/* ★応援と作者紹介の独立カードエリア */}
         <div className="flex flex-col md:flex-row gap-8 justify-center items-stretch max-w-4xl mx-auto mt-16 mb-12 px-4 w-full">
