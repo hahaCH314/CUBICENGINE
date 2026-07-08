@@ -2151,6 +2151,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
   const getDefaultZoom = useCallback(() => {
     if (typeof window === "undefined") return BASE_ZOOM;
     const w = window.innerWidth;
+    if (w < 768) return 0.55;  // スマホ等
     if (w < 1024) return 0.65; // タブレット等
     if (w < 1366) return 0.8;  // ノートPC等
     return BASE_ZOOM;          // デスクトップ
@@ -3594,25 +3595,27 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
             />
           )}
 
-          <LiveStage
-            blocks={blocks}
-            onGather={() => {
-              const { blocks: bl, } = live.current;
-              if (!bl.length) { showToast("まだカードがないよ 🃏", "warning"); return; }
-              const rect = containerRef.current?.getBoundingClientRect();
-              if (!rect) return;
-              const z = getDefaultZoom(); // 100%
-              // カード全体のバウンディングボックスの中心を、キーボードの上の見える範囲の中央へ
-              const ps = bl.map(b => { const p = getPos(b.id, bl); return { x1: p.x, y1: p.y, x2: p.x + BW, y2: p.y + blockH(b) }; });
-              const cx = (Math.min(...ps.map(p => p.x1)) + Math.max(...ps.map(p => p.x2))) / 2;
-              const cy = (Math.min(...ps.map(p => p.y1)) + Math.max(...ps.map(p => p.y2))) / 2;
-              const kb = (document.querySelector('[data-keyboard="1"]') as HTMLElement | null)?.getBoundingClientRect();
-              const availH = kb ? (kb.top - rect.top) : rect.height;
-              setZoom(z);
-              setPan({ x: rect.width / 2 - cx * z, y: availH / 2 - cy * z });
-              playAddSound(); showToast("カードを100%で集めたよ！ 🧲", "success");
-            }}
-          />
+          {!isMobile && (
+            <LiveStage
+              blocks={blocks}
+              onGather={() => {
+                const { blocks: bl, } = live.current;
+                if (!bl.length) { showToast("まだカードがないよ 🃏", "warning"); return; }
+                const rect = containerRef.current?.getBoundingClientRect();
+                if (!rect) return;
+                const z = getDefaultZoom(); // 100%
+                // カード全体のバウンディングボックスの中心を、キーボードの上の見える範囲の中央へ
+                const ps = bl.map(b => { const p = getPos(b.id, bl); return { x1: p.x, y1: p.y, x2: p.x + BW, y2: p.y + blockH(b) }; });
+                const cx = (Math.min(...ps.map(p => p.x1)) + Math.max(...ps.map(p => p.x2))) / 2;
+                const cy = (Math.min(...ps.map(p => p.y1)) + Math.max(...ps.map(p => p.y2))) / 2;
+                const kb = (document.querySelector('[data-keyboard="1"]') as HTMLElement | null)?.getBoundingClientRect();
+                const availH = kb ? (kb.top - rect.top) : rect.height;
+                setZoom(z);
+                setPan({ x: rect.width / 2 - cx * z, y: availH / 2 - cy * z });
+                playAddSound(); showToast("カードを100%で集めたよ！ 🧲", "success");
+              }}
+            />
+          )}
 
           {/* たまにキーボードの上を横切るクリーパーの影／上から落ちるエンダーマンの影 */}
           <WanderingShadow />
@@ -3623,30 +3626,42 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
             <button
               onClick={() => setShowMobileConsole(true)}
               style={{
-                position: "absolute", bottom: 155, right: 12, width: 52, height: 52,
-                borderRadius: 26, background: "linear-gradient(135deg,#bef264,#22c55e)",
+                position: "absolute", bottom: 20, right: 20, padding: "12px 20px",
+                borderRadius: 999, background: "linear-gradient(135deg,#bef264,#22c55e)",
                 border: "3px solid #1e293b",
                 boxShadow: "0 6px 16px rgba(0,0,0,0.25), 0 3px 0 #15803d, inset 0 2px 4px rgba(255,255,255,0.4)",
-                color: "#1e293b", fontSize: 24, fontWeight: 900,
-                display: "flex", alignItems: "center", justifyContent: "center",
+                color: "#1e293b", fontSize: 16, fontWeight: 900,
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                 zIndex: 43, cursor: "pointer",
               }}
             >
-              🔧
+              <span style={{ fontSize: 20 }}>➕</span> カードを追加
             </button>
           )}
 
           {/* ⌨️ 下部キーボード：カードを“打つ”入力面（左右パネルを統合） */}
-          <div data-keyboard="1" style={{
-            position: "absolute", left: isMobile ? 4 : 12, right: isMobile ? 4 : 12, bottom: isMobile ? 4 : 12, 
-            height: isMobile ? 140 : 178,
-            display: "flex", gap: isMobile ? 6 : 12, padding: isMobile ? 8 : 12, boxSizing: "border-box",
-            background: "#cfeede",
-            border: isMobile ? "2px solid #8bc79e" : "4px solid #8bc79e", 
-            borderRadius: isMobile ? 12 : 18,
-            boxShadow: "inset 0 2px 0 rgba(255,255,255,0.6), 0 10px 24px rgba(0,0,0,0.18)",
-            zIndex: 42,
-          }}>
+          {(!isMobile || showMobileConsole) && (
+            <div data-keyboard="1" style={{
+              position: "absolute", left: isMobile ? 4 : 12, right: isMobile ? 4 : 12, bottom: isMobile ? 4 : 12, 
+              height: isMobile ? 140 : 178,
+              display: "flex", gap: isMobile ? 6 : 12, padding: isMobile ? 8 : 12, boxSizing: "border-box",
+              background: "#cfeede",
+              border: isMobile ? "2px solid #8bc79e" : "4px solid #8bc79e", 
+              borderRadius: isMobile ? 12 : 18,
+              boxShadow: "inset 0 2px 0 rgba(255,255,255,0.6), 0 10px 24px rgba(0,0,0,0.18)",
+              zIndex: 42,
+            }}>
+              {isMobile && (
+                <button
+                  onClick={() => setShowMobileConsole(false)}
+                  style={{
+                    position: "absolute", top: -16, right: 10, width: 34, height: 34, borderRadius: 17,
+                    background: "#ef4444", border: "2px solid #1e293b", color: "#fff",
+                    fontWeight: "bold", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                    boxShadow: "0 3px 0 #991b1b, 0 3px 6px rgba(0,0,0,0.2)"
+                  }}
+                >✕</button>
+              )}
             {/* 左：プリミティブ（カテゴリ＋アイテムキー） */}
             <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: isMobile ? 4 : 8 }}>
               {/* カテゴリタブ列 */}
@@ -3812,6 +3827,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               </button>
             </div>
           </div>
+          )}
 
           {/* ✏️ 選んだカードの中身エディタ（直接配置式＝旧STEP3の代わり。条件もここで変える） */}
           {(() => {

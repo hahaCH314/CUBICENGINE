@@ -180,7 +180,7 @@ function StatusBar() {
           <span className="w-2.5 h-2.5 bg-emerald-500 shadow-[0_0_4px_#10b981]" />
           準備完了
         </span>
-        <span>ブロック: {blocksCount}</span>
+        <span>カード: {blocksCount}</span>
         <span>グリッド: 16×16</span>
       </div>
       <div className="flex items-center gap-4">
