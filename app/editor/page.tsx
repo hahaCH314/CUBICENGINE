@@ -192,8 +192,45 @@ function StatusBar() {
 }
 
 function PhoneHint() {
-  // モバイル完全対応（UX大工事）のため、非推奨警告は撤去
-  return null;
+  // 作る画面は横長で使う道具（下部キーボード＋広いキャンバス）。スマホ縦だと収まらないので、
+  // 縦向きの小さい画面のときだけ「横向きにしてね」と促すオーバーレイを出す（CSSのみ・強制回転はしない）。
+  // ※manifestのorientation強制はiOS PWAが無視しがちなので、案内で促すのが確実。
+  // ※トップ(紹介ページ)には出さない＝ここ(エディタ)専用。縦スマホでの本格対応は将来の大工事。
+  return (
+    <>
+      <style>{`
+        .rotate-hint { display: none; }
+        @media (orientation: portrait) and (max-width: 860px) {
+          .rotate-hint { display: flex; }
+        }
+        @keyframes rotateHintTurn {
+          0%, 55%  { transform: rotate(0deg); }
+          75%, 100% { transform: rotate(-90deg); }
+        }
+      `}</style>
+      <div
+        className="rotate-hint"
+        style={{
+          position: "fixed", inset: 0, zIndex: 100000,
+          flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20,
+          background: "radial-gradient(circle at 50% 40%, #14201e, #0a0a0c 70%)",
+          color: "#e6fff9", textAlign: "center", padding: "32px 24px",
+          fontFamily: "'M PLUS Rounded 1c', system-ui, sans-serif",
+        }}
+      >
+        <div style={{ fontSize: 64, lineHeight: 1, animation: "rotateHintTurn 2.6s ease-in-out infinite", filter: "drop-shadow(0 0 12px #00ddb5aa)" }}>
+          📱
+        </div>
+        <div style={{ fontSize: 22, fontWeight: 900, color: "#00ddb5", letterSpacing: "0.03em" }}>
+          よこ向きにしてね
+        </div>
+        <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.7, color: "#cdeee6", maxWidth: 320 }}>
+          「作る画面」は<b>よこ長</b>で広々つかう道具だよ。<br />
+          スマホをくるっと横にすると、ぜんぶ見えるよ 📐✨
+        </div>
+      </div>
+    </>
+  );
 }
 
 /* ─── Main Editor Page ─── */

@@ -7,8 +7,10 @@ import { t } from "../lib/i18n";
 import { Gem, Sparkles } from "lucide-react";
 
 // 子どもでも読みやすいよう、意味のかたまり単位で改行する（かたまりの途中では折り返さない）
+// ※スマホ(狭い画面)では、かたまりが画面幅を超えて横にはみ出すのを防ぐため折り返しを許可。
+//   sm(640px)以上ではこれまで通り nowrap で作者が意図したきれいな改行を保つ。
 function W({ children }: { children: React.ReactNode }) {
-  return <span className="inline-block whitespace-nowrap">{children}</span>;
+  return <span className="inline-block whitespace-normal sm:whitespace-nowrap">{children}</span>;
 }
 
 // 1行（作者が意図した改行の区切り）。この単位で必ず改行し、長い行は中の W かたまりで折り返す

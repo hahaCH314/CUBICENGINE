@@ -85,6 +85,12 @@
   scrollbar-color: var(--surface-active) transparent;
 }
 
+html, body {
+  /* スマホ縦で万一はみ出す要素があっても、横スクロール/表示崩れを防ぐ安全網 */
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 body {
   background-color: var(--background);
   background-image: 
