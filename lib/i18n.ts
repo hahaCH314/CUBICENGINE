@@ -45,7 +45,7 @@ export const DICT: Record<string, Entry> = {
   "sprout.desc":      { ja: "統合版（スマホ・Switch・PC）で遊ぶ人はこっち。", en: "Bedrock edition — phone, Switch & PC." },
   "grove.tag":        { ja: "Java版用", en: "For Java" },
   "grove.desc":       { ja: "JAVA版（パソコン）で作る人はこっち。", en: "Java edition — PC." },
-  "cta.tryWeb":       { ja: "🌐 ブラウザで試す", en: "🌐 Try in browser" },
+  "cta.tryWeb":       { ja: "✨ さっそく作る", en: "✨ Start creating" },
   "dl.win":           { ja: "💻 Windows版 (.exe)", en: "💻 Windows (.exe)" },
   "dl.mac":           { ja: "🍎 macOS版 (.dmg)", en: "🍎 macOS (.dmg)" },
   "dl.go":            { ja: "⬇ DL", en: "⬇ DL" },
