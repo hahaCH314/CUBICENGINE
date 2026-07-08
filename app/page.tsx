@@ -228,7 +228,6 @@ export default function HomePage() {
           {/* SPROUT Card */}
           <div
             style={{
-              flex: "1 1 240px",
               maxWidth: "320px",
               padding: "28px 24px",
               borderRadius: "24px",
@@ -242,7 +241,7 @@ export default function HomePage() {
               gap: "20px",
               transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
-            className="hover:scale-[1.03] hover:border-[#a3e635] hover:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8),0_0_35px_0_rgba(132,204,22,0.2)]"
+            className="w-full md:w-auto md:flex-[1_1_240px] hover:scale-[1.03] hover:border-[#a3e635] hover:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8),0_0_35px_0_rgba(132,204,22,0.2)]"
           >
             {/* Tag */}
             <span className="px-4 py-1.5 rounded-full text-xs font-pixel tracking-wider" style={{ background: "rgba(132, 204, 22, 0.15)", color: "#a3e635", border: "1.5px solid rgba(132, 204, 22, 0.3)", textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>
@@ -272,7 +271,6 @@ export default function HomePage() {
           {/* GROVE Card */}
           <div
             style={{
-              flex: "1 1 240px",
               maxWidth: "320px",
               padding: "28px 24px",
               borderRadius: "24px",
@@ -286,7 +284,7 @@ export default function HomePage() {
               gap: "20px",
               transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
-            className="hover:scale-[1.03] hover:border-[#38bdf8] hover:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8),0_0_35px_0_rgba(14, 165, 233, 0.2)]"
+            className="w-full md:w-auto md:flex-[1_1_240px] hover:scale-[1.03] hover:border-[#38bdf8] hover:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8),0_0_35px_0_rgba(14, 165, 233, 0.2)]"
           >
             {/* Tag */}
             <span className="px-4 py-1.5 rounded-full text-xs font-pixel tracking-wider" style={{ background: "rgba(14, 165, 233, 0.15)", color: "#38bdf8", border: "1.5px solid rgba(14, 165, 233, 0.3)", textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>
@@ -348,7 +346,6 @@ export default function HomePage() {
         <div className="flex flex-col md:flex-row gap-8 justify-center items-stretch max-w-4xl mx-auto mt-16 mb-12 px-4 w-full">
           <div
             style={{
-              flex: "5 1 340px",
               padding: "36px 32px",
               borderRadius: "24px",
               background: "rgba(255, 255, 255, 0.05)",
@@ -360,7 +357,7 @@ export default function HomePage() {
               position: "relative",
               overflow: "hidden",
             }}
-            className="group hover:border-emerald-400 hover:-translate-y-0.5 transition-all duration-300"
+            className="w-full md:w-auto md:flex-[5_1_340px] group hover:border-emerald-400 hover:-translate-y-0.5 transition-all duration-300"
           >
             {/* カード背景にうっすら浮かぶダイヤ */}
             <div className="absolute -right-6 -bottom-6 text-emerald-500/5 pointer-events-none group-hover:scale-110 transition-transform duration-500">
@@ -493,7 +490,6 @@ export default function HomePage() {
           {/* 右カード：作者紹介（コンパクトに写真＋自己紹介） */}
           <div
             style={{
-              flex: "4 1 280px",
               maxWidth: "360px",
               padding: "36px 32px",
               borderRadius: "24px",
@@ -504,7 +500,7 @@ export default function HomePage() {
               flexDirection: "column",
               gap: "20px",
             }}
-            className="group hover:border-amber-400 hover:-translate-y-0.5 transition-all duration-300"
+            className="w-full md:w-auto md:flex-[4_1_280px] group hover:border-amber-400 hover:-translate-y-0.5 transition-all duration-300"
           >
             <div className="flex flex-col items-center gap-1.5 text-center">
               <p className="font-pixel text-[10px] tracking-widest text-[#f0a818] opacity-85">
