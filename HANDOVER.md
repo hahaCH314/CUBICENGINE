@@ -7,6 +7,47 @@
 
 ---
 
+## 🔷 2026-07-08 シオン→ヒマワリ 指示（伊波さん立会い / branch: main）
+
+### A. SPROUT ロジック画面ビジュアル（シオンが実装済み・要ヒマワリ検証＆微調整）
+`app/editor/LogicPanel.tsx` と `app/editor/page.tsx` を編集済み。`npm run build` 通過確認済み。伊波さんが実機で見て「太陽/魚が消えた」→ insetバグ修正済み。**残りはヒマワリの美的チューニングのみ**。
+
+やったこと：
+1. **背景の視差廃止 → 装飾は固定**：`WorkshopBackdrop`(海)/`LandBackdrop`(空)の太陽・雲・光・魚を「動かさず固定」に戻した。外枠`inset`は`-20%`（`-100%`だと％配置の装飾が画面外に飛ぶバグだった）。
+2. **世界に浮かぶ光の粒（グリッド置き換え）**：方眼グリッドは「事務ソフト臭い」と却下。代わりにカードと同じ世界座標(`transformOrigin:"0 0"`の変換コンテナ内)に`WORLD_MOTES`(seed固定60個)の光の粒を配置。**ズーム/パンでカードと1:1で動く＝移動の基準**。海テーマ＋[[grove_visual_light_plan]]の神秘的な光と揃える狙い。
+   - 🌻ヒマワリへ：**粒の密度(60)・明るさ(o=0.10〜0.30)・色(白〜#e0f2fe)** は控えめスタート。実機で見て濃さ/色を詰めて。`mote-float`アニメも調整可。
+3. **「カード集まれ」を100%＋中央に**：`zoomToFit`(バラバラ倍率)を廃止し`resetPanZoom`へ接続。
+4. **完成→設定画面へ自動切替**：`LogicPanel`に`onExportReady` prop追加、`page.tsx`から`setActiveTab("settings")`を渡す。流れ＝アドオン完成🎉→お祝い→「マイクラへ放つ」→自動で🚀マイクラへ(設定)へ。[[decision_export_two_step]]は維持。
+
+### B. 🍎【大注文】スマホ用PWA（伊波さんリクエスト・ヒマワリ本実装）
+現状の土台（既にある）：`app/manifest.ts`（Next16メタデータルート）/ `app/ServiceWorkerRegistration.tsx`（SW更新バー・layout.tsxにマウント済）/ `public/sw.js`（network-first HTML＋SWR・良い出来）/ layout.tsxに`appleWebApp`＋`viewport(themeColor)`。**SWとマニフェストの仕組みは動いている。**
+
+**⚠️ 致命的な穴（#1・これが無いとインストール不可）：アイコンPNGが実在しない**
+- `app/manifest.ts` は `/icon-512x512.png` を参照 → **public/に存在しない**
+- `public/manifest.json`（別物・重複）は `/icon-512.png` `/icon-192.png` を参照 → **どちらも存在しない**
+- → やること：
+  1. **アイコン実体を作る**：`public/icon-192.png` `public/icon-512.png` `public/apple-touch-icon.png(180x180)`。CUBICENGINEロゴ/紫系。maskable用に安全域(周囲20%余白)を確保。
+  2. **マニフェスト重複を解消**：`app/manifest.ts`(Next流)を正とし、`public/manifest.json`は削除。参照パスをアイコン実体に合わせ、icons配列に192(any)+512(any maskable)+apple-touchを明記。
+  3. `app/manifest.ts`に`lang:"ja"`,`scope:"/"`,`orientation`等も追記推奨。
+
+**iOS対応（iPhoneは`beforeinstallprompt`が無い＝手動A2HS）**
+- `apple-touch-icon.png`を確実に配信（metadata or `<link rel="apple-touch-icon">`）。
+- iOS Safari用に「共有→ホーム画面に追加」を促す軽い案内（`navigator.standalone`で非インストール時のみ）。
+
+**Android/デスクトップ A2HS**
+- `beforeinstallprompt`を拾って「ホーム画面に追加」ボタンを出すUX（任意・あると強い）。
+
+**スコープ要確認（伊波さんへ質問中）**：スマホPWAの目的は？
+- (a)ランディング/応援で宣伝導線 / (b)エディタもスマホで動く（今は「作るのはPC/タブレット推奨」案内あり＝別途モバイルUX大工事） / (c)作った作品をスマホで遊ぶ。
+- → **推奨：まず(a)+インストール可能化を完成**（アイコン穴埋め＝最短で「入る」状態に）。エディタのスマホ最適化(b)は別タスクで切り分け。
+
+⚠️ AGENTS.md厳守：**このNextは通常版と違う。実装前に`node_modules/next/dist/docs/`の該当ガイド(metadata/manifest/viewport)を必ず読むこと。**
+
+### C. 未コミットの `.claude/settings.json`
+Forge検証作業の権限allow残骸。機能と無関係。コミット対象から外す or 別コミット推奨。
+
+---
+
 ## 🌻 2026-07-06 ヒマワリ対応完了 — トップページデザイン改修と機能統合 (シオンへ引き継ぎ)
 
 シオン、お疲れ様！ヒマワリだよ🌻

@@ -353,18 +353,8 @@ export default function EditorPage() {
         {/* ログインボタン（右上） */}
         <EditorAuthButton />
 
-        {/* Window controls placeholder */}
-        <div className="flex items-center gap-0.5">
-          <button className="w-7 h-7 rounded-none flex items-center justify-center text-muted hover:text-foreground hover:bg-surface transition-colors text-xs border border-transparent hover:border-border">
-            ─
-          </button>
-          <button className="w-7 h-7 rounded-none flex items-center justify-center text-muted hover:text-foreground hover:bg-surface transition-colors text-xs border border-transparent hover:border-border">
-            □
-          </button>
-          <button className="w-7 h-7 rounded-none flex items-center justify-center text-muted hover:text-white hover:bg-rose-600 transition-colors text-xs border border-transparent hover:border-border">
-            ✕
-          </button>
-        </div>
+        {/* ニセの窓ボタン(─□✕)は撤去：ブラウザで無意味＆"事務ソフトの顔"の元凶。
+            初見の第一印象を「魔法の創作ツール」に寄せる（[[feedback_novelty_over_familiar]]）。 */}
       </div>
 
       {/* ─ Premium Modern Tab Bar ─ */}
@@ -412,7 +402,7 @@ export default function EditorPage() {
       {/* display で切り替えて常にマウント維持 → state が消えない */}
       {/* 作り方はスタート画面で選択済み（?mode）。editor内の切替トグルは撤去。 */}
       <div className="flex-1 overflow-hidden relative" style={{ display: activeTab === "logic" ? "block" : "none" }}>
-        <div style={{ position: "absolute", inset: 0, display: logicView === "tsumiki" ? "block" : "none" }}><LogicPanel /></div>
+        <div style={{ position: "absolute", inset: 0, display: logicView === "tsumiki" ? "block" : "none" }}><LogicPanel onExportReady={() => setActiveTab("settings")} /></div>
         <div style={{ position: "absolute", inset: 0, display: logicView === "grape" ? "block" : "none" }}><GrapePanel /></div>
       </div>
       <div className="flex-1 overflow-hidden relative" style={{ display: activeTab === "model" ? "block" : "none" }}>

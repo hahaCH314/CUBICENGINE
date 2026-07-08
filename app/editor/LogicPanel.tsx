@@ -667,48 +667,92 @@ function ToyFloor() {
   );
 }
 
+// 世界に浮かぶ光の粒（プランクトン/光のもや）。カードと同じ世界座標に固定するので、
+// パン/ズームでカードと1:1で動く＝「動きの基準」。方眼グリッドの置き換え。SSRとズレないよう
+// 乱数はseed固定でモジュール読み込み時に一度だけ生成する。
+const WORLD_MOTES = (() => {
+  let seed = 20260708;
+  const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+  const arr: { x: number; y: number; r: number; o: number; dur: number; delay: number }[] = [];
+  for (let i = 0; i < 60; i++) {
+    arr.push({
+      x: Math.round(-1200 + rnd() * 3600),
+      y: Math.round(-800 + rnd() * 2400),
+      r: 2 + rnd() * 5,
+      o: 0.10 + rnd() * 0.20,
+      dur: 6 + rnd() * 8,
+      delay: -rnd() * 10,
+    });
+  }
+  return arr;
+})();
+
 function LandBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: number } }) {
+  // 空・太陽・雲は固定（動かさない）。位置確認用の目盛りはカード側の世界グリッドが担う。
+  void zoom; void pan;
   return (
     <div style={{ position: "absolute", inset: "-20%", overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        @keyframes cloud-drift {
-          0% { transform: translateX(-10%); }
-          100% { transform: translateX(110%); }
-        }
-        @keyframes sun-glow {
-          0% { box-shadow: 0 0 40px rgba(255,215,0,0.4), 0 0 100px rgba(255,140,0,0.2); }
-          100% { box-shadow: 0 0 60px rgba(255,215,0,0.6), 0 0 140px rgba(255,140,0,0.3); }
-        }
-      `}} />
+      {/* 固定の背景グラデーション */}
       <div style={{
         position: "absolute", inset: 0,
         background: "linear-gradient(to bottom, #87CEEB 0%, #B0E0E6 40%, #E0F6FF 70%, #F0F8FF 100%)",
       }} />
-      <div style={{
-        position: "absolute", top: "10%", left: "15%",
-        width: 120, height: 120, borderRadius: "50%",
-        background: "radial-gradient(circle, #FFFBEB 0%, #FFD700 60%, transparent 100%)",
-        animation: "sun-glow 4s infinite alternate ease-in-out",
-        zIndex: 1
-      }} />
-      {/* 雲 */}
-      <div style={{ position: "absolute", top: "20%", left: "-20%", width: 200, height: 60, background: "rgba(255,255,255,0.8)", filter: "blur(20px)", borderRadius: "100px", animation: "cloud-drift 60s infinite linear", zIndex: 2 }} />
-      <div style={{ position: "absolute", top: "40%", left: "-30%", width: 300, height: 80, background: "rgba(255,255,255,0.6)", filter: "blur(30px)", borderRadius: "100px", animation: "cloud-drift 90s infinite linear 10s", zIndex: 2 }} />
-      <div style={{ position: "absolute", top: "15%", left: "-10%", width: 150, height: 50, background: "rgba(255,255,255,0.9)", filter: "blur(15px)", borderRadius: "100px", animation: "cloud-drift 45s infinite linear 25s", zIndex: 2 }} />
+
+      {/* 太陽・雲は固定 */}
+      <div style={{ position: "absolute", inset: 0 }}>
+        <style dangerouslySetInnerHTML={{
+          __html: `
+          @keyframes cloud-drift {
+            0% { transform: translateX(-10%); }
+            100% { transform: translateX(110%); }
+          }
+          @keyframes sun-glow {
+            0% { box-shadow: 0 0 40px rgba(255,215,0,0.4), 0 0 100px rgba(255,140,0,0.2); }
+            100% { box-shadow: 0 0 60px rgba(255,215,0,0.6), 0 0 140px rgba(255,140,0,0.3); }
+          }
+        `}} />
+        <div style={{
+          position: "absolute", top: "10%", left: "15%",
+          width: 120, height: 120, borderRadius: "50%",
+          background: "radial-gradient(circle, #FFFBEB 0%, #FFD700 60%, transparent 100%)",
+          animation: "sun-glow 4s infinite alternate ease-in-out",
+          zIndex: 1
+        }} />
+        {/* 雲 */}
+        <div style={{ position: "absolute", top: "20%", left: "-20%", width: 200, height: 60, background: "rgba(255,255,255,0.8)", filter: "blur(20px)", borderRadius: "100px", animation: "cloud-drift 60s infinite linear", zIndex: 2 }} />
+        <div style={{ position: "absolute", top: "40%", left: "-30%", width: 300, height: 80, background: "rgba(255,255,255,0.6)", filter: "blur(30px)", borderRadius: "100px", animation: "cloud-drift 90s infinite linear 10s", zIndex: 2 }} />
+        <div style={{ position: "absolute", top: "15%", left: "-10%", width: 150, height: 50, background: "rgba(255,255,255,0.9)", filter: "blur(15px)", borderRadius: "100px", animation: "cloud-drift 45s infinite linear 25s", zIndex: 2 }} />
+      </div>
     </div>
   );
 }
 
 function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: number } }) {
+  // 海・光・魚は固定（動かさない）。位置確認用の目盛りはカード側の世界グリッドが担う。
+  void zoom; void pan;
   return (
     <div style={{ position: "absolute", inset: "-20%", overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        @keyframes water-sway {
-          0% { transform: rotate(-1.5deg) translateY(0px); }
-          100% { transform: rotate(1.5deg) translateY(-8px); }
-        }
+      {/* 澄み渡る暖かい海（Warm Ocean）のグラデーションは固定 */}
+      <div style={{
+        position: "absolute", inset: 0,
+        background: "linear-gradient(to bottom, #7dd3fc 0%, #0ea5e9 40%, #0284c7 70%, #075985 100%)",
+      }} />
+      
+      {/* 周辺水圧ビネット（四隅を少し深く青くして、海の中に潜っている雰囲気を強調）は固定 */}
+      <div style={{
+        position: "absolute", inset: 0,
+        boxShadow: "inset 0 0 180px rgba(7,89,133,0.35)",
+        zIndex: 7,
+      }} />
+
+      {/* 光・魚は固定 */}
+      <div style={{ position: "absolute", inset: 0 }}>
+        <style dangerouslySetInnerHTML={{
+          __html: `
+          @keyframes water-sway {
+            0% { transform: rotate(-1.5deg) translateY(0px); }
+            100% { transform: rotate(1.5deg) translateY(-8px); }
+          }
         @keyframes bubble-rise {
           0% { transform: translateY(110%) translateX(0) scale(0.8); opacity: 0; }
           10% { opacity: 0.7; }
@@ -809,11 +853,7 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
         }
       `}} />
 
-      {/* 澄み渡る暖かい海（Warm Ocean）のグラデーション */}
-      <div style={{
-        position: "absolute", inset: 0,
-        background: "linear-gradient(to bottom, #7dd3fc 0%, #0ea5e9 40%, #0284c7 70%, #075985 100%)",
-      }} />
+
 
       {/* 太陽の光のカーテン（God Rays） */}
       <div style={{
@@ -1041,14 +1081,8 @@ function WorkshopBackdrop({ zoom, pan }: { zoom: number; pan: { x: number; y: nu
           animationDelay: "-6s"
         }} />
       </div>
-
-      {/* 周辺水圧ビネット（四隅を少し深く青くして、海の中に潜っている雰囲気を強調） */}
-      <div style={{
-        position: "absolute", inset: 0,
-        boxShadow: "inset 0 0 180px rgba(7,89,133,0.35)",
-        zIndex: 7,
-      }} />
     </div>
+  </div>
   );
 }
 
@@ -2051,7 +2085,7 @@ function EndermanShadow() {
   );
 }
 
-export default function LogicPanel() {
+export default function LogicPanel({ onExportReady }: { onExportReady?: () => void } = {}) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
@@ -2338,21 +2372,25 @@ export default function LogicPanel() {
     pinch.current = { dist: d || 1, zoom: live.current.zoom };
   }, []);
 
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault();
-    const rect = containerRef.current!.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    // ズーム感度をやさしく（1ノッチ ≈ 5%）。効きすぎ防止。
-    const fac = e.deltaY < 0 ? 1.05 : 1 / 1.05;
-    setZoom(z => {
-      const nz = Math.min(2.5, Math.max(0.2, z * fac));
-      setPan(p => ({
-        mx,
-        x: mx - (mx - p.x) * (nz / z),
-        y: rect.height - (rect.height - p.y) * (nz / z),
-      }));
-      return nz;
-    });
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const onWheelNative = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const fac = e.deltaY < 0 ? 1.05 : 1 / 1.05;
+      setZoom(z => {
+        const nz = Math.min(2.5, Math.max(0.2, z * fac));
+        setPan(p => ({
+          x: mx - (mx - p.x) * (nz / z),
+          y: rect.height - (rect.height - p.y) * (nz / z),
+        }));
+        return nz;
+      });
+    };
+    el.addEventListener("wheel", onWheelNative, { passive: false });
+    return () => el.removeEventListener("wheel", onWheelNative);
   }, []);
 
   const handleBgDown = useCallback((e: React.PointerEvent) => {
@@ -2843,16 +2881,6 @@ export default function LogicPanel() {
     setTimeout(() => setAddAnim(null), 620);
   }, [burstParticles]);
 
-  const zoomToFit = useCallback(() => {
-    const { blocks } = live.current; const rect = containerRef.current?.getBoundingClientRect(); if (!rect || !blocks.length) return;
-    const pad = 80;
-    const positions = blocks.map(b => { const p = getPos(b.id, blocks); const d = blockH(b); return { x1: p.x, y1: p.y, x2: p.x + BW, y2: p.y + d }; });
-    const minX = Math.min(...positions.map(p => p.x1)) - pad, minY = Math.min(...positions.map(p => p.y1)) - pad;
-    const maxX = Math.max(...positions.map(p => p.x2)) + pad, maxY = Math.max(...positions.map(p => p.y2)) + pad;
-    const nz = Math.min(2, Math.max(0.2, Math.min(rect.width / (maxX - minX), rect.height / (maxY - minY))));
-    setZoom(nz); setPan({ x: -minX * nz + (rect.width - (maxX - minX) * nz) / 2, y: -minY * nz + (rect.height - (maxY - minY) * nz) / 2 });
-  }, []);
-
   useEffect(() => {
     const code = buildCode(blocks);
     setGenCode(code); setGeneratedJsCode(code);
@@ -3313,7 +3341,7 @@ export default function LogicPanel() {
           <ThemeBackdrop theme="workshop" zoom={zoom} pan={pan} />
 
           {/* 操作キャンバス復元（カード描画＋ドラッグ/接続。背景はWorkshopBackdropを透過。色はヒマワリが後で） */}
-          <div ref={containerRef} onPointerDown={handleBgDown} onWheel={handleWheel}
+          <div ref={containerRef} onPointerDown={handleBgDown}
             style={{ position: "absolute", inset: 0, cursor: "grab", background: "transparent", zIndex: 1, touchAction: "none" }}>
             {blocks.length > 0 && (
               <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 6, pointerEvents: "none" }}>
@@ -3321,6 +3349,27 @@ export default function LogicPanel() {
               </div>
             )}
             <div style={{ position: "absolute", inset: 0, transform: `translate(${pan.x}px,${pan.y}px) scale(${zoom})`, transformOrigin: "0 0" }}>
+              {/* 世界に浮かぶ光の粒：カードと同じ座標系に固定するのでズーム/パンでカードと1:1で動く（動きの基準）。方眼グリッドの置き換え、海テーマの神秘的な光と揃える。太陽/雲/魚は背景側で固定。 */}
+              <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0 }}>
+                <style dangerouslySetInnerHTML={{ __html: `
+                  @keyframes mote-float {
+                    0% { transform: translateY(0); opacity: var(--mo); }
+                    50% { transform: translateY(-14px); opacity: calc(var(--mo) * 1.7); }
+                    100% { transform: translateY(0); opacity: var(--mo); }
+                  }
+                `}} />
+                {WORLD_MOTES.map((m, i) => (
+                  <div key={i} style={{
+                    position: "absolute", left: m.x, top: m.y, width: m.r * 2, height: m.r * 2,
+                    borderRadius: "50%",
+                    background: "radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(224,242,254,0.5) 40%, transparent 70%)",
+                    // @ts-ignore CSS変数
+                    "--mo": m.o,
+                    opacity: m.o,
+                    animation: `mote-float ${m.dur}s ease-in-out ${m.delay}s infinite`,
+                  }} />
+                ))}
+              </div>
               {mounted && (
                 <>
                   {connectors.map((c, i) => (
@@ -3532,7 +3581,7 @@ export default function LogicPanel() {
           {reveal && (
             <CodeRevealOverlay
               revealCode={reveal.join("\n")}
-              onClose={() => setReveal(null)}
+              onClose={() => { setReveal(null); onExportReady?.(); }}
               theme="workshop"
             />
           )}
@@ -3541,7 +3590,7 @@ export default function LogicPanel() {
             blocks={blocks}
             onGather={() => {
               if (!blocks.length) { showToast("まだカードがないよ 🃏", "warning"); return; }
-              zoomToFit(); playAddSound(); showToast("カードをぜんぶ集めたよ！ 🧲", "success");
+              resetPanZoom(); playAddSound(); showToast("カードを100%で真ん中に集めたよ！ 🧲", "success");
             }}
           />
 
@@ -3684,7 +3733,12 @@ export default function LogicPanel() {
               </div>
               {/* アドオン完成 */}
               <button disabled={!isLogicValid}
-                onClick={() => { playSuccessSound(); const lines = (genCode || "// まず きっかけ ブロックを置いて繋げよう").split("\n"); setReveal(lines); setExportArmed(true); }}
+                onClick={() => { 
+                  playSuccessSound(); 
+                  const lines = (genCode || "// まず きっかけ ブロックを置いて繋げよう").split("\n"); 
+                  setReveal(lines); 
+                  setExportArmed(true);
+                }}
                 style={{
                   marginTop: "auto", height: 44, borderRadius: 12, border: "3px solid #1e293b",
                   cursor: isLogicValid ? "pointer" : "not-allowed",
