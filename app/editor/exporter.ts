@@ -248,6 +248,14 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
     case "1.26.x": minEngineVersion = [1, 26, 0]; break;
   }
 
+  // ── ベータ専用APIの検出＆gating（設計=シオン）──
+  // world.beforeEvents.chatSend(ev_chat)は安定版@minecraft/serverに存在しない=ベータ専用。
+  // betaApiトグルOFFでも、検出したらbeta版を宣言しないとロード自体が失敗する（「作ったのに動かない」の温床）。
+  // beta版は安定版APIを包含するので、万一の誤検出でも安全側。
+  // TODO: chatSendが安定版に昇格したら条件を見直す（実機確認）。
+  const usesBetaOnlyApi = jsCode.includes("beforeEvents.chatSend");
+  const useBeta = state.betaApi || usesBetaOnlyApi;
+
   // アイコン: カスタム画像があればそれを使う、なければデフォルト
   const iconBytes = state.packIconDataUrl
     ? await dataUrlToBytes(state.packIconDataUrl)
@@ -280,10 +288,10 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
             // TODO: mcVersionごとの正しい@minecraft/server版を実機確認
             // ベータAPI ON=実験的スクリプトAPI(-beta / ワールドの「ベータAPI」実験が必要)
             // OFF=安定版(1.6.0 / Minecraft 1.20.30 以降・実験的機能不要)
-            { module_name: "@minecraft/server", version: state.betaApi ? "1.6.0-beta" : "1.6.0" },
+            { module_name: "@minecraft/server", version: useBeta ? "1.6.0-beta" : "1.6.0" },
             // @minecraft/server-ui は使用時のみ追加（常時追加するとロード失敗の原因になる）
             ...(jsCode.includes("ActionFormData") || jsCode.includes("ModalFormData") || jsCode.includes("MessageFormData")
-              ? [{ module_name: "@minecraft/server-ui", version: state.betaApi ? "1.1.0-beta" : "1.1.0" }]
+              ? [{ module_name: "@minecraft/server-ui", version: useBeta ? "1.1.0-beta" : "1.1.0" }]
               : []),
             { uuid: rpUuid, version: [1, 0, 0] },
           ],

@@ -233,6 +233,9 @@ function buildCode(blocks: CBlock[]): string {
   });
   const triggers = roots.filter(b => b.category === "trigger");
   const hasUI = blocks.some(b => b.category === "ui");
+  // ⚠️ ev_chat = world.beforeEvents.chatSend は安定版APIに無く、ベータAPI必須。
+  // 使っている時だけヘッダ表記を変え、起動時に注意喚起する（gating設計=シオン）。
+  const usesChat = triggers.some(b => b.type === "ev_chat");
   const varNames = new Set<string>();
   blocks.filter(b => b.category === "variable").forEach(b => {
     const name = b.fields.find(f => f.id === "name")?.value || "myVar";
@@ -242,12 +245,19 @@ function buildCode(blocks: CBlock[]): string {
   const header = [
     `// ============================================================`,
     `//  CUBICENGINE Studio — 自動生成コード`,
-    `//  @minecraft/server 1.6.0  (実験的機能不要 / Minecraft 1.20.30+)`,
+    usesChat
+      ? `//  @minecraft/server 1.6.0-beta  (⚠️チャットイベント=ベータAPI必須)`
+      : `//  @minecraft/server 1.6.0  (実験的機能不要 / Minecraft 1.20.30+)`,
     `// ============================================================`,
     ``,
     `import { world, system } from "@minecraft/server";`,
     ...(hasUI ? [`import { ActionFormData, ModalFormData, MessageFormData } from "@minecraft/server-ui";`] : []),
     ``,
+    ...(usesChat ? [
+      `// ⚠️ チャットイベント(beforeEvents.chatSend)は実験的API。ワールド設定で「ベータAPI(Beta APIs)」をONにしてください。`,
+      `console.warn("[CUBICENGINE] チャットイベント使用中。動かない時はワールド設定でベータAPI(Beta APIs)をONに。");`,
+      ``,
+    ] : []),
     ...(varDecls ? [varDecls, ``] : []),
     `// ★ 起動確認`,
     `let _ce_ok = false;`,
