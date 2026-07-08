@@ -25,8 +25,9 @@ function L({ children, className = "" }: { children: React.ReactNode; className?
 
 export default function SupportPage() {
   return (
-    // この画面だけ 白背景・1画面（スクロールなし）・中央寄せ
-    <main className="relative h-dvh overflow-hidden bg-white text-gray-800 flex flex-col items-center justify-center px-5">
+    // 白背景・中央寄せ。PCは1画面に収まるが、スマホは縦に長く収まらないので
+    // スクロール可能にする（固定h-dvh+overflow-hiddenだと寄付ボタンが画面外に切れて押せなかった）。
+    <main className="relative min-h-dvh overflow-y-auto bg-white text-gray-800 flex flex-col items-center justify-start sm:justify-center px-5 py-14">
       {/* 白背景で固定クレジットを読みやすくするためのCSS上書き */}
       <style dangerouslySetInnerHTML={{ __html: `
         [aria-label="credit"] span:first-of-type {
@@ -67,7 +68,7 @@ export default function SupportPage() {
         <div className="inline-flex items-center justify-center gap-2 mb-2">
           <Sparkles className="w-5 h-5 text-yellow-400 animate-pulse" />
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-600 via-yellow-500 to-emerald-600 bg-clip-text text-transparent">
-            開発・運営を応援してください
+            <span className="inline-block">開発・運営を</span><span className="inline-block">応援してください</span>
           </h1>
           <Sparkles className="w-5 h-5 text-yellow-400 animate-pulse" style={{ animationDelay: "0.5s" }} />
         </div>
