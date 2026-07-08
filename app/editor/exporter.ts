@@ -239,6 +239,15 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
   const bpModuleUuid = uuid();
   const rpModuleUuid = uuid();
 
+  // state.mcVersion から min_engine_version を導出
+  let minEngineVersion = [1, 20, 10];
+  switch (state.mcVersion) {
+    case "1.20.x": minEngineVersion = [1, 20, 10]; break;
+    case "1.21.0": minEngineVersion = [1, 21, 0]; break;
+    case "1.21.40+": minEngineVersion = [1, 21, 40]; break;
+    case "1.26.x": minEngineVersion = [1, 26, 0]; break;
+  }
+
   // アイコン: カスタム画像があればそれを使う、なければデフォルト
   const iconBytes = state.packIconDataUrl
     ? await dataUrlToBytes(state.packIconDataUrl)
@@ -256,8 +265,7 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
             description: desc,
             uuid: bpUuid,
             version: [1, 0, 0],
-            // 1.20.10 以降ならどのバージョンでもロード可能
-          min_engine_version: [1, 20, 10],
+            min_engine_version: minEngineVersion,
           },
           modules: [
             {
@@ -269,6 +277,7 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
             },
           ],
           dependencies: [
+            // TODO: mcVersionごとの正しい@minecraft/server版を実機確認
             // ベータAPI ON=実験的スクリプトAPI(-beta / ワールドの「ベータAPI」実験が必要)
             // OFF=安定版(1.6.0 / Minecraft 1.20.30 以降・実験的機能不要)
             { module_name: "@minecraft/server", version: state.betaApi ? "1.6.0-beta" : "1.6.0" },
@@ -353,7 +362,7 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
             description: desc,
             uuid: rpUuid,
             version: [1, 0, 0],
-            min_engine_version: [1, 20, 10],
+            min_engine_version: minEngineVersion,
           },
           modules: [{ type: "resources", uuid: rpModuleUuid, version: [1, 0, 0] }],
         },
