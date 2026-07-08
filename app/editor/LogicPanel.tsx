@@ -2358,6 +2358,13 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
   const containerRef = useRef<HTMLDivElement>(null);
   const live = useRef({ pan, zoom, blocks, selected, snapHint, wireDrag });
   live.current = { pan, zoom, blocks, selected, snapHint, wireDrag };
+  // パン/ピンチ中にReact stateを毎回更新すると巨大コンポーネントが再描画され固まる。
+  // 代わりにこの変換コンテナの transform をDOM直更新し、指を離した時だけ state を確定する。
+  const transformRef = useRef<HTMLDivElement>(null);
+  const applyLiveTransform = () => {
+    if (transformRef.current)
+      transformRef.current.style.transform = `translate(${live.current.pan.x}px,${live.current.pan.y}px) scale(${live.current.zoom})`;
+  };
 
   const panDrag = useRef({ active: false, sx: 0, sy: 0, sp: { x: 0, y: 0 } });
   const blockDrag = useRef({ active: false, id: "", offX: 0, offY: 0 });
@@ -2570,11 +2577,11 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
         const ratio = 1 + (rawRatio - 1) * 0.85;
         const midX = (pts[0].x + pts[1].x) / 2 - r.left;
         const midY = (pts[0].y + pts[1].y) / 2 - r.top;
-        setZoom(z => {
-          const nz = Math.min(2.5, Math.max(0.2, pinch.current!.zoom * ratio));
-          setPan(p => ({ x: midX - (midX - p.x) * (nz / z), y: midY - (midY - p.y) * (nz / z) }));
-          return nz;
-        });
+        const z = live.current.zoom;
+        const nz = Math.min(2.5, Math.max(0.2, pinch.current.zoom * ratio));
+        live.current.zoom = nz;
+        live.current.pan = { x: midX - (midX - live.current.pan.x) * (nz / z), y: midY - (midY - live.current.pan.y) * (nz / z) };
+        applyLiveTransform(); // React再描画せずDOM直更新（指を離した時に onUp で確定）
         return;
       }
       const rect = containerRef.current?.getBoundingClientRect(); if (!rect) return;
@@ -2582,13 +2589,16 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
 
       const mx = (e.clientX - rect.left) / zoom - pan.x / zoom;
       const my = (e.clientY - rect.top) / zoom - pan.y / zoom;
-      setMouseCanvasPos({ x: mx, y: my });
+      // マウス座標はワイヤー描画中だけ必要。毎moveでsetStateすると常時再描画で固まるので限定する。
+      if (live.current.wireDrag) setMouseCanvasPos({ x: mx, y: my });
 
       if (panDrag.current.active) {
-        setPan(p => ({
+        // React stateを更新せず live とDOMだけ更新（再描画ゼロ）。確定は onUp。
+        live.current.pan = {
           x: panDrag.current.sp.x + (e.clientX - panDrag.current.sx),
           y: panDrag.current.sp.y + (e.clientY - panDrag.current.sy)
-        }));
+        };
+        applyLiveTransform();
         return;
       }
       if (!blockDrag.current.active) return;
@@ -2646,8 +2656,11 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
     }
     function onUp(e: PointerEvent) {
       pointers.current.delete(e.pointerId);
-      if (pointers.current.size < 2) pinch.current = null;
-      if (panDrag.current.active) { panDrag.current.active = false; return; }
+      if (pointers.current.size < 2 && pinch.current) {
+        pinch.current = null;
+        setZoom(live.current.zoom); setPan(live.current.pan); // ピンチ確定（DOM直更新をstateへ反映）
+      }
+      if (panDrag.current.active) { panDrag.current.active = false; setPan(live.current.pan); return; } // パン確定
       if (!blockDrag.current.active) return;
       setDraggingId(null);
       const { blocks, pan, zoom } = live.current;
@@ -3357,7 +3370,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 <ToyFloor />
               </div>
             )}
-            <div style={{ position: "absolute", inset: 0, transform: `translate(${pan.x}px,${pan.y}px) scale(${zoom})`, transformOrigin: "0 0" }}>
+            <div ref={transformRef} style={{ position: "absolute", inset: 0, transform: `translate(${pan.x}px,${pan.y}px) scale(${zoom})`, transformOrigin: "0 0" }}>
               {/* 世界に浮かぶ光の粒：カードと同じ座標系に固定するのでズーム/パンでカードと1:1で動く（動きの基準）。方眼グリッドの置き換え、海テーマの神秘的な光と揃える。太陽/雲/魚は背景側で固定。 */}
               <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0 }}>
                 <style dangerouslySetInnerHTML={{ __html: `
@@ -3367,7 +3380,8 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                     100% { transform: translateY(0); opacity: var(--mo); }
                   }
                 `}} />
-                {WORLD_MOTES.map((m, i) => (
+                {/* スマホでは常時アニメの光の粒(60個)を出さない＝開いた瞬間の重さ・パン中の再合成負荷の主因を除去 */}
+                {!isMobile && WORLD_MOTES.map((m, i) => (
                   <div key={i} style={{
                     position: "absolute", left: m.x, top: m.y, width: m.r * 2, height: m.r * 2,
                     borderRadius: "50%",
@@ -3617,9 +3631,13 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
             />
           )}
 
-          {/* たまにキーボードの上を横切るクリーパーの影／上から落ちるエンダーマンの影 */}
-          <WanderingShadow />
-          <FallingWisp />
+          {/* たまに横切る影／落ちてくる光の雫（アンビエント装飾）。スマホでは負荷源になるので出さない。 */}
+          {!isMobile && (
+            <>
+              <WanderingShadow />
+              <FallingWisp />
+            </>
+          )}
 
           {/* モバイル用 FAB（ツールメニュー開閉） */}
           {isMobile && !showMobileConsole && (
