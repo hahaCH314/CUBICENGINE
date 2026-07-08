@@ -113,6 +113,24 @@ export default function RootLayout({
           <span style={{ fontSize: 13, fontWeight: 700, lineHeight: 1, color: "#f0a818", letterSpacing: "0.02em", whiteSpace: "nowrap" }}>
             © 2026 CUBICENGINE studio ・ 開発マネージャー：なっとうサイダー
           </span>
+          {/* 法務リンク（クレジットは click 透過なので、このリンク行だけ pointerEvents を戻す） */}
+          <nav
+            style={{ pointerEvents: "auto", display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 10, marginTop: 4 }}
+          >
+            {[
+              { href: "/privacy", label: "プライバシー" },
+              { href: "/terms", label: "利用規約" },
+              { href: "/licenses", label: "ライセンス表記" },
+            ].map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", textDecoration: "none", opacity: 0.85 }}
+              >
+                {l.label}
+              </a>
+            ))}
+          </nav>
         </div>
       </body>
     </html>

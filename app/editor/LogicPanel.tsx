@@ -2010,41 +2010,34 @@ const fsArrow: React.CSSProperties = {
   fontSize: 11, fontWeight: 900, boxShadow: "0 2px 0 #cbd5e1, inset 0 1px 0 rgba(255,255,255,0.8)",
 };
 
-/* ───────── たまにキーボードの上を横切るクリーパーの影（アンビエント） ─────────
-   ※色つき再現はせず、ぼかした暗いシルエット“影”＝オマージュ。非公式ツール。 */
-function CreeperShadow() {
+/* ───────── たまに画面下を横切る「小さな影の精」（アンビエント） ─────────
+   ※完全に抽象。特定のキャラクター/モブを模していない、丸い影のいきもの。 */
+function WanderingShadow() {
   const { themeId } = useThemeStore();
-  if (themeId !== "land") return null; // 海テーマ(隠し扉)では陸の生き物は出さない
-  const col = "rgba(20,32,20,0.26)";
-  const dark = "rgba(8,16,8,0.5)";
+  if (themeId !== "land") return null; // 海テーマ(隠し扉)では出さない
+  const col = "rgba(20,28,26,0.24)";
   return (
     <div style={{ position: "absolute", left: 0, right: 0, bottom: 191, height: 0, zIndex: 3, pointerEvents: "none", overflow: "visible" }}>
       <style>{`
-        @keyframes creeperWalk {
+        @keyframes wanderCross {
           0%   { transform: translateX(-70px); opacity: 0; }
           3%   { opacity: 1; }
           17%  { opacity: 1; }
           20%  { transform: translateX(100vw); opacity: 0; }
           100% { transform: translateX(100vw); opacity: 0; }
         }
-        @keyframes creeperBob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-2.5px) } }
-        @keyframes creeperLegA { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-2px) } }
-        @keyframes creeperLegB { 0%,100% { transform: translateY(-2px) } 50% { transform: translateY(0) } }
+        @keyframes wanderHop { 0%,100% { transform: translateY(0) scaleX(1) } 50% { transform: translateY(-4px) scaleX(0.92) } }
+        @keyframes wanderNubA { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-1.5px) } }
+        @keyframes wanderNubB { 0%,100% { transform: translateY(-1.5px) } 50% { transform: translateY(0) } }
       `}</style>
-      <div style={{ position: "absolute", bottom: 0, left: 0, willChange: "transform", animation: "creeperWalk 38s linear infinite 7s" }}>
-        <div style={{ animation: "creeperBob 0.46s ease-in-out infinite", transformOrigin: "bottom center", filter: "blur(0.6px)" }}>
-          {/* 頭＋かすかな顔 */}
-          <div style={{ width: 16, height: 13, margin: "0 auto", background: col, borderRadius: 2, position: "relative" }}>
-            <div style={{ position: "absolute", left: 3.5, top: 4, width: 2.5, height: 3, background: dark }} />
-            <div style={{ position: "absolute", right: 3.5, top: 4, width: 2.5, height: 3, background: dark }} />
-            <div style={{ position: "absolute", left: "50%", top: 7, marginLeft: -2.5, width: 5, height: 5, background: dark }} />
-          </div>
-          {/* 胴 */}
-          <div style={{ width: 14, height: 19, margin: "1px auto 0", background: col, borderRadius: 2 }} />
-          {/* 脚 */}
-          <div style={{ display: "flex", justifyContent: "center", gap: 3, marginTop: 1 }}>
-            <div style={{ width: 5, height: 6, background: col, animation: "creeperLegA 0.46s ease-in-out infinite" }} />
-            <div style={{ width: 5, height: 6, background: col, animation: "creeperLegB 0.46s ease-in-out infinite" }} />
+      <div style={{ position: "absolute", bottom: 0, left: 0, willChange: "transform", animation: "wanderCross 38s linear infinite 7s" }}>
+        <div style={{ animation: "wanderHop 0.5s ease-in-out infinite", transformOrigin: "bottom center", filter: "blur(1.2px)" }}>
+          {/* 丸い影の体（顔なし・抽象） */}
+          <div style={{ width: 17, height: 15, margin: "0 auto", background: col, borderRadius: "48% 48% 42% 42%" }} />
+          {/* ちいさな2つの足のなごり */}
+          <div style={{ display: "flex", justifyContent: "center", gap: 4, marginTop: 1 }}>
+            <div style={{ width: 4, height: 5, background: col, borderRadius: 2, animation: "wanderNubA 0.5s ease-in-out infinite" }} />
+            <div style={{ width: 4, height: 5, background: col, borderRadius: 2, animation: "wanderNubB 0.5s ease-in-out infinite" }} />
           </div>
         </div>
       </div>
@@ -2052,43 +2045,31 @@ function CreeperShadow() {
   );
 }
 
-/* ───────── たまに上から落ちて来るエンダーマンの影（着地→テレポート消失） ─────────
-   ※色つき再現はせず暗いシルエット＋紫に光る目＝オマージュ。非公式ツール。 */
-function EndermanShadow() {
+/* ───────── たまに上から降りて来て、着地して消える「光の雫」 ─────────
+   ※完全に抽象。ブランドのアクア光(WORLD_MOTESと同系)の柔らかいオーブ。キャラクター模倣なし。 */
+function FallingWisp() {
   const { themeId } = useThemeStore();
-  if (themeId !== "land") return null; // 海テーマ(隠し扉)では陸の生き物は出さない
-  const col = "rgba(12,12,20,0.34)";
-  const eye = "#d8b4fe";
+  if (themeId !== "land") return null; // 海テーマ(隠し扉)では出さない
+  const glow = "#7fe9d6"; // ブランドのアクア系（#00ddb5 の柔らかい光）
   return (
     <div style={{ position: "absolute", left: "57%", bottom: 191, zIndex: 3, pointerEvents: "none", overflow: "visible" }}>
       <style>{`
-        @keyframes endermanDrop {
-          0%   { transform: translateY(-160px); opacity: 0; }
-          5%   { opacity: 0.95; }
-          11%  { transform: translateY(0); opacity: 0.95; }
-          13%  { transform: translateY(-3px); }
-          15%  { transform: translateY(0); }
-          21%  { opacity: 0.95; }
-          24%  { transform: translateY(0) scaleY(1.12); opacity: 0; }
+        @keyframes wispDrop {
+          0%   { transform: translateY(-160px) scale(0.7); opacity: 0; }
+          5%   { opacity: 0.9; }
+          11%  { transform: translateY(0) scale(1); opacity: 0.9; }
+          14%  { transform: translateY(0) scale(1.15); }
+          18%  { transform: translateY(0) scale(1); }
+          24%  { transform: translateY(-6px) scale(0.4); opacity: 0; }
           100% { opacity: 0; }
         }
-        @keyframes endermanSway { 0%,100% { transform: translateX(0) } 50% { transform: translateX(1px) } }
-        @keyframes endermanEye { 0%,100% { opacity: 0.8 } 50% { opacity: 1 } }
+        @keyframes wispPulse { 0%,100% { opacity: 0.75 } 50% { opacity: 1 } }
       `}</style>
-      <div style={{ animation: "endermanDrop 33s ease-in infinite 19s", willChange: "transform" }}>
-        <div style={{ animation: "endermanSway 2.2s ease-in-out infinite", transformOrigin: "bottom center", filter: "blur(0.6px)" }}>
-          {/* 頭＋紫に光る目 */}
-          <div style={{ width: 11, height: 11, margin: "0 auto", background: col, borderRadius: 2, position: "relative" }}>
-            <div style={{ position: "absolute", left: 2, top: 5, width: 2.5, height: 2, background: eye, boxShadow: `0 0 4px ${eye}`, animation: "endermanEye 1.6s ease-in-out infinite" }} />
-            <div style={{ position: "absolute", right: 2, top: 5, width: 2.5, height: 2, background: eye, boxShadow: `0 0 4px ${eye}`, animation: "endermanEye 1.6s ease-in-out infinite" }} />
-          </div>
-          {/* 細長い胴 */}
-          <div style={{ width: 8, height: 30, margin: "0 auto", background: col, borderRadius: 2 }} />
-          {/* 長い脚 */}
-          <div style={{ display: "flex", justifyContent: "center", gap: 4 }}>
-            <div style={{ width: 3, height: 16, background: col }} />
-            <div style={{ width: 3, height: 16, background: col }} />
-          </div>
+      <div style={{ animation: "wispDrop 33s ease-in infinite 19s", willChange: "transform" }}>
+        <div style={{ animation: "wispPulse 1.6s ease-in-out infinite", transformOrigin: "center" }}>
+          {/* 尾を引く光の雫（オーブ＋細い光跡） */}
+          <div style={{ width: 3, height: 20, margin: "0 auto -3px", background: `linear-gradient(to bottom, transparent, ${glow})`, borderRadius: 2, opacity: 0.5, filter: "blur(1px)" }} />
+          <div style={{ width: 11, height: 11, margin: "0 auto", background: `radial-gradient(circle at 50% 40%, #ffffff, ${glow} 55%, transparent 80%)`, borderRadius: "50%", boxShadow: `0 0 10px ${glow}` }} />
         </div>
       </div>
     </div>
@@ -3634,8 +3615,8 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
           />
 
           {/* たまにキーボードの上を横切るクリーパーの影／上から落ちるエンダーマンの影 */}
-          <CreeperShadow />
-          <EndermanShadow />
+          <WanderingShadow />
+          <FallingWisp />
 
           {/* モバイル用 FAB（ツールメニュー開閉） */}
           {isMobile && !showMobileConsole && (
