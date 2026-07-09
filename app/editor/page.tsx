@@ -362,7 +362,9 @@ export default function EditorPage() {
       )}
 
       {/* ─ Status Bar ─ */}
-      <StatusBar />
+      <div className="hidden sm:block">
+        <StatusBar />
+      </div>
     </div>
   );
 }

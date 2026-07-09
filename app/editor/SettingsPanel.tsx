@@ -480,7 +480,7 @@ export default function SettingsPanel() {
 
         {/* ▌ 右：開発ターミナル & ライブツリー */}
         <div className="flex flex-col gap-3 min-h-0">
-          <div className="bg-panel rounded-xl border border-border p-3 flex flex-col min-h-0" style={{ flex: pro ? "1 1 0" : "0 0 auto", maxHeight: pro ? undefined : 200 }}>
+          <div className="bg-panel rounded-xl border border-border p-3 flex flex-col min-h-0" style={{ flex: pro ? "1 1 0" : "0 0 auto" }}>
             <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> ビルド出力
             </div>

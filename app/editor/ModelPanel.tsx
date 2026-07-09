@@ -863,7 +863,7 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
     <div
       ref={panelRef}
       onWheel={handleWheel}
-      className="w-80 border-l-3 border-[#1f1e1a] bg-panel p-3 pb-16 flex flex-col gap-4 overflow-y-auto text-sm z-10"
+      className="w-full sm:w-80 h-[45%] sm:h-auto border-t-3 sm:border-t-0 sm:border-l-3 border-[#1f1e1a] bg-panel p-3 pb-16 flex flex-col gap-4 overflow-y-auto text-sm z-10 shrink-0"
       style={{
         transform: `translateY(${bounceY}px)`,
         transition: bounceY === 0 ? "transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)" : "none",
@@ -1414,7 +1414,7 @@ function ToolSidebar({
   const tools = simple ? simpleTools : proTools;
 
   return (
-    <div className="w-14 border-r-3 border-[#1f1e1a] bg-panel flex flex-col items-center py-4 gap-3 z-10" style={{ boxShadow: "inset -2px 0 0 rgba(0,0,0,0.15)" }}>
+    <div className="flex flex-row sm:flex-col items-center sm:w-14 w-full h-14 sm:h-auto border-b-3 sm:border-b-0 sm:border-r-3 border-[#1f1e1a] bg-panel sm:py-4 px-2 sm:px-0 gap-2 sm:gap-3 z-10 overflow-x-auto sm:overflow-visible shrink-0" style={{ boxShadow: "inset -2px 0 0 rgba(0,0,0,0.15)" }}>
       {tools.map((t, i) => {
         const isInteractive = t.action !== undefined;
         const btnClass = t.active
@@ -1557,9 +1557,9 @@ export default function ModelPanel() {
         {/* かんたん/プロ 切替は廃止：モード(SPROUT=かんたん / GROVE=プロ)で自動決定 */}
       </div>
 
-      <div className="flex h-full flex-1">
+      <div className="flex h-full flex-1 flex-col sm:flex-row">
         <ToolSidebar paintMode={paintMode} setPaintMode={setPaintMode} mode={mode} simple={simple} activeTool={activeTool} setActiveTool={setActiveTool} />
-        <div className="flex-1 relative overflow-hidden bg-[#23211e]">
+        <div className="flex-1 relative overflow-hidden bg-[#23211e] min-h-[50%]">
           <ThreeViewport paintMode={paintMode} setPaintMode={setPaintMode} mode={mode} simple={simple} activeTool={activeTool} />
           
           {/* 初回ブロックがないときのお助けチュートリアルダイアログ */}

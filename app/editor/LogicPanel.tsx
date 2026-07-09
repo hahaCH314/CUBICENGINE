@@ -509,7 +509,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
         borderRadius: "16px", // 角丸の強化（画像に合わせた丸み）
         border: "3.5px solid #ffffff", // 内側の白いフチ
         boxShadow: selected
-          ? `0 0 0 2.5px ${cat.bg}, 0 0 20px ${cat.bg}AA, 0 12px 24px rgba(0,0,0,0.25)`
+          ? `0 0 0 4px #06b6d4, 0 0 25px rgba(6,182,212,0.8), 0 16px 32px rgba(0,0,0,0.35)`
           : hl || isAcceptable
             ? `0 0 0 2.5px ${badgeColor || cat.bg}, 0 0 20px ${badgeColor || cat.bg}AA, 0 12px 24px rgba(0,0,0,0.25)`
             : `0 0 0 2.5px ${cat.bg}ee, 0 8px 20px rgba(0,0,0,0.15)`, // 通常時でも外側に細いカテゴリカラーの線
@@ -3877,28 +3877,34 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
 
           {/* スマホ：アドオン完成を独立ボタンで常時表示（ツールメニューに埋めない） */}
           {isMobile && (
-            <button disabled={!isLogicValid}
-              onClick={() => {
-                playSuccessSound();
-                const lines = (genCode || "// まず きっかけ カードを置いて繋げよう").split("\n");
-                setReveal(lines);
-                setExportArmed(true);
-              }}
-              style={{
-                position: "fixed", top: 92, left: "50%", transform: "translateX(-50%)",
-                height: 40, padding: "0 18px", borderRadius: 999, border: "3px solid #1e293b",
-                cursor: isLogicValid ? "pointer" : "not-allowed",
-                background: isLogicValid
-                  ? "linear-gradient(135deg,#bef264 0%, #4ade80 55%, #22c55e 100%)"
-                  : "linear-gradient(135deg,#e5e7eb,#cbd5e1)",
-                boxShadow: isLogicValid
-                  ? "0 4px 0 #15803d, 0 5px 14px rgba(74,222,128,0.5)"
-                  : "0 3px 0 #94a3b8",
-                color: isLogicValid ? "#052e16" : "#64748b", fontWeight: 900, fontSize: 14,
-                letterSpacing: "0.03em", zIndex: 55, whiteSpace: "nowrap",
-              }}>
-              {isLogicValid ? "アドオン完成！🎉" : "アドオン完成（カードをつなごう）"}
-            </button>
+            <div style={{ position: "fixed", top: 92, left: "50%", transform: "translateX(-50%)", zIndex: 55, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+              <button disabled={!isLogicValid}
+                onClick={() => {
+                  playSuccessSound();
+                  const lines = (genCode || "// まず きっかけ カードを置いて繋げよう").split("\n");
+                  setReveal(lines);
+                  setExportArmed(true);
+                }}
+                style={{
+                  height: 40, padding: "0 18px", borderRadius: 999, border: "3px solid #1e293b",
+                  cursor: isLogicValid ? "pointer" : "not-allowed",
+                  background: isLogicValid
+                    ? "linear-gradient(135deg,#bef264 0%, #4ade80 55%, #22c55e 100%)"
+                    : "linear-gradient(135deg,#e5e7eb,#cbd5e1)",
+                  boxShadow: isLogicValid
+                    ? "0 4px 0 #15803d, 0 5px 14px rgba(74,222,128,0.5)"
+                    : "0 3px 0 #94a3b8",
+                  color: isLogicValid ? "#052e16" : "#64748b", fontWeight: 900, fontSize: 14,
+                  letterSpacing: "0.03em", whiteSpace: "nowrap",
+                }}>
+                アドオン完成！🎉
+              </button>
+              {!isLogicValid && (
+                <span className="font-pixel text-[10px] text-[#ef4444] font-bold" style={{ textShadow: "1px 1px 0px white, -1px -1px 0px white, 1px -1px 0px white, -1px 1px 0px white" }}>
+                  (カードをつなごう)
+                </span>
+              )}
+            </div>
           )}
 
           {/* ✏️ 選んだカードの中身エディタ（直接配置式＝旧STEP3の代わり。条件もここで変える） */}
@@ -3908,12 +3914,28 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
             if (!sb || sb.fields.length === 0 || sb.type === "co_if") return null;
             const c = CAT[sb.category];
             const EIcon = (LucideIcons as any)[sb.emoji] || LucideIcons.HelpCircle;
+            const sbPos = getPos(sb.id, blocks);
+            // ⚠️ getPos は world 座標。編集パネルは transform レイヤーの外（pan/zoom 未適用の
+            //    オーバーレイ層＝HUD/完成ボタンと同じ絶対座標系）にあるので、そのまま world 座標を
+            //    使うと pan/zoom した瞬間カードから飛ぶ。screen 座標に変換してカードに追従させる。
+            const anchorX = sbPos.x * zoom + pan.x;
+            const anchorY = sbPos.y * zoom + pan.y;
+            const PANEL_W = 234;
+            const vw = typeof window !== "undefined" ? window.innerWidth : 360;
+            const vh = typeof window !== "undefined" ? window.innerHeight : 640;
+            // カード中央にパネルを寄せ、左右は画面内へクランプ（端カードでも見切れない）
+            let panelX = anchorX + (BW * zoom) / 2 - PANEL_W / 2;
+            panelX = Math.max(8, Math.min(panelX, vw - PANEL_W - 8));
+            // カードのすぐ下に開き、上下も画面内へクランプ（maxHeight+スクロールで残りは吸収）
+            let panelY = anchorY + BH * zoom + 10;
+            panelY = Math.max(8, Math.min(panelY, vh - 120));
             return (
               <div data-card-editor="1" style={{
-                position: "absolute", top: 44, left: 12, zIndex: 44, width: 234, maxHeight: "52%", overflowY: "auto",
-                background: "#ffffff", border: "3px solid #1e293b", borderRadius: 16,
-                boxShadow: "0 12px 28px rgba(0,0,0,0.2)", padding: 12,
+                position: "absolute", top: panelY, left: panelX, zIndex: 1001, width: PANEL_W, maxHeight: "52%", overflowY: "auto",
+                background: "#ffffff", border: `3px solid ${c.bg}`, borderRadius: 16,
+                boxShadow: `0 12px 28px rgba(0,0,0,0.2), 0 0 0 2px ${c.bg}40`, padding: 12,
                 display: "flex", flexDirection: "column", gap: 9,
+                animation: "blockPop 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)",
               }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 7, paddingBottom: 6, borderBottom: "2px solid #f1f5f9" }}>
                   <span style={{ width: 24, height: 24, borderRadius: 7, background: c.bg, border: "2px solid #1e293b", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>

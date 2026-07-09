@@ -14,7 +14,7 @@ const DONATE_URL = "https://ko-fi.com/ihafam";
 
 // 子どもでも読みやすいよう、意味のかたまり単位で改行する（かたまりの途中では折り返さない）
 function W({ children }: { children: React.ReactNode }) {
-  // スマホでは折り返し可（狭い画面で横にはみ出さない）、sm以上は意図した改行を保つ
+  // スマホでは折り返し可（狭い画面で横にはみ出さない＝見切れ防止の安全網）、sm以上は意図した改行を保つ
   return <span className="inline-block whitespace-normal sm:whitespace-nowrap">{children}</span>;
 }
 
@@ -85,8 +85,10 @@ export default function SupportPage() {
             <L>
               <span className="font-extrabold text-emerald-600 text-[17px] inline-flex items-center gap-1">
                 <Gem className="w-4 h-4 text-emerald-500 animate-bounce" />
-                <W>『自分のアドオンで</W>
-                <W>マイクラに無限ダイヤを！』</W>
+                <W>『自分の</W>
+                <W>アドオンで</W>
+                <W>マイクラに</W>
+                <W>無限ダイヤを！』</W>
               </span>
             </L>
             <L className="mt-1">
@@ -112,7 +114,11 @@ export default function SupportPage() {
           <div className="relative z-10 pt-4 border-t border-dashed border-emerald-100">
             <L>
               <span className="font-extrabold text-emerald-600 text-[15px]">
-                <W>「同じようにマイクラが好きな人が、作る楽しさに出会えるように。」</W>
+                <W>「同じように</W>
+                <W>マイクラが</W>
+                <W>好きな人が、</W>
+                <W>作る楽しさに</W>
+                <W>出会えるように。」</W>
               </span>
             </L>
             <L className="mt-1.5">
@@ -125,11 +131,14 @@ export default function SupportPage() {
           <div className="relative z-10 pt-4 border-t border-dashed border-emerald-100 text-xs sm:text-sm text-gray-500">
             <L>
               <W>CUBICENGINE studioは</W>
-              <W>保護者が運営しております。</W>
+              <W>保護者が</W>
+              <W>運営しております。</W>
             </L>
             <L>
-              <W>寄付の受け取り・管理は</W>
-              <W>CUBICENGINE studioが行います。</W>
+              <W>寄付の</W>
+              <W>受け取り・管理は</W>
+              <W>CUBICENGINE studioが</W>
+              <W>行います。</W>
             </L>
           </div>
         </div>
