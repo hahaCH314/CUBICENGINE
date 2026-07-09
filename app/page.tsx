@@ -40,16 +40,29 @@ function IntroVideo() {
             type="button"
             onClick={() => setPlay(true)}
             aria-label="紹介動画を再生"
-            className="absolute inset-0 w-full h-full flex flex-col items-center justify-center gap-3 group cursor-pointer"
+            className="absolute inset-0 w-full h-full flex items-center justify-center group cursor-pointer"
           >
+            {/* 本物のYouTubeサムネを表紙に（一目でYouTubeと分かる＝“怪しい踏ませボタン”に見えないように）。
+                maxres が無い動画向けに hqdefault へフォールバック。 */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`https://i.ytimg.com/vi/${INTRO_VIDEO_ID}/maxresdefault.jpg`}
+              alt="CUBICENGINE 紹介動画のサムネイル"
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="lazy"
+              onError={(e) => {
+                const img = e.currentTarget;
+                if (!img.dataset.fb) { img.dataset.fb = "1"; img.src = `https://i.ytimg.com/vi/${INTRO_VIDEO_ID}/hqdefault.jpg`; }
+              }}
+            />
+            {/* うっすら暗幕（ボタンのコントラスト確保） */}
+            <span className="absolute inset-0" style={{ background: "rgba(0,0,0,0.18)" }} />
+            {/* YouTube風の赤い再生ボタン */}
             <span
-              className="flex items-center justify-center rounded-full transition-transform duration-200 group-hover:scale-110 group-active:scale-95"
-              style={{ width: 68, height: 68, background: "#00ddb5", boxShadow: "0 0 24px #00ddb5aa" }}
+              className="relative flex items-center justify-center transition-transform duration-200 group-hover:scale-110 group-active:scale-95"
+              style={{ width: 68, height: 48, borderRadius: 14, background: "#ff0000", boxShadow: "0 2px 10px rgba(0,0,0,0.4)" }}
             >
-              <span style={{ marginLeft: 6, borderStyle: "solid", borderWidth: "13px 0 13px 22px", borderColor: "transparent transparent transparent #0a0a0c" }} />
-            </span>
-            <span style={{ fontSize: 15, fontWeight: 800, color: "#e6fff9" }} className="font-sans">
-              ▶ 紹介動画を見る
+              <span style={{ borderStyle: "solid", borderWidth: "11px 0 11px 19px", borderColor: "transparent transparent transparent #ffffff" }} />
             </span>
           </button>
         )}
@@ -315,7 +328,7 @@ export default function HomePage() {
                 <div className="flex flex-col items-center gap-2">
                   <span
                     aria-label={t(locale, "grove.soon")}
-                    title={t(locale, "dl.soonTitle")}
+                    title={t(locale, "grove.soonTitle")}
                     className="animate-grove-soon w-20 h-20 inline-flex items-center justify-center rounded-2xl cursor-default"
                     style={{
                       background: "linear-gradient(135deg, rgba(14,165,233,0.15), rgba(3,105,161,0.1))",

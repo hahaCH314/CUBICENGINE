@@ -52,8 +52,9 @@ export const DICT: Record<string, Entry> = {
   "dl.soon":          { ja: "🔒 準備中", en: "🔒 Coming soon" },
   "dl.desktopSoon":   { ja: "💻 デスクトップ版（.exe）近日公開", en: "💻 Desktop app (.exe) coming soon" },
   "dl.soonTitle":     { ja: "近日公開予定です", en: "Coming soon" },
-  "grove.soon":       { ja: "🌿 Java版 近日公開！", en: "🌿 Java edition — Coming soon!" },
-  "grove.soonSub":    { ja: "おたのしみに ✨", en: "Stay tuned ✨" },
+  "grove.soon":       { ja: "🌿 Java版 現在開発中", en: "🌿 Java edition — In development" },
+  "grove.soonSub":    { ja: "リリースまでもうしばらく ✨", en: "Coming to life soon ✨" },
+  "grove.soonTitle":  { ja: "現在開発中です", en: "In development" },
   "footer.note":      { ja: "ローカル/オフラインで動く・アカウント不要・Mac & Windows対応", en: "Runs locally & offline · No account needed · Mac & Windows" },
   "lang.toggle":      { ja: "EN", en: "日本語" },
 };
