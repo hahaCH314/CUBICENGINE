@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import { useEditorStore } from "./editor/store";
 import { t } from "../lib/i18n";
 import { Gem, Sparkles } from "lucide-react";
@@ -18,25 +18,56 @@ function W({ children }: { children: React.ReactNode }) {
 // うまく出ない環境向けに「YouTubeで見る」外部リンクも添える。
 const INTRO_VIDEO_ID = "qk6wVNlZtoo";
 function IntroVideo() {
-  // 自前でサムネ画像(i.ytimg.com)を取りに行くと、プライバシーブロッカー/Brave等が
-  // その画像CDNを弾く環境で真っ暗になる。→ YouTubeの埋め込みプレイヤー本体を出す方式に。
-  // プレイヤーがサムネ＋再生ボタンをYouTube側で描くので"本物のYouTube画面"になり、
-  // youtube-nocookie は画像CDNより遥かにブロックされにくい。autoplayはしない（初期表示は表紙）。
+  // 表紙は「自己ホストの動画非依存カバー」＝CSSのみで組み、外部画像を持たない。
+  //  ・表示時の第三者通信ゼロ（プライバシーポリシーと整合）
+  //  ・自前画像を持たないので絶対に真っ暗にならない／置き去りも起きない
+  //  ・動画差し替えは INTRO_VIDEO_ID を変えるだけ（表紙は触らない）
+  //  ・クリックで初めて youtube-nocookie の iframe を読み込む（＝ユーザーの操作で通信）
+  const [play, setPlay] = useState(false);
   return (
     <div className="w-full max-w-2xl mx-auto mt-12 mb-4 px-4">
       <div
-        className="relative w-full rounded-3xl overflow-hidden shadow-[0_15px_45px_rgba(0,0,0,0.5)] border-2 border-white/5"
-        style={{ aspectRatio: "16 / 9", background: "#0a0a0c" }}
+        className="relative w-full rounded-3xl overflow-hidden shadow-[0_15px_45px_rgba(0,0,0,0.5)] border-2 border-white/10"
+        style={{ aspectRatio: "16 / 9", background: "#06110f" }}
       >
-        <iframe
-          src={`https://www.youtube-nocookie.com/embed/${INTRO_VIDEO_ID}?rel=0`}
-          title="CUBICENGINE 使い方紹介動画"
-          className="absolute inset-0 w-full h-full"
-          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerPolicy="strict-origin-when-cross-origin"
-          allowFullScreen
-          style={{ border: 0 }}
-        />
+        {play ? (
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${INTRO_VIDEO_ID}?rel=0&autoplay=1`}
+            title="CUBICENGINE 紹介動画"
+            className="absolute inset-0 w-full h-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+            style={{ border: 0 }}
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setPlay(true)}
+            aria-label="CUBICENGINE 紹介動画を再生"
+            className="absolute inset-0 w-full h-full group cursor-pointer overflow-hidden"
+          >
+            {/* ブランドのグラデ地 */}
+            <span className="absolute inset-0" style={{ background: "radial-gradient(125% 105% at 50% 0%, #0f3d39 0%, #0a2422 45%, #06110f 100%)" }} />
+            {/* うっすらキューブ格子（空っぽの黒箱に見せない） */}
+            <span className="absolute inset-0" style={{ opacity: 0.6, background: "repeating-linear-gradient(0deg, rgba(0,221,181,0.06) 0 1px, transparent 1px 34px), repeating-linear-gradient(90deg, rgba(0,221,181,0.06) 0 1px, transparent 1px 34px)" }} />
+            {/* 再生ボタン背後のグロー */}
+            <span className="absolute left-1/2 top-1/2" style={{ transform: "translate(-50%,-50%)", width: 240, height: 240, background: "radial-gradient(circle, rgba(0,221,181,0.22), transparent 70%)", pointerEvents: "none" }} />
+            {/* 中身 */}
+            <span className="absolute inset-0 flex flex-col items-center justify-center gap-3.5">
+              {/* YouTube風の赤い再生ボタン（一目で動画と分かる） */}
+              <span
+                className="flex items-center justify-center transition-transform duration-200 group-hover:scale-110 group-active:scale-95"
+                style={{ width: 74, height: 52, borderRadius: 15, background: "#ff0000", boxShadow: "0 8px 22px rgba(255,0,0,0.35)" }}
+              >
+                <span style={{ borderStyle: "solid", borderWidth: "12px 0 12px 21px", borderColor: "transparent transparent transparent #ffffff" }} />
+              </span>
+              <span className="font-pixel" style={{ fontSize: 12.5, color: "#d7fff7", letterSpacing: "0.08em", textShadow: "0 2px 6px rgba(0,0,0,0.6)" }}>
+                CUBICENGINE 紹介動画
+              </span>
+            </span>
+          </button>
+        )}
       </div>
       <div className="text-center mt-2">
         <a
