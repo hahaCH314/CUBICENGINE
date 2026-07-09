@@ -124,9 +124,12 @@ export default function RootLayout({
         >
           {/* 非公式ディスクレーマ（Mojangブランドガイドライン対応・全ページ表示） */}
           <span style={{ fontSize: 9, fontWeight: 600, lineHeight: 1.25, color: "#cbd5e1", opacity: 0.85 }}>
-            ※非公式ツールです。Mojang Studios・Microsoft とは関係ありません。Minecraft は Mojang Studios の商標です。
+            ※非公式ツールです。<br className="sm:hidden" />Mojang Studios・Microsoft とは関係ありません。<br className="sm:hidden" />Minecraft は Mojang Studios の商標です。
           </span>
-          <span style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.4, color: "#f0a818", letterSpacing: "0.02em" }}>
+          <span 
+            className="whitespace-nowrap"
+            style={{ fontSize: "clamp(9px, 2.8vw, 13px)", fontWeight: 700, lineHeight: 1.4, color: "#f0a818", letterSpacing: "0.02em" }}
+          >
             © 2026 CUBICENGINE studio ・ 開発マネージャー：なっとうサイダー
           </span>
           {/* 法務リンク（クレジットは click 透過なので、このリンク行だけ pointerEvents を戻す） */}
