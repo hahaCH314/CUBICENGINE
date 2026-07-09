@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type CSSProperties } from "react";
+import { type CSSProperties } from "react";
 import { useEditorStore } from "./editor/store";
 import { t } from "../lib/i18n";
 import { Gem, Sparkles } from "lucide-react";
@@ -10,7 +10,7 @@ import { Gem, Sparkles } from "lucide-react";
 // ※スマホ(狭い画面)では、かたまりが画面幅を超えて横にはみ出すのを防ぐため折り返しを許可。
 //   sm(640px)以上ではこれまで通り nowrap で作者が意図したきれいな改行を保つ。
 function W({ children }: { children: React.ReactNode }) {
-  return <span className="inline-block whitespace-normal sm:whitespace-nowrap">{children}</span>;
+  return <span className="inline-block whitespace-nowrap">{children}</span>;
 }
 
 // 紹介動画。ブロッカー等でYouTube埋め込みが出ない時でも"空箱"にならないよう、
@@ -18,54 +18,25 @@ function W({ children }: { children: React.ReactNode }) {
 // うまく出ない環境向けに「YouTubeで見る」外部リンクも添える。
 const INTRO_VIDEO_ID = "qk6wVNlZtoo";
 function IntroVideo() {
-  const [play, setPlay] = useState(false);
+  // 自前でサムネ画像(i.ytimg.com)を取りに行くと、プライバシーブロッカー/Brave等が
+  // その画像CDNを弾く環境で真っ暗になる。→ YouTubeの埋め込みプレイヤー本体を出す方式に。
+  // プレイヤーがサムネ＋再生ボタンをYouTube側で描くので"本物のYouTube画面"になり、
+  // youtube-nocookie は画像CDNより遥かにブロックされにくい。autoplayはしない（初期表示は表紙）。
   return (
     <div className="w-full max-w-2xl mx-auto mt-12 mb-4 px-4">
       <div
         className="relative w-full rounded-3xl overflow-hidden shadow-[0_15px_45px_rgba(0,0,0,0.5)] border-2 border-white/5"
-        style={{ aspectRatio: "16 / 9", background: "radial-gradient(circle at 50% 40%, #123, #0a0a0c 75%)" }}
+        style={{ aspectRatio: "16 / 9", background: "#0a0a0c" }}
       >
-        {play ? (
-          <iframe
-            src={`https://www.youtube-nocookie.com/embed/${INTRO_VIDEO_ID}?rel=0&autoplay=1`}
-            title="CUBICENGINE 使い方紹介動画"
-            className="absolute inset-0 w-full h-full"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
-            style={{ border: 0 }}
-          />
-        ) : (
-          <button
-            type="button"
-            onClick={() => setPlay(true)}
-            aria-label="紹介動画を再生"
-            className="absolute inset-0 w-full h-full flex items-center justify-center group cursor-pointer"
-          >
-            {/* 本物のYouTubeサムネを表紙に（一目でYouTubeと分かる＝“怪しい踏ませボタン”に見えないように）。
-                maxres が無い動画向けに hqdefault へフォールバック。 */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`https://i.ytimg.com/vi/${INTRO_VIDEO_ID}/maxresdefault.jpg`}
-              alt="CUBICENGINE 紹介動画のサムネイル"
-              className="absolute inset-0 w-full h-full object-cover"
-              loading="lazy"
-              onError={(e) => {
-                const img = e.currentTarget;
-                if (!img.dataset.fb) { img.dataset.fb = "1"; img.src = `https://i.ytimg.com/vi/${INTRO_VIDEO_ID}/hqdefault.jpg`; }
-              }}
-            />
-            {/* うっすら暗幕（ボタンのコントラスト確保） */}
-            <span className="absolute inset-0" style={{ background: "rgba(0,0,0,0.18)" }} />
-            {/* YouTube風の赤い再生ボタン */}
-            <span
-              className="relative flex items-center justify-center transition-transform duration-200 group-hover:scale-110 group-active:scale-95"
-              style={{ width: 68, height: 48, borderRadius: 14, background: "#ff0000", boxShadow: "0 2px 10px rgba(0,0,0,0.4)" }}
-            >
-              <span style={{ borderStyle: "solid", borderWidth: "11px 0 11px 19px", borderColor: "transparent transparent transparent #ffffff" }} />
-            </span>
-          </button>
-        )}
+        <iframe
+          src={`https://www.youtube-nocookie.com/embed/${INTRO_VIDEO_ID}?rel=0`}
+          title="CUBICENGINE 使い方紹介動画"
+          className="absolute inset-0 w-full h-full"
+          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allowFullScreen
+          style={{ border: 0 }}
+        />
       </div>
       <div className="text-center mt-2">
         <a
@@ -391,12 +362,15 @@ export default function HomePage() {
                     <L>
                       <span className="font-extrabold text-[#34d399] text-[15px] inline-flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5">
                         <Gem className="w-3.5 h-3.5 text-emerald-400 animate-bounce shrink-0" />
-                        <W>「自分のアドオンで</W>
-                        <W>マイクラに無限ダイヤを！」</W>
+                        <W>「自分の</W>
+                        <W>アドオンで</W>
+                        <W>マイクラに</W>
+                        <W>無限ダイヤを！」</W>
                       </span>
                     </L>
                     <L className="mt-1">
-                      <W>というくだらない夢から</W>
+                      <W>という</W>
+                      <W>くだらない夢から</W>
                       <W>始まりました。</W>
                     </L>
                     <L className="mt-2">
@@ -417,15 +391,19 @@ export default function HomePage() {
                       <W>今12歳です。</W>
                     </L>
                     <L className="mt-2 text-white/95">
-                      <W>「同じようにマイクラや、</W>
-                      <W>プログラミングが好きな人に、</W>
-                      <W>作る楽しさを共有したい」</W>
+                      <W>「同じように</W>
+                      <W>マイクラや、</W>
+                      <W>プログラミングが</W>
+                      <W>好きな人に、</W>
+                      <W>作る楽しさを</W>
+                      <W>共有したい」</W>
                     </L>
                     <L className="mt-2 text-white/80">
                       <W>との思いから</W>
                       <W>本人の希望により</W>
                       <W>コア機能は全て</W>
-                      <W>無料でご利用いただけます。</W>
+                      <W>無料で</W>
+                      <W>ご利用いただけます。</W>
                     </L>
                   </div>
 
@@ -433,17 +411,22 @@ export default function HomePage() {
                   <div className="pt-4 border-t border-dashed border-white/10 text-white/80">
                     <L>
                       <W>まだまだ未熟な</W>
-                      <W>開発マネージャーですが、</W>
+                      <W>開発マネージャー</W>
+                      <W>ですが、</W>
                     </L>
                     <L className="mt-1">
                       <W>お小遣いを全て</W>
-                      <W>開発費用にあててきました。</W>
+                      <W>開発費用に</W>
+                      <W>あててきました。</W>
                     </L>
                     <L className="mt-2 text-white/90">
-                      <W>頂いた寄付は今後の運営費、</W>
+                      <W>頂いた寄付は</W>
+                      <W>今後の運営費、</W>
                     </L>
                     <L className="mt-1 text-white/90">
-                      <W>新たな開発費用として大切に使わせていただきます。</W>
+                      <W>新たな開発費用として</W>
+                      <W>大切に</W>
+                      <W>使わせていただきます。</W>
                     </L>
                     <L className="mt-2.5 text-white font-bold text-[14px]">
                       <W>よろしくお願いいたします</W>
@@ -454,11 +437,14 @@ export default function HomePage() {
                   <div className="pt-4 border-t border-dashed border-white/10 text-xs text-muted/75">
                     <L>
                       <W>CUBICENGINE studioは</W>
-                      <W>保護者が運営しております。</W>
+                      <W>保護者が</W>
+                      <W>運営しております。</W>
                     </L>
                     <L>
-                      <W>寄付の受け取り・管理は</W>
-                      <W>CUBICENGINE studioが行います。</W>
+                      <W>寄付の</W>
+                      <W>受け取り・管理は</W>
+                      <W>CUBICENGINE studioが</W>
+                      <W>行います。</W>
                     </L>
                   </div>
                 </>
@@ -556,30 +542,38 @@ export default function HomePage() {
                   <div>
                     <L>
                       <W>このアプリで</W>
-                      <W>アホほどダイヤ出せます</W>
+                      <W>アホほど</W>
+                      <W>ダイヤ出せます</W>
                     </L>
                     <L className="mt-1">
                       <W>作る楽しさを</W>
                     </L>
                     <L className="mt-1">
                       <span className="font-bold text-[#f59e0b]">くだらない</span>
-                      <W>ことで一緒に笑える</W>
-                      <W>仲間へ届きますように(o^―^o)ﾆｺ</W>
+                      <W>ことで</W>
+                      <W>一緒に笑える</W>
+                      <W>仲間へ</W>
+                      <W>届きますように(o^―^o)ﾆｺ</W>
                     </L>
                   </div>
 
                   <div className="pt-4 border-t border-dashed border-white/10 text-white/80">
                     <L>
-                      <W>ずっと学校に行けなかった</W>
+                      <W>ずっと</W>
+                      <W>学校に行けなかった</W>
                     </L>
                     <L className="mt-1">
-                      <W>苦しい地獄の時間だった</W>
+                      <W>苦しい</W>
+                      <W>地獄の時間だった</W>
                     </L>
                     <L className="mt-2 text-white/95">
-                      <W>でもね、作る楽しさに出会えて</W>
+                      <W>でもね、</W>
+                      <W>作る楽しさに</W>
+                      <W>出会えて</W>
                     </L>
                     <L className="mt-1">
-                      <W>僕は１歩踏み出せた</W>
+                      <W>僕は</W>
+                      <W>１歩踏み出せた</W>
                     </L>
                   </div>
                 </>
@@ -641,15 +635,6 @@ export default function HomePage() {
         <p className="mt-2 text-[10px] text-muted/50 font-sans shrink-0">
           {t(locale, "footer.note")}
         </p>
-        <nav className="mt-1 mb-1 flex items-center justify-center gap-3 text-[11px] text-muted/70 font-sans shrink-0">
-          <Link href="/privacy" className="underline underline-offset-2 hover:text-foreground transition-colors">
-            プライバシーポリシー
-          </Link>
-          <span className="opacity-40">·</span>
-          <Link href="/terms" className="underline underline-offset-2 hover:text-foreground transition-colors">
-            利用規約
-          </Link>
-        </nav>
       </section>
     </div>
   );
