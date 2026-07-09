@@ -415,6 +415,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
     <div onPointerDown={e => onDown(e, b.id)} style={{
       position: "absolute", left: pos.x, top: pos.y,
       width: w, height: h,
+      touchAction: "none", // カード上のタッチもアプリが掌握（iOSのページpinch拡大に奪わせない）
       cursor: isDragging ? "grabbing" : "grab", userSelect: "none",
       animation: anim,
       transformOrigin: "center center",
@@ -3375,7 +3376,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 <ToyFloor />
               </div>
             )}
-            <div ref={transformRef} style={{ position: "absolute", inset: 0, transform: `translate(${pan.x}px,${pan.y}px) scale(${zoom})`, transformOrigin: "0 0" }}>
+            <div ref={transformRef} style={{ position: "absolute", inset: 0, transform: `translate(${pan.x}px,${pan.y}px) scale(${zoom})`, transformOrigin: "0 0", touchAction: "none" }}>
               {/* 世界に浮かぶ光の粒：カードと同じ座標系に固定するのでズーム/パンでカードと1:1で動く（動きの基準）。方眼グリッドの置き換え、海テーマの神秘的な光と揃える。太陽/雲/魚は背景側で固定。 */}
               <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0 }}>
                 <style dangerouslySetInnerHTML={{ __html: `
