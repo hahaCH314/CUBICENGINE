@@ -85,27 +85,19 @@ export default function SupportPage() {
             <L>
               <span className="font-extrabold text-emerald-600 text-[17px] inline-flex items-center gap-1">
                 <Gem className="w-4 h-4 text-emerald-500 animate-bounce" />
-                <W>『自分の</W>
-                <W>アドオンで</W>
-                <W>マイクラに</W>
-                <W>無限ダイヤを！』</W>
+                <W>『自分のアドオンで</W>
+                <W>マイクラに無限ダイヤを！』</W>
               </span>
             </L>
             <L className="mt-1">
-              <W>という夢から</W>
-              <W>はじまりました。</W>
+              <W>という夢からはじまりました。</W>
             </L>
             <L className="mt-2">
-              <W>それを自分の手で</W>
-              <W>形にしたのが、</W>
-            </L>
-            <L>
+              <W>それを自分の手で形にしたのが、</W>
               <W>なっとうサイダー(12歳)。</W>
             </L>
             <L>
               <W>彼が作った本サイトが</W>
-            </L>
-            <L>
               <span className="font-bold text-emerald-600">『CUBICENGINE』</span>
               <W>です。</W>
             </L>
@@ -114,31 +106,24 @@ export default function SupportPage() {
           <div className="relative z-10 pt-4 border-t border-dashed border-emerald-100">
             <L>
               <span className="font-extrabold text-emerald-600 text-[15px]">
-                <W>「同じように</W>
-                <W>マイクラが</W>
-                <W>好きな人が、</W>
-                <W>作る楽しさに</W>
-                <W>出会えるように。」</W>
+                <W>「同じようにマイクラが好きな人が、</W>
+                <W>作る楽しさに出会えるように。」</W>
               </span>
             </L>
             <L className="mt-1.5">
-              <W>本人の希望により</W>
-              <W>コア機能は全て</W>
-              <W>無料でご利用いただけます。</W>
+              <W>本人の希望により、</W>
+              <W>コア機能は全て無料でご利用いただけます。</W>
             </L>
           </div>
           {/* ③ 運営 */}
           <div className="relative z-10 pt-4 border-t border-dashed border-emerald-100 text-xs sm:text-sm text-gray-500">
             <L>
               <W>CUBICENGINE studioは</W>
-              <W>保護者が</W>
-              <W>運営しております。</W>
+              <W>保護者が運営しております。</W>
             </L>
             <L>
-              <W>寄付の</W>
-              <W>受け取り・管理は</W>
-              <W>CUBICENGINE studioが</W>
-              <W>行います。</W>
+              <W>寄付の受け取り・管理は</W>
+              <W>CUBICENGINE studioが行います。</W>
             </L>
           </div>
         </div>

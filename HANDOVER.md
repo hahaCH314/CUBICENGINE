@@ -23,6 +23,14 @@
 2. **ズーム挙動の実機検証**：シオンが `touch-action:none` をカード(ToyCubeBlock)＋変形レイヤーに付与済（commit a74ab80f）。→ 実機でピンチが効くか／固定HUD・完成ボタンがページごと動かないかを確認。まだ奪われるなら `document` レベルで `gesturestart`/`gesturechange` を preventDefault（iOS Safari対策）を追加。
 3. **#7 編集パネルの実機検証**：シオンが座標を screen 変換＋クランプ済（commit c64da1a0）。パン/ズーム後にカードへ追従するか、端カードで見切れないか確認。
 4. **アドオン完成ピル**：右上(right:12)へ移動済（commit f76d5cba）。実機で他要素と被らないか最終確認。
+5. **カードのダブルタップで中身エディタを隠す（伊波さん追加要望・扱いにくい）** — ✅**シオン実装済**（ヒマワリ退室後・本コミット）。再実装しないで。仕様（参考）：
+   - 状態を追加：`const [editorCollapsed, setEditorCollapsed] = useState(false);` と `const lastCardTap = useRef<{ id: string; t: number }>({ id: "", t: 0 });`（他のuseState/useRef群の近くに）。
+   - `handleBlockDown` の通常選択パス（`playClickSound();` の直後）でダブルタップ検出：
+     `const nowTap = Date.now(); const isDoubleTap = lastCardTap.current.id === id && nowTap - lastCardTap.current.t < 320; lastCardTap.current = { id, t: nowTap };`
+   - 同関数末尾の `setSelected(id);` の直後に `setEditorCollapsed(isDoubleTap);`（単タップ=表示 / ダブルタップ=隠す）。
+   - 中身エディタのレンダーガード（`data-card-editor="1"` のIIFE内、`if (!sb || sb.fields.length === 0 || sb.type === "co_if") return null;` の直後）に `if (editorCollapsed) return null;` を追加。
+   - パネルのヘッダ（`{sb.label} の中身` のspanの隣）に×閉じボタンを追加＝発見性UP：`<button onClick={() => setEditorCollapsed(true)} title="隠す（カードをダブルタップでも隠せます）" style={{ marginLeft: "auto", ... }}>✕</button>`。
+   - 別カードを単タップすれば `isDoubleTap=false` で新カードのエディタが開くので、状態リセットの追加処理は不要。
 
 ---
 

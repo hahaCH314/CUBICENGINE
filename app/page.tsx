@@ -10,7 +10,7 @@ import { Gem, Sparkles } from "lucide-react";
 // ※スマホ(狭い画面)では、かたまりが画面幅を超えて横にはみ出すのを防ぐため折り返しを許可。
 //   sm(640px)以上ではこれまで通り nowrap で作者が意図したきれいな改行を保つ。
 function W({ children }: { children: React.ReactNode }) {
-  return <span className="inline-block whitespace-nowrap">{children}</span>;
+  return <span className="inline-block whitespace-normal sm:whitespace-nowrap">{children}</span>;
 }
 
 // 紹介動画。ブロッカー等でYouTube埋め込みが出ない時でも"空箱"にならないよう、
@@ -393,19 +393,17 @@ export default function HomePage() {
                     <L>
                       <span className="font-extrabold text-[#34d399] text-[15px] inline-flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5">
                         <Gem className="w-3.5 h-3.5 text-emerald-400 animate-bounce shrink-0" />
-                        <W>「自分の</W>
-                        <W>アドオンで</W>
+                        <W>「自分のアドオンで</W>
                         <W>マイクラに</W>
                         <W>無限ダイヤを！」</W>
                       </span>
                     </L>
                     <L className="mt-1">
-                      <W>という</W>
-                      <W>くだらない夢から</W>
+                      <W>というくだらない夢から</W>
                       <W>始まりました。</W>
                     </L>
                     <L className="mt-2">
-                      <W>その夢を形にし</W>
+                      <W>その夢を形にし、</W>
                       <W>実現させたのが</W>
                     </L>
                     <L className="mt-1">
@@ -422,18 +420,13 @@ export default function HomePage() {
                       <W>今12歳です。</W>
                     </L>
                     <L className="mt-2 text-white/95">
-                      <W>「同じように</W>
-                      <W>マイクラや、</W>
-                      <W>プログラミングが</W>
-                      <W>好きな人に、</W>
-                      <W>作る楽しさを</W>
-                      <W>共有したい」</W>
+                      <W>「同じようにマイクラや、</W>
+                      <W>プログラミングが好きな人に、</W>
+                      <W>作る楽しさを共有したい」</W>
                     </L>
                     <L className="mt-2 text-white/80">
-                      <W>との思いから</W>
-                      <W>本人の希望により</W>
-                      <W>コア機能は全て</W>
-                      <W>無料で</W>
+                      <W>との思いから、本人の希望により</W>
+                      <W>コア機能は全て無料で</W>
                       <W>ご利用いただけます。</W>
                     </L>
                   </div>
@@ -442,22 +435,18 @@ export default function HomePage() {
                   <div className="pt-4 border-t border-dashed border-white/10 text-white/80">
                     <L>
                       <W>まだまだ未熟な</W>
-                      <W>開発マネージャー</W>
-                      <W>ですが、</W>
+                      <W>開発マネージャーですが、</W>
                     </L>
                     <L className="mt-1">
                       <W>お小遣いを全て</W>
-                      <W>開発費用に</W>
-                      <W>あててきました。</W>
+                      <W>開発費用にあててきました。</W>
                     </L>
                     <L className="mt-2 text-white/90">
-                      <W>頂いた寄付は</W>
-                      <W>今後の運営費、</W>
+                      <W>頂いた寄付は今後の運営費、</W>
                     </L>
                     <L className="mt-1 text-white/90">
                       <W>新たな開発費用として</W>
-                      <W>大切に</W>
-                      <W>使わせていただきます。</W>
+                      <W>大切に使わせていただきます。</W>
                     </L>
                     <L className="mt-2.5 text-white font-bold text-[14px]">
                       <W>よろしくお願いいたします</W>
@@ -468,14 +457,11 @@ export default function HomePage() {
                   <div className="pt-4 border-t border-dashed border-white/10 text-xs text-muted/75">
                     <L>
                       <W>CUBICENGINE studioは</W>
-                      <W>保護者が</W>
-                      <W>運営しております。</W>
+                      <W>保護者が運営しております。</W>
                     </L>
                     <L>
-                      <W>寄付の</W>
-                      <W>受け取り・管理は</W>
-                      <W>CUBICENGINE studioが</W>
-                      <W>行います。</W>
+                      <W>寄付の受け取り・管理は</W>
+                      <W>CUBICENGINE studioが行います。</W>
                     </L>
                   </div>
                 </>

@@ -2082,6 +2082,8 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
   const [isMobile, setIsMobile] = useState(false);
   const [showMobileConsole, setShowMobileConsole] = useState(false); // ➕カード（下部キーボード）
   const [showMobileTools, setShowMobileTools] = useState(false);     // 🔧道具メニュー（独立・同時に出ない）
+  const [editorCollapsed, setEditorCollapsed] = useState(false);     // カードの中身エディタを隠す（ダブルタップ/×で切替）
+  const lastCardTap = useRef<{ id: string; t: number }>({ id: "", t: 0 }); // ダブルタップ検出用
   // モバイルは「カード」と「道具」を別ボタンで独立に開く。片方を開いたらもう片方は閉じる＝重ならない。
   const openMobileCards = () => { setShowMobileTools(false); setShowMobileConsole(true); };
   const openMobileTools = () => { setShowMobileConsole(false); setShowMobileTools(true); };
@@ -2091,7 +2093,18 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+
+    const preventPinch = (e: Event) => e.preventDefault();
+    document.addEventListener("gesturestart", preventPinch, { passive: false });
+    document.addEventListener("gesturechange", preventPinch, { passive: false });
+    document.addEventListener("gestureend", preventPinch, { passive: false });
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      document.removeEventListener("gesturestart", preventPinch);
+      document.removeEventListener("gesturechange", preventPinch);
+      document.removeEventListener("gestureend", preventPinch);
+    };
   }, []);
 
   const setGeneratedJsCode = useEditorStore(s => s.setGeneratedJsCode);
@@ -2454,7 +2467,11 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
       }
     }
 
-    playClickSound(); 
+    playClickSound();
+    // ダブルタップ検出：同じカードを素早く2度タップ → 中身エディタを隠す（単タップ選択では表示）
+    const nowTap = Date.now();
+    const isDoubleTap = lastCardTap.current.id === id && nowTap - lastCardTap.current.t < 320;
+    lastCardTap.current = { id, t: nowTap };
     const rect = containerRef.current!.getBoundingClientRect();
     const pos = getPos(id, blocks);
     const visX = pos.x, visY = pos.y;
@@ -2467,6 +2484,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
     blockDrag.current = { active: true, id, offX: mx - visX, offY: my - visY };
     setDraggingId(id);
     setSelected(id);
+    setEditorCollapsed(isDoubleTap); // 単タップ=表示 / ダブルタップ=隠す
   }, []);
 
   const handleTrayDragStart = useCallback((e: React.MouseEvent, it: { key: string; tmpl: Tmpl; vals: Record<string, string> }) => {
@@ -3914,6 +3932,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
             const sb = selected ? blocks.find(b => b.id === selected) : null;
             // co_if(条件分岐)はキーボードで条件を選ぶ方式なので中身エディタは出さない
             if (!sb || sb.fields.length === 0 || sb.type === "co_if") return null;
+            if (editorCollapsed) return null; // ダブルタップ/×で隠した状態
             const c = CAT[sb.category];
             const EIcon = (LucideIcons as any)[sb.emoji] || LucideIcons.HelpCircle;
             const sbPos = getPos(sb.id, blocks);
@@ -3944,6 +3963,8 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                     <EIcon size={14} color="#fff" strokeWidth={2.6} />
                   </span>
                   <span style={{ fontSize: 12.5, fontWeight: 900, color: "#1e293b" }}>{sb.label} の中身</span>
+                  <button onClick={() => setEditorCollapsed(true)} title="隠す（カードをダブルタップでも隠せます）"
+                    style={{ marginLeft: "auto", width: 22, height: 22, borderRadius: 6, border: "1.5px solid #e2e8f0", background: "#f8fafc", color: "#64748b", fontSize: 12, fontWeight: 900, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>✕</button>
                 </div>
                 {sb.fields.map(f => (
                   <FieldSlot key={f.id} label={f.label} value={f.value} options={f.options}
