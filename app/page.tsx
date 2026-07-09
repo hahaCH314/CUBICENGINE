@@ -315,7 +315,7 @@ export default function HomePage() {
             </span>
           </Link>
           <div className="flex items-center gap-3">
-            <span className="font-pixel text-[10px]" style={{ color: "#f0a818", opacity: 0.9 }}>{t(locale, "nav.edition")}</span>
+            <span className="font-pixel text-[8px] sm:text-[10px]" style={{ color: "#f0a818", opacity: 0.9 }}>{t(locale, "nav.edition")}</span>
             <button
               type="button"
               onClick={() => setLocale(locale === "ja" ? "en" : "ja")}
@@ -351,7 +351,7 @@ export default function HomePage() {
         </p>
 
         <p
-          className="text-sm sm:text-base md:text-lg font-medium text-foreground/80 mb-2 tracking-wider font-sans"
+          className="text-[12px] min-[380px]:text-[14px] sm:text-base md:text-lg font-medium text-foreground/80 mb-2 tracking-tight sm:tracking-wider font-sans whitespace-nowrap"
           style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)", lineHeight: 1.4 }}
         >
           {t(locale, "hero.tagline")}
@@ -511,20 +511,19 @@ export default function HomePage() {
                     <L>
                       <span className="font-extrabold text-[#34d399] text-[15px] inline-flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5">
                         <Gem className="w-3.5 h-3.5 text-emerald-400 animate-bounce shrink-0" />
-                        <W>「自分のアドオンで</W>
-                        <W>マイクラに</W>
+                        <W>「自分のアドオンでマイクラに<br className="sm:hidden" /></W>
                         <W>無限ダイヤを！」</W>
                       </span>
                     </L>
                     <L className="mt-1">
-                      <W>というくだらない夢から</W>
+                      <W>というくだらない夢から<br className="sm:hidden" /></W>
                       <W>始まりました。</W>
                     </L>
                     <L className="mt-2">
-                      <W>その夢を形にし、</W>
-                      <W>実現させたのが</W>
+                      <W>その夢を形にし、<br className="sm:hidden" /></W>
                     </L>
                     <L className="mt-1">
+                      <W>実現させたのが<br className="sm:hidden" /></W>
                       <W>本サイト</W>
                       <span className="font-bold text-white"> CUBICENGINE </span>
                       <W>です。</W>
@@ -538,13 +537,13 @@ export default function HomePage() {
                       <W>今12歳です。</W>
                     </L>
                     <L className="mt-2 text-white/95">
-                      <W>「同じようにマイクラや、</W>
-                      <W>プログラミングが好きな人に、</W>
+                      <W>「同じようにマイクラや、<br className="sm:hidden" /></W>
+                      <W>プログラミングが好きな人に、<br className="sm:hidden" /></W>
                       <W>作る楽しさを共有したい」</W>
                     </L>
                     <L className="mt-2 text-white/80">
-                      <W>との思いから、本人の希望により</W>
-                      <W>コア機能は全て無料で</W>
+                      <W>との思いから、<br className="sm:hidden" />本人の希望により</W>
+                      <W>コア機能は全て無料で<br className="sm:hidden" /></W>
                       <W>ご利用いただけます。</W>
                     </L>
                   </div>
@@ -552,19 +551,16 @@ export default function HomePage() {
                   {/* 3段目: 開発費用とお小遣い */}
                   <div className="pt-4 border-t border-dashed border-white/10 text-white/80">
                     <L>
-                      <W>まだまだ未熟な</W>
-                      <W>開発マネージャーですが、</W>
+                      <W>まだまだ未熟な<br className="sm:hidden" />開発マネージャーですが、<br className="sm:hidden" /></W>
                     </L>
                     <L className="mt-1">
-                      <W>お小遣いを全て</W>
-                      <W>開発費用にあててきました。</W>
+                      <W>お小遣いを全て<br className="sm:hidden" />開発費用にあててきました。</W>
                     </L>
                     <L className="mt-2 text-white/90">
-                      <W>頂いた寄付は今後の運営費、</W>
+                      <W>頂いた寄付は今後の運営費、<br className="sm:hidden" /></W>
                     </L>
                     <L className="mt-1 text-white/90">
-                      <W>新たな開発費用として</W>
-                      <W>大切に使わせていただきます。</W>
+                      <W>新たな開発費用として<br className="sm:hidden" />大切に使わせていただきます。</W>
                     </L>
                     <L className="mt-2.5 text-white font-bold text-[14px]">
                       <W>よろしくお願いいたします</W>
@@ -574,12 +570,10 @@ export default function HomePage() {
                   {/* 4段目: 運営情報 */}
                   <div className="pt-4 border-t border-dashed border-white/10 text-xs text-muted/75">
                     <L>
-                      <W>CUBICENGINE studioは</W>
-                      <W>保護者が運営しております。</W>
+                      <W>CUBICENGINE studioは<br className="sm:hidden" />保護者が運営しております。</W>
                     </L>
-                    <L>
-                      <W>寄付の受け取り・管理は</W>
-                      <W>CUBICENGINE studioが行います。</W>
+                    <L className="mt-1">
+                      <W>寄付の受け取り・管理は<br className="sm:hidden" />CUBICENGINE studioが行います。</W>
                     </L>
                   </div>
                 </>
@@ -694,21 +688,17 @@ export default function HomePage() {
 
                   <div className="pt-4 border-t border-dashed border-white/10 text-white/80">
                     <L>
-                      <W>ずっと</W>
-                      <W>学校に行けなかった</W>
+                      <W>ずっと学校に行けなかった</W>
                     </L>
                     <L className="mt-1">
-                      <W>苦しい</W>
-                      <W>地獄の時間だった</W>
+                      <W>苦しい地獄の時間だった</W>
                     </L>
                     <L className="mt-2 text-white/95">
-                      <W>でもね、</W>
-                      <W>作る楽しさに</W>
-                      <W>出会えて</W>
+                      <W>でもね、<br className="sm:hidden" /></W>
+                      <W>作る楽しさに出会えて</W>
                     </L>
                     <L className="mt-1">
-                      <W>僕は</W>
-                      <W>１歩踏み出せた</W>
+                      <W>僕は１歩踏み出せた</W>
                     </L>
                   </div>
                 </>
