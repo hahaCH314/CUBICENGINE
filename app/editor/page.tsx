@@ -335,7 +335,7 @@ export default function EditorPage() {
               }}
             >
               <span className="text-[16px]" style={{ filter: isActive ? "none" : "grayscale(0.6) opacity(0.7)" }}>{tab.icon}</span>
-              <span className="text-[13px] tracking-wide" style={{ fontFamily: "'M PLUS Rounded 1c', sans-serif" }}>{tab.label}</span>
+              <span className="text-[13px] tracking-wide" style={{ fontFamily: "var(--font-yusei), sans-serif" }}>{tab.label}</span>
             </button>
           );
         })}

@@ -3005,10 +3005,11 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
   return (
     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "row", overflow: "hidden", background: "#f0f9ff" }}>
         <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@800;900&family=Nunito:wght@800;900&family=M+PLUS+Rounded+1c:wght@800;900&display=swap');
-
+        /* フォントは layout.tsx で next/font 自己ホスト化済み（--font-outfit / --font-nunito）。
+           以前ここにあった fonts.googleapis の @import は実行時に第三者(Google)へ通信し、
+           プライバシーポリシーと矛盾していたため撤去した。 */
         * {
-          font-family: 'Outfit', 'Nunito', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif !important;
+          font-family: var(--font-outfit), var(--font-nunito), 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif !important;
         }
 
         .slot-btn:hover { filter: brightness(1.08); }

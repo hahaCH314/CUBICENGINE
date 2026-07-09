@@ -67,7 +67,7 @@ export default function InstallPrompt() {
         background: 'linear-gradient(135deg,#0a1614,#0f2320)',
         border: '1.5px solid rgba(0,221,181,0.35)',
         boxShadow: '0 12px 34px rgba(0,0,0,0.5)',
-        color: '#e6fff9', fontFamily: "'M PLUS Rounded 1c', system-ui, sans-serif",
+        color: '#e6fff9', fontFamily: "var(--font-yusei), system-ui, sans-serif",
         animation: 'ceInstallUp 0.3s cubic-bezier(0.2,0.8,0.2,1)',
       }}
     >

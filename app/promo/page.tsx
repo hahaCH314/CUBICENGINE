@@ -53,7 +53,7 @@ export default function PromoPage() {
         overflow: "hidden", borderRadius: 18,
         background: "linear-gradient(#bfe9ff 0%, #8fd2ff 55%, #cfeffb 100%)",
         boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
-        fontFamily: "'M PLUS Rounded 1c', 'Nunito', system-ui, sans-serif",
+        fontFamily: "var(--font-yusei), var(--font-nunito), system-ui, sans-serif",
       }}>
         {/* 上部キャプション */}
         {scene.caption && (

@@ -1422,7 +1422,7 @@ function Grape({ fr, selected, isHub, onSelect, onDelete, onMouseDown, dockSlot 
         </div>
 
         <div style={{
-          fontFamily: "'M PLUS Rounded 1c', sans-serif",
+          fontFamily: "var(--font-yusei), sans-serif",
           fontSize: isHub ? 9.5 : isDonut ? 10.5 : 8,
           fontWeight: 900,
           color: "#fff",

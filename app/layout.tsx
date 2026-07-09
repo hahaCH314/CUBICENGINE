@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Press_Start_2P, M_PLUS_Rounded_1c } from "next/font/google";
+import { Geist, Geist_Mono, Press_Start_2P, M_PLUS_Rounded_1c, Outfit, Nunito } from "next/font/google";
 import "./globals.css";
 import ServiceWorkerRegistration from "./ServiceWorkerRegistration";
 import InstallPrompt from "./InstallPrompt";
@@ -26,6 +26,20 @@ const pressStart = Press_Start_2P({
 const rounded = M_PLUS_Rounded_1c({
   variable: "--font-yusei", // 既存の --font-sans 参照を活かすため変数名は据え置き
   weight: ["400", "700", "800"],
+  subsets: ["latin"],
+});
+
+// エディタUIの見出し用（旧: LogicPanel 内の @import で fonts.googleapis から実行時取得していたが、
+// プライバシーポリシー「完全ローカル/オフライン・第三者送信なし」と矛盾するため next/font で自己ホスト化）
+const outfit = Outfit({
+  variable: "--font-outfit",
+  weight: ["800", "900"],
+  subsets: ["latin"],
+});
+
+const nunito = Nunito({
+  variable: "--font-nunito",
+  weight: ["800", "900"],
   subsets: ["latin"],
 });
 
@@ -76,7 +90,7 @@ export default function RootLayout({
   return (
     <html
       lang="ja"
-      className={`${geistSans.variable} ${geistMono.variable} ${pressStart.variable} ${rounded.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${pressStart.variable} ${rounded.variable} ${outfit.variable} ${nunito.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ServiceWorkerRegistration />
