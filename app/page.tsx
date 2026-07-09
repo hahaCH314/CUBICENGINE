@@ -47,14 +47,14 @@ function IntroVideo() {
             aria-label="CUBICENGINE 紹介動画を再生"
             className="absolute inset-0 w-full h-full group cursor-pointer overflow-hidden"
           >
-            {/* ブランドのグラデ地 */}
-            <span className="absolute inset-0" style={{ background: "radial-gradient(125% 105% at 50% 0%, #0f3d39 0%, #0a2422 45%, #06110f 100%)" }} />
-            {/* うっすらキューブ格子（空っぽの黒箱に見せない） */}
-            <span className="absolute inset-0" style={{ opacity: 0.6, background: "repeating-linear-gradient(0deg, rgba(0,221,181,0.06) 0 1px, transparent 1px 34px), repeating-linear-gradient(90deg, rgba(0,221,181,0.06) 0 1px, transparent 1px 34px)" }} />
-            {/* 再生ボタン背後のグロー */}
-            <span className="absolute left-1/2 top-1/2" style={{ transform: "translate(-50%,-50%)", width: 240, height: 240, background: "radial-gradient(circle, rgba(0,221,181,0.22), transparent 70%)", pointerEvents: "none" }} />
+            {/* 明るいブランドのグラデ地（暗く見せない・エメラルド→シアン） */}
+            <span className="absolute inset-0" style={{ background: "linear-gradient(135deg, #34d399 0%, #10b981 45%, #22d3ee 100%)" }} />
+            {/* うっすらキューブ格子（白） */}
+            <span className="absolute inset-0" style={{ opacity: 0.5, background: "repeating-linear-gradient(0deg, rgba(255,255,255,0.12) 0 1px, transparent 1px 34px), repeating-linear-gradient(90deg, rgba(255,255,255,0.12) 0 1px, transparent 1px 34px)" }} />
+            {/* 再生ボタン背後の明るいグロー */}
+            <span className="absolute left-1/2 top-1/2" style={{ transform: "translate(-50%,-50%)", width: 320, height: 260, background: "radial-gradient(circle, rgba(255,255,255,0.4), transparent 70%)", pointerEvents: "none" }} />
             {/* 中身 */}
-            <span className="absolute inset-0 flex flex-col items-center justify-center gap-3.5">
+            <span className="absolute inset-0 flex flex-col items-center justify-center gap-3.5 z-10">
               {/* YouTube風の赤い再生ボタン（一目で動画と分かる） */}
               <span
                 className="flex items-center justify-center transition-transform duration-200 group-hover:scale-110 group-active:scale-95"
@@ -62,10 +62,85 @@ function IntroVideo() {
               >
                 <span style={{ borderStyle: "solid", borderWidth: "12px 0 12px 21px", borderColor: "transparent transparent transparent #ffffff" }} />
               </span>
-              <span className="font-pixel" style={{ fontSize: 12.5, color: "#d7fff7", letterSpacing: "0.08em", textShadow: "0 2px 6px rgba(0,0,0,0.6)" }}>
+              <span className="font-pixel" style={{ fontSize: 12.5, color: "#ffffff", letterSpacing: "0.08em", textShadow: "0 2px 8px rgba(0,0,0,0.45)" }}>
                 CUBICENGINE 紹介動画
               </span>
             </span>
+
+            {/* 多動な男の子のアニメーション */}
+            <style>{`
+              @keyframes boyRun {
+                0% { transform: translate(-180px, 10px); opacity: 0; }
+                5% { transform: translate(-100px, 10px); opacity: 1; }
+                15% { transform: translate(-40px, 10px); }
+                18% { transform: translate(-20px, -42px); } /* 飛び乗る */
+                22% { transform: translate(0px, -42px); }
+                30% { transform: translate(0px, -42px); } /* ボタン上で停止 */
+                33% { transform: translate(0px, -42px) scaleX(-1); } /* 振り向く */
+                43% { transform: translate(0px, -42px) scaleX(-1); }
+                46% { transform: translate(0px, -42px) scaleX(1); } /* 元に戻る */
+                52% { transform: translate(30px, -42px); }
+                56% { transform: translate(50px, 20px); } /* 飛び降りる */
+                65% { transform: translate(75px, 20px); }
+                75% { transform: translate(75px, 20px) scaleX(-1); } /* 振り向く */
+                80% { transform: translate(75px, 20px) scaleX(1); }
+                95% { transform: translate(160px, 20px); opacity: 1; }
+                100% { transform: translate(220px, 20px); opacity: 0; }
+              }
+              @keyframes boyWalkBounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-4px); }
+              }
+              @keyframes boySurprise {
+                0% { transform: translateY(0) scale(1); }
+                40% { transform: translateY(-30px) scale(1.1) rotate(15deg); }
+                100% { transform: translateY(-50px) scale(0) rotate(-15deg); opacity: 0; }
+              }
+              .boy-container {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                margin-top: -24px;
+                margin-left: -16px;
+                width: 32px;
+                height: 48px;
+                animation: boyRun 11s infinite cubic-bezier(0.4, 0, 0.2, 1);
+              }
+              .boy-sprite {
+                width: 100%;
+                height: 100%;
+                animation: boyWalkBounce 0.25s infinite alternate;
+              }
+              /* ホバー時は男の子が驚いて消える */
+              .group:hover .boy-sprite {
+                animation: boySurprise 0.4s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+              }
+            `}</style>
+            <div className="absolute inset-0 pointer-events-none z-20 overflow-hidden">
+              <div className="boy-container">
+                <div className="boy-sprite">
+                  <svg viewBox="0 0 16 24" width="32" height="48" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.5))" }}>
+                    {/* 頭 */}
+                    <rect x="4" y="2" width="8" height="6" fill="#451a03"/>
+                    <rect x="5" y="3" width="7" height="5" fill="#fcd34d"/>
+                    <rect x="9" y="5" width="2" height="2" fill="#1e293b"/>
+                    {/* パーカー (エメラルド) */}
+                    <rect x="4" y="8" width="8" height="8" fill="#10b981"/>
+                    <rect x="3" y="7" width="10" height="4" fill="#059669"/>
+                    {/* 手 */}
+                    <rect x="2" y="9" width="2" height="4" fill="#10b981"/>
+                    <rect x="2" y="13" width="2" height="2" fill="#fcd34d"/>
+                    <rect x="12" y="9" width="2" height="4" fill="#10b981"/>
+                    <rect x="12" y="13" width="2" height="2" fill="#fcd34d"/>
+                    {/* ズボン */}
+                    <rect x="5" y="16" width="6" height="4" fill="#3b82f6"/>
+                    {/* 靴 */}
+                    <rect x="3" y="20" width="4" height="2" fill="#ef4444"/>
+                    <rect x="9" y="20" width="4" height="2" fill="#ef4444"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
           </button>
         )}
       </div>
