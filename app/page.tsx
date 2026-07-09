@@ -67,148 +67,119 @@ function IntroVideo() {
               </span>
             </span>
 
-            {/* 多動な男の子のアニメーション */}
+            {/* いたずらな影のアニメーション */}
             <style>{`
-              @keyframes boyRun {
-                0% { transform: translate(-180px, 10px); opacity: 0; }
-                5% { transform: translate(-100px, 10px); opacity: 1; }
-                15% { transform: translate(-40px, 10px); }
-                18% { transform: translate(-20px, -42px); }
-                22% { transform: translate(0px, -42px); }
-                30% { transform: translate(0px, -42px); }
-                33% { transform: translate(0px, -42px) scaleX(-1); }
-                43% { transform: translate(0px, -42px) scaleX(-1); }
-                46% { transform: translate(0px, -42px) scaleX(1); }
-                52% { transform: translate(30px, -42px); }
-                56% { transform: translate(50px, 20px); }
-                65% { transform: translate(75px, 20px); }
-                75% { transform: translate(75px, 20px) scaleX(-1); }
-                80% { transform: translate(75px, 20px) scaleX(1); }
-                95% { transform: translate(160px, 20px); opacity: 1; }
-                100% { transform: translate(220px, 20px); opacity: 0; }
+              @keyframes shadowRun {
+                /* 左からダッシュで登場 */
+                0%   { left: -40px; top: calc(100% - 32px); transform: rotate(0deg) scaleX(1) scaleY(1); opacity: 0; }
+                2%   { left: 0px;   top: calc(100% - 32px); transform: rotate(0deg) scaleX(1) scaleY(1); opacity: 0.75; }
+                /* 走る走る… */
+                12%  { left: calc(50% - 60px); top: calc(100% - 32px); transform: rotate(0deg) scaleX(1) scaleY(1); opacity: 0.75; }
+                /* つまずいてズサーッ（顔から突っ込む） */
+                13%  { left: calc(50% - 40px); top: calc(100% - 24px); transform: rotate(25deg) scaleX(1) scaleY(0.7); opacity: 0.8; }
+                15%  { left: calc(50%);        top: calc(100% - 16px); transform: rotate(80deg) scaleX(1.3) scaleY(0.4); opacity: 0.8; }
+                /* ぺしゃんこで一瞬止まる */
+                18%  { left: calc(50% + 10px); top: calc(100% - 12px); transform: rotate(0deg) scaleX(1.6) scaleY(0.3); opacity: 0.75; }
+                /* むくっと起き上がる */
+                21%  { left: calc(50% + 10px); top: calc(100% - 32px); transform: rotate(0deg) scaleX(1) scaleY(1); opacity: 0.75; }
+                /* よろよろ…（ふらつく） */
+                23%  { left: calc(50% + 30px); top: calc(100% - 32px); transform: rotate(-8deg) scaleX(1) scaleY(1); opacity: 0.7; }
+                25%  { left: calc(50% + 50px); top: calc(100% - 32px); transform: rotate(10deg) scaleX(1) scaleY(1); opacity: 0.7; }
+                /* 右壁にドーン！（ぶつかってぺちゃん） */
+                32%  { left: calc(100% - 34px); top: calc(100% - 32px); transform: rotate(0deg) scaleX(1) scaleY(1); opacity: 0.75; }
+                33%  { left: calc(100% - 20px); top: calc(100% - 30px); transform: rotate(0deg) scaleX(0.4) scaleY(1.2); opacity: 0.8; }
+                /* 壁にへばりついてずるずる登る */
+                35%  { left: calc(100% - 26px); top: calc(100% - 40px); transform: rotate(-90deg) scaleX(0.8) scaleY(0.9); opacity: 0.7; }
+                42%  { left: calc(100% - 26px); top: 30px; transform: rotate(-90deg) scaleX(1) scaleY(1); opacity: 0.7; }
+                /* 天井に到達、逆さでチョロチョロ */
+                44%  { left: calc(100% - 40px); top: 2px; transform: rotate(180deg) scaleX(1) scaleY(1); opacity: 0.7; }
+                56%  { left: 40%; top: 2px; transform: rotate(180deg) scaleX(1) scaleY(1); opacity: 0.7; }
+                /* 天井の真ん中で手を滑らせる！ */
+                57%  { left: 38%; top: 2px; transform: rotate(190deg) scaleX(1) scaleY(1); opacity: 0.7; }
+                /* 落ちるーー！（ぐるぐる回転しながら落下） */
+                58%  { left: 36%; top: 15%; transform: rotate(270deg) scaleX(1) scaleY(1); opacity: 0.8; }
+                60%  { left: 34%; top: 50%; transform: rotate(540deg) scaleX(1) scaleY(1); opacity: 0.8; }
+                /* 着地！ベチャッ（ぺしゃんこ） */
+                62%  { left: 33%; top: calc(100% - 10px); transform: rotate(720deg) scaleX(1.8) scaleY(0.25); opacity: 0.85; }
+                /* バウンド！ */
+                64%  { left: 33%; top: calc(100% - 60px); transform: rotate(750deg) scaleX(0.8) scaleY(1.2); opacity: 0.7; }
+                66%  { left: 33%; top: calc(100% - 10px); transform: rotate(760deg) scaleX(1.3) scaleY(0.5); opacity: 0.75; }
+                /* もう一回バウンド（小さく） */
+                67%  { left: 33%; top: calc(100% - 40px); transform: rotate(770deg) scaleX(1) scaleY(1); opacity: 0.7; }
+                69%  { left: 33%; top: calc(100% - 32px); transform: rotate(0deg) scaleX(1) scaleY(1); opacity: 0.7; }
+                /* ぶるぶる震えて復活 */
+                70%  { left: 33%; top: calc(100% - 32px); transform: rotate(-5deg) scaleX(1) scaleY(1); opacity: 0.7; }
+                71%  { left: 33%; top: calc(100% - 32px); transform: rotate(5deg) scaleX(1) scaleY(1); opacity: 0.7; }
+                72%  { left: 33%; top: calc(100% - 32px); transform: rotate(0deg) scaleX(1) scaleY(1); opacity: 0.7; }
+                /* 懲りずにまた走り出す → 退場 */
+                80%  { left: 10%; top: calc(100% - 32px); transform: rotate(0deg) scaleX(-1) scaleY(1); opacity: 0.7; }
+                85%  { left: -5%; top: calc(100% - 32px); transform: rotate(0deg) scaleX(-1) scaleY(1); opacity: 0.7; }
+                /* 画面外に消えて一瞬… */
+                88%  { left: -40px; top: calc(100% - 32px); transform: rotate(0deg) scaleX(-1) scaleY(1); opacity: 0; }
+                /* 急に上からニュッ（顔だけ覗く） */
+                91%  { left: 60%; top: -30px; transform: rotate(180deg) scaleX(1) scaleY(1); opacity: 0; }
+                93%  { left: 60%; top: -8px; transform: rotate(180deg) scaleX(1) scaleY(1); opacity: 0.6; }
+                96%  { left: 60%; top: -8px; transform: rotate(180deg) scaleX(1) scaleY(1); opacity: 0.6; }
+                /* 引っ込む */
+                98%  { left: 60%; top: -30px; transform: rotate(180deg) scaleX(1) scaleY(1); opacity: 0.3; }
+                100% { left: 60%; top: -40px; transform: rotate(180deg) scaleX(1) scaleY(1); opacity: 0; }
               }
-              @keyframes boyRunFlip {
-                0% { transform: translate(280px, 0px) rotate(180deg); opacity: 0; }
-                4% { transform: translate(220px, 0px) rotate(180deg); opacity: 1; }
-                20% { transform: translate(80px, 0px) rotate(180deg); }
-                24% { transform: translate(50px, -15px) rotate(200deg); }
-                28% { transform: translate(30px, 0px) rotate(180deg); }
-                40% { transform: translate(-30px, 0px) rotate(180deg); }
-                44% { transform: translate(-60px, -20px) rotate(160deg); }
-                48% { transform: translate(-80px, 0px) rotate(180deg); }
-                55% { transform: translate(-80px, 0px) rotate(180deg) scaleX(-1); }
-                65% { transform: translate(0px, 0px) rotate(180deg) scaleX(-1); }
-                70% { transform: translate(40px, -18px) rotate(200deg) scaleX(-1); }
-                75% { transform: translate(80px, 0px) rotate(180deg) scaleX(-1); }
-                90% { transform: translate(200px, 0px) rotate(180deg) scaleX(-1); opacity: 1; }
-                100% { transform: translate(300px, 0px) rotate(180deg) scaleX(-1); opacity: 0; }
+              @keyframes shadowStride {
+                0%, 100% { transform: translateY(0) rotate(0deg); }
+                25% { transform: translateY(-3px) rotate(-3deg); }
+                75% { transform: translateY(-3px) rotate(3deg); }
               }
-              @keyframes boyWalkBounce {
-                0%, 100% { transform: translateY(0); }
-                50% { transform: translateY(-4px); }
+              @keyframes shadowPanic {
+                0% { transform: scale(1) rotate(0deg); opacity: 0.75; }
+                25% { transform: scale(1.1) rotate(-20deg) translateY(-10px); }
+                50% { transform: scale(0.6) rotate(30deg) translateY(-30px); }
+                100% { transform: scale(0) rotate(-60deg) translateY(-50px); opacity: 0; }
               }
-              @keyframes boySurprise {
-                0% { transform: translateY(0) scale(1); }
-                40% { transform: translateY(-30px) scale(1.1) rotate(15deg); }
-                100% { transform: translateY(-50px) scale(0) rotate(-15deg); opacity: 0; }
-              }
-              .boy-container {
+              .shadow-runner {
                 position: absolute;
-                top: 50%;
-                left: 50%;
-                margin-top: -24px;
-                margin-left: -20px;
-                width: 40px;
-                height: 50px;
-                animation: boyRun 11s infinite cubic-bezier(0.4, 0, 0.2, 1);
-              }
-              .boy-container-flip {
-                position: absolute;
-                top: 12px;
-                left: 50%;
-                margin-left: -20px;
-                width: 40px;
-                height: 50px;
-                animation: boyRunFlip 9s 6s infinite cubic-bezier(0.4, 0, 0.2, 1);
+                width: 30px;
+                height: 30px;
+                animation: shadowRun 16s 2s infinite linear;
                 opacity: 0;
+                z-index: 15;
               }
-              .boy-sprite {
+              .shadow-inner {
                 width: 100%;
                 height: 100%;
-                animation: boyWalkBounce 0.25s infinite alternate;
+                animation: shadowStride 0.18s infinite;
               }
-              .group:hover .boy-sprite {
-                animation: boySurprise 0.4s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+              .group:hover .shadow-inner {
+                animation: shadowPanic 0.4s forwards;
               }
             `}</style>
             <div className="absolute inset-0 pointer-events-none z-20 overflow-hidden">
-              {/* 1体目：通常走り */}
-              <div className="boy-container">
-                <div className="boy-sprite">
-                  <svg viewBox="0 0 32 40" width="40" height="50" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.45))" }}>
-                    <ellipse cx="16" cy="10" rx="11" ry="10" fill="#6b3a20"/>
-                    <circle cx="8" cy="4" r="3" fill="#6b3a20"/>
-                    <circle cx="22" cy="3" r="3.5" fill="#6b3a20"/>
-                    <circle cx="15" cy="2" r="3" fill="#7c4a2a"/>
-                    <ellipse cx="25" cy="7" rx="2.5" ry="3" fill="#6b3a20"/>
-                    <path d="M18 2 Q20 -3 22 0" stroke="#7c4a2a" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
-                    <ellipse cx="16" cy="13" rx="9" ry="9" fill="#fde4c8"/>
-                    <ellipse cx="12" cy="13" rx="2.8" ry="3.2" fill="#1e293b"/>
-                    <ellipse cx="20" cy="13" rx="2.8" ry="3.2" fill="#1e293b"/>
-                    <circle cx="11" cy="12" r="1.2" fill="#fff"/>
-                    <circle cx="19" cy="12" r="1.2" fill="#fff"/>
-                    <circle cx="13" cy="14" r="0.6" fill="#fff" opacity="0.7"/>
-                    <circle cx="21" cy="14" r="0.6" fill="#fff" opacity="0.7"/>
-                    <path d="M14 17 Q16 19.5 18 17" stroke="#c0392b" strokeWidth="1" fill="none" strokeLinecap="round"/>
-                    <circle cx="8" cy="16" r="2.2" fill="#f9a8b8" opacity="0.55"/>
-                    <circle cx="24" cy="16" r="2.2" fill="#f9a8b8" opacity="0.55"/>
-                    <rect x="8" y="22" width="16" height="10" rx="3" fill="#10b981"/>
-                    <rect x="10" y="22" width="12" height="4" rx="2" fill="#059669"/>
-                    <line x1="14" y1="23" x2="13" y2="26" stroke="#fff" strokeWidth="0.8" strokeLinecap="round"/>
-                    <line x1="18" y1="23" x2="19" y2="26" stroke="#fff" strokeWidth="0.8" strokeLinecap="round"/>
-                    <circle cx="5" cy="28" r="2.5" fill="#fde4c8"/>
-                    <circle cx="27" cy="28" r="2.5" fill="#fde4c8"/>
-                    <rect x="5" y="24" width="4" height="5" rx="2" fill="#10b981"/>
-                    <rect x="23" y="24" width="4" height="5" rx="2" fill="#10b981"/>
-                    <rect x="10" y="31" width="5" height="5" rx="1.5" fill="#3b82f6"/>
-                    <rect x="17" y="31" width="5" height="5" rx="1.5" fill="#3b82f6"/>
-                    <ellipse cx="12" cy="37.5" rx="3.5" ry="2" fill="#ef4444"/>
-                    <ellipse cx="20" cy="37.5" rx="3.5" ry="2" fill="#ef4444"/>
-                  </svg>
-                </div>
-              </div>
-              {/* 2体目：天井を逆さまに走る */}
-              <div className="boy-container-flip">
-                <div className="boy-sprite">
-                  <svg viewBox="0 0 32 40" width="40" height="50" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.45))" }}>
-                    <ellipse cx="16" cy="10" rx="11" ry="10" fill="#6b3a20"/>
-                    <circle cx="8" cy="4" r="3" fill="#6b3a20"/>
-                    <circle cx="22" cy="3" r="3.5" fill="#6b3a20"/>
-                    <circle cx="15" cy="2" r="3" fill="#7c4a2a"/>
-                    <ellipse cx="25" cy="7" rx="2.5" ry="3" fill="#6b3a20"/>
-                    <path d="M18 2 Q20 -3 22 0" stroke="#7c4a2a" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
-                    <ellipse cx="16" cy="13" rx="9" ry="9" fill="#fde4c8"/>
-                    <ellipse cx="12" cy="13" rx="2.8" ry="3.2" fill="#1e293b"/>
-                    <ellipse cx="20" cy="13" rx="2.8" ry="3.2" fill="#1e293b"/>
-                    <circle cx="11" cy="12" r="1.2" fill="#fff"/>
-                    <circle cx="19" cy="12" r="1.2" fill="#fff"/>
-                    <circle cx="13" cy="14" r="0.6" fill="#fff" opacity="0.7"/>
-                    <circle cx="21" cy="14" r="0.6" fill="#fff" opacity="0.7"/>
-                    <path d="M14 17 Q16 19.5 18 17" stroke="#c0392b" strokeWidth="1" fill="none" strokeLinecap="round"/>
-                    <circle cx="8" cy="16" r="2.2" fill="#f9a8b8" opacity="0.55"/>
-                    <circle cx="24" cy="16" r="2.2" fill="#f9a8b8" opacity="0.55"/>
-                    <rect x="8" y="22" width="16" height="10" rx="3" fill="#10b981"/>
-                    <rect x="10" y="22" width="12" height="4" rx="2" fill="#059669"/>
-                    <line x1="14" y1="23" x2="13" y2="26" stroke="#fff" strokeWidth="0.8" strokeLinecap="round"/>
-                    <line x1="18" y1="23" x2="19" y2="26" stroke="#fff" strokeWidth="0.8" strokeLinecap="round"/>
-                    <circle cx="5" cy="28" r="2.5" fill="#fde4c8"/>
-                    <circle cx="27" cy="28" r="2.5" fill="#fde4c8"/>
-                    <rect x="5" y="24" width="4" height="5" rx="2" fill="#10b981"/>
-                    <rect x="23" y="24" width="4" height="5" rx="2" fill="#10b981"/>
-                    <rect x="10" y="31" width="5" height="5" rx="1.5" fill="#3b82f6"/>
-                    <rect x="17" y="31" width="5" height="5" rx="1.5" fill="#3b82f6"/>
-                    <ellipse cx="12" cy="37.5" rx="3.5" ry="2" fill="#ef4444"/>
-                    <ellipse cx="20" cy="37.5" rx="3.5" ry="2" fill="#ef4444"/>
+              <div className="shadow-runner">
+                <div className="shadow-inner">
+                  <svg viewBox="0 0 24 30" width="30" height="30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                      <filter id="sg"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                    </defs>
+                    <g filter="url(#sg)" opacity="0.9">
+                      {/* 頭 */}
+                      <circle cx="12" cy="7" r="6.5" fill="#072b1e"/>
+                      {/* アホ毛（ぴょこん） */}
+                      <path d="M14 1.5 Q16.5 -3 18 1" stroke="#0d4a32" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+                      {/* 目（ギラッと光る） */}
+                      <circle cx="9.5" cy="7" r="1.8" fill="#34d399"/>
+                      <circle cx="14.5" cy="7" r="1.8" fill="#34d399"/>
+                      <circle cx="9" cy="6.3" r="0.6" fill="#a7f3d0"/>
+                      <circle cx="14" cy="6.3" r="0.6" fill="#a7f3d0"/>
+                      {/* にやり */}
+                      <path d="M8.5 10.5 Q12 14 15.5 10.5" stroke="#34d399" strokeWidth="1" fill="none" strokeLinecap="round"/>
+                      {/* 体（ヒョロ） */}
+                      <rect x="9" y="13" width="6" height="10" rx="3" fill="#072b1e"/>
+                      {/* 手（棒） */}
+                      <line x1="9" y1="15" x2="3" y2="19" stroke="#072b1e" strokeWidth="2.5" strokeLinecap="round"/>
+                      <line x1="15" y1="15" x2="21" y2="12" stroke="#072b1e" strokeWidth="2.5" strokeLinecap="round"/>
+                      {/* 足（棒） */}
+                      <line x1="10" y1="22" x2="7" y2="28" stroke="#072b1e" strokeWidth="2.5" strokeLinecap="round"/>
+                      <line x1="14" y1="22" x2="17" y2="28" stroke="#072b1e" strokeWidth="2.5" strokeLinecap="round"/>
+                    </g>
                   </svg>
                 </div>
               </div>
