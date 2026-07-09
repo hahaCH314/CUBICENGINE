@@ -3878,7 +3878,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
 
           {/* スマホ：アドオン完成を独立ボタンで常時表示（ツールメニューに埋めない） */}
           {isMobile && (
-            <div style={{ position: "fixed", top: 92, left: "50%", transform: "translateX(-50%)", zIndex: 55, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+            <div style={{ position: "fixed", top: 92, right: 12, zIndex: 55, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2 }}>
               <button disabled={!isLogicValid}
                 onClick={() => {
                   playSuccessSound();
