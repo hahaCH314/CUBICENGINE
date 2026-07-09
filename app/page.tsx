@@ -47,12 +47,12 @@ function IntroVideo() {
             aria-label="CUBICENGINE 紹介動画を再生"
             className="absolute inset-0 w-full h-full group cursor-pointer overflow-hidden"
           >
-            {/* 明るいブランドのグラデ地（暗く見せない・エメラルド→シアン） */}
-            <span className="absolute inset-0" style={{ background: "linear-gradient(135deg, #34d399 0%, #10b981 45%, #22d3ee 100%)" }} />
-            {/* うっすらキューブ格子（白） */}
-            <span className="absolute inset-0" style={{ opacity: 0.5, background: "repeating-linear-gradient(0deg, rgba(255,255,255,0.12) 0 1px, transparent 1px 34px), repeating-linear-gradient(90deg, rgba(255,255,255,0.12) 0 1px, transparent 1px 34px)" }} />
-            {/* 再生ボタン背後の明るいグロー */}
-            <span className="absolute left-1/2 top-1/2" style={{ transform: "translate(-50%,-50%)", width: 320, height: 260, background: "radial-gradient(circle, rgba(255,255,255,0.4), transparent 70%)", pointerEvents: "none" }} />
+            {/* ダークなブランドグラデ地（暗めのエメラルド→ティール） */}
+            <span className="absolute inset-0" style={{ background: "linear-gradient(135deg, #052e16 0%, #064e3b 40%, #0f3d3e 70%, #0c2233 100%)" }} />
+            {/* うっすらキューブ格子（暗め） */}
+            <span className="absolute inset-0" style={{ opacity: 0.3, background: "repeating-linear-gradient(0deg, rgba(52,211,153,0.15) 0 1px, transparent 1px 34px), repeating-linear-gradient(90deg, rgba(52,211,153,0.15) 0 1px, transparent 1px 34px)" }} />
+            {/* 再生ボタン背後のソフトグロー */}
+            <span className="absolute left-1/2 top-1/2" style={{ transform: "translate(-50%,-50%)", width: 320, height: 260, background: "radial-gradient(circle, rgba(52,211,153,0.2), transparent 70%)", pointerEvents: "none" }} />
             {/* 中身 */}
             <span className="absolute inset-0 flex flex-col items-center justify-center gap-3.5 z-10">
               {/* YouTube風の赤い再生ボタン（一目で動画と分かる） */}
@@ -73,19 +73,35 @@ function IntroVideo() {
                 0% { transform: translate(-180px, 10px); opacity: 0; }
                 5% { transform: translate(-100px, 10px); opacity: 1; }
                 15% { transform: translate(-40px, 10px); }
-                18% { transform: translate(-20px, -42px); } /* 飛び乗る */
+                18% { transform: translate(-20px, -42px); }
                 22% { transform: translate(0px, -42px); }
-                30% { transform: translate(0px, -42px); } /* ボタン上で停止 */
-                33% { transform: translate(0px, -42px) scaleX(-1); } /* 振り向く */
+                30% { transform: translate(0px, -42px); }
+                33% { transform: translate(0px, -42px) scaleX(-1); }
                 43% { transform: translate(0px, -42px) scaleX(-1); }
-                46% { transform: translate(0px, -42px) scaleX(1); } /* 元に戻る */
+                46% { transform: translate(0px, -42px) scaleX(1); }
                 52% { transform: translate(30px, -42px); }
-                56% { transform: translate(50px, 20px); } /* 飛び降りる */
+                56% { transform: translate(50px, 20px); }
                 65% { transform: translate(75px, 20px); }
-                75% { transform: translate(75px, 20px) scaleX(-1); } /* 振り向く */
+                75% { transform: translate(75px, 20px) scaleX(-1); }
                 80% { transform: translate(75px, 20px) scaleX(1); }
                 95% { transform: translate(160px, 20px); opacity: 1; }
                 100% { transform: translate(220px, 20px); opacity: 0; }
+              }
+              @keyframes boyRunFlip {
+                0% { transform: translate(280px, 0px) rotate(180deg); opacity: 0; }
+                4% { transform: translate(220px, 0px) rotate(180deg); opacity: 1; }
+                20% { transform: translate(80px, 0px) rotate(180deg); }
+                24% { transform: translate(50px, -15px) rotate(200deg); }
+                28% { transform: translate(30px, 0px) rotate(180deg); }
+                40% { transform: translate(-30px, 0px) rotate(180deg); }
+                44% { transform: translate(-60px, -20px) rotate(160deg); }
+                48% { transform: translate(-80px, 0px) rotate(180deg); }
+                55% { transform: translate(-80px, 0px) rotate(180deg) scaleX(-1); }
+                65% { transform: translate(0px, 0px) rotate(180deg) scaleX(-1); }
+                70% { transform: translate(40px, -18px) rotate(200deg) scaleX(-1); }
+                75% { transform: translate(80px, 0px) rotate(180deg) scaleX(-1); }
+                90% { transform: translate(200px, 0px) rotate(180deg) scaleX(-1); opacity: 1; }
+                100% { transform: translate(300px, 0px) rotate(180deg) scaleX(-1); opacity: 0; }
               }
               @keyframes boyWalkBounce {
                 0%, 100% { transform: translateY(0); }
@@ -101,42 +117,98 @@ function IntroVideo() {
                 top: 50%;
                 left: 50%;
                 margin-top: -24px;
-                margin-left: -16px;
-                width: 32px;
-                height: 48px;
+                margin-left: -20px;
+                width: 40px;
+                height: 50px;
                 animation: boyRun 11s infinite cubic-bezier(0.4, 0, 0.2, 1);
+              }
+              .boy-container-flip {
+                position: absolute;
+                top: 12px;
+                left: 50%;
+                margin-left: -20px;
+                width: 40px;
+                height: 50px;
+                animation: boyRunFlip 9s 6s infinite cubic-bezier(0.4, 0, 0.2, 1);
+                opacity: 0;
               }
               .boy-sprite {
                 width: 100%;
                 height: 100%;
                 animation: boyWalkBounce 0.25s infinite alternate;
               }
-              /* ホバー時は男の子が驚いて消える */
               .group:hover .boy-sprite {
                 animation: boySurprise 0.4s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
               }
             `}</style>
             <div className="absolute inset-0 pointer-events-none z-20 overflow-hidden">
+              {/* 1体目：通常走り */}
               <div className="boy-container">
                 <div className="boy-sprite">
-                  <svg viewBox="0 0 16 24" width="32" height="48" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.5))" }}>
-                    {/* 頭 */}
-                    <rect x="4" y="2" width="8" height="6" fill="#451a03"/>
-                    <rect x="5" y="3" width="7" height="5" fill="#fcd34d"/>
-                    <rect x="9" y="5" width="2" height="2" fill="#1e293b"/>
-                    {/* パーカー (エメラルド) */}
-                    <rect x="4" y="8" width="8" height="8" fill="#10b981"/>
-                    <rect x="3" y="7" width="10" height="4" fill="#059669"/>
-                    {/* 手 */}
-                    <rect x="2" y="9" width="2" height="4" fill="#10b981"/>
-                    <rect x="2" y="13" width="2" height="2" fill="#fcd34d"/>
-                    <rect x="12" y="9" width="2" height="4" fill="#10b981"/>
-                    <rect x="12" y="13" width="2" height="2" fill="#fcd34d"/>
-                    {/* ズボン */}
-                    <rect x="5" y="16" width="6" height="4" fill="#3b82f6"/>
-                    {/* 靴 */}
-                    <rect x="3" y="20" width="4" height="2" fill="#ef4444"/>
-                    <rect x="9" y="20" width="4" height="2" fill="#ef4444"/>
+                  <svg viewBox="0 0 32 40" width="40" height="50" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.45))" }}>
+                    <ellipse cx="16" cy="10" rx="11" ry="10" fill="#6b3a20"/>
+                    <circle cx="8" cy="4" r="3" fill="#6b3a20"/>
+                    <circle cx="22" cy="3" r="3.5" fill="#6b3a20"/>
+                    <circle cx="15" cy="2" r="3" fill="#7c4a2a"/>
+                    <ellipse cx="25" cy="7" rx="2.5" ry="3" fill="#6b3a20"/>
+                    <path d="M18 2 Q20 -3 22 0" stroke="#7c4a2a" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
+                    <ellipse cx="16" cy="13" rx="9" ry="9" fill="#fde4c8"/>
+                    <ellipse cx="12" cy="13" rx="2.8" ry="3.2" fill="#1e293b"/>
+                    <ellipse cx="20" cy="13" rx="2.8" ry="3.2" fill="#1e293b"/>
+                    <circle cx="11" cy="12" r="1.2" fill="#fff"/>
+                    <circle cx="19" cy="12" r="1.2" fill="#fff"/>
+                    <circle cx="13" cy="14" r="0.6" fill="#fff" opacity="0.7"/>
+                    <circle cx="21" cy="14" r="0.6" fill="#fff" opacity="0.7"/>
+                    <path d="M14 17 Q16 19.5 18 17" stroke="#c0392b" strokeWidth="1" fill="none" strokeLinecap="round"/>
+                    <circle cx="8" cy="16" r="2.2" fill="#f9a8b8" opacity="0.55"/>
+                    <circle cx="24" cy="16" r="2.2" fill="#f9a8b8" opacity="0.55"/>
+                    <rect x="8" y="22" width="16" height="10" rx="3" fill="#10b981"/>
+                    <rect x="10" y="22" width="12" height="4" rx="2" fill="#059669"/>
+                    <line x1="14" y1="23" x2="13" y2="26" stroke="#fff" strokeWidth="0.8" strokeLinecap="round"/>
+                    <line x1="18" y1="23" x2="19" y2="26" stroke="#fff" strokeWidth="0.8" strokeLinecap="round"/>
+                    <circle cx="5" cy="28" r="2.5" fill="#fde4c8"/>
+                    <circle cx="27" cy="28" r="2.5" fill="#fde4c8"/>
+                    <rect x="5" y="24" width="4" height="5" rx="2" fill="#10b981"/>
+                    <rect x="23" y="24" width="4" height="5" rx="2" fill="#10b981"/>
+                    <rect x="10" y="31" width="5" height="5" rx="1.5" fill="#3b82f6"/>
+                    <rect x="17" y="31" width="5" height="5" rx="1.5" fill="#3b82f6"/>
+                    <ellipse cx="12" cy="37.5" rx="3.5" ry="2" fill="#ef4444"/>
+                    <ellipse cx="20" cy="37.5" rx="3.5" ry="2" fill="#ef4444"/>
+                  </svg>
+                </div>
+              </div>
+              {/* 2体目：天井を逆さまに走る */}
+              <div className="boy-container-flip">
+                <div className="boy-sprite">
+                  <svg viewBox="0 0 32 40" width="40" height="50" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.45))" }}>
+                    <ellipse cx="16" cy="10" rx="11" ry="10" fill="#6b3a20"/>
+                    <circle cx="8" cy="4" r="3" fill="#6b3a20"/>
+                    <circle cx="22" cy="3" r="3.5" fill="#6b3a20"/>
+                    <circle cx="15" cy="2" r="3" fill="#7c4a2a"/>
+                    <ellipse cx="25" cy="7" rx="2.5" ry="3" fill="#6b3a20"/>
+                    <path d="M18 2 Q20 -3 22 0" stroke="#7c4a2a" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
+                    <ellipse cx="16" cy="13" rx="9" ry="9" fill="#fde4c8"/>
+                    <ellipse cx="12" cy="13" rx="2.8" ry="3.2" fill="#1e293b"/>
+                    <ellipse cx="20" cy="13" rx="2.8" ry="3.2" fill="#1e293b"/>
+                    <circle cx="11" cy="12" r="1.2" fill="#fff"/>
+                    <circle cx="19" cy="12" r="1.2" fill="#fff"/>
+                    <circle cx="13" cy="14" r="0.6" fill="#fff" opacity="0.7"/>
+                    <circle cx="21" cy="14" r="0.6" fill="#fff" opacity="0.7"/>
+                    <path d="M14 17 Q16 19.5 18 17" stroke="#c0392b" strokeWidth="1" fill="none" strokeLinecap="round"/>
+                    <circle cx="8" cy="16" r="2.2" fill="#f9a8b8" opacity="0.55"/>
+                    <circle cx="24" cy="16" r="2.2" fill="#f9a8b8" opacity="0.55"/>
+                    <rect x="8" y="22" width="16" height="10" rx="3" fill="#10b981"/>
+                    <rect x="10" y="22" width="12" height="4" rx="2" fill="#059669"/>
+                    <line x1="14" y1="23" x2="13" y2="26" stroke="#fff" strokeWidth="0.8" strokeLinecap="round"/>
+                    <line x1="18" y1="23" x2="19" y2="26" stroke="#fff" strokeWidth="0.8" strokeLinecap="round"/>
+                    <circle cx="5" cy="28" r="2.5" fill="#fde4c8"/>
+                    <circle cx="27" cy="28" r="2.5" fill="#fde4c8"/>
+                    <rect x="5" y="24" width="4" height="5" rx="2" fill="#10b981"/>
+                    <rect x="23" y="24" width="4" height="5" rx="2" fill="#10b981"/>
+                    <rect x="10" y="31" width="5" height="5" rx="1.5" fill="#3b82f6"/>
+                    <rect x="17" y="31" width="5" height="5" rx="1.5" fill="#3b82f6"/>
+                    <ellipse cx="12" cy="37.5" rx="3.5" ry="2" fill="#ef4444"/>
+                    <ellipse cx="20" cy="37.5" rx="3.5" ry="2" fill="#ef4444"/>
                   </svg>
                 </div>
               </div>
