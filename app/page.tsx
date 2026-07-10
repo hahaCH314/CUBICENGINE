@@ -235,6 +235,9 @@ const DOWNLOADS = {
 // false の間は DL ボタンを「準備中」表示にして 404 を踏ませない。
 const RELEASES_READY = false;
 
+// SPROUT(統合版)を一時的にメンテナンス中（false）にするフラグ。
+const SPROUT_READY = false;
+
 // GROVE(Java)を一般公開＝解禁(2026-07-02)。カードは「Webで試す」→ /editor?mode=grape
 // （動作するWebエディタ）へ誘導。.exe/.dmg のデスクトップDLは別フラグ RELEASES_READY
 // (=false) で引き続き非表示のため、リンク切れ(404)は出ない。
@@ -382,22 +385,49 @@ export default function HomePage() {
             </span>
 
             <div className="w-full flex flex-col items-center gap-3">
-              <Link
-                href="/editor?mode=tsumiki"
-                className="w-20 h-20 inline-flex items-center justify-center rounded-2xl transition-all duration-75 relative hover:-translate-y-1 hover:shadow-[0_8px_0_#14532d,0_12px_24px_rgba(0,0,0,0.4)] active:translate-y-1 active:shadow-[0_2px_0_#14532d,0_4px_8px_rgba(0,0,0,0.25)]"
-                style={{
-                  background: "linear-gradient(135deg, #22c55e, #16a34a)",
-                  border: "3px solid #14532d",
-                  boxShadow: "0 6px 0 #14532d, 0 8px 16px rgba(0,0,0,0.35)",
-                  transform: "translateY(0)",
-                }}
-                aria-label={t(locale, "cta.tryWeb")}
-              >
-                <CubeIcon className="w-9 h-9 text-yellow-300" />
-              </Link>
-              <span className="text-xs font-bold text-white/95" style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
-                {t(locale, "cta.tryWeb")}
-              </span>
+              {SPROUT_READY ? (
+                <>
+                  <Link
+                    href="/editor?mode=tsumiki"
+                    className="w-20 h-20 inline-flex items-center justify-center rounded-2xl transition-all duration-75 relative hover:-translate-y-1 hover:shadow-[0_8px_0_#14532d,0_12px_24px_rgba(0,0,0,0.4)] active:translate-y-1 active:shadow-[0_2px_0_#14532d,0_4px_8px_rgba(0,0,0,0.25)]"
+                    style={{
+                      background: "linear-gradient(135deg, #22c55e, #16a34a)",
+                      border: "3px solid #14532d",
+                      boxShadow: "0 6px 0 #14532d, 0 8px 16px rgba(0,0,0,0.35)",
+                      transform: "translateY(0)",
+                    }}
+                    aria-label={t(locale, "cta.tryWeb")}
+                  >
+                    <CubeIcon className="w-9 h-9 text-yellow-300" />
+                  </Link>
+                  <span className="text-xs font-bold text-white/95" style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
+                    {t(locale, "cta.tryWeb")}
+                  </span>
+                </>
+              ) : (
+                <div className="flex flex-col items-center gap-2">
+                  <span
+                    aria-label={t(locale, "sprout.soon")}
+                    title={t(locale, "sprout.soonTitle")}
+                    className="animate-pulse w-20 h-20 inline-flex items-center justify-center rounded-2xl cursor-default"
+                    style={{
+                      background: "linear-gradient(135deg, rgba(34,197,94,0.15), rgba(22,163,74,0.1))",
+                      border: "3px solid rgba(34,197,94,0.45)",
+                      boxShadow: "inset 0 0 10px rgba(34,197,94,0.2)",
+                    }}
+                  >
+                    <CubeIcon className="w-8 h-8 text-white/20" />
+                  </span>
+                  <div className="flex flex-col items-center">
+                    <span style={{ color: "#a3e635", textShadow: "0 0 8px rgba(34,197,94,0.3)" }} className="text-xs font-bold font-pixel">
+                      {t(locale, "sprout.soon")}
+                    </span>
+                    <span className="text-[9px] font-normal mt-0.5" style={{ color: "rgba(163,230,53,0.7)" }}>
+                      {t(locale, "sprout.soonSub")}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
