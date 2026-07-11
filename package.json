@@ -10,7 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "electron:dev": "ELECTRON_DEV=true electron .",
+    "electron:dev": "cross-env ELECTRON_DEV=true electron .",
     "electron:build": "next build && electron-builder --win",
     "build:sprout:win": "cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT next build && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT electron-builder --win",
     "build:sprout:mac": "cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT next build && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT electron-builder --mac",
