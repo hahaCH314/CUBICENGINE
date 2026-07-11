@@ -16,6 +16,14 @@ export default function ServiceWorkerRegistration() {
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return
 
+    // Electron(デスクトップ)ではSWを使わない。SWが _next/HMR を横取りして
+    // ERR_INVALID_HTTP_RESPONSE / ハイドレート停止(LOADINGのまま)を起こす。SWはWeb PWA専用。
+    if ((window as any).electronAPI?.isElectron) {
+      navigator.serviceWorker.getRegistrations()
+        .then((rs) => rs.forEach((r) => r.unregister())).catch(() => {})
+      return
+    }
+
     // 登録時点で既に制御SWがあれば「更新」、無ければ「初回インストール」。
     const hadController = !!navigator.serviceWorker.controller
     let reloaded = false

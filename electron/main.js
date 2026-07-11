@@ -1,6 +1,6 @@
 'use strict';
 
-const { app, BrowserWindow, shell, Menu, dialog, ipcMain } = require('electron');
+const { app, BrowserWindow, shell, Menu, dialog, ipcMain, session } = require('electron');
 const path    = require('path');
 const http    = require('http');
 const https   = require('https');
@@ -40,7 +40,9 @@ function downloadFile(fileUrl, dest, onProgress) {
   });
 }
 
-const isDev = !app.isPackaged;
+// dev(=next dev + HMR)は ELECTRON_DEV=true の時だけ。既定は本番同等(in-process Next・HMRなし)で
+// 動かす＝TurbopackのHMR websocketがElectronと相性悪くLOADING停止する問題を根本回避。
+const isDev = !app.isPackaged && process.env.ELECTRON_DEV === 'true';
 const PORT  = isDev ? 3000 : 3200;
 let mainWindow = null;
 
@@ -118,6 +120,10 @@ function createWindow() {
 
 // ━━━ 起動フロー ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 app.whenReady().then(async () => {
+  // デスクトップ(Electron)ではPWA Service Workerを使わない。過去に登録されたSWが残っていると
+  // _next/HMR を横取りして ERR_INVALID_HTTP_RESPONSE / LOADING停止 を起こすため、起動時に消す。
+  try { await session.defaultSession.clearStorageData({ storages: ['serviceworkers', 'cachestorage'] }); } catch {}
+
   const win = createWindow();
 
   const EDITION = process.env.MMC_EDITION || 'full'; // 'sprout' | 'grove' | 'full'
