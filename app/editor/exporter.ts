@@ -131,10 +131,17 @@ function uuid(): string {
    Download Helper
    ═══════════════════════════════════════════ */
 async function downloadBlob(blob: Blob, filename: string): Promise<boolean> {
-  // モバイル向けのネイティブ共有（シェアシート）を優先
-  if (navigator.canShare) {
+  // スマホ等で .mcaddon が勝手に .zip に書き換えられるのを防ぐため、
+  // MIME type を強制的に application/octet-stream にする。
+  const safeBlob = new Blob([blob], { type: "application/octet-stream" });
+
+  // モバイル端末（スマホ・タブレット）向けのネイティブ共有（シェアシート）を優先
+  // PC（Mac, Windows等）ではシェアAPIを使わずそのままダウンロードさせる
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  if (isMobile && navigator.canShare) {
     try {
-      const file = new File([blob], filename, { type: blob.type || "application/octet-stream" });
+      const file = new File([safeBlob], filename, { type: "application/octet-stream" });
       if (navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
@@ -154,7 +161,7 @@ async function downloadBlob(blob: Blob, filename: string): Promise<boolean> {
   }
 
   // シェア非対応 or 失敗時は従来のダウンロードへフォールバック
-  const url = URL.createObjectURL(blob);
+  const url = URL.createObjectURL(safeBlob);
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
@@ -481,6 +488,9 @@ export async function exportJava(state: EditorState, jsCode: string) {
       `archivesBaseName = '${modId}'`,
       ``,
       `java.toolchain.languageVersion = JavaLanguageVersion.of(17)`,
+      ``,
+      `// 日本語など非ASCIIをソースから正しく読む（Windows既定のMS932でjavacが読むと文字化けする）`,
+      `tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }`,
       ``,
       `minecraft {`,
       `    mappings channel: 'official', version: '1.20.1'`,

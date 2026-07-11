@@ -9,6 +9,10 @@ const MAINTENANCE_MODE = true;
 
 export function proxy(request: NextRequest) {
   if (!MAINTENANCE_MODE) return NextResponse.next();
+  // デスクトップ(Electron)は同じNextアプリを 127.0.0.1 で読む。メンテはWeb来訪者向けなので
+  // localhost は素通しして、窓に編集画面(GROVE)がちゃんと出るようにする。
+  const host = request.nextUrl.hostname;
+  if (host === "127.0.0.1" || host === "localhost") return NextResponse.next();
   if (request.nextUrl.pathname === "/maintenance") return NextResponse.next();
   return NextResponse.rewrite(new URL("/maintenance", request.url));
 }
