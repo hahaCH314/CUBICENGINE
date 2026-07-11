@@ -452,24 +452,9 @@ export default function SettingsPanel() {
             )}
           </div>
 
-          {pro && (
-            <div className="bg-panel rounded-xl border border-border p-3">
-              <div className="text-[10px] font-bold text-accent uppercase tracking-wider mb-1">出力 & 識別子</div>
-              <Row label="出力フォーマット">
-                <select value={exportFormat} onChange={(e) => setExportFormat(e.target.value as "mcaddon" | "mcpack" | "zip")} className={inputCls}>
-                  <option value="mcaddon">.mcaddon</option>
-                  <option value="mcpack">.mcpack</option>
-                  <option value="zip">.zip</option>
-                </select>
-              </Row>
-              <Row label="圧縮"><Toggle value={compress} onChange={setCompress} /></Row>
-              <Row label="UUID自動生成"><Toggle value={autoUuid} onChange={setAutoUuid} /></Row>
-              <div className="mt-1.5 pt-1.5 border-t border-border/60 font-mono text-[10px] text-muted/70 space-y-0.5">
-                <div>namespace: <span className="text-cyan-300/80">cubicengine:{slug}</span></div>
-                <div>min_engine: <span className="text-cyan-300/80">forge 1.20.x</span></div>
-              </div>
-            </div>
-          )}
+          {/* 「出力 & 識別子」カード(出力フォーマット/圧縮/UUID/namespace/min_engine)は撤去。
+             技術者向けの内部設定で、しかもJava(GROVE)なのに.mcaddon(Bedrock)表示でちぐはぐだった。
+             賢い既定に任せる＝「コードを書かず誰でも作る」の芯に合わせてノイズを消す。 */}
 
           {/* ステータス */}
           <div className="bg-panel rounded-xl border border-border p-3 flex gap-4 text-[11px] text-muted">
