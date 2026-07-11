@@ -18,7 +18,8 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // 静的アセット(_next/*、ドットを含むファイル=画像/manifest/sw.js等)と
-  // /maintenance 自身は除外し、メンテ画面が正しく描画されるようにする。
-  matcher: ["/((?!_next/static|_next/image|maintenance|.*\\.).*)"],
+  // _next 内部ルート丸ごと(_next/static, _next/image, _next/webpack-hmr 等)と
+  // ドットを含むファイル(画像/manifest/sw.js等)・/maintenance 自身は除外。
+  // ※ _next/webpack-hmr(WebSocket)にproxyが触るとdev/ElectronでHMRハンドシェイクが壊れる。
+  matcher: ["/((?!_next|maintenance|.*\\.).*)"],
 };

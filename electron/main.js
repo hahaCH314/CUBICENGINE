@@ -104,6 +104,13 @@ function createWindow() {
   win.webContents.setWindowOpenHandler(({ url: u }) => {
     shell.openExternal(u); return { action: 'deny' };
   });
+  // メニュー無効化でリロード/devtoolsのショートカットが死ぬので、キー入力で直接効かせる。
+  win.webContents.on('before-input-event', (e, input) => {
+    if (input.type !== 'keyDown') return;
+    const k = (input.key || '').toLowerCase();
+    if (k === 'f5' || (input.control && k === 'r')) win.webContents.reload();
+    if (input.control && input.shift && k === 'i') win.webContents.toggleDevTools();
+  });
   win.on('closed', () => { mainWindow = null; });
   mainWindow = win;
   return win;
@@ -120,9 +127,10 @@ app.whenReady().then(async () => {
   :                        '/';
 
   if (isDev) {
-    // 開発時: すぐアプリを開く
+    // 開発時: すぐアプリを開く（devtoolsも自動で開いてエラーを見えるように）
     win.show();
     await win.loadURL(`http://127.0.0.1:${PORT}${startPath}`);
+    win.webContents.openDevTools({ mode: 'detach' });
     return;
   }
 
