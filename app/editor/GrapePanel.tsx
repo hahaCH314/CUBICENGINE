@@ -288,6 +288,9 @@ export default function GrapePanel() {
   const [draft, setDraft] = useState("");
   const [reveal, setReveal] = useState<string[] | null>(null); // コード誕生の演出
   const [launchPhase, setLaunchPhase] = useState<null | "gather" | "coalesce" | "launch">(null);
+  // デスクトップ(Electron)判定：Web公開版の「現在開発中」の蓋を、Electronでは外す（Javaが主役）
+  const [isElectron, setIsElectron] = useState(false);
+  useEffect(() => { setIsElectron(!!(window as any).electronAPI?.isElectron); }, []);
 
   interface ActiveConstellation {
     index: number;
@@ -699,7 +702,8 @@ export default function GrapePanel() {
     <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
       <style dangerouslySetInnerHTML={{ __html: KEYFRAMES }} />
 
-      {/* 開発中オーバーレイ */}
+      {/* 開発中オーバーレイ（Web公開版のみ。デスクトップ(Electron)ではJavaが主役なので出さない） */}
+      {!isElectron && (
       <div style={{
         position: "absolute", inset: 0, zIndex: 9999,
         background: "rgba(0, 5, 10, 0.85)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
@@ -717,6 +721,7 @@ export default function GrapePanel() {
           機能のリリースまでもうしばらくお待ちください
         </div>
       </div>
+      )}
 
       {/* 舞台（全面＝没入背景：アバター/パンドラの夜の森／タップで種をまく） */}
       <div
