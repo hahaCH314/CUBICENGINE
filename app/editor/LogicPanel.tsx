@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useEditorStore } from "./store";
 import { McButton, McBadge } from "../_mc";
 import { CodeRevealOverlay } from "./CodeRevealOverlay";
@@ -1535,10 +1535,15 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
           </div>
         )}
 
-        <div style={{ borderTop: "2px solid var(--border-color)", paddingTop: 14, display: "flex", gap: 8 }}>
-          <button onClick={exportJson} className="mc-btn mc-btn--warning" style={{ flex: 1 }}>📤 JSON ダウンロード</button>
-          <button onClick={() => fileRef.current?.click()} className="mc-btn mc-btn--success" style={{ flex: 1 }}>📥 JSON 読み込み</button>
-          <input ref={fileRef} type="file" accept=".json,.mmc.json" onChange={importJson} style={{ display: "none" }} />
+        <div style={{ borderTop: "2px solid var(--border-color)", paddingTop: 14, display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={exportJson} className="mc-btn mc-btn--warning" style={{ flex: 1 }}>📤 JSON ダウンロード</button>
+            <button onClick={() => fileRef.current?.click()} className="mc-btn mc-btn--success" style={{ flex: 1 }}>📥 JSON 読み込み</button>
+            <input ref={fileRef} type="file" accept=".json,.mmc.json" onChange={importJson} style={{ display: "none" }} />
+          </div>
+          <div className="font-pixel" style={{ fontSize: 9, color: "var(--muted)", textAlign: "center", lineHeight: 1.4, opacity: 0.85 }}>
+            ※Androidで読み込めない時は「Files by Google」以外のファイルアプリを使ってね
+          </div>
         </div>
       </div>
     </div>
@@ -2279,6 +2284,26 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
     prevValidRef.current = isLogicValid;
   }, [isLogicValid, showToast]);
 
+  const completedGroupBounds = useMemo(() => {
+    const validTriggers = blocks.filter(b => b.category === "trigger" && b.nextId !== null);
+    return validTriggers.map(t => {
+      const familyIds = getFamily(t.id, blocks);
+      const groupBlocks = blocks.filter(b => b.id === t.id || familyIds.includes(b.id));
+      if (groupBlocks.length === 0) return null;
+
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      for (const b of groupBlocks) {
+        const p = getPos(b.id, blocks);
+        const h = blockH(b);
+        minX = Math.min(minX, p.x);
+        minY = Math.min(minY, p.y);
+        maxX = Math.max(maxX, p.x + BW);
+        maxY = Math.max(maxY, p.y + h);
+      }
+      return { id: t.id, minX, minY, maxX, maxY };
+    }).filter(Boolean) as { id: string, minX: number, minY: number, maxX: number, maxY: number }[];
+  }, [blocks]);
+
   const normalizeCanvas = useCallback((currentBlocks: CBlock[]) => {
     if (currentBlocks.length === 0) return;
     const positions = currentBlocks.map(b => getPos(b.id, currentBlocks));
@@ -2487,7 +2512,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
     setEditorCollapsed(isDoubleTap); // 単タップ=表示 / ダブルタップ=隠す
   }, []);
 
-  const handleTrayDragStart = useCallback((e: React.MouseEvent, it: { key: string; tmpl: Tmpl; vals: Record<string, string> }) => {
+  const handleTrayDragStart = useCallback((e: React.PointerEvent, it: { key: string; tmpl: Tmpl; vals: Record<string, string> }) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -2632,7 +2657,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
       const b = blocks.find(x => x.id === id)!;
       const dragH = blockH(b);
       const center = { x: cx + BW / 2, y: cy + dragH / 2 };
-      const snap = findSnap(id, center, blocks);
+      const snap = findSnap(id, center, blocks, (typeof window !== "undefined" && window.innerWidth < 768) ? 2 : 1);
 
       let finalX = cx;
       let finalY = cy;
@@ -2691,7 +2716,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
       const b = blocks.find(b => b.id === id)!;
       const dragH = blockH(b);
       const center = { x: b.x + BW / 2, y: b.y + dragH / 2 };
-      const snap = findSnap(id, center, blocks);
+      const snap = findSnap(id, center, blocks, (typeof window !== "undefined" && window.innerWidth < 768) ? 2 : 1);
       if (snap) {
         setBlocks(prev => attach(id, snap.targetId, snap.slot, prev));
         playSnapSound();
@@ -3417,6 +3442,44 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                   }} />
                 ))}
               </div>
+              {/* 虹シマー枠（完成したグループ） */}
+              {mounted && completedGroupBounds.length > 0 && (
+                <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 1, overflow: "visible" }}>
+                  <defs>
+                    <linearGradient id="rainbowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#ff4b9f" />
+                      <stop offset="20%" stopColor="#ff906b" />
+                      <stop offset="40%" stopColor="#ffc156" />
+                      <stop offset="60%" stopColor="#66d8e0" />
+                      <stop offset="80%" stopColor="#8c61ff" />
+                      <stop offset="100%" stopColor="#ff4b9f" />
+                    </linearGradient>
+                  </defs>
+                  <style dangerouslySetInnerHTML={{ __html: `
+                    @keyframes rainbow-shimmer-hue {
+                      0% { filter: hue-rotate(0deg) drop-shadow(0 0 6px rgba(140, 97, 255, 0.4)); }
+                      100% { filter: hue-rotate(360deg) drop-shadow(0 0 6px rgba(140, 97, 255, 0.4)); }
+                    }
+                  `}} />
+                  {completedGroupBounds.map(box => {
+                    const padding = 10; // 余白8〜12px
+                    return (
+                      <rect
+                        key={`box-${box.id}`}
+                        x={box.minX - padding}
+                        y={box.minY - padding}
+                        width={box.maxX - box.minX + padding * 2}
+                        height={box.maxY - box.minY + padding * 2}
+                        rx={24}
+                        fill="none"
+                        stroke="url(#rainbowGrad)"
+                        strokeWidth={3}
+                        style={{ animation: "rainbow-shimmer-hue 3.5s linear infinite" }}
+                      />
+                    );
+                  })}
+                </svg>
+              )}
               {mounted && (
                 <>
                   {connectors.map((c, i) => (
@@ -4171,7 +4234,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                   return (
                     <button
                       key={it.key}
-                      onMouseDown={(e) => handleTrayDragStart(e, it)}
+                      onPointerDown={(e) => handleTrayDragStart(e, it)}
                       title="ドラッグしてキャンバスに置く"
                       className="btn-card"
                       style={{
@@ -4189,6 +4252,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                         overflow: "hidden",
                         padding: "0px",
                         boxSizing: "border-box",
+                        touchAction: "none",
                         // @ts-ignore
                         "--card-color": c?.bg ?? "#94a3b8",
                       }}

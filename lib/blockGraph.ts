@@ -108,10 +108,13 @@ function findSnap(
   draggingId: string,
   center: { x: number; y: number },
   blocks: CBlock[],
+  mult = 1, // スナップ許容の倍率。スマホは指が太く＋ズームが小さいので呼び出し側が2倍を渡す＝「近い＝繋がる」
 ): { targetId: string; slot: string } | null {
   const family = getFamily(draggingId, blocks);
   const db = blocks.find(b => b.id === draggingId);
   const dh = db ? blockH(db) : BH;
+  const lx = 45 * mult, lyu = 80 * mult, lyd = 45 * mult; // canSnapVertical の許容（倍率適用）
+  const innerR = 42 * mult;                               // inner スロットの許容半径
 
   for (const target of blocks) {
     if (family.includes(target.id)) continue;
@@ -124,10 +127,10 @@ function findSnap(
         const elseH = target.type === "co_if" && target.elseId ? getStackHeight(target.elseId, blocks) : 0;
         const maxArmH = Math.max(thenH, elseH);
         const snap = { x: tp.x + BW / 2, y: tp.y - maxArmH - 31 - dh / 2 };
-        if (canSnapVertical(center, snap)) return { targetId: target.id, slot: "next" };
+        if (canSnapVertical(center, snap, lx, lyu, lyd)) return { targetId: target.id, slot: "next" };
       } else {
         const snap = { x: tp.x + BW / 2, y: tp.y - GAP - dh / 2 };
-        if (canSnapVertical(center, snap)) return { targetId: target.id, slot: "next" };
+        if (canSnapVertical(center, snap, lx, lyu, lyd)) return { targetId: target.id, slot: "next" };
       }
     }
 
@@ -137,19 +140,19 @@ function findSnap(
       if (isLoop) {
         // 繰り返しアームの中身は then スロットへ
         const snap = { x: tp.x + BW / 2, y: tp.y - GAP - dh / 2 };
-        if (!target.thenId && canSnapVertical(center, snap))
+        if (!target.thenId && canSnapVertical(center, snap, lx, lyu, lyd))
           return { targetId: target.id, slot: "then" };
       } else {
         // 条件分岐
-        if (!target.innerId && dist(center, { x: tp.x + BW + GAP + BW / 2, y: tp.y + BH / 2 }) < 42)
+        if (!target.innerId && dist(center, { x: tp.x + BW + GAP + BW / 2, y: tp.y + BH / 2 }) < innerR)
           return { targetId: target.id, slot: "inner" };
-        
+
         const thenSnap = { x: tp.x + BW / 2, y: tp.y - GAP - dh / 2 };
-        if (!target.thenId && canSnapVertical(center, thenSnap))
+        if (!target.thenId && canSnapVertical(center, thenSnap, lx, lyu, lyd))
           return { targetId: target.id, slot: "then" };
-          
+
         const elseSnap = { x: tp.x + BW + GAP + 82 + BW / 2, y: tp.y - GAP - dh / 2 };
-        if (!target.elseId && canSnapVertical(center, elseSnap))
+        if (!target.elseId && canSnapVertical(center, elseSnap, lx, lyu, lyd))
           return { targetId: target.id, slot: "else" };
       }
     }
