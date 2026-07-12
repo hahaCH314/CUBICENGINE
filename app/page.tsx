@@ -236,7 +236,7 @@ const DOWNLOADS = {
 const RELEASES_READY = false;
 
 // SPROUT(統合版)を一時的にメンテナンス中（false）にするフラグ。
-const SPROUT_READY = false;
+const SPROUT_READY = true;
 
 // GROVE(Java)を一般公開＝解禁(2026-07-02)。カードは「Webで試す」→ /editor?mode=grape
 // （動作するWebエディタ）へ誘導。.exe/.dmg のデスクトップDLは別フラグ RELEASES_READY
