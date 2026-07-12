@@ -1466,12 +1466,13 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
   };
 
   const exportJson = () => {
-    const data = JSON.stringify({ name: saveName, blocks, version: "2.0" }, null, 2);
-    const url = URL.createObjectURL(new Blob([data], { type: "application/json" }));
+    // エクスポート(.mcaddon)とは別の「作品データ」保存。独自拡張子 .cubic（中身はJSON）。
+    const data = JSON.stringify({ app: "cubicengine", kind: "logic", name: saveName, blocks, version: "2.0" }, null, 2);
+    const url = URL.createObjectURL(new Blob([data], { type: "application/octet-stream" }));
     const a = document.createElement("a");
-    a.href = url; a.download = `${saveName.replace(/\s+/g, "_")}.mmc.json`; a.click();
+    a.href = url; a.download = `${saveName.replace(/\s+/g, "_")}.cubic`; a.click();
     URL.revokeObjectURL(url);
-    flash("📤 ダウンロードしました！");
+    flash("💾 .cubic で保存しました！");
   };
 
   const importJson = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1537,9 +1538,9 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
 
         <div style={{ borderTop: "2px solid var(--border-color)", paddingTop: 14, display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={exportJson} className="mc-btn mc-btn--warning" style={{ flex: 1 }}>📤 JSON ダウンロード</button>
-            <button onClick={() => fileRef.current?.click()} className="mc-btn mc-btn--success" style={{ flex: 1 }}>📥 JSON 読み込み</button>
-            <input ref={fileRef} type="file" accept=".json,.mmc.json" onChange={importJson} style={{ display: "none" }} />
+            <button onClick={exportJson} className="mc-btn mc-btn--warning" style={{ flex: 1 }}>💾 ファイルに保存(.cubic)</button>
+            <button onClick={() => fileRef.current?.click()} className="mc-btn mc-btn--success" style={{ flex: 1 }}>📂 ファイルから開く</button>
+            <input ref={fileRef} type="file" accept=".cubic,.json,.mmc.json" onChange={importJson} style={{ display: "none" }} />
           </div>
           <div className="font-pixel" style={{ fontSize: 9, color: "var(--muted)", textAlign: "center", lineHeight: 1.4, opacity: 0.85 }}>
             ※Androidで読み込めない時は「Files by Google」以外のファイルアプリを使ってね
