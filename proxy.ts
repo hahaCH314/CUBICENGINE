@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server";
 // true の間、全ページ（静的アセット除く）を /maintenance へ振り替える。
 // 解除するときは false にして push（Vercel 再デプロイで反映）。
 // ※Next 16 で middleware → proxy に改称（node_modules/next/dist/docs/.../proxy.md）。
-const MAINTENANCE_MODE = true;
+const MAINTENANCE_MODE = false;
 
 export function proxy(request: NextRequest) {
   if (!MAINTENANCE_MODE) return NextResponse.next();
