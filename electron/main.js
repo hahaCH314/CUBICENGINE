@@ -218,35 +218,9 @@ ipcMain.handle('mc:detect', async () => {
 ipcMain.handle('mc:buildAndInstall', async (event, { files, modsDir, tmpDirOverride }) => {
   const send = msg => { event.sender.send('mc:buildLog', msg); console.log('[Build]', msg); };
 
-  // ── ① Gradle の場所を決定（アプリ内蔵 → システム PATH の順）──
-  send('🔍 Gradle を確認中...');
-  const configPath = path.join(app.getPath('userData'), 'gradle-config.json');
-  let gradleCmd = 'gradle';
-
-  // アプリ内蔵 Gradle が保存されていれば優先使用
-  if (fs.existsSync(configPath)) {
-    try {
-      const cfg = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-      if (cfg.gradleExe && fs.existsSync(cfg.gradleExe)) {
-        gradleCmd = cfg.gradleExe;
-        send(`✅ アプリ内蔵 Gradle を使用: ${cfg.gradleExe}`);
-      }
-    } catch {}
-  }
-
-  // システム Gradle の確認
-  if (gradleCmd === 'gradle') {
-    const gradleVersion = await new Promise(res => {
-      exec('gradle --version 2>&1', (err, out) => {
-        if (!err && out.includes('Gradle')) res((out.match(/Gradle ([\d.]+)/)||[])[1] || 'found');
-        else res(null);
-      });
-    });
-    if (!gradleVersion) {
-      throw new Error('Gradle がインストールされていません。\n「🪄 Gradle を自動インストール」ボタンを押してください。');
-    }
-    send(`✅ システム Gradle ${gradleVersion} を検出`);
-  }
+  // ── ① 生成物に gradle wrapper(gradlew) を同梱しているので、システムGradleは不要。
+  //     JDK17 だけあれば ./gradlew が Gradle 本体(8.8)を自動DLしてビルドする（自己完結）。
+  const isWin = process.platform === 'win32';
 
   // ── ② プロジェクトファイルを書き出す ──
   const tmpDir = tmpDirOverride || path.join(os.homedir(), 'AppData', 'Local', 'minemodcraft-build-' + Date.now());
@@ -255,18 +229,23 @@ ipcMain.handle('mc:buildAndInstall', async (event, { files, modsDir, tmpDirOverr
   for (const f of files) {
     const full = path.join(tmpDir, f.path);
     fs.mkdirSync(path.dirname(full), { recursive: true });
-    fs.writeFileSync(full, f.content, 'utf8');
+    // バイナリ(テクスチャpng / gradle-wrapper.jar 等)は base64 で渡ってくるのでバイナリ書き込み。
+    if (f.base64) fs.writeFileSync(full, Buffer.from(f.content, 'base64'));
+    else fs.writeFileSync(full, f.content, 'utf8');
   }
+  // unix系では gradlew に実行権限を付ける（Windowsは gradlew.bat を使うので不要）
+  if (!isWin) { try { fs.chmodSync(path.join(tmpDir, 'gradlew'), 0o755); } catch {} }
 
   send(`📁 プロジェクト: ${tmpDir}`);
-  send('🔨 gradle build --no-daemon 実行中（初回は数分かかります）...');
+  send('🔨 gradlew build --no-daemon 実行中（初回はGradle本体のDLで数分かかります）...');
 
-  // ── ③ ビルド実行 ──
+  // ── ③ ビルド実行（同梱の gradle wrapper を使用＝システムGradle不要）──
   return new Promise((resolve, reject) => {
-    const proc = spawn(gradleCmd, ['build', '--no-daemon', '--stacktrace'], {
-      cwd: tmpDir, shell: true,
-      env: { ...process.env, JAVA_OPTS: '-Xmx2g' },
-    });
+    const proc = isWin
+      ? spawn('cmd', ['/c', 'gradlew.bat', 'build', '--no-daemon', '--stacktrace'],
+          { cwd: tmpDir, env: { ...process.env, JAVA_OPTS: '-Xmx2g' } })
+      : spawn('./gradlew', ['build', '--no-daemon', '--stacktrace'],
+          { cwd: tmpDir, shell: true, env: { ...process.env, JAVA_OPTS: '-Xmx2g' } });
 
     proc.stdout?.on('data', d => {
       const line = d.toString().trim();
@@ -286,7 +265,7 @@ ipcMain.handle('mc:buildAndInstall', async (event, { files, modsDir, tmpDirOverr
           `プロジェクトフォルダを開きました:\n${tmpDir}\n\n` +
           `手動ビルド方法:\n` +
           `1. コマンドプロンプトで上記フォルダへ移動\n` +
-          `2. gradle build --no-daemon を実行\n` +
+          `2. gradlew build --no-daemon を実行\n` +
           `3. build/libs/ の .jar を .minecraft/mods/ へコピー`
         ));
         return;

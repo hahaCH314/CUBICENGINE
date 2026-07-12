@@ -465,15 +465,15 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
 /* ═══════════════════════════════════════════
    Java Edition Export (Forge 1.20.1-47.3.0)
    ═══════════════════════════════════════════ */
-export async function exportJava(state: EditorState, jsCode: string) {
+// Forge MDK 一式を JSZip に構築（Web/デスクトップ共通の“本物”生成）。
+// exportJava(Webダウンロード) と buildJavaFileList(Electronビルド) の両方がこれを使う。
+async function buildJavaZip(state: EditorState, jsCode: string): Promise<JSZip> {
   const zip = new JSZip();
   const name = sanitizeSlug(state.projectName);
   const className = sanitizeClassName(state.projectName);
   const modId = sanitizeModId(name);
   const pkg = `com.cubicengine.${modId}`;
   const pkgPath = `com/cubicengine/${modId}`;
-  const compression = (state.compress ? "DEFLATE" : "STORE") as "DEFLATE" | "STORE";
-  const compressionOptions = state.compress ? { level: 6 } : undefined;
 
   // ─── build.gradle ───
   zip.file(
@@ -759,12 +759,34 @@ export async function exportJava(state: EditorState, jsCode: string) {
   // 悪用防止の注意喚起を同梱
   zip.file("NOTICE.txt", NOTICE_TEXT);
 
-  const blob = await zip.generateAsync({
-    type: "blob",
-    compression,
-    compressionOptions,
-  });
+  return zip;
+}
+
+// Web用: Forge MDK zip を作ってダウンロード。
+export async function exportJava(state: EditorState, jsCode: string): Promise<boolean> {
+  const zip = await buildJavaZip(state, jsCode);
+  const name = sanitizeSlug(state.projectName);
+  const compression = (state.compress ? "DEFLATE" : "STORE") as "DEFLATE" | "STORE";
+  const compressionOptions = state.compress ? { level: 6 } : undefined;
+  const blob = await zip.generateAsync({ type: "blob", compression, compressionOptions });
   return await downloadBlob(blob, `${name}-forge-mod.zip`);
+}
+
+// デスクトップ(Electron)用: mc:buildAndInstall に渡すファイル配列。
+// バイナリ(png テクスチャ / gradle-wrapper.jar 等)は base64:true で渡し、main.js 側でバイナリ書き込みする。
+export async function buildJavaFileList(
+  state: EditorState,
+  jsCode: string,
+): Promise<{ path: string; content: string; base64?: boolean }[]> {
+  const zip = await buildJavaZip(state, jsCode);
+  const out: { path: string; content: string; base64?: boolean }[] = [];
+  for (const entry of Object.values(zip.files)) {
+    if (entry.dir) continue;
+    const isBinary = /\.(png|jar)$/i.test(entry.name);
+    const content = isBinary ? await entry.async("base64") : await entry.async("string");
+    out.push({ path: entry.name, content, base64: isBinary });
+  }
+  return out;
 }
 
 /* ═══════════════════════════════════════════

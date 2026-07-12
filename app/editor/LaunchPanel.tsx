@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useEditorStore } from "./store";
+import { buildJavaFileList } from "./exporter";
 
 /* ══════════════════════════════════════════════════════════
    型定義
@@ -99,9 +100,10 @@ export default function LaunchPanel() {
     });
 
     try {
-      // Java エクスポーターでプロジェクトファイルを生成
-      // （ZIP ではなくファイルリストとして受け取る）
-      const files = await buildFileList(projectName);
+      // Java エクスポーター(本物)でプロジェクトファイルを生成。
+      // exportJava と同じ buildJavaZip 由来＝1.20.1 / UTF-8 / gradle wrapper同梱 / Block・Item・挙動入り。
+      const st = useEditorStore.getState() as any;
+      const files = await buildJavaFileList(st, st.generatedJsCode || "");
 
       const result = await api.buildAndInstall({
         files,
