@@ -1540,7 +1540,9 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
           <div style={{ display: "flex", gap: 8 }}>
             <button onClick={exportJson} className="mc-btn mc-btn--warning" style={{ flex: 1 }}>💾 ファイルに保存(.cubic)</button>
             <button onClick={() => fileRef.current?.click()} className="mc-btn mc-btn--success" style={{ flex: 1 }}>📂 ファイルから開く</button>
-            <input ref={fileRef} type="file" accept=".cubic,.json,.mmc.json" onChange={importJson} style={{ display: "none" }} />
+            {/* accept を絞ると独自拡張子.cubicがスマホのファイル選択で灰色になり選べない。
+                中身はimportJson側でJSON検証するので、ここは全ファイル選択可にする。 */}
+            <input ref={fileRef} type="file" onChange={importJson} style={{ display: "none" }} />
           </div>
           <div className="font-pixel" style={{ fontSize: 9, color: "var(--muted)", textAlign: "center", lineHeight: 1.4, opacity: 0.85 }}>
             ※Androidで読み込めない時は「Files by Google」以外のファイルアプリを使ってね
