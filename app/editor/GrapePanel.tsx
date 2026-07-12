@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback, useEffect, useMemo, type ComponentType } from "react";
 import { GrapeIcons, type IconProps } from "./grapeIcons";
 import { grapeToCBlock } from "../../lib/grapeToCBlock";
-import { exportProject } from "./exporter";
+import { exportProject, buildJavaFileList } from "./exporter";
 import { useEditorStore } from "./store";
 import { buildGroveStructure, type GroveSlot } from "../../lib/groveTree";
 import { CodeRevealOverlay } from "./CodeRevealOverlay";
@@ -685,10 +685,32 @@ export default function GrapePanel() {
     //    ※ 648行で掴んだ store は setLogicGraphJson/setTargetPlatform 前の“古いスナップショット”。
     //      zustand は set で新オブジェクトに差し替えるため、ここで最新 state を取り直して渡す
     //      （でないと さっき変換した blocks が入っておらず、古い/空のロジックが出力される）。
-    try {
-      await exportProject(useEditorStore.getState(), "");
-    } catch (err) {
-      console.error("Failed to export project:", err);
+    const outState = useEditorStore.getState();
+    if ((window as any).electronAPI?.isElectron) {
+      // デスクトップ: ZIPダウンロードでなく、その場で本物ビルド→ .minecraft/mods へ導入。
+      // 数分かかる＆GrapePanelに進捗UIが無いので、バックグラウンドで走らせ完了/失敗をalertで知らせる
+      // （revealアニメを止めないよう非await）。
+      (async () => {
+        try {
+          const api = (window as any).electronAPI.minecraft;
+          const det = await api.detect();
+          if (!det?.modsDir) {
+            alert("Minecraft (.minecraft/mods) が見つかりません。\n先に Minecraft Java版を一度起動して .minecraft を作ってください。");
+            return;
+          }
+          const files = await buildJavaFileList(outState as any, (outState as any).generatedJsCode || "");
+          const res = await api.buildAndInstall({ files, modsDir: det.modsDir, projectName: outState.projectName });
+          alert(`✅ ${res.jarName} を mods に導入しました！\nForge 1.20.1 でマイクラを起動して確認してください。`);
+        } catch (e: any) {
+          alert("❌ ビルドに失敗しました：\n" + (e?.message || e) + "\n\n※初回はGradle本体(8.8)のDLに数分かかります。ネット接続とJDK17を確認してください。");
+        }
+      })();
+    } else {
+      try {
+        await exportProject(outState, ""); // Web: ZIP ダウンロード
+      } catch (err) {
+        console.error("Failed to export project:", err);
+      }
     }
 
     // 4. 放出アニメーション完了 (800ms) の後、コード表示＋写経オーバーレイへ移行
