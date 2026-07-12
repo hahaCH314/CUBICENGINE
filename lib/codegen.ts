@@ -37,6 +37,13 @@ function genChain(id:string|null, blocks:CBlock[], indent:string):string{
     const rest=genChain(b.nextId,blocks,indent+"  ");
     return`${indent}system.runTimeout(()=>{\n${rest||`${indent}  // まつ`}\n${indent}},${lo}+Math.floor(Math.random()*(${hi}-${lo}+1)));`;
   }
+  // インターバル（一定間隔で繰り返す）：以降のチェーンを runInterval で毎s秒くりかえす。
+  //  ※ ct_wait/delay と同じく genChain 側で「残りのチェーンを包む」型。genBlock 未対応で no-op だった不具合の修正。
+  if(b.type==="ct_int"){
+    const ticks=Math.max(1,Math.round(parseFloat(gf(b,"s","5"))*20));
+    const rest=genChain(b.nextId,blocks,indent+"  ");
+    return`${indent}system.runInterval(()=>{\n${rest||`${indent}  // くりかえす`}\n${indent}},${ticks});`;
+  }
 
   return genBlock(b,blocks,indent)+"\n"+genChain(b.nextId,blocks,indent);
 }
