@@ -35,9 +35,6 @@ export default function MaintenancePage() {
         <br />
         メンテナンスを行っています。
       </p>
-      <p style={{ fontSize: 13, lineHeight: 1.9, marginTop: 14, color: "rgba(215,255,247,0.7)" }}>
-        しばらくしてから、もう一度おこしください。
-      </p>
       <p className="font-pixel" style={{ fontSize: 11, letterSpacing: "0.12em", marginTop: 40, color: "rgba(94,234,212,0.6)" }}>
         CUBICENGINE studio
       </p>
