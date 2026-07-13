@@ -437,7 +437,7 @@ export default function GrapePanel() {
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       const step = e.deltaY * -0.0015; // 上スクロール=拡大 / 下=縮小
-      setZoom((z) => Math.min(1.5, Math.max(0.5, Math.round((z + step) * 100) / 100)));
+      setZoom((z) => Math.min(2.5, Math.max(0.3, Math.round((z + step) * 100) / 100)));
     };
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);
@@ -872,7 +872,7 @@ export default function GrapePanel() {
         }}>
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); setZoom(z => Math.max(0.5, z - 0.25)); }}
+            onClick={(e) => { e.stopPropagation(); setZoom(z => Math.max(0.3, z - 0.25)); }}
             style={{ border: "none", background: "none", color: "#5ae3f0", cursor: "pointer", fontSize: 13, fontWeight: 900, width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center", outline: "none" }}
           >
             ー
@@ -885,7 +885,7 @@ export default function GrapePanel() {
           </span>
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); setZoom(z => Math.min(1.5, z + 0.25)); }}
+            onClick={(e) => { e.stopPropagation(); setZoom(z => Math.min(2.5, z + 0.25)); }}
             style={{ border: "none", background: "none", color: "#5ae3f0", cursor: "pointer", fontSize: 13, fontWeight: 900, width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center", outline: "none" }}
           >
             ＋
