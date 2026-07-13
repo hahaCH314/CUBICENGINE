@@ -86,10 +86,16 @@ async function startNextServer(appRoot, sendStatus) {
 }
 
 // ━━━ ウィンドウ作成 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const WIN_STATE = path.join(app.getPath('userData'), 'window-state.json');
+function readWinState() { try { return JSON.parse(fs.readFileSync(WIN_STATE, 'utf8')); } catch { return null; } }
+
 function createWindow() {
   Menu.setApplicationMenu(null);
+  const st = readWinState();
   const win = new BrowserWindow({
-    width: 1440, height: 900, minWidth: 1100, minHeight: 700,
+    width: st?.width ?? 1600, height: st?.height ?? 1000,
+    x: st?.x, y: st?.y,
+    minWidth: 1000, minHeight: 640,
     title: 'CUBICENGINE Studio',
     icon:  path.join(__dirname, '..', 'public', 'icon-512x512.png'),
     backgroundColor: '#0d0d0f',
@@ -103,15 +109,25 @@ function createWindow() {
     },
   });
 
+  // 初回 or 前回最大化なら最大化で開く＝広くて自由・没入感。
+  if (st?.max ?? true) win.maximize();
+
   win.webContents.setWindowOpenHandler(({ url: u }) => {
     shell.openExternal(u); return { action: 'deny' };
   });
-  // メニュー無効化でリロード/devtoolsのショートカットが死ぬので、キー入力で直接効かせる。
+  // メニュー無効化でショートカットが死ぬので直接効かせる：
+  //  F11=全画面(枠が全部消えて没入)/Esc=解除/F5・Ctrl+R=再読込/Ctrl+Shift+I=devtools
   win.webContents.on('before-input-event', (e, input) => {
     if (input.type !== 'keyDown') return;
     const k = (input.key || '').toLowerCase();
-    if (k === 'f5' || (input.control && k === 'r')) win.webContents.reload();
-    if (input.control && input.shift && k === 'i') win.webContents.toggleDevTools();
+    if (k === 'f11') win.setFullScreen(!win.isFullScreen());
+    else if (k === 'escape' && win.isFullScreen()) win.setFullScreen(false);
+    else if (k === 'f5' || (input.control && k === 'r')) win.webContents.reload();
+    else if (input.control && input.shift && k === 'i') win.webContents.toggleDevTools();
+  });
+  // 窓の大きさ・位置・最大化状態を記憶（次回もそこで開く）
+  win.on('close', () => {
+    try { fs.writeFileSync(WIN_STATE, JSON.stringify({ ...win.getNormalBounds(), max: win.isMaximized() })); } catch {}
   });
   win.on('closed', () => { mainWindow = null; });
   mainWindow = win;
