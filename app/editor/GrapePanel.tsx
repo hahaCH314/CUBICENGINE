@@ -48,6 +48,23 @@ const ITEMS: ItemDef[] = [
   { type: "number",   label: "数値",           emoji: "💎", cat: "value",   needsText: true,  placeholder: "10" },
 ];
 
+// 「アイテム付与」用：アイテム候補(id=ゲーム内ID / label=日本語つき)。個数は別ドロップダウンにする（×1が分かりにくい対策）。
+const GIVE_ITEMS: { id: string; label: string }[] = [
+  { id: "diamond",          label: "ダイヤ (diamond)" },
+  { id: "iron_ingot",       label: "鉄インゴット (iron_ingot)" },
+  { id: "gold_ingot",       label: "金インゴット (gold_ingot)" },
+  { id: "netherite_ingot",  label: "ネザライト (netherite_ingot)" },
+  { id: "emerald",          label: "エメラルド (emerald)" },
+  { id: "golden_apple",     label: "金のリンゴ (golden_apple)" },
+  { id: "bread",            label: "パン (bread)" },
+  { id: "diamond_sword",    label: "ダイヤの剣 (diamond_sword)" },
+  { id: "diamond_pickaxe",  label: "ダイヤのツルハシ (diamond_pickaxe)" },
+  { id: "oak_log",          label: "樫の原木 (oak_log)" },
+  { id: "tnt",              label: "TNT (tnt)" },
+  { id: "ender_pearl",      label: "エンダーパール (ender_pearl)" },
+];
+const GIVE_COUNTS = ["1", "2", "4", "8", "16", "32", "64"];
+
 // ブロックごとの候補（ドロップダウン用）。※自由入力もそのまま可（datalist＝候補＋手入力の両対応）
 const ITEM_OPTIONS: Record<string, string[]> = {
   on_chat: ["ひらけごま", "こんにちは", "スタート", "たすけて"],
@@ -629,7 +646,8 @@ export default function GrapePanel() {
   const pickItem = (item: ItemDef) => {
     if (!spawn) return;
     if (item.needsText) {
-      setDraft("");
+      // give は2ドロップダウンなので、空だと壊れる。初期値をplaceholder("diamond ×1")に。
+      setDraft(item.type === "give" ? (item.placeholder || "") : "");
       setSpawn({ ...spawn, phase: "type", item });
       setTimeout(() => inputRef.current?.focus(), 20);
     } else { doGenerate(item, ""); setSpawn(null); }
@@ -1273,15 +1291,37 @@ export default function GrapePanel() {
                   <span style={{ fontSize: 12, fontWeight: 800, color: "#fff", display: "inline-flex", alignItems: "center", gap: 5, background: CAT_STYLE[spawn.item.cat].color, padding: "5px 9px", borderRadius: 8, boxShadow: `0 0 10px ${CAT_STYLE[spawn.item.cat].glow}`, whiteSpace: "nowrap" }}>
                     <ItemGlyph type={spawn.item.type} size={14} />{spawn.item.label}
                   </span>
-                  <input ref={inputRef} value={draft} placeholder={spawn.item.placeholder || "中身を書く…"}
-                    list={ITEM_OPTIONS[spawn.item.type] ? `grove-dl-${spawn.item.type}` : undefined}
-                    onChange={(e) => setDraft(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") confirmType(); if (e.key === "Escape") setSpawn(null); }}
-                    style={{ flex: 1, fontSize: 14, fontWeight: 700, color: "#fff", padding: "7px 10px", borderRadius: 9, border: `2px solid ${CAT_STYLE[spawn.item.cat].glow}`, outline: "none", background: "rgba(0,0,0,0.3)" }} />
-                  {ITEM_OPTIONS[spawn.item.type] && (
-                    <datalist id={`grove-dl-${spawn.item.type}`}>
-                      {ITEM_OPTIONS[spawn.item.type].map((o) => <option key={o} value={o} />)}
-                    </datalist>
+                  {spawn.item.type === "give" ? (() => {
+                    // アイテム付与＝「アイテム▼」＋「個数▼」に分割。裏で "item ×count" を組み立てるのでパーサ据え置き。
+                    const gm = draft.trim().match(/^([a-zA-Z0-9_:-]+)(?:\s*[xX×\s]\s*(\d+))?/);
+                    const gItem = gm?.[1] || "diamond";
+                    const gCount = gm?.[2] || "1";
+                    const selSt: React.CSSProperties = { fontSize: 13, fontWeight: 700, color: "#fff", padding: "7px 10px", borderRadius: 9, border: `2px solid ${CAT_STYLE[spawn.item.cat].glow}`, outline: "none", background: "rgba(0,0,0,0.35)", cursor: "pointer" };
+                    return (
+                      <>
+                        <select value={gItem} onChange={(e) => setDraft(`${e.target.value} ×${gCount}`)} style={{ ...selSt, flex: 1 }}>
+                          {!GIVE_ITEMS.some((g) => g.id === gItem) && <option value={gItem}>{gItem}</option>}
+                          {GIVE_ITEMS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+                        </select>
+                        <select value={gCount} onChange={(e) => setDraft(`${gItem} ×${e.target.value}`)} style={selSt} title="個数">
+                          {!GIVE_COUNTS.includes(gCount) && <option value={gCount}>{gCount}こ</option>}
+                          {GIVE_COUNTS.map((n) => <option key={n} value={n}>{n}こ</option>)}
+                        </select>
+                      </>
+                    );
+                  })() : (
+                    <>
+                      <input ref={inputRef} value={draft} placeholder={spawn.item.placeholder || "中身を書く…"}
+                        list={ITEM_OPTIONS[spawn.item.type] ? `grove-dl-${spawn.item.type}` : undefined}
+                        onChange={(e) => setDraft(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter") confirmType(); if (e.key === "Escape") setSpawn(null); }}
+                        style={{ flex: 1, fontSize: 14, fontWeight: 700, color: "#fff", padding: "7px 10px", borderRadius: 9, border: `2px solid ${CAT_STYLE[spawn.item.cat].glow}`, outline: "none", background: "rgba(0,0,0,0.3)" }} />
+                      {ITEM_OPTIONS[spawn.item.type] && (
+                        <datalist id={`grove-dl-${spawn.item.type}`}>
+                          {ITEM_OPTIONS[spawn.item.type].map((o) => <option key={o} value={o} />)}
+                        </datalist>
+                      )}
+                    </>
                   )}
                   <button type="button" onClick={confirmType} style={{ border: "none", cursor: "pointer", background: CAT_STYLE[spawn.item.cat].color, color: "#fff", fontWeight: 900, fontSize: 12, padding: "7px 11px", borderRadius: 9 }}>OK</button>
                 </div>
