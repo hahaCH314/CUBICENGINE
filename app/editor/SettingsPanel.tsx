@@ -50,6 +50,9 @@ function BuildTerminal() {
   const projectName = useEditorStore((s) => s.projectName);
   const blocks = useEditorStore((s) => s.blocks);
   const exportArmed = useEditorStore((s) => s.exportArmed); // メインEXPORTボタンを押して初めて解錠
+  const targetPlatform = useEditorStore((s) => s.targetPlatform);
+  // Java(GROVE)は「アドオン完成」ボタンが無く「マイクラへ放つ」が本番なので、exportArmedゲートを外す。
+  const armed = exportArmed || targetPlatform === "java";
 
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
@@ -60,8 +63,8 @@ function BuildTerminal() {
 
   const handleBuild = useCallback(async () => {
     if (building) return;
-    // 抜け道防止：メインの「アドオン完成！」ボタンを押して解錠していないと書き出さない
-    if (!useEditorStore.getState().exportArmed) {
+    // 抜け道防止：Bedrockはメインの「アドオン完成！」で解錠必須。Java(GROVE)は「放つ」が本番なので不要。
+    if (!useEditorStore.getState().exportArmed && useEditorStore.getState().targetPlatform !== "java") {
       setLog(["⚠ まず ロジック画面の「アドオン完成！🎉」ボタンを押してください。"]);
       return;
     }
@@ -153,10 +156,10 @@ function BuildTerminal() {
       <button
         id="export-btn"
         onClick={handleBuild}
-        disabled={building || !exportArmed || !agreed}
-        title={!exportArmed ? "先にロジック画面の「アドオン完成！🎉」ボタンを押してください" : !agreed ? "利用規約に同意してください" : undefined}
-        className={`mc-btn ${building || !exportArmed || !agreed ? "" : "mc-btn--primary"} w-full py-3`}
-        style={{ fontSize: 13, borderRadius: 16, opacity: !building && !exportArmed ? 0.6 : !agreed ? 0.8 : 1 }}
+        disabled={building || !armed || !agreed}
+        title={!armed ? "先にロジック画面の「アドオン完成！🎉」ボタンを押してください" : !agreed ? "利用規約に同意してください" : undefined}
+        className={`mc-btn ${building || !armed || !agreed ? "" : "mc-btn--primary"} w-full py-3`}
+        style={{ fontSize: 13, borderRadius: 16, opacity: !building && !armed ? 0.6 : !agreed ? 0.8 : 1 }}
       >
         {building ? (
           <>
@@ -166,7 +169,7 @@ function BuildTerminal() {
             </svg>
             ビルド中…
           </>
-        ) : !exportArmed ? (
+        ) : !armed ? (
           <>🔒 まず「アドオン完成！🎉」を押してね</>
         ) : !agreed ? (
           <>⛔ 同意してエクスポートを解錠</>

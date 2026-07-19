@@ -1249,7 +1249,7 @@ export default function GrapePanel() {
               position: "absolute", left: spawn.x * zoom, top: spawn.y * zoom, transform: "translate(-50%, 10px)", zIndex: 21,
               background: "rgba(5, 20, 45, 0.97)", border: "1px solid rgba(0, 200, 255, 0.25)", borderRadius: 14,
               padding: 10, boxShadow: "0 10px 30px rgba(0,0,0,0.5)", animation: "pop-in 0.18s cubic-bezier(0.34,1.56,0.64,1)",
-              maxWidth: 360,
+              maxWidth: 540, width: "max-content",
             }}>
               {spawn.phase === "pick" ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
