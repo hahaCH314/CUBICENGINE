@@ -76,6 +76,7 @@ function BuildTerminal() {
       const state = useEditorStore.getState();
       const plat = state.targetPlatform as "bedrock" | "java";
       const isElec = typeof window !== "undefined" && !!(window as any).electronAPI?.isElectron;
+      push(`# ターゲット: ${plat === "java" ? "Java / Forge 1.20.1" : "Bedrock / 統合版"} ${isElec ? "(デスクトップ)" : "(Web)"}`);
 
       // デスクトップのJavaは、ソースZIPでなく本物ビルド→.minecraft/mods へ.jar導入（「放つ」と同じ）。
       if (plat === "java" && isElec) {
