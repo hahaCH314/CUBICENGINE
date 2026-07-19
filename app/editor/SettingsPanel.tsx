@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useEditorStore } from "./store";
-import { exportProject } from "./exporter";
+import { exportProject, buildJavaFileList } from "./exporter";
 
 /* ═══════════════════════════════════════════
    Toggle Switch
@@ -75,6 +75,25 @@ function BuildTerminal() {
     try {
       const state = useEditorStore.getState();
       const plat = state.targetPlatform as "bedrock" | "java";
+      const isElec = typeof window !== "undefined" && !!(window as any).electronAPI?.isElectron;
+
+      // デスクトップのJavaは、ソースZIPでなく本物ビルド→.minecraft/mods へ.jar導入（「放つ」と同じ）。
+      if (plat === "java" && isElec) {
+        const api = (window as any).electronAPI.minecraft;
+        push("$ cubicengine build --install (Java / 本物ビルド)");
+        const det = await api.detect();
+        if (!det?.modsDir) throw new Error("Minecraft (.minecraft/mods) が見つかりません。\n先にMinecraft Java版を一度起動して .minecraft を作ってください。");
+        const files = await buildJavaFileList(state as any, state.generatedJsCode || "");
+        api.onBuildLog?.((m: string) => push(m));
+        const res = await api.buildAndInstall({ files, modsDir: det.modsDir, projectName: state.projectName });
+        api.offBuildLog?.();
+        push("");
+        push(`✅ ${res.jarName} を mods に導入しました！Forge 1.20.1 で起動して確認してね。`);
+        setExportedPlatform("java");
+        setShowGuide(false);
+        return;
+      }
+
       push("$ cubicengine build --release");
       await wait(220);
       push("  ▸ manifest.json を生成 …");
