@@ -257,8 +257,11 @@ ipcMain.handle('mc:buildAndInstall', async (event, { files, modsDir, tmpDirOverr
 
   // ── ③ ビルド実行（同梱の gradle wrapper を使用＝システムGradle不要）──
   return new Promise((resolve, reject) => {
+    // ※Windowsは gradlew.bat を「絶対パス」で渡す。cwd 任せの相対名だと、環境変数
+    //   NoDefaultCurrentDirectoryInExePath=1 の環境で cmd がカレントを探さなくなり
+    //   「'gradlew.bat' は認識されていません」で必ず失敗する（開発者シェル等で既定ON）。
     const proc = isWin
-      ? spawn('cmd', ['/c', 'gradlew.bat', 'build', '--no-daemon', '--stacktrace'],
+      ? spawn('cmd', ['/c', path.join(tmpDir, 'gradlew.bat'), 'build', '--no-daemon', '--stacktrace'],
           { cwd: tmpDir, env: { ...process.env, JAVA_OPTS: '-Xmx2g' } })
       : spawn('./gradlew', ['build', '--no-daemon', '--stacktrace'],
           { cwd: tmpDir, shell: true, env: { ...process.env, JAVA_OPTS: '-Xmx2g' } });

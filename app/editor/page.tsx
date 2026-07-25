@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useEditorStore } from "./store";
-import { exportProject } from "./exporter";
+import { exportProject, buildJavaFileList } from "./exporter";
 import { McButton } from "../_mc";
 
 // Electron 環境でのチャンクロード失敗を防ぐため静的インポートに変更
@@ -28,8 +28,30 @@ interface MenuItem {
 function useMenuItems() {
   const handleExport = useCallback(async () => {
     const state = useEditorStore.getState();
-    // 抜け道防止：メインの「アドオン完成！」ボタンを押して解錠していないと書き出さない
-    if (!state.exportArmed) return;
+    // 抜け道防止：メインの「アドオン完成！」ボタンを押して解錠していないと書き出さない。
+    // ただし Java(GROVE) は「放つ」が本番なのでゲート対象外（SettingsPanel と同じ扱い）。
+    if (!state.exportArmed && state.targetPlatform !== "java") return;
+
+    // デスクトップのJavaは、ソースZIPでなく本物ビルド→ .minecraft/mods へ .jar 導入。
+    // 「放つ」/ ランチャー / 設定タブの「ビルド」は既にこの経路だが、このメニューだけ
+    // 無条件に exportProject を呼んでZIPを落としていた＝取り残しを塞ぐ。
+    const api = (window as any).electronAPI?.minecraft;
+    if (state.targetPlatform === "java" && api) {
+      try {
+        const det = await api.detect();
+        if (!det?.modsDir) {
+          alert("Minecraft (.minecraft/mods) が見つかりません。\n先に Minecraft Java版を一度起動して .minecraft を作ってください。");
+          return;
+        }
+        const files = await buildJavaFileList(state, state.generatedJsCode || "");
+        const res = await api.buildAndInstall({ files, modsDir: det.modsDir, projectName: state.projectName });
+        alert(`✅ ${res.jarName} を mods に導入しました！\nForge 1.20.1 でマイクラを起動して確認してください。`);
+      } catch (e: any) {
+        alert("❌ ビルドに失敗しました：\n" + (e?.message || e) + "\n\n※初回はGradle本体(8.8)のDLに数分かかります。ネット接続とJDK17を確認してください。");
+      }
+      return;
+    }
+
     await exportProject(state, state.generatedJsCode);
   }, []);
 
