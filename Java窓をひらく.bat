@@ -1,29 +1,32 @@
 @echo off
-chcp 932 >nul
+chcp 65001 >nul
 rem ============================================================
-rem  CUBICENGINE - Java(GROVE)�f�X�N�g�b�v�����_�u���N���b�N�ŋN��
+rem  CUBICENGINE - Java(GROVE)デスクトップ窓をダブルクリックで起動
 rem ------------------------------------------------------------
-rem  ���̃t�@�C���͕K�� Shift-JIS(CP932) + CRLF �ŕۑ����邱�ƁB
-rem  cmd.exe �� .bat ���u�V�X�e��ANSI�R�[�h�y�[�W�v�œǂށi����PC��932�j�B
-rem  UTF-8 + LF �ŕۑ�����Ɠ��{��R�����g�����s�����ݍ��݁A�㑱�̍s
-rem  �icall npm run desktop ���j���ۂ��Ǝ��s���ꂸ�����o�Ȃ��B
-rem  ��.gitattributes �� *.bat �� eol=crlf �ɌŒ肵�Ă���B
+rem  ⚠ このファイルは必ず CRLF 改行で保存すること（文字コードはUTF-8のままでOK）。
+rem     LF単独で保存すると cmd が行を正しく切れず、日本語コメントが次の行を
+rem     飲み込んで結合する。実際 2026-07-25 に
+rem       rem CUBICENGINE - Java(GROVE)デスクトップ窓を…
+rem     が結合して java コマンドとして実行され(ClassNotFoundException: (GROVE))、
+rem     肝心の call npm run desktop が実行されず窓が出なかった。
+rem     CRLFなら2行目の chcp 65001 が効いてUTF-8のまま正しく解釈される。
+rem     ※.gitattributes で *.bat を eol=crlf に固定してある。
 rem ============================================================
 cd /d "%~dp0"
 
 echo ================================================
-echo   CUBICENGINE  Java(GROVE) �f�X�N�g�b�v���N�����܂�
-echo   ������� next build �ŏ������Ԃ�������܂�
+echo   CUBICENGINE  Java(GROVE) デスクトップを起動します
+echo   ※初回は next build で少し時間がかかります
 echo ================================================
 echo.
 
-rem ��̃N���b�V���Ɛl(ELECTRON_RUN_AS_NODE)�������Bcmd�ł� set VAR= ���u�ϐ����폜�v�ɂȂ�B
+rem 例のクラッシュ犯人(ELECTRON_RUN_AS_NODE)を消す。cmdでは set VAR= が「変数を削除」になる。
 set "ELECTRON_RUN_AS_NODE="
-rem GROVE(Java)�ŊJ��
+rem GROVE(Java)で開く
 set "MMC_EDITION=grove"
 
 call npm run desktop
 
 echo.
-echo ������܂����B���̃E�B���h�E�͕���OK�ł��B
+echo 窓を閉じました。このウィンドウは閉じてOKです。
 pause
