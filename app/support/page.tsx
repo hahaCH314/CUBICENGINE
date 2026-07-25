@@ -94,7 +94,7 @@ export default function SupportPage() {
             </L>
             <L className="mt-2">
               <W>それを自分の手で形にしたのが、</W>
-              <W>なっとうサイダー(12歳)。</W>
+              <W>なっとうサイダー(中学生)。</W>
             </L>
             <L>
               <W>彼が作った本サイトが</W>

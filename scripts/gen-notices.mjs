@@ -83,7 +83,32 @@ const FONTS = `## フォント / Fonts
 - **Geist / Geist Mono** © Vercel — SIL Open Font License 1.1
 - **Press Start 2P** © CodeMan38 — SIL Open Font License 1.1
 - **M PLUS Rounded 1c** © The M+ FONTS Project — SIL Open Font License 1.1
+- **Outfit** © Smartsheet Inc. — SIL Open Font License 1.1
+- **Nunito** © The Nunito Project Authors — SIL Open Font License 1.1
+
+※ここは app/layout.tsx の next/font 読み込みと一致させること。フォントは .exe に同梱して
+再配布されるため、OFL 1.1 は著作権表示の同梱を義務づけている（増やしたらこの表を必ず更新）。
 `;
+
+// デスクトップ版(.exe/.dmg)にだけ同梱されるランタイム。npm の dependencies には出てこないが、
+// 実体はアプリと一緒に再配布されるので表記義務がある（特に Chromium の BSD-3-Clause）。
+function runtimeSection() {
+  let ver = "(未インストール)";
+  try {
+    ver = JSON.parse(readFileSync(join(root, "node_modules", "electron", "package.json"), "utf8")).version;
+  } catch { /* noop */ }
+  return `## デスクトップ版に同梱されるランタイム / Bundled runtimes (desktop build)
+
+Web版には含まれません。デスクトップ版（\`.exe\` / \`.dmg\`）はアプリ実行のため以下を同梱して再配布しています。
+
+- **Electron** \`${ver}\` — MIT License
+- **Chromium** — BSD-3-Clause ほか（ライセンス全文は配布物内の \`LICENSES.chromium.html\`）
+- **Node.js / V8** — MIT License / BSD-3-Clause
+
+Electron 由来の \`LICENSE\` と \`LICENSES.chromium.html\` は electron-builder が配布物へそのまま
+同梱するため、全文はインストール先フォルダに含まれます。
+`;
+}
 
 const out = [
   "# Third-Party Notices / オープンソースライセンス表記",
@@ -104,6 +129,9 @@ const out = [
   "---",
   "",
   FONTS,
+  "---",
+  "",
+  runtimeSection(),
   "---",
   "",
   "## 各ライセンス全文 / Full license texts",

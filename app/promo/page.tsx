@@ -107,7 +107,7 @@ function MiniWorld({ title }: { title: string }) {
       <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: "28%", background: "linear-gradient(#7ec850, #5fa83e)", borderTop: "8px solid #4f9134", boxShadow: "inset 0 4px 0 rgba(255,255,255,0.18)" }} />
       {/* キャラ */}
       <div style={{ position: "absolute", left: "50%", bottom: "26%", transform: "translateX(-50%)", animation: "pp-bob 1.6s ease-in-out infinite" }}>
-        <Steve />
+        <Builder />
       </div>
       {/* タイトルポップ */}
       <div style={{ position: "absolute", top: "34%", left: 0, right: 0, textAlign: "center", zIndex: 5 }}>
@@ -117,17 +117,20 @@ function MiniWorld({ title }: { title: string }) {
   );
 }
 
-function Steve() {
+/* このページの生成物はSNS上の宣伝物になる＝Mojangのブランドガイドライン上いちばん厳しく
+   見られる用途。なのでマイクラの既存キャラを思わせる造形（名前・シアンのシャツ）は避け、
+   CUBICENGINE のブランドカラー（エメラルド／アンバー）の独自キャラにしている。 */
+function Builder() {
   return (
     <div style={{ width: 56, height: 76, position: "relative" }}>
       <div style={{ position: "absolute", bottom: -8, left: "50%", transform: "translateX(-50%)", width: 44, height: 9, borderRadius: "50%", background: "rgba(0,0,0,0.25)", filter: "blur(2px)" }} />
       {/* 頭 */}
-      <div style={{ position: "absolute", top: 0, left: 8, width: 40, height: 34, borderRadius: 5, background: "linear-gradient(#caa074,#b3895f)", border: "3px solid #6f5436", boxSizing: "border-box" }}>
-        <div style={{ position: "absolute", top: 13, left: 8, width: 6, height: 7, background: "#2a1d10", borderRadius: 1 }} />
-        <div style={{ position: "absolute", top: 13, right: 8, width: 6, height: 7, background: "#2a1d10", borderRadius: 1 }} />
+      <div style={{ position: "absolute", top: 0, left: 8, width: 40, height: 34, borderRadius: 9, background: "linear-gradient(#fcd9a0,#f0b970)", border: "3px solid #b07a3a", boxSizing: "border-box" }}>
+        <div style={{ position: "absolute", top: 13, left: 8, width: 6, height: 7, background: "#3b2a14", borderRadius: 2 }} />
+        <div style={{ position: "absolute", top: 13, right: 8, width: 6, height: 7, background: "#3b2a14", borderRadius: 2 }} />
       </div>
-      {/* 体 */}
-      <div style={{ position: "absolute", top: 32, left: 12, width: 32, height: 36, borderRadius: 4, background: "linear-gradient(#2bb6a8,#1d8f84)", border: "3px solid #145e57", boxSizing: "border-box" }} />
+      {/* 体（ブランドのエメラルド） */}
+      <div style={{ position: "absolute", top: 32, left: 12, width: 32, height: 36, borderRadius: 8, background: "linear-gradient(#34d399,#10b981)", border: "3px solid #065f46", boxSizing: "border-box" }} />
     </div>
   );
 }

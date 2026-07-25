@@ -560,11 +560,12 @@ export default function HomePage() {
                     </L>
                   </div>
 
-                  {/* 2段目: 12歳とコア機能無料 */}
+                  {/* 2段目: 作者の学齢とコア機能無料。
+                      ※年齢を「◯歳」と一点で書かない＝未成年の特定情報を減らす（毎年の書き換えも不要）。 */}
                   <div className="pt-4 border-t border-dashed border-white/10">
                     <L className="text-white/95">
                       <W>なっとうサイダーは</W>
-                      <W>今12歳です。</W>
+                      <W>今、中学生です。</W>
                     </L>
                     <L className="mt-2 text-white/95">
                       <W>「同じようにマイクラや、<br className="sm:hidden" /></W>

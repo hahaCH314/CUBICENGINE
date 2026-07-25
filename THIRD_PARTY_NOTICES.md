@@ -4,7 +4,7 @@ CUBICENGINE は以下のオープンソースソフトウェアを利用して�
 
 This product (**CUBICENGINE**) includes the third-party open-source software listed below. Each component remains the property of its respective owners and is distributed under its own license.
 
-> このファイルは `node scripts/gen-notices.mjs` で自動生成されています（最終生成: 2026-07-08）。
+> このファイルは `node scripts/gen-notices.mjs` で自動生成されています（最終生成: 2026-07-25）。
 > 本番依存(dependencies)のみを対象。実際の配布物にはこれらの推移的依存も含まれ、いずれも各OSSライセンスに従います。
 
 ## 一覧 / Summary
@@ -30,6 +30,24 @@ This product (**CUBICENGINE**) includes the third-party open-source software lis
 - **Geist / Geist Mono** © Vercel — SIL Open Font License 1.1
 - **Press Start 2P** © CodeMan38 — SIL Open Font License 1.1
 - **M PLUS Rounded 1c** © The M+ FONTS Project — SIL Open Font License 1.1
+- **Outfit** © Smartsheet Inc. — SIL Open Font License 1.1
+- **Nunito** © The Nunito Project Authors — SIL Open Font License 1.1
+
+※ここは app/layout.tsx の next/font 読み込みと一致させること。フォントは .exe に同梱して
+再配布されるため、OFL 1.1 は著作権表示の同梱を義務づけている（増やしたらこの表を必ず更新）。
+
+---
+
+## デスクトップ版に同梱されるランタイム / Bundled runtimes (desktop build)
+
+Web版には含まれません。デスクトップ版（`.exe` / `.dmg`）はアプリ実行のため以下を同梱して再配布しています。
+
+- **Electron** `33.2.0` — MIT License
+- **Chromium** — BSD-3-Clause ほか（ライセンス全文は配布物内の `LICENSES.chromium.html`）
+- **Node.js / V8** — MIT License / BSD-3-Clause
+
+Electron 由来の `LICENSE` と `LICENSES.chromium.html` は electron-builder が配布物へそのまま
+同梱するため、全文はインストール先フォルダに含まれます。
 
 ---
 

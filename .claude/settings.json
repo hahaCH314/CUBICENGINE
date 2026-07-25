@@ -5,7 +5,12 @@
       "Read(//e/MMC/**)",
       "Bash(grep -n 'flex: 1, minWidth: 0, display: \"flex\", flexDirection: \"column\"\\\\|position: \"fixed\", bottom: showMobileConsole\\\\|onClick={\\(\\) => setShowMobileConsole\\(false\\)} style={{ background: \"none\"' app/editor/LogicPanel.tsx)",
       "Bash(npm run *)",
-      "Bash(git commit -q -m ' *)"
+      "Bash(git commit -q -m ' *)",
+      "Bash(grep -rn \"http://\\\\|https://\" app lib --include=*.tsx --include=*.ts)",
+      "Bash(python -c ' *)",
+      "Bash(python blur_founder.py)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('electron', d.get\\('version'\\), d.get\\('license'\\)\\)\")",
+      "Bash(node scripts/gen-notices.mjs)"
     ]
   }
 }

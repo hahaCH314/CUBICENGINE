@@ -12,6 +12,9 @@ import { Category, FieldDef, CBlock, Tmpl, CalcSubCat, CatDef } from "./_types";
 import { BW, BH, GAP, SNAP, BASE_ZOOM } from "./_constants";
 import { CAT, CAT_WORKSHOP } from "../../data/categories";
 import { TEMPLATES, CALC_SUBTABS, getCalcSubCat } from "../../data/templates";
+import { PRESET_TEMPLATES } from "../../lib/presetTemplates";
+import HowToInstallModal from "./HowToInstallModal";
+import ConfettiEffect from "../_mc/ConfettiEffect";
 import { ITEM_NAMES } from "../../data/itemNames";
 import { blockH, getStackHeight, getDepth, getPos, getFamily, detach, attach, dist, findSnap } from "../../lib/blockGraph";
 import { escStr, escId, gf, sanitizeVarName, genChain, genBlock, genExpr, genCond, genTrigger } from "../../lib/codegen";
@@ -2252,6 +2255,9 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
   const [confetti, setConfetti] = useState<{ id: string; x: number; y: number }[]>([]);
   const [showProjects, setShowProjects] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [showPresetModal, setShowPresetModal] = useState(false);
+  const [showInstallGuide, setShowInstallGuide] = useState(false);
+  const [triggerConfetti, setTriggerConfetti] = useState(false);
   const [toast, setToast] = useState<{ message: string; level: "success" | "error" | "warning" } | null>(null);
 
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -3913,6 +3919,8 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 {[
                   { emoji: "↩", label: "戻る", on: false, fn: () => undo() },
                   { emoji: "↪", label: "進む", on: false, fn: () => redo() },
+                  { emoji: "⚡", label: "テンプレ", on: showPresetModal, fn: () => setShowPresetModal(v => !v) },
+                  { emoji: "📖", label: "入れ方", on: showInstallGuide, fn: () => setShowInstallGuide(v => !v) },
                   { emoji: "🎯", label: "ガイド", on: showSnapGuide, fn: () => setShowSnapGuide(v => !v) },
                   { emoji: "🗑️", label: "クリア", on: false, fn: () => { if (window.confirm("キャンバス上のすべてのカードを消去しますか？")) { setBlocks([]); setSelected(null); playDeleteSound(); showToast("すべてのカードを消去しました", "warning"); } } },
                   { emoji: "💾", label: "保存", on: showProjects, fn: () => setShowProjects(v => !v) },
@@ -3938,6 +3946,8 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               <button disabled={!isLogicValid}
                 onClick={() => {
                   playSuccessSound();
+                  setTriggerConfetti(true);
+                  setShowInstallGuide(true);
                   const lines = (genCode || "// まず きっかけ カードを置いて繋げよう").split("\n");
                   setReveal(lines);
                   setExportArmed(true);
@@ -4735,6 +4745,102 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
             </button>
           </div>
         </div>
+
+        {/* キラキラ紙吹雪・レベルアップ演出 */}
+        <ConfettiEffect trigger={triggerConfetti} onComplete={() => setTriggerConfetti(false)} />
+
+        {/* マイクラへのあそびかたガイドモーダル */}
+        <HowToInstallModal
+          isOpen={showInstallGuide}
+          onClose={() => setShowInstallGuide(false)}
+          projectName={useEditorStore.getState().projectName}
+        />
+
+        {/* 3分でおためしアドオン モーダル */}
+        {showPresetModal && (
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200 pointer-events-auto">
+            <div className="relative w-full max-w-xl overflow-hidden rounded-2xl border-4 border-amber-500 bg-slate-900 text-white shadow-2xl p-6">
+              <div className="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-3xl">⚡</span>
+                  <div>
+                    <h2 className="font-extrabold text-xl text-amber-400">3分でおためしアドオン！ 🐔⚔️🥩</h2>
+                    <p className="text-xs text-slate-300">選ぶだけでマイクラで動くアドオンがすぐ作れるよ！</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowPresetModal(false)}
+                  className="rounded-full bg-slate-800 p-2 hover:bg-slate-700 text-slate-300 font-bold"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {PRESET_TEMPLATES.map((tmpl) => (
+                  <div
+                    key={tmpl.id}
+                    onClick={() => {
+                      // 見た目(アイコン/サブラベル/カテゴリ)は type でパレットを引いて継承する。
+                      // 手で置いたブロックと同じ spawnBlock 相当の形になるので、テンプレ由来だけ
+                      // アイコンが無い・サブラベルが空、といった見た目の崩れが起きない。
+                      const newBlocks: CBlock[] = tmpl.blocks.map((b, idx) => {
+                        const pal = TEMPLATES.find(t => t.type === b.type);
+                        return {
+                          id: `b_preset_${Date.now()}_${idx}`,
+                          type: b.type,
+                          emoji: b.emoji ?? pal?.emoji ?? "",
+                          // 名前もパレット優先。テンプレ側の label を勝たせると、同じブロックなのに
+                          // 「テンプレから出したときだけ名前が違う」状態になって子どもが混乱する
+                          // （実際 ac_sound は label とサブラベルが同じ文字になってしまっていた）。
+                          label: pal?.label ?? b.label ?? b.type,
+                          sublabel: pal?.sublabel ?? b.sublabel ?? "",
+                          category: b.category ?? pal?.category ?? "action",
+                          // フィールドは必ず複製する（テンプレ定義を編集で書き換えてしまわないよう）
+                          fields: (b.fields ?? pal?.fields ?? []).map(f => ({ ...f })),
+                          x: b.x,
+                          y: b.y,
+                          nextId: null,
+                          innerId: null,
+                          thenId: null,
+                          elseId: null,
+                        };
+                      });
+                      for (let i = 0; i < newBlocks.length - 1; i++) {
+                        newBlocks[i].nextId = newBlocks[i + 1].id;
+                      }
+                      setBlocks(newBlocks);
+                      setSelected(null);
+                      setShowPresetModal(false);
+                      playSuccessSound();
+                      showToast(`「${tmpl.name}」を読み込みました！🎉`, "success");
+                    }}
+                    className="cursor-pointer group relative p-4 rounded-xl border-2 border-slate-700 bg-slate-800/80 hover:border-amber-400 hover:bg-slate-800 transition-all flex flex-col justify-between"
+                    style={{ borderColor: tmpl.borderColor }}
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-3xl">{tmpl.icon}</span>
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-400 text-slate-950">
+                          {tmpl.badge}
+                        </span>
+                      </div>
+                      <h3 className="font-bold text-sm text-amber-200 group-hover:text-yellow-300">
+                        {tmpl.name}
+                      </h3>
+                      <p className="text-[11px] text-slate-300 leading-snug">
+                        {tmpl.description}
+                      </p>
+                    </div>
+                    <div className="mt-3 text-center py-1.5 rounded-lg bg-amber-500 text-slate-950 font-black text-xs group-hover:bg-amber-400">
+                      これで作る！
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
 }

@@ -5,6 +5,8 @@ import FormBuilder from "../FormBuilder";
 export const metadata: Metadata = {
   title: "フォームビルダー（試作）",
   description: "UIをUIで作る試作画面。Bedrockの3フォーム型を組み立ててコード生成。",
+  // 試作中の内部ページ。検索結果に出ると「未完成の画面」が入口になってしまうので載せない。
+  robots: { index: false, follow: false },
 };
 
 export default function FormLabPage() {

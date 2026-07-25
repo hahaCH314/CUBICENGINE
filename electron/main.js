@@ -97,7 +97,7 @@ function createWindow() {
     x: st?.x, y: st?.y,
     minWidth: 1000, minHeight: 640,
     title: 'CUBICENGINE Studio',
-    icon:  path.join(__dirname, '..', 'public', 'icon-512x512.png'),
+    icon:  path.join(__dirname, '..', 'public', 'icon-512.png'),
     backgroundColor: '#0d0d0f',
     show: false,
     // titleBarStyle は default（ネイティブ）— hiddenにするとElectronが
@@ -112,8 +112,14 @@ function createWindow() {
   // 初回 or 前回最大化なら最大化で開く＝広くて自由・没入感。
   if (st?.max ?? true) win.maximize();
 
+  // 新規ウィンドウは開かず、外部ブラウザへ渡す。
+  // ※ openExternal はOSにURLを丸投げする＝file:// や独自スキームだと外部プログラムが
+  //   起動しうるので、http/https だけを通す（それ以外は黙って捨てる）。
   win.webContents.setWindowOpenHandler(({ url: u }) => {
-    shell.openExternal(u); return { action: 'deny' };
+    let ok = false;
+    try { ok = /^https?:$/.test(new URL(u).protocol); } catch { /* 不正URLは弾く */ }
+    if (ok) shell.openExternal(u);
+    return { action: 'deny' };
   });
   // メニュー無効化でショートカットが死ぬので直接効かせる：
   //  F11=全画面(枠が全部消えて没入)/Esc=解除/F5・Ctrl+R=再読込/Ctrl+Shift+I=devtools
@@ -242,8 +248,15 @@ ipcMain.handle('mc:buildAndInstall', async (event, { files, modsDir, tmpDirOverr
   const tmpDir = tmpDirOverride || path.join(os.homedir(), 'AppData', 'Local', 'minemodcraft-build-' + Date.now());
   fs.mkdirSync(tmpDir, { recursive: true });
 
+  // 書き出し先は必ず tmpDir の内側に収める。exporter 側でも名前を sanitize 済みだが、
+  // 取り込んだ .cubic 由来の値がここまで来る経路がある以上、書き込む直前でも検査する
+  // （`../` を含むパスで tmpDir の外＝任意の場所に書かれるのを防ぐ多層防御）。
+  const tmpRoot = path.resolve(tmpDir) + path.sep;
   for (const f of files) {
-    const full = path.join(tmpDir, f.path);
+    const full = path.resolve(tmpDir, f.path);
+    if (!full.startsWith(tmpRoot)) {
+      throw new Error(`不正なファイルパスが含まれています: ${f.path}`);
+    }
     fs.mkdirSync(path.dirname(full), { recursive: true });
     // バイナリ(テクスチャpng / gradle-wrapper.jar 等)は base64 で渡ってくるのでバイナリ書き込み。
     if (f.base64) fs.writeFileSync(full, Buffer.from(f.content, 'base64'));
