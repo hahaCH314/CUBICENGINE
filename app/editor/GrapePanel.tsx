@@ -309,6 +309,20 @@ export default function GrapePanel() {
   const [isElectron, setIsElectron] = useState(false);
   useEffect(() => { setIsElectron(!!(window as any).electronAPI?.isElectron); }, []);
 
+  // ★ロジックを常時ストアへ同期（実→CBlock）。
+  //   旧版は sendToMc(「放つ」)の中でしか setLogicGraphJson していなかったため、
+  //   設定タブの「ビルド」やランチャーから建てると logicGraphJson が空のまま＝
+  //   生成される .jar が「イベント0個」の空MODになっていた（2026-07-19の実ビルド3件で確認）。
+  //   Java出力は logicGraphJson だけを見る（exporter の jsCode 引数は未使用）ので、
+  //   ここで同期しておけば どの経路から建てても同じ中身になる。
+  //   LogicPanel(SPROUT)も同じフィールドへ書くが、両パネルは常時マウント(display切替)なので
+  //   targetPlatform で持ち主を分ける＝GROVEはjavaの時だけ書く（Bedrock側を壊さない）。
+  const targetPlatform = useEditorStore((s) => s.targetPlatform);
+  useEffect(() => {
+    if (targetPlatform !== "java") return;
+    useEditorStore.getState().setLogicGraphJson(JSON.stringify({ blocks: grapeToCBlock(fruits) }));
+  }, [fruits, targetPlatform]);
+
   interface ActiveConstellation {
     index: number;
     x: number; // %
