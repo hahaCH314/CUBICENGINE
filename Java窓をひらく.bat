@@ -1,21 +1,29 @@
 @echo off
-chcp 65001 >nul
-rem CUBICENGINE - Java(GROVE)ãƒ‡ã‚¹ã‚¯ãƒˆãƒƒãƒ—çª“ã‚’ãƒ€ãƒ–ãƒ«ã‚¯ãƒªãƒƒã‚¯ã§èµ·å‹•ã™ã‚‹ãƒãƒƒãƒ
+chcp 932 >nul
+rem ============================================================
+rem  CUBICENGINE - Java(GROVE)ƒfƒXƒNƒgƒbƒv‘‹‚ðƒ_ƒuƒ‹ƒNƒŠƒbƒN‚Å‹N“®
+rem ------------------------------------------------------------
+rem  ‚±‚Ìƒtƒ@ƒCƒ‹‚Í•K‚¸ Shift-JIS(CP932) + CRLF ‚Å•Û‘¶‚·‚é‚±‚ÆB
+rem  cmd.exe ‚Í .bat ‚ðuƒVƒXƒeƒ€ANSIƒR[ƒhƒy[ƒWv‚Å“Ç‚Þi‚±‚ÌPC‚Í932jB
+rem  UTF-8 + LF ‚Å•Û‘¶‚·‚é‚Æ“ú–{ŒêƒRƒƒ“ƒg‚ª‰üs‚ðˆù‚Ýž‚ÝAŒã‘±‚Ìs
+rem  icall npm run desktop “™j‚ªŠÛ‚²‚ÆŽÀs‚³‚ê‚¸‘‹‚ªo‚È‚¢B
+rem  ¦.gitattributes ‚Å *.bat ‚ð eol=crlf ‚ÉŒÅ’è‚µ‚Ä‚ ‚éB
+rem ============================================================
 cd /d "%~dp0"
 
 echo ================================================
-echo   CUBICENGINE  Java(GROVE) ãƒ‡ã‚¹ã‚¯ãƒˆãƒƒãƒ—ã‚’èµ·å‹•ã—ã¾ã™
-echo   â€»åˆå›žã¯ next build ã§å°‘ã—æ™‚é–“ãŒã‹ã‹ã‚Šã¾ã™
+echo   CUBICENGINE  Java(GROVE) ƒfƒXƒNƒgƒbƒv‚ð‹N“®‚µ‚Ü‚·
+echo   ¦‰‰ñ‚Í next build ‚Å­‚µŽžŠÔ‚ª‚©‚©‚è‚Ü‚·
 echo ================================================
 echo.
 
-rem ä¾‹ã®ã‚¯ãƒ©ãƒƒã‚·ãƒ¥çŠ¯äºº(ELECTRON_RUN_AS_NODE)ã‚’æ¶ˆã™ã€‚cmdã§ã¯ set VAR= ãŒã€Œå¤‰æ•°ã‚’å‰Šé™¤ã€ã«ãªã‚‹ã€‚
+rem —á‚ÌƒNƒ‰ƒbƒVƒ…”Æl(ELECTRON_RUN_AS_NODE)‚ðÁ‚·Bcmd‚Å‚Í set VAR= ‚ªu•Ï”‚ðíœv‚É‚È‚éB
 set "ELECTRON_RUN_AS_NODE="
-rem GROVE(Java)ã§é–‹ã
+rem GROVE(Java)‚ÅŠJ‚­
 set "MMC_EDITION=grove"
 
 call npm run desktop
 
 echo.
-echo çª“ã‚’é–‰ã˜ã¾ã—ãŸã€‚ã“ã®ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã¯é–‰ã˜ã¦OKã§ã™ã€‚
+echo ‘‹‚ð•Â‚¶‚Ü‚µ‚½B‚±‚ÌƒEƒBƒ“ƒhƒE‚Í•Â‚¶‚ÄOK‚Å‚·B
 pause
