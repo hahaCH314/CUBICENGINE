@@ -18,7 +18,7 @@ import TutorialOverlay from "./TutorialOverlay";
 import ConfettiEffect from "../_mc/ConfettiEffect";
 import { ITEM_NAMES } from "../../data/itemNames";
 import { blockH, getStackHeight, getDepth, getPos, getFamily, detach, attach, dist, findSnap } from "../../lib/blockGraph";
-import { escStr, escId, gf, sanitizeVarName, genChain, genBlock, genExpr, genCond, genTrigger } from "../../lib/codegen";
+import { escStr, escId, gf, sanitizeVarName, genChain, genBlock, genExpr, genCond, genTrigger, buildCode } from "../../lib/codegen";
 let _uid = 6000;
 const uid = () => `b${Date.now().toString(36)}${Math.random().toString(36).substring(2, 6)}`;
 
@@ -313,57 +313,6 @@ function playEatSound() {
   } catch { /* 音が出ない環境は無視 */ }
 }
 
-function buildCode(blocks: CBlock[]): string {
-  const roots = blocks.filter(b => {
-    for (const p of blocks)
-      if (p.nextId === b.id || p.innerId === b.id || p.thenId === b.id || p.elseId === b.id) return false;
-    return true;
-  });
-  const triggers = roots.filter(b => b.category === "trigger");
-  const hasUI = blocks.some(b => b.category === "ui");
-  // ⚠️ ev_chat = world.beforeEvents.chatSend は安定版APIに無く、ベータAPI必須。
-  // 使っている時だけヘッダ表記を変え、起動時に注意喚起する（gating設計=シオン）。
-  const usesChat = triggers.some(b => b.type === "ev_chat");
-  const varNames = new Set<string>();
-  blocks.filter(b => b.category === "variable").forEach(b => {
-    const name = b.fields.find(f => f.id === "name")?.value || "myVar";
-    varNames.add(`_v_${sanitizeVarName(name)}`);
-  });
-  const varDecls = [...varNames].map(n => `let ${n} = 0; // 変数: ${n.replace("_v_", "")}`).join("\n");
-  const header = [
-    `// ============================================================`,
-    `//  CUBICENGINE Studio — 自動生成コード`,
-    usesChat
-      ? `//  @minecraft/server 1.6.0-beta  (⚠️チャットイベント=ベータAPI必須)`
-      : `//  @minecraft/server 1.6.0  (実験的機能不要 / Minecraft 1.20.30+)`,
-    `// ============================================================`,
-    ``,
-    `import { world, system } from "@minecraft/server";`,
-    ...(hasUI ? [`import { ActionFormData, ModalFormData, MessageFormData } from "@minecraft/server-ui";`] : []),
-    ``,
-    ...(usesChat ? [
-      `// ⚠️ チャットイベント(beforeEvents.chatSend)は実験的API。ワールド設定で「ベータAPI(Beta APIs)」をONにしてください。`,
-      `console.warn("[CUBICENGINE] チャットイベント使用中。動かない時はワールド設定でベータAPI(Beta APIs)をONに。");`,
-      ``,
-    ] : []),
-    ...(varDecls ? [varDecls, ``] : []),
-    `// ★ 起動確認`,
-    `let _ce_ok = false;`,
-    `world.afterEvents.playerJoin.subscribe((ev) => {`,
-    `  if (_ce_ok) return;`,
-    `  _ce_ok = true;`,
-    `  const _name = ev.playerName;`,
-    `  system.runTimeout(() => {`,
-    `    const _p = world.getPlayers().find(p => p.name === _name);`,
-    `    if (_p) _p.sendMessage("§a§l[CUBICENGINE] §r§aアドオン起動！ イベント${triggers.length}個");`,
-    `    else { for (const _ap of world.getPlayers()) _ap.sendMessage("§a§l[CUBICENGINE] §r§aアドオン起動！"); }`,
-    `  }, 40);`,
-    `});`,
-    ``,
-  ].join("\n");
-  if (!triggers.length) return header + "// ⚡ きっかけブロックをキャンバスにおいてください！\n";
-  return header + triggers.map(t => genTrigger(t, blocks)).join("\n\n") + "\n";
-}
 
 /* ══════════════════════════════════════════════════════════
    ブロック描画コンポーネント
