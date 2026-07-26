@@ -41,7 +41,7 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
       display: "flex", alignItems: "center", justifyContent: "center",
       background: "rgba(15, 23, 42, 0.65)",
       backdropFilter: "blur(6px)",
-      padding: 16,
+      padding: "clamp(8px, 2.5vw, 16px)",
       fontFamily: '"Inter", "Hiragino Sans", "Meiryo", system-ui, sans-serif'
     }}>
       {/* ── 詳しい入れ方ガイド（連携） ── */}
@@ -51,6 +51,9 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
         position: "relative",
         width: "100%",
         maxWidth: 640,
+        // スマホは画面が低い。上限を切らないと下の「つぎへ」が画面外に出て押せなくなる。
+        // 100dvh はアドレスバーの出入りを含んだ実際の高さ（100vh だと足りない端末がある）。
+        maxHeight: "calc(100dvh - 16px)",
         borderRadius: 24,
         background: "linear-gradient(145deg, #ffffff 0%, #fefce8 100%)",
         border: "4px solid #f59e0b",
@@ -70,20 +73,22 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
         {/* ── トップ・タイトルヘッダー（明るいトランプ/ TC G風バナー） ── */}
         <div style={{
           background: "linear-gradient(90deg, #f59e0b 0%, #d97706 100%)",
-          padding: "16px 24px",
+          padding: "clamp(11px, 3.2vw, 16px) clamp(13px, 4vw, 24px)",
+          flexShrink: 0,   // 本文が伸びてもヘッダーは潰さない
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          gap: 10,
           borderBottom: "4px solid #b45309",
           color: "#ffffff"
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 26 }}>📖</span>
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "#fef08a", letterSpacing: "0.05em" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+            <span style={{ fontSize: "clamp(20px, 5.5vw, 26px)", flexShrink: 0 }}>📖</span>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: "clamp(9.5px, 2.6vw, 11px)", fontWeight: 800, color: "#fef08a", letterSpacing: "0.05em" }}>
                 {current.subtitle}
               </div>
-              <h2 style={{ fontSize: 20, fontWeight: 900, margin: 0, letterSpacing: "0.02em" }}>
+              <h2 style={{ fontSize: "clamp(15px, 4.2vw, 20px)", fontWeight: 900, margin: 0, letterSpacing: "0.02em", lineHeight: 1.3 }}>
                 {current.title}
               </h2>
             </div>
@@ -104,12 +109,18 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* ── コンテンツ・エリア ── */}
-        <div style={{ padding: "24px 28px", minHeight: 310, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+        {/* 本文だけスクロールさせる。minHeight:0 が無いと flex 子が縮まず、
+            はみ出した分がそのまま画面外へ出てしまう（スマホで下が切れていた原因）。 */}
+        <div style={{
+          padding: "clamp(14px, 4vw, 24px) clamp(14px, 4.5vw, 28px)",
+          flex: 1, minHeight: 0, overflowY: "auto",
+          display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 12,
+        }}>
           
           {/* STEP 0: これは何？ */}
           {step === 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 20, alignItems: "center", textAlign: "center" }}>
-              <div style={{ display: "flex", gap: 16, alignItems: "center", justifyContent: "center", marginTop: 10 }}>
+              <div style={{ display: "flex", gap: 16, alignItems: "center", justifyContent: "center", marginTop: 10, flexWrap: "wrap" }}>
                 <Builder />
                 <div style={{ fontSize: 24, fontWeight: 900, color: "#d97706" }}>➜ 🎁</div>
                 <div style={{
@@ -289,10 +300,12 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
         <div style={{
           background: "#f8fafc",
           borderTop: "1px solid #e2e8f0",
-          padding: "14px 24px",
+          padding: "clamp(10px, 3vw, 14px) clamp(13px, 4vw, 24px)",
+          flexShrink: 0,   // ここが潰れると「つぎへ」が押せなくなる
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between"
+          justifyContent: "space-between",
+          gap: 10,
         }}>
           {/* ドットインジケーター */}
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
