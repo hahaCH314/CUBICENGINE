@@ -10,17 +10,20 @@
      許可は作者が自分で選ぶ。
    ══════════════════════════════════════════════════════════ */
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { CBlock } from "./_types";
 import { buildShareUrl, toWire } from "../../lib/share";
+import { makeQr, qrToSvg } from "../../lib/qr";
 
 const NAME_KEY = "mmc-share-name";
 
 export default function ShareDialog({
-  blocks, projectName, onClose,
+  blocks, projectName, remixSrc = "", onClose,
 }: {
   blocks: CBlock[];
   projectName: string;
+  /** まねして作った作品なら、元の作者名。消せない形で次の人まで運ぶ。 */
+  remixSrc?: string;
   onClose: () => void;
 }) {
   const [title, setTitle] = useState(projectName || "");
@@ -41,12 +44,13 @@ export default function ShareDialog({
         n: title.trim() || undefined,
         a: author.trim() || undefined,
         ...(remix ? { r: 1 as const } : {}),
+        ...(remixSrc ? { src: remixSrc } : {}),
       });
       const u = await buildShareUrl(window.location.origin, work);
       if (alive) { setUrl(u); setCopied(false); }
     })();
     return () => { alive = false; };
-  }, [blocks, title, author, remix]);
+  }, [blocks, title, author, remix, remixSrc]);
 
   const save = () => { try { localStorage.setItem(NAME_KEY, author.trim()); } catch { } };
 
@@ -73,6 +77,13 @@ export default function ShareDialog({
 
   const canShare = typeof navigator !== "undefined" && !!navigator.share;
   const tooBig = url.length > 8000; // さすがに送れない大きさ
+
+  // QRは長いほど細かくなって読みにくくなる。実用的に読める範囲だけ出す。
+  const qr = useMemo(() => {
+    if (!url || url.length > 1800) return null;
+    const m = makeQr(url);
+    return m ? qrToSvg(m) : null;
+  }, [url]);
 
   return (
     <div
@@ -102,6 +113,24 @@ export default function ShareDialog({
         <p style={{ fontSize: 12, color: "#64748b", fontWeight: 700, marginBottom: 16, lineHeight: 1.6 }}>
           リンクを送るだけで、ともだちが<b>マイクラを持っていなくても</b>作品が動くところを見られるよ。
         </p>
+
+        {/* 出典が付くことは本人にも見せる。黙って名前を入れるのは不誠実だし、
+            「ちゃんと元の人の名前が残る」と分かるほうが安心して真似できる。 */}
+        {remixSrc && (
+          <div style={{
+            display: "flex", gap: 8, alignItems: "flex-start",
+            border: "2px solid #fbbf24", background: "#fffbeb", borderRadius: 12,
+            padding: "9px 11px", marginBottom: 14,
+          }}>
+            <span style={{ fontSize: 16 }}>🔁</span>
+            <span style={{ fontSize: 11.5, fontWeight: 800, color: "#92400e", lineHeight: 1.55 }}>
+              この作品には <b>{remixSrc}</b> の名前がいっしょに入ります。
+              <span style={{ display: "block", color: "#b45309", fontWeight: 700, marginTop: 2 }}>
+                まねさせてもらった人の名前は、みせるときに必ずついていくよ。
+              </span>
+            </span>
+          </div>
+        )}
 
         <Field label="作品のなまえ">
           <input value={title} onChange={e => setTitle(e.target.value)}
@@ -145,6 +174,22 @@ export default function ShareDialog({
             </button>
           )}
         </div>
+
+        {/* 目の前の友達に渡すならこれが最短。画面を見せるだけで済む。 */}
+        {qr && (
+          <div style={{ display: "flex", gap: 12, alignItems: "center", margin: "4px 0 12px" }}>
+            <div
+              style={{ width: 116, height: 116, flexShrink: 0, borderRadius: 10, overflow: "hidden", border: "2px solid #e2e8f0" }}
+              dangerouslySetInnerHTML={{ __html: qr }}
+            />
+            <p style={{ fontSize: 11.5, fontWeight: 800, color: "#475569", lineHeight: 1.6 }}>
+              📷 目の前のともだちには、これを読んでもらうのが早いよ。
+              <span style={{ display: "block", color: "#94a3b8", fontWeight: 700, marginTop: 3 }}>
+                カメラを向けるだけ。ネットにつながっていなくても渡せる。
+              </span>
+            </p>
+          </div>
+        )}
 
         <input id="share-url" readOnly value={url}
           onFocus={e => e.currentTarget.select()}

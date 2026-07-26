@@ -19,6 +19,9 @@ import Link from "next/link";
 import LiveStage from "../editor/LiveStage";
 import { fromWire, readWorkFromHash, type WireWork } from "../../lib/share";
 import type { CBlock } from "../editor/_types";
+import { buildCode } from "../../lib/codegen";
+import { exportBedrock } from "../editor/exporter";
+import { useEditorStore } from "../editor/store";
 
 type State =
   | { k: "loading" }
@@ -104,6 +107,9 @@ export default function PlayClient() {
 
         {/* ここから先の分かれ道。「見る」だけで終わらせない */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center", marginTop: 22 }}>
+          {/* 「見る」で終わらせず、実際に自分のマイクラで遊べるところまで繋ぐ。
+              生成はエディタと同じ buildCode を通すので、作者の手元と同じ物ができる。 */}
+          <DownloadButton blocks={blocks} title={title} />
           <Cta href="/editor">✨ 自分でも作ってみる</Cta>
           {work.r === 1 ? (
             <Cta
@@ -132,6 +138,44 @@ export default function PlayClient() {
 }
 
 /* ── 小物 ─────────────────────────────────────────────── */
+
+/** もらった作品を .mcaddon にして落とす。押した人のマイクラで本当に動く。 */
+function DownloadButton({ blocks, title }: { blocks: CBlock[]; title: string }) {
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
+
+  const run = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      // ストアの既定値を土台に、作品名だけ差し替える（/play にはプロジェクトが無いため）
+      const state = { ...useEditorStore.getState(), projectName: title };
+      await exportBedrock(state, buildCode(blocks));
+      setDone(true);
+      setTimeout(() => setDone(false), 2600);
+    } catch {
+      alert("ダウンロードできませんでした。時間をおいて、もう一度ためしてね。");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={run}
+      disabled={busy}
+      style={{
+        display: "inline-flex", alignItems: "center", gap: 7,
+        padding: "12px 22px", borderRadius: 14, cursor: busy ? "wait" : "pointer",
+        background: "linear-gradient(135deg,#7dd3fc,#0ea5e9)",
+        border: "3px solid #1e293b", boxShadow: "0 5px 0 #0369a1",
+        color: "#082f49", fontWeight: 900, fontSize: 14, opacity: busy ? 0.7 : 1,
+      }}
+    >
+      {busy ? "つくってる…" : done ? "✓ おとしたよ！" : "🎮 マイクラで遊ぶ"}
+    </button>
+  );
+}
 
 function Center({ children }: { children: React.ReactNode }) {
   return (

@@ -16,6 +16,7 @@ import { PRESET_TEMPLATES, type PresetTemplate } from "../../lib/presetTemplates
 import HowToInstallModal from "./HowToInstallModal";
 import TutorialOverlay from "./TutorialOverlay";
 import ShareDialog from "./ShareDialog";
+import { decodeWork, fromWire } from "../../lib/share";
 import ConfettiEffect from "../_mc/ConfettiEffect";
 import { ITEM_NAMES } from "../../data/itemNames";
 import { blockH, getStackHeight, getDepth, getPos, getFamily, detach, attach, dist, findSnap } from "../../lib/blockGraph";
@@ -2375,6 +2376,34 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
   // 押してもらうのを待たずにこちらから出す。2回目以降は ❓作り方 から開ける。
   const [showTutorial, setShowTutorial] = useState(false);
   const [showShare, setShowShare] = useState(false);   // 📣 作品をみせる
+
+  /* 🔁 リミックスの受け口。
+     /play の「まねして作る」は /editor#remix=... に飛ばしてくる。ここで受けて
+     盤面に読み込み、元の作者名を残す。名前を残すのは、まねを「盗み」ではなく
+     「敬意」にするため。真似された側も嬉しいし、した側も後ろめたくない。 */
+  const REMIX_KEY = "mmc-remix-src";
+  const [remixSrc, setRemixSrc] = useState<string>("");
+  useEffect(() => {
+    try { setRemixSrc(localStorage.getItem(REMIX_KEY) ?? ""); } catch { }
+    const m = /(?:^#|&)remix=([^&]+)/.exec(window.location.hash);
+    if (!m) return;
+    // 二重取り込みを防ぐため、読む前にURLから消す（リロードでまた入ってこない）
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+    (async () => {
+      const work = await decodeWork(decodeURIComponent(m[1]).replace(/^w=/, ""));
+      if (!work?.c?.length) { showToast("作品をひらけませんでした", "warning"); return; }
+      const who = (work.a || work.src || "").trim();
+      // 作りかけを黙って消さない
+      if (live.current.blocks.length &&
+        !window.confirm(`いま作っているカードは消えます。${who ? `${who}の` : ""}作品をひらく？`)) return;
+      setBlocks(fromWire(work));
+      setSelected(null);
+      setRemixSrc(who);
+      try { localStorage.setItem(REMIX_KEY, who); } catch { }
+      playSuccessSound();
+      showToast(who ? `${who} の作品をひらきました 🔁` : "作品をひらきました 🔁", "success");
+    })();
+  }, []);
   useEffect(() => {
     try {
       if (localStorage.getItem("mmc-tutorial-seen")) return;
@@ -4191,6 +4220,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
             <ShareDialog
               blocks={blocks}
               projectName={useEditorStore.getState().projectName}
+              remixSrc={remixSrc}
               onClose={() => setShowShare(false)}
             />
           )}
