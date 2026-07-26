@@ -59,6 +59,9 @@ export const DICT: Record<string, Entry> = {
   "grove.soonSub":    { ja: "リリースまでもうしばらく ✨", en: "Coming to life soon ✨" },
   "grove.soonTitle":  { ja: "現在開発中です", en: "In development" },
   "footer.note":      { ja: "ローカル/オフラインで動く・アカウント不要・Mac & Windows対応", en: "Runs locally & offline · No account needed · Mac & Windows" },
+  // 作り方ガイド（トップから開く導線）。中身は現状 日本語のみ。
+  "guide.open":       { ja: "作り方ガイドを見る", en: "See how it works" },
+  "guide.note":       { ja: "はじめての人はこちらから。1分で分かります", en: "New here? It takes about a minute." },
   "lang.toggle":      { ja: "EN", en: "日本語" },
   "btn.presetTemplates": { ja: "⚡ 3分でおためしアドオン！", en: "⚡ 3-Min Preset Add-ons!" },
   "btn.howToInstall":     { ja: "🎮 マイクラでのあそびかた", en: "🎮 How to Play in Minecraft" },

@@ -5,6 +5,7 @@ import { useState, type CSSProperties } from "react";
 import { useEditorStore } from "./editor/store";
 import { t } from "../lib/i18n";
 import { Gem, Sparkles } from "lucide-react";
+import TutorialOverlay from "./editor/TutorialOverlay";
 
 // 子どもでも読みやすいよう、意味のかたまり単位で改行する（かたまりの途中では折り返さない）
 // ※スマホ(狭い画面)では、かたまりが画面幅を超えて横にはみ出すのを防ぐため折り返しを許可。
@@ -306,6 +307,8 @@ function CubeIcon({ className }: { className?: string }) {
 export default function HomePage() {
   const locale = useEditorStore((s) => s.locale);
   const setLocale = useEditorStore((s) => s.setLocale);
+  // 作り方ガイド（エディタと同じ TutorialOverlay を使い回す）
+  const [showGuide, setShowGuide] = useState(false);
   return (
     <div className="min-h-screen flex flex-col relative" style={{ background: "radial-gradient(circle at 25% 15%, rgba(132, 204, 22, 0.16) 0%, transparent 45%), radial-gradient(circle at 75% 15%, rgba(14, 165, 233, 0.16) 0%, transparent 45%), radial-gradient(circle at 50% 60%, rgba(245, 158, 11, 0.1) 0%, transparent 55%), #171715" }}>
       {/* Navigation（ログイン/新規登録は撤去・ローカル版） */}
@@ -504,6 +507,26 @@ export default function HomePage() {
 
         {/* ★紹介動画セクション（ブロックされても空箱にならないクリック再生式） */}
         <IntroVideo />
+
+        {/* ★作り方ガイド。エディタを開く前に「何を作るのか・どう作るのか」を見られるようにする。
+            アドオン/MODという言葉自体を知らない人は、エディタに入っても何をする画面か分からない。
+            入る前に読めれば、初めての人でも身構えずに済む。 */}
+        <div className="w-full flex flex-col items-center gap-2 mt-6 mb-2 px-4">
+          <button
+            type="button"
+            onClick={() => setShowGuide(true)}
+            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl font-bold text-[15px] transition-all hover:scale-[1.04] active:scale-95"
+            style={{
+              background: "linear-gradient(135deg,#fde68a,#fbbf24)",
+              border: "3px solid #1e293b",
+              boxShadow: "0 5px 0 #b45309, 0 6px 16px rgba(180,83,9,0.28)",
+              color: "#451a03",
+            }}
+          >
+            📖 {t(locale, "guide.open")}
+          </button>
+          <p className="text-[11px] text-muted/70 font-sans">{t(locale, "guide.note")}</p>
+        </div>
 
         {/* ★応援と作者紹介の独立カードエリア */}
         <div className="flex flex-col md:flex-row gap-8 justify-center items-stretch max-w-4xl mx-auto mt-16 mb-12 px-4 w-full">
@@ -792,6 +815,9 @@ export default function HomePage() {
           {t(locale, "footer.note")}
         </p>
       </section>
+
+      {/* 作り方ガイド（エディタと同じものを使い回す＝説明が2箇所に分かれない） */}
+      {showGuide && <TutorialOverlay onClose={() => setShowGuide(false)} />}
     </div>
   );
 }
