@@ -267,7 +267,10 @@ export default function EditorPage() {
 
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden select-none">
+    // h-dvh（100dvh）を使う。h-screen(100vh) はスマホのブラウザだとアドレスバー等を
+    // 含んだ高さになるため、器が実際の表示領域より縦に長くなり、下端に固定している
+    // キーボードやボタンが画面外へ押し出されて切れる。dvh は実際に見えている高さ。
+    <div className="h-dvh flex flex-col overflow-hidden select-none">
       {/* スマホ来訪者への案内（タブレット/PC推奨・作品はスマホで遊べる。閉じられる） */}
       <PhoneHint />
 

@@ -53,7 +53,7 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
         maxWidth: 640,
         // スマホは画面が低い。上限を切らないと下の「つぎへ」が画面外に出て押せなくなる。
         // 100dvh はアドレスバーの出入りを含んだ実際の高さ（100vh だと足りない端末がある）。
-        maxHeight: "calc(100dvh - 16px)",
+        maxHeight: "100%",
         borderRadius: 24,
         background: "linear-gradient(145deg, #ffffff 0%, #fefce8 100%)",
         border: "4px solid #f59e0b",
@@ -65,6 +65,11 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
         animation: "to-fadeIn 0.25s ease-out both"
       }}>
         <style>{`
+          /* 中の箱が枠を超えないようにする最後の砦。
+             インラインstyleで1つずつ指定すると必ず付け忘れるので、まとめて掛ける。
+             長い英数字(.mcaddon など)が折り返せずに横へ伸びるのも防ぐ。 */
+          .to-body, .to-body * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+          .to-body { overflow-wrap: anywhere; }
           @keyframes to-fadeIn { 0% { opacity: 0; transform: scale(0.96); } 100% { opacity: 1; transform: scale(1); } }
           @keyframes to-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
           @keyframes to-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
@@ -111,7 +116,7 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
         {/* ── コンテンツ・エリア ── */}
         {/* 本文だけスクロールさせる。minHeight:0 が無いと flex 子が縮まず、
             はみ出した分がそのまま画面外へ出てしまう（スマホで下が切れていた原因）。 */}
-        <div style={{
+        <div className="to-body" style={{
           padding: "clamp(14px, 4vw, 24px) clamp(14px, 4.5vw, 28px)",
           flex: 1, minHeight: 0, overflowY: "auto",
           display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 12,
@@ -119,7 +124,7 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
           
           {/* STEP 0: これは何？ */}
           {step === 0 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 20, alignItems: "center", textAlign: "center" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 20, alignItems: "stretch", textAlign: "center", minWidth: 0 }}>
               <div style={{ display: "flex", gap: 16, alignItems: "center", justifyContent: "center", marginTop: 10, flexWrap: "wrap" }}>
                 <Builder />
                 <div style={{ fontSize: 24, fontWeight: 900, color: "#d97706" }}>➜ 🎁</div>
@@ -185,7 +190,7 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
 
           {/* STEP 1: きっかけを置く */}
           {step === 1 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 18, alignItems: "center" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 18, alignItems: "stretch", minWidth: 0 }}>
               <div style={{ background: "#fef08a", border: "3px solid #d97706", borderRadius: 16, padding: "12px 24px", display: "flex", alignItems: "center", gap: 12, boxShadow: "0 6px 16px rgba(217, 119, 6, 0.2)", animation: "to-bounce 2s ease-in-out infinite" }}>
                 <span style={{ fontSize: 32 }}>⚡</span>
                 <div>
@@ -253,7 +258,7 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
 
           {/* STEP 3: 完成とダウンロード */}
           {step === 3 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 16, alignItems: "center" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, alignItems: "stretch", minWidth: 0 }}>
               <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
                 <div style={{
                   padding: "12px 20px", borderRadius: 16, background: "linear-gradient(135deg, #22c55e, #15803d)",
