@@ -16,6 +16,21 @@ export interface FieldDef {
   options?: string[];
 }
 
+/** カードに貼る「条件シール」。
+ *  カードゲームに「カードの中に入るカード」という概念は無いので、条件は入れ子ではなく
+ *  動きのカードに貼り付ける形で表す。1枚のカードに複数貼ったら「かつ(AND)」、
+ *  シールをめくると(neg) 「〜じゃないとき」になる。
+ *  ※ type は data/templates.ts の co_* をそのまま使う。条件式の生成は既存の
+ *    genExpr にそのまま乗るので、条件の種類を増やしてもここは変えなくてよい。 */
+export interface Sticker {
+  id: string;
+  type: string;
+  /** しきい値・アイテム名など、その条件のパラメータ */
+  fields: FieldDef[];
+  /** めくった状態＝条件を反転する */
+  neg: boolean;
+}
+
 /** ワイヤーなし・チェーン式ブロック */
 export interface CBlock {
   id: string;
@@ -36,6 +51,9 @@ export interface CBlock {
   thenId:  string | null;
   /** ちがうなら先頭ブロック */
   elseId:  string | null;
+  /** 貼られた条件シール。無い＝いつでも動く。
+   *  省略可にしてあるので、シール導入前に保存された作品もそのまま読める。 */
+  stickers?: Sticker[];
 }
 
 /** カテゴリ別の色・アイコン定義 */

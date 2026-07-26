@@ -1,4 +1,4 @@
-import { CBlock } from '../app/editor/_types';
+import { CBlock, Sticker } from '../app/editor/_types';
 
 function escStr(s:string){return s.replace(/\\/g,"\\\\").replace(/"/g,'\\"').replace(/`/g,"\\`").replace(/\$/g,"\\$").replace(/\n/g,"\\n");}
 function escId(s:string){return s.replace(/[^a-z0-9_.:/-]/gi,"");}
@@ -45,7 +45,28 @@ function genChain(id:string|null, blocks:CBlock[], indent:string):string{
     return`${indent}system.runInterval(()=>{\n${rest||`${indent}  // くりかえす`}\n${indent}},${ticks});`;
   }
 
+  // 条件シールが貼られていたら、そのカード自身の処理だけを if で包む。
+  // 「後ろに続くカード」は包まない＝シールはあくまで貼られた1枚に効く。
+  const sticks=b.stickers??[];
+  if(sticks.length){
+    const cond=sticks.map(s=>stickerExpr(s,blocks)).join("&&");
+    const own=genBlock(b,blocks,indent+"  ");
+    return`${indent}if(${cond}){\n${own}\n${indent}}\n`+genChain(b.nextId,blocks,indent);
+  }
   return genBlock(b,blocks,indent)+"\n"+genChain(b.nextId,blocks,indent);
+}
+
+/** 条件シール1枚 → JS の条件式。
+ *  条件の実装は genExpr が既に全種類持っているので、シールの中身を持つ「仮のブロック」を
+ *  作って genExpr に渡すことで丸ごと再利用する。条件の種類が増えてもここは変えなくてよい。 */
+function stickerExpr(s:Sticker, blocks:CBlock[]):string{
+  const FAKE="__sticker__";
+  const fake:CBlock={
+    id:FAKE, type:s.type, emoji:"", label:"", sublabel:"", category:"ifelse",
+    fields:s.fields??[], x:0, y:0, nextId:null, innerId:null, thenId:null, elseId:null,
+  };
+  const e=genExpr(FAKE,[...blocks,fake])||"true";
+  return s.neg?`(!(${e}))`:`(${e})`;
 }
 
 function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{

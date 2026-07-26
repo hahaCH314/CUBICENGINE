@@ -8,7 +8,7 @@ import LiveStage from "./LiveStage";
 import * as LucideIcons from "lucide-react";
 import { useThemeStore } from "./worldThemes";
 
-import { Category, FieldDef, CBlock, Tmpl, CalcSubCat, CatDef } from "./_types";
+import { Category, FieldDef, CBlock, Sticker, Tmpl, CalcSubCat, CatDef } from "./_types";
 import { BW, BH, GAP, SNAP, BASE_ZOOM } from "./_constants";
 import { CAT, CAT_WORKSHOP } from "../../data/categories";
 import { TEMPLATES, CALC_SUBTABS, getCalcSubCat } from "../../data/templates";
@@ -49,6 +49,14 @@ interface FriendlyGroup { key: string; label: string; sub: string; icon: string;
 // ドロップダウン(co_ifの「もしも」)に格上げした条件は、盤面パレットから隠す。
 // ※パラメータ付き(co_tag/co_item)はv2まで従来どおり置けるよう残す。
 const HIDDEN_COND_TYPES = new Set(["co_sneak", "co_night", "co_rain", "co_hp"]);
+
+/** 条件シールとして貼れる条件。カード1枚に対して「このときだけ動く」を付ける用途なので、
+ *  他の条件を組み合わせる系(co_and/co_or/co_not)は入れない。
+ *  複数貼り＝かつ、めくる＝〜じゃない、で同じことができる。 */
+const STICKER_TYPES = [
+  "co_sneak", "co_night", "co_rain", "co_sprint", "co_water", "co_ground",
+  "co_hp", "co_chance", "co_tag", "co_item", "co_scoregte",
+];
 
 const FRIENDLY_GROUPS: FriendlyGroup[] = [
   { key: "when", label: "きっかけ", sub: "〜したとき",   icon: "Zap",      cats: ["trigger"],                                     bg: "#facc15", top: "#fef9c3", side: "#ca8a04", text: "#451a03" },
@@ -92,8 +100,31 @@ function spawnBlock(t: Tmpl, x: number, y: number): CBlock {
   };
 }
 
+/** 初回だけ置かれる作例。
+ *
+ *  空のキャンバスで開くと、初見の人は詰む。盤面に何も無い状態から始めるには
+ *  「プログラムは きっかけ＋すること でできている」「カードは繋げないと動かない」を
+ *  先に知っている必要があって、それはアドオンを作ったことがある人の常識だから。
+ *
+ *  そこで最初から動く2枚を繋げて置いておく。読まなくても、
+ *    ・繋がっている状態が見本として目に入る
+ *    ・そのまま「アドオン完成！」を押せば成果物が手に入る
+ *    ・文字を1つ書き換えれば自分のものになる
+ *  という順で一周できる。ゼロから作るより、動くものを直すほうがずっと易しい。
+ *
+ *  ※呼ばれるのは保存データが1つも無いときだけ（useState の初期化を参照）。
+ *    自分でカードを全部消した人の空の盤面は自動保存に残るので、上書きしない。 */
 function makeInitial(): CBlock[] {
-  return [];
+  try {
+    const trigger = spawnBlock(T("ev_join"), 100, 600);
+    let action = spawnBlock(T("ac_msg"), 100, 600 - BH - GAP);
+    action = sf(sf(action, "msg", "はじめてのアドオン！🎉"), "target", "@a");
+    trigger.nextId = action.id;
+    return mkPreset([trigger, action]);
+  } catch {
+    // 万一テンプレ定義が変わって組めなくても、空で開けば操作自体はできる
+    return [];
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -557,6 +588,40 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
             animation: "kiraStarPop 0.5s cubic-bezier(0.2,1.5,0.35,1) 0.1s both",
           }}>✨</div>
         </>
+      )}
+
+      {/* 貼られた条件シール＝カードの上に重なる帯。
+          「このカードは、この条件のときだけ動く」を、入れ子や差込口ではなく
+          カード自身の見た目で示す。複数枚なら上から順に「かつ」。 */}
+      {(b.stickers?.length ?? 0) > 0 && (
+        <div style={{
+          position: "absolute", left: leftOffset, top: -9 - (b.stickers!.length - 1) * 15,
+          width: cardW, zIndex: 14, pointerEvents: "none",
+          display: "flex", flexDirection: "column", gap: 2,
+        }}>
+          {b.stickers!.map(s => {
+            const st = TEMPLATES.find(t => t.type === s.type);
+            const SIcon = (LucideIcons as any)[st?.emoji ?? ""] || LucideIcons.HelpCircle;
+            return (
+              <div key={s.id} style={{
+                display: "flex", alignItems: "center", gap: 3,
+                padding: "1.5px 5px", borderRadius: 7,
+                // めくった状態(〜じゃないとき)は色を変える＝一目で反転が分かる
+                background: s.neg ? "#fb923c" : "#ec4899",
+                border: "1.5px solid #1e293b",
+                boxShadow: "0 2px 0 rgba(0,0,0,0.25)",
+                color: "#fff", fontSize: 8, fontWeight: 900, whiteSpace: "nowrap", overflow: "hidden",
+              }}>
+                <SIcon size={9} color="#fff" strokeWidth={3} />
+                <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {/* 「スニーク中か」→「スニーク中のとき」。確認の言い方(〜か)のままだと
+                      カードに印刷された文として読めないので、語尾だけ整える */}
+                  {(st?.label ?? s.type).replace(/か$/, "")}{s.neg ? "じゃない" : ""}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       )}
       {/* くりかえしカード＝中身を上方向に「囲む」オリジナル枠（このアプリのループ色／点線／🔁）。
           ※ Scratch等のトレードドレス(オレンジ/パズル凹凸/特定の矢印)は使わない。 */}
@@ -2354,6 +2419,10 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
   }, []);
   const [zoom, setZoom] = useState(BASE_ZOOM);
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  // 🗑️ ドラッグ中だけ出るゴミ箱。狙っている間だけ赤く開く。
+  // ※ document のイベント内から参照するので ref も持つ（effect の依存は [] のため）
+  const [trashHot, setTrashHot] = useState(false);
+  const trashHotRef = useRef(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [showLib, setShowLib] = useState(true);
@@ -2763,6 +2832,46 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
     setBlocks(prev => prev.map(b => b.id === id ? { ...b, fields: b.fields.map(f => f.id === fid ? { ...f, value: val } : f) } : b));
   }, []);
 
+  /* ── 条件シール ──────────────────────────────────────────
+     条件を「もしもカードの中に入れる」のをやめ、動きのカードに貼る形にする。
+     カードゲームに「カードの中に入るカード」は無いので、入れ子は子どもの持つ
+     カードの常識と噛み合わない。貼る形なら差込口も入れ子も要らない。 */
+
+  /** シールを貼る。パラメータ(しきい値など)はテンプレ定義から複製して持たせる。 */
+  const addSticker = useCallback((blockId: string, type: string) => {
+    const tmpl = TEMPLATES.find(t => t.type === type);
+    if (!tmpl) return;
+    setBlocks(prev => prev.map(b => {
+      if (b.id !== blockId) return b;
+      // 同じ条件を2枚貼っても「かつ」で重複するだけなので入れない
+      if ((b.stickers ?? []).some(s => s.type === type)) return b;
+      const s: Sticker = { id: uid(), type, fields: tmpl.fields.map(f => ({ ...f })), neg: false };
+      return { ...b, stickers: [...(b.stickers ?? []), s] };
+    }));
+    playSnapSound();
+  }, []);
+
+  const removeSticker = useCallback((blockId: string, stickerId: string) => {
+    setBlocks(prev => prev.map(b => b.id === blockId
+      ? { ...b, stickers: (b.stickers ?? []).filter(s => s.id !== stickerId) } : b));
+    playDeleteSound();
+  }, []);
+
+  /** めくる＝「〜のとき」と「〜じゃないとき」を入れ替える */
+  const flipSticker = useCallback((blockId: string, stickerId: string) => {
+    setBlocks(prev => prev.map(b => b.id === blockId
+      ? { ...b, stickers: (b.stickers ?? []).map(s => s.id === stickerId ? { ...s, neg: !s.neg } : s) } : b));
+    playClickSound();
+  }, []);
+
+  const setStickerField = useCallback((blockId: string, stickerId: string, fieldId: string, val: string) => {
+    setBlocks(prev => prev.map(b => b.id === blockId
+      ? {
+        ...b, stickers: (b.stickers ?? []).map(s => s.id === stickerId
+          ? { ...s, fields: s.fields.map(f => f.id === fieldId ? { ...f, value: val } : f) } : s)
+      } : b));
+  }, []);
+
   const handleDelete = useCallback((id: string) => {
     playDeleteSound();
     setDeleteAnim(id);
@@ -2825,6 +2934,16 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
         return;
       }
       if (!blockDrag.current.active) return;
+
+      // 指/カーソルがゴミ箱の上にあるか。上にいる間だけ赤く開いて「離せば捨てる」と伝える。
+      const tr = (document.querySelector('[data-trash="1"]') as HTMLElement | null)?.getBoundingClientRect();
+      const overTrash = !!tr && e.clientX >= tr.left && e.clientX <= tr.right && e.clientY >= tr.top && e.clientY <= tr.bottom;
+      if (overTrash !== trashHotRef.current) {
+        trashHotRef.current = overTrash;
+        setTrashHot(overTrash);
+        if (overTrash) playSlotTickSound(); // 入った瞬間だけ小さく鳴らす
+      }
+
       const cx = (e.clientX - rect.left) / zoom - pan.x / zoom - blockDrag.current.offX;
       const cy = (e.clientY - rect.top) / zoom - pan.y / zoom - blockDrag.current.offY;
       const id = blockDrag.current.id;
@@ -2886,6 +3005,23 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
       if (panDrag.current.active) { panDrag.current.active = false; setPan(live.current.pan); return; } // パン確定
       if (!blockDrag.current.active) return;
       setDraggingId(null);
+
+      // 🗑️ ゴミ箱の上で離した＝捨てる。通常の配置/スナップ処理より先に片付ける。
+      // 掴んだ時点で親からは detach 済みなので、消えるのは掴んだカードと、その下に
+      // 繋がっているカード（✕ボタンと同じ範囲）。間違えても ↩戻る で戻せる。
+      if (trashHotRef.current) {
+        const delId = blockDrag.current.id;
+        trashHotRef.current = false;
+        setTrashHot(false);
+        blockDrag.current.active = false;
+        setBlocks(prev => { const d = detach(delId, prev); return d.filter(b => !getFamily(delId, d).includes(b.id) && b.id !== delId); });
+        setSelected(null);
+        setSnapHint(null);
+        playDeleteSound();
+        showToast("カードを すてました（↩戻る でもどせます）", "warning");
+        return;
+      }
+
       const { blocks, pan, zoom } = live.current;
       const id = blockDrag.current.id;
       const b = blocks.find(b => b.id === id)!;
@@ -4079,6 +4215,35 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
           </div>
           )}
 
+          {/* 🗑️ ゴミ箱：カードを掴んでいる間だけ現れる。
+              常設しないのは、いつも置いてあると盤面の邪魔になるうえ、
+              触る用事が無いときに誤って触れてしまうため。必要な瞬間だけ出す。
+              置き場所は左下＝右側の据え置き（プレビュー／立て札／リモコン）と競合しない。 */}
+          {draggingId && (
+            <div data-trash="1" style={{
+              position: "absolute", left: 20, bottom: isMobile ? 160 : 206, zIndex: 46,
+              width: 96, height: 96, borderRadius: 20,
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2,
+              background: trashHot ? "linear-gradient(#fecaca,#f87171)" : "linear-gradient(#ffffff,#e9eef3)",
+              border: `4px solid ${trashHot ? "#b91c1c" : "#94a3b8"}`,
+              boxShadow: trashHot
+                ? "0 0 0 6px rgba(248,113,113,0.35), 0 10px 22px rgba(0,0,0,0.3)"
+                : "0 6px 16px rgba(0,0,0,0.22)",
+              transform: trashHot ? "scale(1.12)" : "scale(1)",
+              transition: "all 0.14s cubic-bezier(0.2,0.9,0.3,1)",
+              pointerEvents: "none", // 判定は座標で行う。ドラッグ中のポインタを奪わせない
+              animation: "blockPop 0.18s cubic-bezier(0.2,0.8,0.2,1)",
+            }}>
+              <span style={{ fontSize: 34, lineHeight: 1 }}>{trashHot ? "🗑️" : "🗑"}</span>
+              <span style={{
+                fontSize: 10, fontWeight: 900, lineHeight: 1.2, textAlign: "center",
+                color: trashHot ? "#7f1d1d" : "#64748b", whiteSpace: "pre-line",
+              }}>
+                {trashHot ? "はなすと\nすてる" : "ここへ"}
+              </span>
+            </div>
+          )}
+
           {/* 🎛️ 道具リモコン
               下部キーボードの中に4列で押し込むと 42px 角までしか取れず、アイコンもラベルも
               潰れていた。そこでキーボードから切り離した独立パネルにして縦1列に並べる。
@@ -4221,8 +4386,17 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
           {(() => {
             const sb = selected ? blocks.find(b => b.id === selected) : null;
             // co_if(条件分岐)はキーボードで条件を選ぶ方式なので中身エディタは出さない
-            if (!sb || sb.fields.length === 0 || sb.type === "co_if") return null;
+            if (!sb || sb.type === "co_if") return null;
+            // 条件シールは「きっかけ」以外のカードに貼れる（きっかけはチェーンの外側で
+            // 別扱いのため、生成器がシールを読まない）。中身が無いカードでも
+            // シールは貼れるので、fields が空でもパネルは開く。
+            const canSticker = sb.category !== "trigger";
+            if (sb.fields.length === 0 && !canSticker) return null;
             if (editorCollapsed) return null; // ダブルタップ/×で隠した状態
+            // ドラッグ中は出さない。掴んだ時点で setSelected が走るので、そのままだと
+            // 運んでいる間ずっとパネルが付いてきて、盤面もゴミ箱も隠れて邪魔になる。
+            // 置いた瞬間に出れば「置いた→直す」の流れとしてちょうどいい。
+            if (draggingId) return null;
             const c = CAT[sb.category];
             const EIcon = (LucideIcons as any)[sb.emoji] || LucideIcons.HelpCircle;
             const sbPos = getPos(sb.id, blocks);
@@ -4260,6 +4434,70 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                   <FieldSlot key={f.id} label={f.label} value={f.value} options={f.options}
                     onChange={v => handleFieldChange(sb.id, f.id, v)} />
                 ))}
+
+                {/* ── 条件シール ── */}
+                {canSticker && (
+                  <div style={{ borderTop: "2px dashed #f1f5f9", paddingTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div style={{ fontSize: 11, fontWeight: 900, color: "#be185d" }}>
+                      🏷️ 条件シール
+                      <span style={{ marginLeft: 5, fontWeight: 700, color: "#94a3b8", fontSize: 9.5 }}>
+                        {(sb.stickers?.length ?? 0) === 0 ? "いつでも動く" : "このときだけ動く"}
+                      </span>
+                    </div>
+
+                    {(sb.stickers ?? []).map(s => {
+                      const st = TEMPLATES.find(t => t.type === s.type);
+                      return (
+                        <div key={s.id} style={{
+                          border: `2px solid ${s.neg ? "#fb923c" : "#ec4899"}`, borderRadius: 9,
+                          background: s.neg ? "#fff7ed" : "#fdf2f8", padding: "5px 6px",
+                          display: "flex", flexDirection: "column", gap: 5,
+                        }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                            <span style={{ flex: 1, fontSize: 10.5, fontWeight: 900, color: s.neg ? "#9a3412" : "#9d174d" }}>
+                              {(st?.label ?? s.type).replace(/か$/, "")}{s.neg ? "じゃない" : ""}とき
+                            </span>
+                            <button onClick={() => flipSticker(sb.id, s.id)} title="めくる（〜じゃないとき に変える）"
+                              style={{ border: "1.5px solid #cbd5e1", background: "#fff", borderRadius: 6, fontSize: 9.5, fontWeight: 900, padding: "2px 6px", cursor: "pointer", color: "#475569" }}>
+                              ↺ めくる
+                            </button>
+                            <button onClick={() => removeSticker(sb.id, s.id)} title="はがす"
+                              style={{ border: "none", background: "rgba(0,0,0,0.08)", borderRadius: "50%", width: 18, height: 18, fontSize: 10, fontWeight: 900, cursor: "pointer", color: "#475569" }}>
+                              ✕
+                            </button>
+                          </div>
+                          {/* しきい値やアイテム名など、その条件のパラメータ */}
+                          {s.fields.map(f => (
+                            <FieldSlot key={f.id} label={f.label} value={f.value} options={f.options}
+                              onChange={v => setStickerField(sb.id, s.id, f.id, v)} />
+                          ))}
+                        </div>
+                      );
+                    })}
+
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                      {STICKER_TYPES
+                        .filter(t => !(sb.stickers ?? []).some(s => s.type === t))
+                        .map(t => {
+                          const st = TEMPLATES.find(x => x.type === t);
+                          if (!st) return null;
+                          const SIcon = (LucideIcons as any)[st.emoji] || LucideIcons.HelpCircle;
+                          return (
+                            <button key={t} onClick={() => addSticker(sb.id, t)} title={st.sublabel}
+                              style={{
+                                display: "inline-flex", alignItems: "center", gap: 3,
+                                border: "2px solid #ec4899", borderRadius: 999, background: "#fff",
+                                padding: "3px 8px", fontSize: 9.5, fontWeight: 900, color: "#9d174d",
+                                cursor: "pointer", boxShadow: "0 2px 0 #db2777",
+                              }}>
+                              <SIcon size={10} color="#db2777" strokeWidth={3} />
+                              {st.label.replace(/か$/, "")}
+                            </button>
+                          );
+                        })}
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })()}

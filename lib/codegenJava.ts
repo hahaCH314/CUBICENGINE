@@ -14,7 +14,7 @@
      同じ内部判定にしてある（英語化で壊さない）。
    ══════════════════════════════════════════════════════════════════ */
 
-import { CBlock } from "../app/editor/_types";
+import { CBlock, Sticker } from "../app/editor/_types";
 import { escId, sanitizeVarName } from "./codegen";
 
 /** Java文字列リテラル用エスケープ */
@@ -239,9 +239,27 @@ function genChainJava(id: string | null | undefined, blocks: CBlock[], indent: s
     const rest = genChainJava(b.nextId, blocks, indent);
     return `${indent}// ⏳ まつ(${jnum(gf(b,"s","1"),"1")}秒)：Java版は遅延未対応のためそのまま続行\n${rest}`;
   }
-  const here = genBlockJava(b, blocks, indent);
+  // 条件シールが貼られていたら、そのカード自身の処理だけを if で包む（続くカードは包まない）
+  const sticks = b.stickers ?? [];
+  const own = genBlockJava(b, blocks, sticks.length ? indent + "    " : indent);
+  const here = sticks.length && own
+    ? `${indent}if (${sticks.map(s => stickerExprJava(s, blocks)).join(" && ")}) {\n${own}\n${indent}}`
+    : own;
   const next = genChainJava(b.nextId, blocks, indent);
   return here + (here && next ? "\n" : "") + next;
+}
+
+/** 条件シール1枚 → Java の条件式。
+ *  条件の実装は genExprJava が既に持っているので、シールの中身を持つ「仮のブロック」を
+ *  渡して丸ごと再利用する（統合版の stickerExpr と同じ考え方）。 */
+function stickerExprJava(s: Sticker, blocks: CBlock[]): string {
+  const FAKE = "__sticker__";
+  const fake: CBlock = {
+    id: FAKE, type: s.type, emoji: "", label: "", sublabel: "", category: "ifelse",
+    fields: s.fields ?? [], x: 0, y: 0, nextId: null, innerId: null, thenId: null, elseId: null,
+  };
+  const e = genExprJava(FAKE, [...blocks, fake]) || "true";
+  return s.neg ? `(!(${e}))` : `(${e})`;
 }
 
 /* ─────────────── きっかけ → @SubscribeEvent メソッド ─────────────── */
