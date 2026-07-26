@@ -15,6 +15,7 @@ import { TEMPLATES, CALC_SUBTABS, getCalcSubCat } from "../../data/templates";
 import { PRESET_TEMPLATES, type PresetTemplate } from "../../lib/presetTemplates";
 import HowToInstallModal from "./HowToInstallModal";
 import TutorialOverlay from "./TutorialOverlay";
+import ShareDialog from "./ShareDialog";
 import ConfettiEffect from "../_mc/ConfettiEffect";
 import { ITEM_NAMES } from "../../data/itemNames";
 import { blockH, getStackHeight, getDepth, getPos, getFamily, detach, attach, dist, findSnap } from "../../lib/blockGraph";
@@ -2373,6 +2374,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
   // それはアドオンを作ったことがある人の常識。初見の人は開いた瞬間に詰むので、
   // 押してもらうのを待たずにこちらから出す。2回目以降は ❓作り方 から開ける。
   const [showTutorial, setShowTutorial] = useState(false);
+  const [showShare, setShowShare] = useState(false);   // 📣 作品をみせる
   useEffect(() => {
     try {
       if (localStorage.getItem("mmc-tutorial-seen")) return;
@@ -4184,6 +4186,15 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
           {/* 📖 はじめての人向けチュートリアル（初回は自動・以後は ❓作り方 から） */}
           {showTutorial && <TutorialOverlay onClose={closeTutorial} />}
 
+          {/* 📣 作品をみせる（リンクを作る。データはリンクの中だけ） */}
+          {showShare && (
+            <ShareDialog
+              blocks={blocks}
+              projectName={useEditorStore.getState().projectName}
+              onClose={() => setShowShare(false)}
+            />
+          )}
+
           {/* 🗑️ ゴミ箱：カードを掴んでいる間だけ現れる。
               常設しないのは、いつも置いてあると盤面の邪魔になるうえ、
               触る用事が無いときに誤って触れてしまうため。必要な瞬間だけ出す。
@@ -4270,6 +4281,13 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                   { emoji: "🗑️", label: "クリア", on: false, fn: () => { if (window.confirm("キャンバス上のすべてのカードを消去しますか？")) { setBlocks([]); setSelected(null); playDeleteSound(); showToast("すべてのカードを消去しました", "warning"); } } },
                   { emoji: "💾", label: "保存", on: showProjects, fn: () => setShowProjects(v => !v) },
                   { emoji: "🎮", label: "サンプル", on: showTemplates, fn: () => setShowTemplates(v => !v) },
+                  {
+                    emoji: "📣", label: "みせる", on: showShare, fn: () => {
+                      // カードが1枚も無いと、開いた相手の画面で何も動かない
+                      if (!blocks.length) { showToast("まずカードをおいてね 🃏", "warning"); return; }
+                      setShowShare(v => !v);
+                    }
+                  },
                   { emoji: "💻", label: "コード", on: showCode, fn: () => setShowCode(v => !v) },
                   { emoji: "❓", label: "作り方", on: showTutorial, fn: () => setShowTutorial(v => !v) },
                 ].map(tk => (
