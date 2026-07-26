@@ -14,6 +14,7 @@ import { CAT, CAT_WORKSHOP } from "../../data/categories";
 import { TEMPLATES, CALC_SUBTABS, getCalcSubCat } from "../../data/templates";
 import { PRESET_TEMPLATES, type PresetTemplate } from "../../lib/presetTemplates";
 import HowToInstallModal from "./HowToInstallModal";
+import TutorialOverlay from "./TutorialOverlay";
 import ConfettiEffect from "../_mc/ConfettiEffect";
 import { ITEM_NAMES } from "../../data/itemNames";
 import { blockH, getStackHeight, getDepth, getPos, getFamily, detach, attach, dist, findSnap } from "../../lib/blockGraph";
@@ -2418,6 +2419,22 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
     return BASE_ZOOM;          // デスクトップ
   }, []);
   const [zoom, setZoom] = useState(BASE_ZOOM);
+  // 📖 はじめての人向けチュートリアル。初回だけ自動で開く。
+  // 空の盤面から始めるには「きっかけ＋すること」「繋げないと動かない」という前提が要り、
+  // それはアドオンを作ったことがある人の常識。初見の人は開いた瞬間に詰むので、
+  // 押してもらうのを待たずにこちらから出す。2回目以降は ❓作り方 から開ける。
+  const [showTutorial, setShowTutorial] = useState(false);
+  useEffect(() => {
+    try {
+      if (localStorage.getItem("mmc-tutorial-seen")) return;
+    } catch { return; } // localStorage が使えない環境では出さない（毎回出るのを防ぐ）
+    setShowTutorial(true);
+  }, []);
+  const closeTutorial = useCallback(() => {
+    setShowTutorial(false);
+    try { localStorage.setItem("mmc-tutorial-seen", "1"); } catch { }
+  }, []);
+
   const [draggingId, setDraggingId] = useState<string | null>(null);
   // 🗑️ ドラッグ中だけ出るゴミ箱。狙っている間だけ赤く開く。
   // ※ document のイベント内から参照するので ref も持つ（effect の依存は [] のため）
@@ -4215,6 +4232,9 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
           </div>
           )}
 
+          {/* 📖 はじめての人向けチュートリアル（初回は自動・以後は ❓作り方 から） */}
+          {showTutorial && <TutorialOverlay onClose={closeTutorial} />}
+
           {/* 🗑️ ゴミ箱：カードを掴んでいる間だけ現れる。
               常設しないのは、いつも置いてあると盤面の邪魔になるうえ、
               触る用事が無いときに誤って触れてしまうため。必要な瞬間だけ出す。
@@ -4302,7 +4322,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                   { emoji: "💾", label: "保存", on: showProjects, fn: () => setShowProjects(v => !v) },
                   { emoji: "🎮", label: "サンプル", on: showTemplates, fn: () => setShowTemplates(v => !v) },
                   { emoji: "💻", label: "コード", on: showCode, fn: () => setShowCode(v => !v) },
-                  { emoji: "❓", label: "作り方", on: showHelp, fn: () => setShowHelp(v => !v) },
+                  { emoji: "❓", label: "作り方", on: showTutorial, fn: () => setShowTutorial(v => !v) },
                 ].map(tk => (
                   <button key={tk.label} className="toy-key" title={tk.label} onClick={tk.fn}
                     style={{

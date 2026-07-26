@@ -130,6 +130,45 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
                   君のいつものマイクラに読み込むだけで本当に動き出すんだ！
                 </p>
               </div>
+
+              {/* 「アドオン」も「MOD」も、知らない人には通じない言葉。
+                  どちらも“マイクラを作りかえるもの”で、違いは遊んでいる版だけ、と先に伝える。
+                  ここが分からないと、自分がどちらを作ればいいのかも決められない。 */}
+              <div style={{
+                background: "#ffffff", border: "2px dashed #cbd5e1", borderRadius: 16,
+                padding: "14px 16px", textAlign: "left", width: "100%",
+              }}>
+                <div style={{ fontSize: 13, fontWeight: 900, color: "#475569", marginBottom: 10 }}>
+                  📘 「アドオン」と「MOD」ってなに？
+                </div>
+                <p style={{ fontSize: 13.5, fontWeight: 700, color: "#475569", margin: "0 0 12px 0", lineHeight: 1.65 }}>
+                  どちらも <b>マイクラを作りかえるもの</b> だよ。名前がちがうのは、
+                  <b>遊んでいるマイクラの種類</b> がちがうから。
+                </p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div style={{ background: "#ecfdf5", border: "2px solid #6ee7b7", borderRadius: 12, padding: "10px 12px" }}>
+                    <div style={{ fontSize: 13, fontWeight: 900, color: "#047857" }}>
+                      🟢 アドオン <span style={{ fontSize: 11, color: "#059669" }}>＝ 統合版（スマホ・Switch・PC）</span>
+                    </div>
+                    <div style={{ fontSize: 12.5, fontWeight: 700, color: "#065f46", marginTop: 3, lineHeight: 1.55 }}>
+                      ふだんスマホやSwitchで遊んでいるならこっち。
+                      できるファイルは <b style={{ fontFamily: "monospace" }}>.mcaddon</b>。
+                    </div>
+                  </div>
+                  <div style={{ background: "#fff7ed", border: "2px solid #fdba74", borderRadius: 12, padding: "10px 12px" }}>
+                    <div style={{ fontSize: 13, fontWeight: 900, color: "#c2410c" }}>
+                      🟠 MOD <span style={{ fontSize: 11, color: "#ea580c" }}>＝ Java版（パソコン）</span>
+                    </div>
+                    <div style={{ fontSize: 12.5, fontWeight: 700, color: "#7c2d12", marginTop: 3, lineHeight: 1.55 }}>
+                      パソコンのJava版で遊んでいるならこっち。
+                      できるファイルは <b style={{ fontFamily: "monospace" }}>.jar</b>。
+                    </div>
+                  </div>
+                </div>
+                <p style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", margin: "10px 0 0 0", lineHeight: 1.55 }}>
+                  どっちか分からなくても大丈夫。作り方はまったく同じだよ！
+                </p>
+              </div>
             </div>
           )}
 
