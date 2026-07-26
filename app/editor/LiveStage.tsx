@@ -281,15 +281,76 @@ const gatherWrap: React.CSSProperties = {
   display: "flex",
   justifyContent: "center",
 };
-const placedChip: React.CSSProperties = {
-  display: "inline-flex", alignItems: "center", gap: 6,
+const placedRow: React.CSSProperties = {
+  display: "flex", alignItems: "center", gap: 7, minWidth: 0,
   background: "rgba(255,255,255,0.92)", color: "#1e293b",
   border: "1px solid rgba(0,0,0,0.1)", borderRadius: 10,
   padding: "5px 10px", fontSize: 11, boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
 };
+/* 木の立て札。マイクラの看板の質感（板目＋濃い縁＋釘）を、このアプリの明るい色調で。 */
+const board: React.CSSProperties = {
+  width: "100%", maxWidth: 384, padding: "9px 10px 11px", borderRadius: 14,
+  background:
+    "repeating-linear-gradient(90deg, rgba(0,0,0,0.045) 0 2px, transparent 2px 26px)," +
+    "linear-gradient(#d9a86c, #c08e55)",
+  border: "4px solid #8a5a2b",
+  boxShadow: "inset 0 2px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.12), 0 6px 16px rgba(0,0,0,0.28)",
+  position: "relative",
+};
+const boardNail: React.CSSProperties = {
+  position: "absolute", top: 6, width: 7, height: 7, borderRadius: "50%",
+  background: "radial-gradient(circle at 35% 30%, #fff8e1, #8a6a3a)",
+  boxShadow: "0 1px 2px rgba(0,0,0,0.4)",
+};
+const boardNailL: React.CSSProperties = { ...boardNail, left: 7 };
+const boardNailR: React.CSSProperties = { ...boardNail, right: 7 };
+const boardTitle: React.CSSProperties = {
+  fontSize: 12, fontWeight: 900, textAlign: "center", marginBottom: 7,
+  color: "#4a2c12", textShadow: "0 1px 0 rgba(255,255,255,0.35)",
+};
+const placedNo: React.CSSProperties = {
+  flexShrink: 0, width: 16, height: 16, borderRadius: "50%",
+  background: "#e2e8f0", color: "#475569", fontSize: 9, fontWeight: 900,
+  display: "flex", alignItems: "center", justifyContent: "center",
+};
+
+/** 置いたカードを「重ねてある順」に並べる。
+ *  つながり(nextId)を上から順にたどり、もしもの中身(innerId/thenId/elseId)は一段下げる。
+ *  ※どこにも繋がっていないカードも最後に必ず出す。一覧から消えると
+ *    「置いたはずのカードが見当たらない」状態になって子どもが迷子になるため。 */
+function orderPlaced(blocks: CBlock[]): { b: CBlock; depth: number; loose: boolean }[] {
+  const byId = (id: string | null) => (id ? blocks.find(x => x.id === id) ?? null : null);
+  const childIds = new Set<string>();
+  blocks.forEach(b => [b.nextId, b.thenId, b.elseId, b.innerId].forEach(c => c && childIds.add(c)));
+
+  const out: { b: CBlock; depth: number; loose: boolean }[] = [];
+  const seen = new Set<string>();
+
+  function walk(startId: string | null, depth: number, loose: boolean) {
+    let cur = byId(startId);
+    while (cur && !seen.has(cur.id)) {
+      seen.add(cur.id);
+      out.push({ b: cur, depth, loose });
+      if (cur.innerId) walk(cur.innerId, depth + 1, loose);
+      if (cur.thenId) walk(cur.thenId, depth + 1, loose);
+      if (cur.elseId) walk(cur.elseId, depth + 1, loose);
+      cur = byId(cur.nextId);
+    }
+  }
+
+  // 誰の子でもないカードが「先頭」。きっかけカードから始まる列を先に並べる。
+  const roots = blocks.filter(b => !childIds.has(b.id));
+  roots.filter(b => b.category === "trigger").forEach(r => walk(r.id, 0, false));
+  // きっかけに繋がっていない列は loose 扱い（点線で「まだ繋がってないよ」と分かるように）
+  roots.forEach(r => walk(r.id, 0, true));
+  blocks.forEach(b => { if (!seen.has(b.id)) { seen.add(b.id); out.push({ b, depth: 0, loose: true }); } });
+  return out;
+}
 
 /* ───────── 本体 ───────── */
-export default function LiveStage({ blocks, onGather }: { blocks: CBlock[]; onGather?: () => void }) {
+// rightOffset: 右端から空ける距離。PCでは道具リモコン(幅152+右12)が右端に立っているので、
+// その分ずらさないとプレビューや「置いたカード」がリモコンの下に潜って読めなくなる。
+export default function LiveStage({ blocks, onGather, rightOffset = 20 }: { blocks: CBlock[]; onGather?: () => void; rightOffset?: number }) {
   const seq = useMemo(() => buildSequence(blocks), [blocks]);
   const [step, setStep] = useState(0);
   const [hopKey, setHopKey] = useState(0);
@@ -323,7 +384,9 @@ export default function LiveStage({ blocks, onGather }: { blocks: CBlock[]; onGa
     <div data-live-stage="1" style={{
       position: "absolute",
       top: 20,
-      right: 20, // 右パネル廃止に伴い右端寄せ
+      // プレビューは右端いっぱいに置く。リモコン側が「プレビューに掛からない高さ」に
+      // 抑えてくれるので、ここで幅を譲る必要はない（譲ると右に無駄な空白ができる）。
+      right: 20,
       transform: "scale(1.25)",
       transformOrigin: "top right", // 右上起点でスケールさせてズレを防ぐ
       width: 460,
@@ -431,7 +494,7 @@ export default function LiveStage({ blocks, onGather }: { blocks: CBlock[]; onGa
 
     {/* 🧲 カードあつまれ（プレビューの下・カードが無くても常に表示） */}
     {onGather && (
-      <div style={gatherWrap}>
+      <div data-noplace="1" style={{ ...gatherWrap, right: rightOffset }}>
         <button
           onClick={onGather}
           title="出したカードを全部まとめて画面に映す（カードの位置は変わりません）"
@@ -451,19 +514,41 @@ export default function LiveStage({ blocks, onGather }: { blocks: CBlock[]; onGa
 
     {/* 置いたカード一覧 */}
     {blocks.length > 0 && (
-      <div style={placedListWrap}>
-        <div style={{ fontSize: 12, fontWeight: 900, color: "#475569", textAlign: "center" }}>📦 置いたカード（{blocks.length}）</div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
-          {blocks.map(b => {
+      <div data-noplace="1" style={{ ...placedListWrap, right: rightOffset }}>
+        {/* 木の立て札に書き出す。ただの一覧より「自分の作品の目録」に見えるほうがかわいい */}
+        <div style={board}>
+          <div style={boardNailL} /><div style={boardNailR} />
+          <div style={boardTitle}>📦 置いたカード（{blocks.length}）</div>
+        {/* 横に折り返すと「どれが何番目か」が読めないので、重ねた順に上から下へ1列で並べる。
+            プレビューの下は幅が限られるうえ、ここでカードを組み立てるわけではないので、
+            流れが読めることを優先する。 */}
+        <div className="scrollbar-hide" style={{
+          display: "flex", flexDirection: "column", gap: 4,
+          width: 340, maxWidth: "100%", maxHeight: 208, overflowY: "auto",
+        }}>
+          {orderPlaced(blocks).map(({ b, depth, loose }, i) => {
             const vals = b.fields.map(f => f.value).filter(Boolean).join(" / ").replace(/minecraft:/g, "");
             return (
-              <div key={b.id} style={placedChip}>
-                <span style={{ fontSize: 14 }}>{CAT_EMOJI[b.category] || "•"}</span>
-                <span style={{ fontWeight: 900 }}>{b.label}</span>
-                {vals && <span style={{ color: "#64748b", fontSize: 10 }}>{vals}</span>}
+              <div key={b.id} style={{
+                ...placedRow,
+                marginLeft: depth * 16,   // もしもの中身は一段下げて入れ子が見えるように
+                borderStyle: loose ? "dashed" : "solid",
+                borderColor: loose ? "#f59e0b" : "rgba(0,0,0,0.1)",
+                opacity: loose ? 0.8 : 1,
+              }}>
+                <span style={placedNo}>{i + 1}</span>
+                <span style={{ fontSize: 14, flexShrink: 0 }}>{CAT_EMOJI[b.category] || "•"}</span>
+                <span style={{ fontWeight: 900, whiteSpace: "nowrap" }}>{b.label}</span>
+                {vals && (
+                  <span style={{
+                    color: "#64748b", fontSize: 10, minWidth: 0,
+                    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                  }}>{vals}</span>
+                )}
               </div>
             );
           })}
+          </div>
         </div>
       </div>
     )}

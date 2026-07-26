@@ -12,7 +12,7 @@ import { Category, FieldDef, CBlock, Tmpl, CalcSubCat, CatDef } from "./_types";
 import { BW, BH, GAP, SNAP, BASE_ZOOM } from "./_constants";
 import { CAT, CAT_WORKSHOP } from "../../data/categories";
 import { TEMPLATES, CALC_SUBTABS, getCalcSubCat } from "../../data/templates";
-import { PRESET_TEMPLATES } from "../../lib/presetTemplates";
+import { PRESET_TEMPLATES, type PresetTemplate } from "../../lib/presetTemplates";
 import HowToInstallModal from "./HowToInstallModal";
 import ConfettiEffect from "../_mc/ConfettiEffect";
 import { ITEM_NAMES } from "../../data/itemNames";
@@ -157,10 +157,46 @@ const PRESET_PROJECTS: PresetProject[] = [
    サウンドシステム（Web Audio API）
    ══════════════════════════════════════════════════════════ */
 
-function tone(freq: number, dur: number, type: OscillatorType = "sine", vol = 0.25, freqEnd?: number) {
+// AudioContext は使い回す。音のたびに new すると生成コストで発音が遅れるうえ、
+// ブラウザごとの同時生成数の上限に当たって途中から鳴らなくなる。
+let _ac: AudioContext | null = null;
+function ac(): AudioContext | null {
   try {
-    const AC = (window as any).AudioContext || (window as any).webkitAudioContext;
-    const ctx = new AC() as AudioContext;
+    if (!_ac) {
+      const AC = (window as any).AudioContext || (window as any).webkitAudioContext;
+      if (!AC) return null;
+      _ac = new AC() as AudioContext;
+    }
+    // 自動再生制限で止まっていることがあるので、操作のたびに起こす
+    if (_ac.state === "suspended") _ac.resume().catch(() => { });
+    return _ac;
+  } catch { return null; }
+}
+
+/** 鉄琴っぽい1音。基音に倍音を薄く重ね、速く立ち上げて鈴のように減衰させる。
+ *  素のサイン波1本だと「ピー」としか鳴らず、音に体が無くて楽しくないため。 */
+function note(freq: number, dur = 0.32, vol = 0.22, when = 0, type: OscillatorType = "triangle") {
+  const c = ac(); if (!c) return;
+  const t0 = c.currentTime + when;
+  const g = c.createGain();
+  g.connect(c.destination);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol, t0 + 0.008); // カチッと立ち上がる
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur); // 余韻を残して消える
+  ([[1, 1], [2, 0.3], [3, 0.12]] as [number, number][]).forEach(([mult, amp]) => {
+    const o = c.createOscillator();
+    const og = c.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(freq * mult, t0);
+    og.gain.setValueAtTime(amp, t0);
+    o.connect(og); og.connect(g);
+    o.start(t0); o.stop(t0 + dur);
+  });
+}
+
+function tone(freq: number, dur: number, type: OscillatorType = "sine", vol = 0.25, freqEnd?: number) {
+  const ctx = ac(); if (!ctx) return;
+  try {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain); gain.connect(ctx.destination);
@@ -173,10 +209,22 @@ function tone(freq: number, dur: number, type: OscillatorType = "sine", vol = 0.
   } catch { /* ミュート環境では無視 */ }
 }
 
-/** ブロックが接続されたとき — カチッ（2音コード） */
+/* つなげるほど音が上がる。作業そのものが演奏になるので手が止まりにくい。
+   ペンタトニック(黒鍵だけの音階と同じ仕組み)なので、どの順に鳴っても濁らない。
+   2.5秒あくとリセットして、また「ド」から積み直せる。 */
+const PENTA = [523.25, 587.33, 659.25, 783.99, 880.0, 1046.5, 1174.7, 1318.5, 1568.0, 1760.0];
+let comboIdx = 0;
+let comboAt = 0;
+
+/** ブロックが接続されたとき — 積むほど高くなる鉄琴 */
 function playSnapSound() {
-  tone(523, 0.07, "sine", 0.22);          // C5
-  setTimeout(() => tone(784, 0.05, "sine", 0.12), 10); // G5
+  const now = Date.now();
+  if (now - comboAt > 2500) comboIdx = 0; // 間が空いたら最初の音に戻る
+  comboAt = now;
+  const f = PENTA[Math.min(comboIdx, PENTA.length - 1)];
+  comboIdx++;
+  note(f, 0.36, 0.24);
+  note(f * 1.5, 0.2, 0.06, 0.012); // 5度を薄く重ねて厚みを出す
 }
 
 /** サイドバーからブロックを追加したとき — ポワン */
@@ -191,7 +239,12 @@ function playDeleteSound() {
 
 /** ツールバーボタン — カチッ（極短） */
 function playClickSound() { tone(1100, 0.022, "sine", 0.12); }
-function playSuccessSound() { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, 0.18, "sine", 0.18), i * 75)); }
+/** 完成 — 駆け上がって最後に和音でキラッと締める小さなファンファーレ */
+function playSuccessSound() {
+  comboIdx = 0; // 完成したら音階は積み直し
+  [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => note(f, 0.3, 0.2, i * 0.075));
+  [1046.5, 1318.5, 1568.0].forEach(f => note(f, 0.7, 0.13, 0.32)); // 締めの和音
+}
 function playWireDeleteSound() { tone(600, 0.08, "sawtooth", 0.15, 200); }
 
 /** スロットリール回転時のカチカチ音 */
@@ -325,6 +378,12 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
   const hl = snapSlot !== null;
   const isCond = b.type === "co_if";
   const isLoop = b.type === "ct_rep";
+  // ✨キラカード化の条件＝「そうなら／なかみ」に動きのカードがちゃんと入ったとき。
+  // 最初は普通の白いカードで、組めた瞬間だけホロ箔になる。
+  // これは見た目のごほうびであると同時に、いちばん分かりにくかった
+  // 「自分の置いたカードが“そうなら”の中に入ったのかどうか」への答えでもある
+  // （キラになった＝入った、ならなかった＝ただ下に並んだだけ、と一目で分かる）。
+  const isKira = (isCond || isLoop) && !!b.thenId;
   const thenH = isCond || isLoop ? (b.thenId ? getStackHeight(b.thenId, blocks) : 27) : 0;
   const elseH = isCond ? (b.elseId ? getStackHeight(b.elseId, blocks) : 0) : 0;
   const depth = getDepth(b.id, blocks);
@@ -445,11 +504,22 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
     }}>
       {/* ✨キラキラカード＝ホログラム箔（ビックリマンシール風の虹プリズム＋流れる光沢）。
           ※箔のテカリ(一般的な視覚効果)のみ。特定キャラ/デザインは使わない。 */}
-      {(isCond || isLoop) && (
+      {isKira && (
         <>
           <style>{`
             @keyframes holoFlow { from { background-position: 0% 50%; } to { background-position: 300% 50%; } }
             @keyframes holoSheen { 0% { background-position: 140% 0; } 100% { background-position: -40% 0; } }
+            /* 揃った瞬間の「変身」＝リングがふわっと開く。押した手ごたえを出す */
+            @keyframes kiraAppear {
+              0%   { transform: scale(0.86); opacity: 0; }
+              55%  { transform: scale(1.06); opacity: 1; }
+              100% { transform: scale(1);    opacity: 1; }
+            }
+            @keyframes kiraStarPop {
+              0%   { transform: scale(0) rotate(-30deg); opacity: 0; }
+              60%  { transform: scale(1.35) rotate(8deg); opacity: 1; }
+              100% { transform: scale(1) rotate(0deg);   opacity: 1; }
+            }
           `}</style>
           {/* 外周の虹リング */}
           <div style={{
@@ -458,6 +528,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
             background: "conic-gradient(from 35deg, #ff5db1, #ffd23c, #3cff8e, #3cd0ff, #b53cff, #ff5db1)",
             boxShadow: "0 0 16px rgba(196,181,253,0.65)",
             zIndex: 1, pointerEvents: "none",
+            animation: "kiraAppear 0.45s cubic-bezier(0.2,1.3,0.35,1) both",
           }} />
           {/* カード面のホロ箔 */}
           <div style={{
@@ -480,7 +551,11 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
               animation: "holoSheen 3.2s ease-in-out infinite",
             }} />
           </div>
-          <div style={{ position: "absolute", left: leftOffset - 7, top: -9, fontSize: 14, zIndex: 12, pointerEvents: "none", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.25))" }}>✨</div>
+          <div style={{
+            position: "absolute", left: leftOffset - 7, top: -9, fontSize: 14, zIndex: 12,
+            pointerEvents: "none", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.25))",
+            animation: "kiraStarPop 0.5s cubic-bezier(0.2,1.5,0.35,1) 0.1s both",
+          }}>✨</div>
         </>
       )}
       {/* くりかえしカード＝中身を上方向に「囲む」オリジナル枠（このアプリのループ色／点線／🔁）。
@@ -1560,43 +1635,135 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
    テンプレートギャラリー
    ══════════════════════════════════════════════════════════ */
 
-function TemplateGallery({ onSelect, onClose }: {
+/** おためしアドオンの定義(lib/presetTemplates.ts)から、実際に盤面へ置く CBlock を組み立てる。
+ *  見た目(アイコン/サブラベル/カテゴリ)は type でパレットを引いて継承する＝手で置いたカードと
+ *  同じ形になるので、テンプレ由来だけアイコンが無い・サブラベルが空、という崩れが起きない。 */
+function buildPresetBlocks(tmpl: PresetTemplate): CBlock[] {
+  const stamp = Date.now();
+  const out: CBlock[] = tmpl.blocks.map((b, idx) => {
+    const pal = TEMPLATES.find(t => t.type === b.type);
+    return {
+      id: `b_preset_${stamp}_${idx}`,
+      type: b.type,
+      emoji: b.emoji ?? pal?.emoji ?? "",
+      // 名前もパレット優先。テンプレ側の label を勝たせると、同じカードなのに
+      // 「テンプレから出したときだけ名前が違う」状態になって子どもが混乱する。
+      label: pal?.label ?? b.label ?? b.type,
+      sublabel: pal?.sublabel ?? b.sublabel ?? "",
+      category: b.category ?? pal?.category ?? "action",
+      // フィールドは必ず複製する（テンプレ定義を編集で書き換えてしまわないよう）
+      fields: (b.fields ?? pal?.fields ?? []).map(f => ({ ...f })),
+      x: b.x, y: b.y,
+      nextId: null, innerId: null, thenId: null, elseId: null,
+    };
+  });
+  // 並び順どおりに上から連結する
+  for (let i = 0; i < out.length - 1; i++) out[i].nextId = out[i + 1].id;
+  return out;
+}
+
+/** できあいの作品を選ぶ場所。「すぐ動くおためし」と「組み立ての見本」を1枚にまとめてある
+ *  （別々のボタンに分かれていると、どっちを押せばいいのか子どもには区別がつかないため）。
+ *  ※2つは動きが違う：おためしは盤面を入れかえる／見本は今の盤面に足す。取り違えると
+ *    작業が消えるので、カードの上に必ずどちらなのか書く＋入れかえ前に確認を出す。 */
+/** できあいの作品を選ぶ場所。「すぐ動くおためし」と「組み立ての見本」を1枚にまとめてある
+ *  （別々のボタンに分かれていると、どっちを押せばいいのか子どもには区別がつかないため）。
+ *  ※2つは動きが違う：おためしは盤面を入れかえる／見本は今の盤面に足す。取り違えると
+ *    作ったものが消えるので、見出しに必ずどちらなのか書く＋入れかえ前に確認を出す。 */
+function TemplateGallery({ onSelect, onReplace, hasBlocks, onClose }: {
   onSelect: (blocks: CBlock[]) => void;
+  onReplace: (blocks: CBlock[], name: string) => void;
+  hasBlocks: boolean;
   onClose: () => void;
 }) {
   return (
-    <div className="mc-panel" style={{
-      position: "absolute", top: 50, left: "50%", transform: "translateX(-50%)", zIndex: 50,
-      width: 540, background: "var(--surface)", boxShadow: "0 12px 48px rgba(0,0,0,0.6)", overflow: "hidden"
-    }}>
-      <div style={{
-        padding: "10px 16px", background: "var(--panel)", borderBottom: "2px solid var(--border-color)",
-        display: "flex", justifyContent: "space-between", alignItems: "center"
-      }}>
-        <span className="font-pixel text-[11px]" style={{ color: "#22d3ee", letterSpacing: "0.05em" }}>🎮 TEMPLATES</span>
-        <button onClick={onClose} className="mc-btn mc-btn--sm">✕ 閉じる</button>
-      </div>
-      <div style={{ padding: "14px 18px", maxHeight: 460, overflowY: "auto", background: "var(--surface)" }}>
-        <div className="font-pixel" style={{ fontSize: 10, color: "var(--muted)", marginBottom: 14, letterSpacing: "0.04em" }}>
-          クリックで今のキャンバスに追加（既存ブロックは残ります）
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200 pointer-events-auto"
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        className="relative w-full max-w-2xl max-h-[88vh] overflow-y-auto rounded-2xl border-4 border-amber-500 bg-slate-900 text-white shadow-2xl p-5 sm:p-6"
+      >
+        <div className="flex items-center justify-between border-b border-slate-700 pb-3 mb-4 gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-3xl">⚡</span>
+            <div>
+              <h2 className="font-extrabold text-lg sm:text-xl text-amber-400">サンプルからはじめる 🐔⚔️🥩</h2>
+              <p className="text-xs text-slate-300">えらぶだけ。すぐマイクラで動くアドオンが作れるよ！</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="shrink-0 rounded-full bg-slate-800 p-2 hover:bg-slate-700 text-slate-300 font-bold"
+          >
+            ✕
+          </button>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          {PRESET_PROJECTS.map((p, i) => (
-            <button key={i} onClick={() => { onSelect(p.create()); onClose(); }}
-              className="mc-bevel-inset"
-              style={{
-                textAlign: "left", padding: "14px 14px",
-                background: "#1f1e1a", cursor: "pointer",
-                transition: "all 0.12s, transform 0.08s",
-                color: "var(--foreground)"
+
+        {/* ── ① すぐ動くおためし（盤面を入れかえる）── */}
+        <div className="flex items-baseline gap-2 mb-1">
+          <span className="font-extrabold text-sm text-amber-300">⚡ 3分でおためしアドオン</span>
+          <span className="text-[11px] text-amber-200/70">今のカードは入れかわるよ</span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+          {PRESET_TEMPLATES.map((tmpl) => (
+            <div
+              key={tmpl.id}
+              onClick={() => {
+                if (hasBlocks && !window.confirm(`今おいてあるカードは消えて、「${tmpl.name}」に入れかわります。いい？`)) return;
+                onReplace(buildPresetBlocks(tmpl), tmpl.name);
+                onClose();
               }}
-              onMouseEnter={e => { const el = e.currentTarget; el.style.background = "#2a2924"; el.style.borderColor = "#ec4899"; el.style.transform = "translateY(-1px)"; }}
-              onMouseLeave={e => { const el = e.currentTarget; el.style.background = "#1f1e1a"; el.style.borderColor = ""; el.style.transform = ""; }}>
-              <div style={{ marginBottom: 6, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.4))" }}>{(() => { const PIcon = (LucideIcons as any)[p.emoji] || LucideIcons.HelpCircle; return <PIcon size={26} color="#ffffff" strokeWidth={2} />; })()}</div>
-              <div className="font-pixel" style={{ fontSize: 11, color: "var(--foreground)", marginBottom: 4, letterSpacing: "0.03em" }}>{p.name}</div>
-              <div style={{ fontSize: 10, color: "var(--muted)", lineHeight: 1.45 }}>{p.desc}</div>
-            </button>
+              className="cursor-pointer group relative p-4 rounded-xl border-2 border-slate-700 bg-slate-800/80 hover:border-amber-400 hover:bg-slate-800 transition-all flex flex-col justify-between"
+              style={{ borderColor: tmpl.borderColor }}
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-3xl">{tmpl.icon}</span>
+                  <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-400 text-slate-950">
+                    {tmpl.badge}
+                  </span>
+                </div>
+                <h3 className="font-bold text-sm text-amber-200 group-hover:text-yellow-300">
+                  {tmpl.name}
+                </h3>
+                <p className="text-[11px] text-slate-300 leading-snug">
+                  {tmpl.description}
+                </p>
+              </div>
+              <div className="mt-3 text-center py-1.5 rounded-lg bg-amber-500 text-slate-950 font-black text-xs group-hover:bg-amber-400">
+                これで作る！
+              </div>
+            </div>
           ))}
+        </div>
+
+        {/* ── ② 組み立ての見本（今の盤面に足す）── */}
+        <div className="flex items-baseline gap-2 mb-1 pt-4 border-t border-slate-700">
+          <span className="font-extrabold text-sm text-cyan-300">🧩 組み立ての見本</span>
+          <span className="text-[11px] text-cyan-200/70">今のカードは残したまま足すよ</span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {PRESET_PROJECTS.map((p, i) => {
+            const PIcon = (LucideIcons as any)[p.emoji] || LucideIcons.HelpCircle;
+            return (
+              <div
+                key={i}
+                onClick={() => { onSelect(p.create()); onClose(); }}
+                className="cursor-pointer group relative p-4 rounded-xl border-2 border-slate-700 bg-slate-800/80 hover:border-cyan-400 hover:bg-slate-800 transition-all flex flex-col justify-between"
+              >
+                <div className="space-y-2">
+                  <PIcon size={26} color="#67e8f9" strokeWidth={2} />
+                  <h3 className="font-bold text-sm text-cyan-100 group-hover:text-cyan-300">{p.name}</h3>
+                  <p className="text-[11px] text-slate-300 leading-snug">{p.desc}</p>
+                </div>
+                <div className="mt-3 text-center py-1.5 rounded-lg bg-cyan-500 text-slate-950 font-black text-xs group-hover:bg-cyan-400">
+                  これを足す！
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -2255,7 +2422,6 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
   const [confetti, setConfetti] = useState<{ id: string; x: number; y: number }[]>([]);
   const [showProjects, setShowProjects] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
-  const [showPresetModal, setShowPresetModal] = useState(false);
   const [showInstallGuide, setShowInstallGuide] = useState(false);
   const [triggerConfetti, setTriggerConfetti] = useState(false);
   const [toast, setToast] = useState<{ message: string; level: "success" | "error" | "warning" } | null>(null);
@@ -2763,14 +2929,22 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
         const b2 = blocks.find(bl => bl.id === id);
         if (cont && b2) {
           const CW = 82, CH = 112, M = 8; // カード実寸＋余白
-          const lr = (document.querySelector('[data-live-stage]') as HTMLElement | null)?.getBoundingClientRect();
           const kb = (document.querySelector('[data-keyboard]') as HTMLElement | null)?.getBoundingClientRect();
           let leftS = b2.x * zoom + pan.x;   // cont 左基準のスクリーンX
           let topS = b2.y * zoom + pan.y;    // cont 上基準のスクリーンY
           const wS = CW * zoom, hS = CH * zoom;
-          // 右端：基本はコンテナ右。カード上端がLIVE下端より上ならLIVE左端まで（LIVEの裏に隠さない）。
+          // 右端：基本はコンテナ右。ただし [data-noplace] を付けた据え置きパーツ
+          // （LIVEプレビュー／カードあつまれ／置いたカードの立て札／道具リモコン）の
+          // 裏には潜らせない。潜ると本人からはカードが消えたようにしか見えず、
+          // 「置いたはずのカードが行方不明」になるため、必ず手前の見える位置へ押し戻す。
           let maxRight = cont.width - M;
-          if (lr && lr.width > 0 && topS < (lr.bottom - cont.top)) maxRight = Math.min(maxRight, (lr.left - cont.left) - M);
+          document.querySelectorAll<HTMLElement>('[data-live-stage], [data-noplace]').forEach(el => {
+            const r = el.getBoundingClientRect();
+            if (r.width <= 0 || r.height <= 0) return;
+            // カードの縦位置がそのパーツと重なるときだけ、そのパーツの左側までに制限する
+            const overlapsY = topS < (r.bottom - cont.top) && (topS + hS) > (r.top - cont.top);
+            if (overlapsY) maxRight = Math.min(maxRight, (r.left - cont.left) - M);
+          });
           if (leftS + wS > maxRight) leftS = maxRight - wS;
           if (leftS < M) leftS = M;
           // 下端：下部キーボードの上まで（キーボードの裏に隠さない）。無ければコンテナ下。
@@ -3559,6 +3733,13 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
           {showTemplates && (
             <TemplateGallery
               onSelect={b => { setBlocks(prev => [...prev, ...b]); }}
+              onReplace={(b, name) => {
+                setBlocks(b);
+                setSelected(null);
+                playSuccessSound();
+                showToast(`「${name}」を読み込みました！🎉`, "success");
+              }}
+              hasBlocks={blocks.length > 0}
               onClose={() => setShowTemplates(false)}
             />
           )}
@@ -3708,6 +3889,9 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
           {!isMobile && (
             <LiveStage
               blocks={blocks}
+              // PCは右端に道具リモコン(右12＋幅152)が立つので、その分＋余白を空けて重なりを避ける。
+              // スマホのリモコンは開いたときだけ出るドロワーなので、ずらさない。
+              rightOffset={isMobile ? 20 : 176}
               onGather={() => {
                 const { blocks: bl, } = live.current;
                 if (!bl.length) { showToast("まだカードがないよ 🃏", "warning"); return; }
@@ -3767,18 +3951,20 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
           )}
 
           {/* ⌨️ 下部キーボード：カードを“打つ”入力面（左右パネルを統合） */}
-          {(!isMobile || showMobileConsole || showMobileTools) && (
+          {(!isMobile || showMobileConsole) && (
             <div data-keyboard="1" style={{
-              position: "absolute", left: isMobile ? 4 : 12, right: isMobile ? 4 : 12, bottom: isMobile ? 4 : 12,
-              // 道具のみ開いている時（カード非表示）はこの箱を不可視＆非ブロックにし、fixedな道具メニュー(子)だけ見せる
-              height: isMobile ? (showMobileConsole ? 140 : 0) : 178,
+              position: "absolute", left: isMobile ? 4 : 12, bottom: isMobile ? 4 : 12,
+              // 右端は道具リモコン(幅152)の分だけ空ける。リモコンは独立パネルになったので、
+              // この箱の中身(カードのパレット)は横幅をめいっぱい使える。
+              right: isMobile ? 4 : 176,
+              height: isMobile ? 140 : 178,
               display: "flex", gap: isMobile ? 6 : 12,
-              padding: isMobile ? (showMobileConsole ? 8 : 0) : 12, boxSizing: "border-box",
-              background: (isMobile && !showMobileConsole) ? "transparent" : "#cfeede",
-              border: (isMobile && !showMobileConsole) ? "none" : (isMobile ? "2px solid #8bc79e" : "4px solid #8bc79e"),
+              padding: isMobile ? 8 : 12, boxSizing: "border-box",
+              background: "#cfeede",
+              border: isMobile ? "2px solid #8bc79e" : "4px solid #8bc79e",
               borderRadius: isMobile ? 12 : 18,
-              boxShadow: (isMobile && !showMobileConsole) ? "none" : "inset 0 2px 0 rgba(255,255,255,0.6), 0 10px 24px rgba(0,0,0,0.18)",
-              pointerEvents: (isMobile && !showMobileConsole) ? "none" : "auto",
+              boxShadow: "inset 0 2px 0 rgba(255,255,255,0.6), 0 10px 24px rgba(0,0,0,0.18)",
+              pointerEvents: "auto",
               zIndex: 42,
             }}>
               {isMobile && showMobileConsole && (
@@ -3793,7 +3979,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 >✕</button>
               )}
             {/* 左：プリミティブ（カテゴリ＋アイテムキー） */}
-            <div style={{ flex: 1, minWidth: 0, display: (isMobile && !showMobileConsole) ? "none" : "flex", flexDirection: "column", gap: isMobile ? 4 : 8 }}>
+            <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: isMobile ? 4 : 8 }}>
               {/* カテゴリタブ列 */}
               <div className="scrollbar-hide" style={{ display: "flex", gap: 6, flexWrap: isMobile ? "nowrap" : "wrap", overflowX: isMobile ? "auto" : "visible" }}>
                 {KEYBOARD_CATS.map(kc => {
@@ -3890,36 +4076,61 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               </div>
             </div>
 
-            {/* 右：道具キー＋アドオン完成 */}
-            <div style={
-              isMobile ? {
-                // 道具メニューは独立トグル(showMobileTools)。fixedなので親箱がpointerEvents:noneでもauto必須。
-                position: "fixed", bottom: showMobileTools ? 12 : -300, right: 12, width: 244,
-                display: "flex", flexDirection: "column", gap: 8, padding: 12,
-                background: "#cfeede", border: "3px solid #8bc79e", borderRadius: 16,
-                boxShadow: "0 10px 25px rgba(0,0,0,0.3)", zIndex: 60, pointerEvents: "auto",
-                transition: "bottom 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)"
-              } : {
-                width: 244, flexShrink: 0, display: "flex", flexDirection: "column", gap: 8,
-                borderLeft: "2px dashed #8bc79e", paddingLeft: 12
-              }
-            }>
+          </div>
+          )}
+
+          {/* 🎛️ 道具リモコン
+              下部キーボードの中に4列で押し込むと 42px 角までしか取れず、アイコンもラベルも
+              潰れていた。そこでキーボードから切り離した独立パネルにして縦1列に並べる。
+              キーボード(高さ178)より背が高く、上へはみ出して立つ＝リモコンらしい佇まい。
+              スマホでは右から出し入れするドロワーになり、画面が低い端末では中身だけ
+              スクロールする（下がはみ出して押せない、という事故を防ぐ）。 */}
+          {(!isMobile || showMobileTools) && (
+            <div data-noplace="1" style={{
+              position: isMobile ? "fixed" : "absolute",
+              right: isMobile ? 8 : 12,
+              bottom: isMobile ? 8 : 12,
+              width: isMobile ? 154 : 152,
+              // スマホは上の「アドオン完成」ボタン(top:92)とぶつからない高さに抑える
+              // PCはプレビュー(上端20＋高さ約290)の下から始める＝プレビューを右端いっぱいに
+              // 使わせたまま重ならない。溢れる分はボタン列だけがスクロールする。
+              maxHeight: isMobile ? "calc(100dvh - 200px)" : "calc(100% - 330px)",
+              display: "flex", flexDirection: "column", gap: 7,
+              padding: "9px 9px 10px", boxSizing: "border-box",
+              background: "linear-gradient(#dff3e6,#cfeede)",
+              border: "4px solid #8bc79e", borderRadius: 20,
+              boxShadow: "inset 0 2px 0 rgba(255,255,255,0.7), 0 10px 24px rgba(0,0,0,0.22)",
+              zIndex: isMobile ? 60 : 44, pointerEvents: "auto",
+              // スマホは開いたときに初めてマウントされるので transition では動かない。
+              // 画面外に置きっぱなしにすると横スクロールを生む端末があるため、出現アニメで見せる。
+              animation: isMobile ? "remote-slide-in 0.28s cubic-bezier(0.2,0.9,0.3,1) both" : undefined,
+            }}>
+              {/* リモコンの頭：ランプ3つ（ただの飾り＝機械っぽさとかわいさを出す） */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 5, flexShrink: 0 }}>
+                {["#ef4444", "#facc15", "#4ade80"].map(c => (
+                  <span key={c} style={{
+                    width: 7, height: 7, borderRadius: "50%", background: c,
+                    border: "1.5px solid #1e293b", boxShadow: `0 0 6px ${c}aa`,
+                  }} />
+                ))}
+              </div>
+
               {isMobile && (
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: -4 }}>
-                  <span style={{ fontSize: 13, fontWeight: 900, color: "#1e293b" }}>🔧 ツールメニュー</span>
-                  <button onClick={() => setShowMobileTools(false)} style={{
-                    background: "#ef4444", color: "#fff", border: "2px solid #1e293b", borderRadius: 9,
-                    padding: "5px 12px", fontSize: 13, fontWeight: 900, cursor: "pointer",
-                    display: "flex", alignItems: "center", gap: 5,
-                    boxShadow: "0 3px 0 #991b1b",
-                  }}>✕ とじる</button>
-                </div>
+                <button onClick={() => setShowMobileTools(false)} style={{
+                  height: 30, flexShrink: 0, borderRadius: 9, border: "2.5px solid #1e293b",
+                  background: "#ef4444", color: "#fff", fontSize: 12, fontWeight: 900,
+                  cursor: "pointer", boxShadow: "0 3px 0 #991b1b",
+                }}>✕ とじる</button>
               )}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 6 }}>
+
+              {/* ボタン本体：縦1列。アイコンとラベルを横に並べ、文字を読める大きさに戻す */}
+              <div className="scrollbar-hide" style={{
+                display: "flex", flexDirection: "column", gap: 6,
+                overflowY: "auto", minHeight: 0,
+              }}>
                 {[
                   { emoji: "↩", label: "戻る", on: false, fn: () => undo() },
                   { emoji: "↪", label: "進む", on: false, fn: () => redo() },
-                  { emoji: "⚡", label: "テンプレ", on: showPresetModal, fn: () => setShowPresetModal(v => !v) },
                   { emoji: "📖", label: "入れ方", on: showInstallGuide, fn: () => setShowInstallGuide(v => !v) },
                   { emoji: "🎯", label: "ガイド", on: showSnapGuide, fn: () => setShowSnapGuide(v => !v) },
                   { emoji: "🗑️", label: "クリア", on: false, fn: () => { if (window.confirm("キャンバス上のすべてのカードを消去しますか？")) { setBlocks([]); setSelected(null); playDeleteSound(); showToast("すべてのカードを消去しました", "warning"); } } },
@@ -3930,45 +4141,48 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 ].map(tk => (
                   <button key={tk.label} className="toy-key" title={tk.label} onClick={tk.fn}
                     style={{
-                      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1,
-                      height: 42, borderRadius: 9, border: "2.5px solid #1e293b", cursor: "pointer",
+                      display: "flex", alignItems: "center", gap: 8, flexShrink: 0,
+                      height: 38, padding: "0 10px", borderRadius: 11,
+                      border: "2.5px solid #1e293b", cursor: "pointer",
                       background: tk.on ? "linear-gradient(135deg,#c7f9cc,#80ed99)" : "linear-gradient(135deg,#ffffff,#e9eef3)",
                       boxShadow: tk.on ? "0 3px 0 #38b000" : "0 3px 0 #cbd5e1",
                       color: tk.on ? "#004b23" : "#475569",
                     }}>
-                    <span style={{ fontSize: 15, lineHeight: 1 }}>{tk.emoji}</span>
-                    <span style={{ fontSize: 8.5, fontWeight: 900 }}>{tk.label}</span>
+                    <span style={{ fontSize: 16, lineHeight: 1, width: 18, textAlign: "center", flexShrink: 0 }}>{tk.emoji}</span>
+                    <span style={{ fontSize: 12, fontWeight: 900, letterSpacing: "0.02em", whiteSpace: "nowrap" }}>{tk.label}</span>
                   </button>
                 ))}
               </div>
-              {/* アドオン完成（PCはメニュー内。スマホは独立ボタンにするのでここでは出さない） */}
+
+              {/* いちばん大きいキー＝リモコンの電源ボタンの位置。
+                  スマホは別途 fixed の独立ボタンを出しているのでここには置かない。 */}
               {!isMobile && (
-              <button disabled={!isLogicValid}
-                onClick={() => {
-                  playSuccessSound();
-                  setTriggerConfetti(true);
-                  setShowInstallGuide(true);
-                  const lines = (genCode || "// まず きっかけ カードを置いて繋げよう").split("\n");
-                  setReveal(lines);
-                  setExportArmed(true);
-                }}
-                style={{
-                  marginTop: "auto", height: 44, borderRadius: 12, border: "3px solid #1e293b",
-                  cursor: isLogicValid ? "pointer" : "not-allowed",
-                  background: isLogicValid
-                    ? "linear-gradient(135deg,#bef264 0%, #4ade80 55%, #22c55e 100%)"
-                    : "linear-gradient(135deg,#d9f99d 0%, #a3e635 100%)",
-                  boxShadow: isLogicValid
-                    ? "0 4px 0 #15803d, 0 5px 14px rgba(74,222,128,0.5)"
-                    : "0 3px 0 #84cc16, 0 3px 8px rgba(132,204,22,0.25)",
-                  color: isLogicValid ? "#052e16" : "#3f6212", fontWeight: 900, fontSize: 14, letterSpacing: "0.04em",
-                  opacity: isLogicValid ? 1 : 0.85,
-                }}>
-                アドオン完成！🎉
-              </button>
+                <button disabled={!isLogicValid}
+                  onClick={() => {
+                    playSuccessSound();
+                    setTriggerConfetti(true);
+                    setShowInstallGuide(true);
+                    const lines = (genCode || "// まず きっかけ カードを置いて繋げよう").split("\n");
+                    setReveal(lines);
+                    setExportArmed(true);
+                  }}
+                  style={{
+                    height: 46, flexShrink: 0, borderRadius: 13, border: "3px solid #1e293b",
+                    cursor: isLogicValid ? "pointer" : "not-allowed",
+                    background: isLogicValid
+                      ? "linear-gradient(135deg,#bef264 0%, #4ade80 55%, #22c55e 100%)"
+                      : "linear-gradient(135deg,#d9f99d 0%, #a3e635 100%)",
+                    boxShadow: isLogicValid
+                      ? "0 4px 0 #15803d, 0 5px 14px rgba(74,222,128,0.5)"
+                      : "0 3px 0 #84cc16, 0 3px 8px rgba(132,204,22,0.25)",
+                    color: isLogicValid ? "#052e16" : "#3f6212",
+                    fontWeight: 900, fontSize: 13, letterSpacing: "0.03em", lineHeight: 1.25,
+                    opacity: isLogicValid ? 1 : 0.85,
+                  }}>
+                  アドオン完成！🎉
+                </button>
               )}
             </div>
-          </div>
           )}
 
           {/* スマホ：アドオン完成を独立ボタンで常時表示（ツールメニューに埋めない） */}
@@ -4757,90 +4971,6 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
         />
 
         {/* 3分でおためしアドオン モーダル */}
-        {showPresetModal && (
-          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200 pointer-events-auto">
-            <div className="relative w-full max-w-xl overflow-hidden rounded-2xl border-4 border-amber-500 bg-slate-900 text-white shadow-2xl p-6">
-              <div className="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-3xl">⚡</span>
-                  <div>
-                    <h2 className="font-extrabold text-xl text-amber-400">3分でおためしアドオン！ 🐔⚔️🥩</h2>
-                    <p className="text-xs text-slate-300">選ぶだけでマイクラで動くアドオンがすぐ作れるよ！</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowPresetModal(false)}
-                  className="rounded-full bg-slate-800 p-2 hover:bg-slate-700 text-slate-300 font-bold"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {PRESET_TEMPLATES.map((tmpl) => (
-                  <div
-                    key={tmpl.id}
-                    onClick={() => {
-                      // 見た目(アイコン/サブラベル/カテゴリ)は type でパレットを引いて継承する。
-                      // 手で置いたブロックと同じ spawnBlock 相当の形になるので、テンプレ由来だけ
-                      // アイコンが無い・サブラベルが空、といった見た目の崩れが起きない。
-                      const newBlocks: CBlock[] = tmpl.blocks.map((b, idx) => {
-                        const pal = TEMPLATES.find(t => t.type === b.type);
-                        return {
-                          id: `b_preset_${Date.now()}_${idx}`,
-                          type: b.type,
-                          emoji: b.emoji ?? pal?.emoji ?? "",
-                          // 名前もパレット優先。テンプレ側の label を勝たせると、同じブロックなのに
-                          // 「テンプレから出したときだけ名前が違う」状態になって子どもが混乱する
-                          // （実際 ac_sound は label とサブラベルが同じ文字になってしまっていた）。
-                          label: pal?.label ?? b.label ?? b.type,
-                          sublabel: pal?.sublabel ?? b.sublabel ?? "",
-                          category: b.category ?? pal?.category ?? "action",
-                          // フィールドは必ず複製する（テンプレ定義を編集で書き換えてしまわないよう）
-                          fields: (b.fields ?? pal?.fields ?? []).map(f => ({ ...f })),
-                          x: b.x,
-                          y: b.y,
-                          nextId: null,
-                          innerId: null,
-                          thenId: null,
-                          elseId: null,
-                        };
-                      });
-                      for (let i = 0; i < newBlocks.length - 1; i++) {
-                        newBlocks[i].nextId = newBlocks[i + 1].id;
-                      }
-                      setBlocks(newBlocks);
-                      setSelected(null);
-                      setShowPresetModal(false);
-                      playSuccessSound();
-                      showToast(`「${tmpl.name}」を読み込みました！🎉`, "success");
-                    }}
-                    className="cursor-pointer group relative p-4 rounded-xl border-2 border-slate-700 bg-slate-800/80 hover:border-amber-400 hover:bg-slate-800 transition-all flex flex-col justify-between"
-                    style={{ borderColor: tmpl.borderColor }}
-                  >
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-3xl">{tmpl.icon}</span>
-                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-400 text-slate-950">
-                          {tmpl.badge}
-                        </span>
-                      </div>
-                      <h3 className="font-bold text-sm text-amber-200 group-hover:text-yellow-300">
-                        {tmpl.name}
-                      </h3>
-                      <p className="text-[11px] text-slate-300 leading-snug">
-                        {tmpl.description}
-                      </p>
-                    </div>
-                    <div className="mt-3 text-center py-1.5 rounded-lg bg-amber-500 text-slate-950 font-black text-xs group-hover:bg-amber-400">
-                      これで作る！
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     );
 }

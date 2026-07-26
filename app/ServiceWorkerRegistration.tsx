@@ -24,6 +24,16 @@ export default function ServiceWorkerRegistration() {
       return
     }
 
+    // 開発中(next dev)はSWを使わない。sw.js は _next のハッシュ付きチャンクを
+    // stale-while-revalidate でキャッシュするため、コードを直したのにブラウザが
+    // 古いチャンクを掴み続ける（ファイル単位で新旧が混ざるので原因が分かりにくい）。
+    // 既に登録済みの環境もあるので、開発中は見つけ次第まとめて解除する。
+    if (process.env.NODE_ENV !== "production") {
+      navigator.serviceWorker.getRegistrations()
+        .then((rs) => rs.forEach((r) => r.unregister())).catch(() => {})
+      return
+    }
+
     // 登録時点で既に制御SWがあれば「更新」、無ければ「初回インストール」。
     const hadController = !!navigator.serviceWorker.controller
     let reloaded = false

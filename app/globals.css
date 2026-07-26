@@ -455,3 +455,10 @@ input[type="checkbox"]:hover {
   background-color: #2a2924;
   border-color: rgba(0,0,0,0.5) rgba(255,255,255,0.3) rgba(255,255,255,0.3) rgba(0,0,0,0.5);
 }
+
+/* 道具リモコン（スマホ）：右からスッと出てくる。
+   開いたときに初めてマウントされるので transition ではなく出現アニメで見せる。 */
+@keyframes remote-slide-in {
+  from { transform: translateX(115%); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
