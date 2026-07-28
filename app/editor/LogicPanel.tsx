@@ -16,6 +16,7 @@ import { PRESET_TEMPLATES, type PresetTemplate } from "../../lib/presetTemplates
 import HowToInstallModal from "./HowToInstallModal";
 import TutorialOverlay from "./TutorialOverlay";
 import ShareDialog from "./ShareDialog";
+import ReferencePanel from "./ReferencePanel";
 import { decodeWork, fromWire } from "../../lib/share";
 import ConfettiEffect from "../_mc/ConfettiEffect";
 import { ITEM_NAMES } from "../../data/itemNames";
@@ -2381,10 +2382,23 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
      /play の「まねして作る」は /editor#remix=... に飛ばしてくる。ここで受けて
      盤面に読み込み、元の作者名を残す。名前を残すのは、まねを「盗み」ではなく
      「敬意」にするため。真似された側も嬉しいし、した側も後ろめたくない。 */
+  /** 📋 見本（/play の「自分でも作ってみる」で持ち込んだ作品。読むだけ） */
+  const [reference, setReference] = useState<{ blocks: CBlock[]; title: string; author: string } | null>(null);
+
   const REMIX_KEY = "mmc-remix-src";
   const [remixSrc, setRemixSrc] = useState<string>("");
   useEffect(() => {
     try { setRemixSrc(localStorage.getItem(REMIX_KEY) ?? ""); } catch { }
+    // 見本(#ref)。読むだけで盤面には入れない。URLからは消さない＝リロードしても
+    // 見本が残る（作っている途中で消えると、また /play へ戻る羽目になる）。
+    const r = /(?:^#|&)ref=([^&]+)/.exec(window.location.hash);
+    if (r) {
+      (async () => {
+        const w = await decodeWork(decodeURIComponent(r[1]).replace(/^w=/, ""));
+        if (w?.c?.length) setReference({ blocks: fromWire(w), title: (w.n || "みほん").trim(), author: (w.a || "").trim() });
+      })();
+    }
+
     const m = /(?:^#|&)remix=([^&]+)/.exec(window.location.hash);
     if (!m) return;
     // 二重取り込みを防ぐため、読む前にURLから消す（リロードでまた入ってこない）
@@ -4210,6 +4224,21 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
             </div>
 
           </div>
+          )}
+
+          {/* 📋 見本（もらった作品を横に置いて、見ながら作れるように） */}
+          {reference && (
+            <ReferencePanel
+              blocks={reference.blocks}
+              title={reference.title}
+              author={reference.author}
+              isMobile={isMobile}
+              onClose={() => {
+                setReference(null);
+                // 閉じたらURLからも外す。リロードで勝手に戻ってこないように。
+                history.replaceState(null, "", window.location.pathname + window.location.search);
+              }}
+            />
           )}
 
           {/* 📖 はじめての人向けチュートリアル（初回は自動・以後は ❓作り方 から） */}

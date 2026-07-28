@@ -110,7 +110,12 @@ export default function PlayClient() {
           {/* 「見る」で終わらせず、実際に自分のマイクラで遊べるところまで繋ぐ。
               生成はエディタと同じ buildCode を通すので、作者の手元と同じ物ができる。 */}
           <DownloadButton blocks={blocks} title={title} />
-          <Cta href="/editor">✨ 自分でも作ってみる</Cta>
+          {/* 盤面は空のまま＝ゼロから自分で作る。ただし見本(#ref)は横に持っていく。
+              見ながら自分で並べるので、真似しつつ手が動く＝いちばん覚える。
+              ※ref は読むだけ。盤面へ丸ごと入れるのは「まねして作る」の許可がある時だけ。 */}
+          <Cta href={`/editor#ref=${encodeURIComponent(window.location.hash.slice(1))}`}>
+            ✨ 自分でも作ってみる
+          </Cta>
           {work.r === 1 ? (
             <Cta
               href={`/editor#remix=${encodeURIComponent(window.location.hash.slice(1))}`}
