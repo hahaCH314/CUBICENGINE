@@ -236,6 +236,13 @@ const DOWNLOADS = {
 // false の間は DL ボタンを「準備中」表示にして 404 を踏ませない。
 const RELEASES_READY = false;
 
+// Java版(GROVE)の Windows インストーラだけを個別に解禁するフラグ。
+// RELEASES_READY は統合版と共通なので、それを true にすると実体の無い
+// SPROUT_editor.exe へのリンクまで出て 404 になる。版ごとに分けている。
+// ⚠️ GitHub Releases に GROVE_editor.exe を公開してから true にすること。
+// 2026-07-30: v0.1.0 として公開済み。DLリンクの疎通も確認済み。
+const GROVE_EXE_READY = true;
+
 // SPROUT(統合版)を一時的にメンテナンス中（false）にするフラグ。
 const SPROUT_READY = true;
 
@@ -504,6 +511,32 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+
+        {/* ★Java版(GROVE)デスクトップ版のダウンロード。
+            Java版のMOD作りは gradlew でのビルドが要るため、ブラウザだけでは完結しない。
+            そこだけはデスクトップ版が必要になるので、トップから直接落とせるようにする。
+            ※フラグは版ごとに分けている。統合版の .exe はまだ公開していないので、
+              共通フラグにすると存在しないファイルへのリンクが出て404になる。 */}
+        {GROVE_EXE_READY && (
+          <div className="w-full flex flex-col items-center gap-2 mt-10 mb-2 px-4">
+            <a
+              href={DOWNLOADS.grove.win}
+              download
+              className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl font-bold text-[15px] transition-all hover:scale-[1.04] active:scale-95"
+              style={{
+                background: "linear-gradient(135deg,#7dd3fc,#0ea5e9)",
+                border: "3px solid #0c4a6e",
+                boxShadow: "0 5px 0 #0369a1, 0 6px 16px rgba(3,105,161,0.3)",
+                color: "#082f49",
+              }}
+            >
+              💻 {t(locale, "dl.groveWin")}
+            </a>
+            <p className="text-[11px] text-muted/70 font-sans text-center leading-relaxed whitespace-pre-line">
+              {t(locale, "dl.groveNote")}
+            </p>
+          </div>
+        )}
 
         {/* ★紹介動画セクション（ブロックされても空箱にならないクリック再生式） */}
         <IntroVideo />

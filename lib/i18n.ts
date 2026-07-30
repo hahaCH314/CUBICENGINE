@@ -46,6 +46,12 @@ export const DICT: Record<string, Entry> = {
   "grove.tag":        { ja: "Java版用", en: "For Java" },
   "grove.desc":       { ja: "JAVA版（パソコン）で作る人はこっち。", en: "Java edition — PC." },
   "cta.tryWeb":       { ja: "✨ さっそく作る", en: "✨ Start creating" },
+  // Java版(GROVE)デスクトップ版のDL導線。Java版は gradlew でのビルドが要るので、
+  // ブラウザだけでは完結しない＝ここだけデスクトップ版が必要になる。
+  "dl.groveWin":      { ja: "Java版をダウンロード（Windows）", en: "Download for Java Edition (Windows)" },
+  // 504MB あるので、押す前にサイズが分かるようにする（うっかり通信量を使わせない）。
+  // 署名なしインストーラなので Windows の警告も先に伝えておく＝初見で怖がらせない。
+  "dl.groveNote":     { ja: "Java版のMODを作るにはパソコン版が必要です（統合版はブラウザだけでOK）\n約504MB・Windows用／「詳細情報」→「実行」で進めます", en: "Making Java Edition mods needs the desktop app (Bedrock works in the browser).\nAbout 504MB, Windows only. Choose \"More info\" → \"Run if\" Windows warns you." },
   "dl.win":           { ja: "💻 Windows版 (.exe)", en: "💻 Windows (.exe)" },
   "dl.mac":           { ja: "🍎 macOS版 (.dmg)", en: "🍎 macOS (.dmg)" },
   "dl.go":            { ja: "⬇ DL", en: "⬇ DL" },
