@@ -472,8 +472,12 @@ export default function HomePage() {
             <div className="w-full flex flex-col items-center gap-3">
               {JAVA_READY ? (
                 <>
-                  <Link
-                    href="/editor?mode=grape"
+                  {/* Java版のMODは gradlew でビルドするので、ブラウザでは原理的に作れない
+                      （エディタ側の GrapePanel も Electron のときだけ蓋を外す作りになっている）。
+                      なのでこのカードはWebエディタではなく、パソコン版のDLへ繋ぐ。 */}
+                  <a
+                    href={DOWNLOADS.grove.win}
+                    download
                     className="w-20 h-20 inline-flex items-center justify-center rounded-2xl transition-all duration-75 relative hover:-translate-y-1 hover:shadow-[0_8px_0_#0369a1,0_12px_24px_rgba(0,0,0,0.4)] active:translate-y-1 active:shadow-[0_2px_0_#0369a1,0_4px_8px_rgba(0,0,0,0.25)]"
                     style={{
                       background: "linear-gradient(135deg, #38bdf8, #0ea5e9)",
@@ -481,12 +485,15 @@ export default function HomePage() {
                       boxShadow: "0 6px 0 #0369a1, 0 8px 16px rgba(0,0,0,0.35)",
                       transform: "translateY(0)",
                     }}
-                    aria-label={t(locale, "cta.tryWeb")}
+                    aria-label={t(locale, "grove.getDesktop")}
                   >
                     <CubeIcon className="w-9 h-9 text-yellow-200" />
-                  </Link>
+                  </a>
                   <span className="text-xs font-bold text-white/95" style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
-                    {t(locale, "cta.tryWeb")}
+                    {t(locale, "grove.getDesktop")}
+                  </span>
+                  <span className="text-[9px] font-normal mt-0.5 text-center" style={{ color: "rgba(127,233,247,0.7)" }}>
+                    {t(locale, "grove.getDesktopSub")}
                   </span>
                 </>
               ) : (

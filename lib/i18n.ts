@@ -43,6 +43,9 @@ export const DICT: Record<string, Entry> = {
   "support.note":       { ja: "※寄付は完全に任意です。全機能をいつでも無料でご利用いただけます。", en: "*Donations are completely optional. All features are always free." },
   "sprout.tag":       { ja: "統合版・教育版用", en: "Bedrock & Education" },
   "sprout.desc":      { ja: "統合版（スマホ・Switch・PC）で遊ぶ人はこっち。", en: "Bedrock edition — phone, Switch & PC." },
+  // Java版はブラウザでは作れない（MODのビルドに gradlew が要る）。カードはDLへ繋ぐ。
+  "grove.getDesktop":    { ja: "💻 パソコン版をダウンロード", en: "💻 Get the desktop app" },
+  "grove.getDesktopSub": { ja: "Java版はパソコン版で作ります", en: "Java Edition needs the desktop app" },
   "grove.tag":        { ja: "Java版用", en: "For Java" },
   "grove.desc":       { ja: "JAVA版（パソコン）で作る人はこっち。", en: "Java edition — PC." },
   "cta.tryWeb":       { ja: "✨ さっそく作る", en: "✨ Start creating" },
