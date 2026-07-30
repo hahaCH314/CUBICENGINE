@@ -48,6 +48,35 @@ let mainWindow = null;
 
 process.env.MMC_USER_DATA = app.getPath('userData');
 
+// ━━━ 起動の自己修復 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ElectronはGPU処理を子プロセスに分離するが、環境によってはその子プロセスを
+// 作れない（セキュリティソフトがインストール先からのプロセス生成を止める等）。
+// その場合 Chromium は7回リトライしたのち "GPU process isn't usable. Goodbye." で
+// 本体ごと終了する＝ユーザーには「一瞬ウィンドウが出て消えた」としか見えず、
+// 理由がどこにも残らない。実際 %LOCALAPPDATA%\Programs から起動した環境で発生した。
+//
+// 対策: 前回の起動が「画面を出す前に終わっていた」ら、今回はGPUを分離せずに起動する。
+// 一度それで起動できた端末はその設定を覚える（毎回失敗→成功を繰り返さないため）。
+// 問題の無い端末は通常どおり分離したまま＝全員の性能を落とさない。
+const BOOT_STATE = path.join(app.getPath('userData'), 'boot-state.json');
+const readBoot = () => { try { return JSON.parse(fs.readFileSync(BOOT_STATE, 'utf8')); } catch { return {}; } };
+const writeBoot = (v) => {
+  try { fs.mkdirSync(path.dirname(BOOT_STATE), { recursive: true }); fs.writeFileSync(BOOT_STATE, JSON.stringify(v)); } catch {}
+};
+const _boot = readBoot();
+// pending=前回は起動途中で落ちた / safeGpu=この端末では分離しないと動かないと確定済み
+const SAFE_GPU = _boot.safeGpu === true || _boot.pending === true;
+if (SAFE_GPU) {
+  app.commandLine.appendSwitch('in-process-gpu');
+  console.log('[MineModCraft] 前回の起動に失敗しているため、GPUを分離せずに起動します');
+}
+writeBoot({ ..._boot, pending: true });
+/** 画面が出たら「起動できた」と記録する。ここまで来れば次回は普通に起動してよい。 */
+const markBootOk = () => writeBoot({ safeGpu: SAFE_GPU, pending: false });
+
+// 握りつぶすと原因が分からなくなるので、拾えなかった例外は必ず出す
+process.on('unhandledRejection', (e) => console.error('[MineModCraft] unhandledRejection:', e));
+
 // ━━━ サーバー待機 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function waitForServer(port, timeout = 90000) {
   return new Promise((resolve, reject) => {
@@ -148,7 +177,12 @@ app.whenReady().then(async () => {
 
   const win = createWindow();
 
-  const EDITION = process.env.MMC_EDITION || 'full'; // 'sprout' | 'grove' | 'full'
+  // 版の判定。MMC_EDITION はビルド時にしか設定されず、パッケージ版の実行時には
+  // 未設定になる＝どの版を入れても 'full' 扱いでトップページが開いてしまっていた。
+  // ビルド時に package.json へ焼き込んだ mmcEdition を読む（--config.extraMetadata）。
+  let pkgEdition = '';
+  try { pkgEdition = require(path.join(app.getAppPath(), 'package.json')).mmcEdition || ''; } catch {}
+  const EDITION = process.env.MMC_EDITION || pkgEdition || 'full'; // 'sprout' | 'grove' | 'full'
   const startPath =
     EDITION === 'sprout' ? '/editor?mode=tsumiki'
   : EDITION === 'grove'  ? '/editor?mode=grape'
@@ -163,7 +197,13 @@ app.whenReady().then(async () => {
   }
 
   // ── スプラッシュを即座に表示 ──
-  await win.loadFile(path.join(__dirname, 'splash.html'));
+  // ここは try の外だったため、読み込みに失敗しても unhandledRejection になるだけで
+  // 何も表示されないまま終了していた。失敗しても先へ進めて、原因は下の catch で出す。
+  try {
+    await win.loadFile(path.join(__dirname, 'splash.html'));
+  } catch (e) {
+    console.error('[MineModCraft] splash 読み込み失敗:', e);
+  }
   win.show();
 
   const appRoot = app.getAppPath();
@@ -181,11 +221,16 @@ app.whenReady().then(async () => {
     log('準備完了！');
     // アプリに切り替え（フェードなし、直接ナビ）
     await win.loadURL(`http://127.0.0.1:${PORT}${startPath}`);
+    // ここまで来たら起動成功。次回の自己修復判定に使う。
+    markBootOk();
   } catch (err) {
     console.error('[MineModCraft] Error:', err);
     dialog.showErrorBox(
       'サーバー起動エラー',
-      `起動に失敗しました:\n${err.message}\n\nappRoot: ${appRoot}`
+      `起動に失敗しました:\n${err.message}\n\n`
+      + `もう一度アプリを起動すると、別の方法で立ち上げ直します。\n`
+      + `それでも直らないときは、この画面を撮って知らせてください。\n\n`
+      + `appRoot: ${appRoot}\nGPU分離なし: ${SAFE_GPU}`
     );
     app.quit();
   }
