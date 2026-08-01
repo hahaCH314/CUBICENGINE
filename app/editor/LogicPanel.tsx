@@ -3914,7 +3914,10 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                   display: "flex", justifyContent: "space-between", alignItems: "center",
                   borderBottom: "1px solid rgba(148,163,184,0.15)",
                 }}>
-                  <span style={{ fontSize: 16, fontWeight: 900, letterSpacing: "0.06em", color: "#334155" }}>🛠️ アドオンの作り方</span>
+                  {/* ❓作り方(TutorialOverlay)＝はじめての人への道案内、
+                      こちら＝操作の早見表。同じ「作り方」だと入口が2つあるように見えるので
+                      名前で役割を分ける。ショートカット一覧はこちらにしかない情報。 */}
+                  <span style={{ fontSize: 16, fontWeight: 900, letterSpacing: "0.06em", color: "#334155" }}>🛠️ そうさ早見表</span>
                   <button onClick={() => setShowHelp(false)} style={{
                     width: 28, height: 28, borderRadius: 8, border: "none",
                     background: "rgba(0,0,0,0.05)", color: "#64748b", cursor: "pointer",
@@ -3952,6 +3955,18 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                   }}>
                     🗑 消す = えらんで <b>×</b> / <b>Delete</b>　　📑 コピー = <b>Ctrl+D</b>　　🚫 やめる = <b>Esc</b>
                   </div>
+                  {/* 早見表だけ見つけて「そもそもの作り方」に辿り着けない人が出ないよう、
+                      ここからチュートリアルへ行けるようにする（逆側の導線は ❓作り方）。 */}
+                  <button
+                    onClick={() => { setShowHelp(false); setShowTutorial(true); }}
+                    style={{
+                      marginTop: 12, width: "100%", padding: "9px 0", borderRadius: 10,
+                      border: "2px solid #f59e0b", background: "#fffbeb", color: "#92400e",
+                      fontSize: 12, fontWeight: 900, cursor: "pointer",
+                    }}
+                  >
+                    📖 はじめての人はこちら（作り方ガイド）
+                  </button>
                 </div>
               </div>
             </div>
@@ -5145,7 +5160,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                 <button
                   onClick={() => setShowHelp(v => !v)}
-                  title="操作ガイドを開く"
+                  title="そうさ早見表をひらく（ショートカットなど）"
                   style={{
                     width: 44, height: 40, borderRadius: "9px",
                     background: showHelp
@@ -5178,9 +5193,9 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                     btn.style.boxShadow = `0 5px 0 ${shadowColor}, 0 4px 8px rgba(0,0,0,0.1), inset 0 3px 0 rgba(255,255,255,0.6)`;
                   }}
                 >
-                  ❓
+                  🛠️
                 </button>
-                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>作り方</span>
+                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>早見表</span>
               </div>
             </div>
 

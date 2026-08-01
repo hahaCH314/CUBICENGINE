@@ -571,6 +571,14 @@ export default function HomePage() {
             📖 {t(locale, "guide.open")}
           </button>
           <p className="text-[11px] text-muted/70 font-sans">{t(locale, "guide.note")}</p>
+          {/* 読み物版への内部リンク。検索エンジンはリンクを辿るので、
+              どこからも繋がっていないページは見つけてもらえず評価もされない。 */}
+          <Link
+            href="/guide"
+            className="text-[11px] font-sans underline underline-offset-2 text-muted/60 hover:text-foreground transition-colors"
+          >
+            {t(locale, "guide.readPage")}
+          </Link>
         </div>
 
         {/* ★応援と作者紹介の独立カードエリア */}

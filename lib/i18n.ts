@@ -71,6 +71,7 @@ export const DICT: Record<string, Entry> = {
   // 作り方ガイド（トップから開く導線）。中身は現状 日本語のみ。
   "guide.open":       { ja: "作り方ガイドを見る", en: "See how it works" },
   "guide.note":       { ja: "はじめての人はこちらから。1分で分かります", en: "New here? It takes about a minute." },
+  "guide.readPage":   { ja: "文章で読む（アドオンの作り方）", en: "Read the written guide" },
   "lang.toggle":      { ja: "EN", en: "日本語" },
   "btn.presetTemplates": { ja: "⚡ 3分でおためしアドオン！", en: "⚡ 3-Min Preset Add-ons!" },
   "btn.howToInstall":     { ja: "🎮 マイクラでのあそびかた", en: "🎮 How to Play in Minecraft" },
