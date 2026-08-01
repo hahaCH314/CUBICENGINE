@@ -61,6 +61,15 @@ export const metadata: Metadata = {
   description:
     "コーディング不要のビジュアル開発環境。Minecraft のアドオン（統合版）・MOD（Java）を設計・構築し、ワンクリックでエクスポート。完全ローカル・オフラインで動作、アカウント不要。",
   applicationName: "CUBICENGINE",
+  // Google Search Console の所有権確認。
+  // ※vercel.app のDNSは Vercel の管理下で TXT レコードを足せないため DNS認証は使えない。
+  //   実際の認証は public/google*.html のファイル方式で行っている。こちらは予備
+  //   （ファイルを消してしまっても所有権が外れないように残してある）。
+  //   独自ドメインに移したら、そちらでも改めて認証が必要。
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+      ?? "1wgMu0QSDiXBqyXqUambbkG9SGCReJOP7MYUXgDGtyU",
+  },
   keywords: ["Minecraft", "マイクラ", "アドオン", "MOD", "統合版", "Java", "コーディング不要", "ビジュアルプログラミング", "CUBICENGINE", "SPROUT", "GROVE"],
   authors: [{ name: "CUBICENGINE studio" }],
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "CUBICENGINE" },
