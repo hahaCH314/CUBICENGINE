@@ -231,6 +231,18 @@ function createPlaceholderIcon(): Uint8Array {
    ═══════════════════════════════════════════ */
 /** data URL → Uint8Array（カスタムアイコン用） */
 async function dataUrlToBytes(dataUrl: string): Promise<Uint8Array> {
+  // ブラウザ環境やServiceWorker下で data: URL への fetch がブロックされる問題の回避
+  const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+  if (match) {
+    const binaryStr = atob(match[2]);
+    const len = binaryStr.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryStr.charCodeAt(i);
+    }
+    return bytes;
+  }
+  // Base64以外の場合のフォールバック
   const res = await fetch(dataUrl);
   return new Uint8Array(await res.arrayBuffer());
 }
