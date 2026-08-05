@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "プライバシーポリシー",
-  description: "CUBICENGINE のプライバシーポリシー。データ収集・トラッキングなし、完全ローカル動作。",
+  description: "CUBICENGINE のプライバシーポリシー。個人情報の収集なし、作品データは端末内のみ。Web版のアクセス解析は Cookie を使わない匿名集計のみ。",
 };
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -28,7 +28,11 @@ export default function PrivacyPage() {
         <Section title="1. 個人情報を収集しません">
           <p>
             本ツールはアカウント登録不要で動作し、氏名・メールアドレス・電話番号・位置情報などの個人情報を
-            収集・送信することはありません。アクセス解析・行動トラッキング・広告識別子の類も一切使用しません。
+            収集・送信することはありません。広告目的の行動トラッキングや広告識別子も一切使用しません。
+          </p>
+          <p>
+            ただしWeb版では、どのページがどれくらい見られているかを知るための
+            アクセス解析（匿名の集計のみ）を行っています。詳しくは第5項をご覧ください。
           </p>
         </Section>
 
@@ -40,21 +44,39 @@ export default function PrivacyPage() {
         </Section>
 
         <Section title="3. Cookie について">
-          <p>本ツールは、トラッキングや広告を目的とした Cookie を使用しません。</p>
+          <p>
+            本ツールは、トラッキングや広告を目的とした Cookie を使用しません。
+            第5項のアクセス解析も Cookie を使わない方式のため、同意バナーの表示や
+            設定変更をお願いすることはありません。
+          </p>
         </Section>
 
         <Section title="4. お子様のご利用について">
           <p>
             本ツールは個人情報を収集しないため、保護者の同意取得を前提とする情報収集は行いません。
+            第5項のアクセス解析も個人を識別しない集計のみで、どなたが閲覧したかを知ることはできません。
             お子様にも安心してご利用いただけます。
           </p>
         </Section>
 
-        <Section title="5. ホスティングについて（Web版）">
+        <Section title="5. アクセス解析とホスティングについて（Web版）">
           <p>
-            Web版はホスティング事業者（例：Vercel）上で配信されます。ホスティング提供に伴い一般的に
-            記録される技術情報（アクセスログ等）の取り扱いは、各事業者のポリシーに従います。本ツール自体が
-            これらを取得・利用することはありません。デスクトップ版（.exe）は完全オフラインで動作します。
+            Web版はホスティング事業者（Vercel）上で配信され、同社の Vercel Web Analytics を用いた
+            アクセス解析を行っています。集計されるのは、閲覧されたページのURL・リンク元・国や地域・
+            端末の種類やブラウザといった大まかな情報のみです。
+          </p>
+          <p>
+            この解析は Cookie を使用せず、IPアドレスを保存せず、閲覧者を識別するための情報も保持しません。
+            したがって、個人を特定したり、他サイトをまたいで行動を追跡したりすることはできません。
+            目的は「どのページが役に立っているか」を知り、本ツールを改善することに限られます。
+          </p>
+          <p>
+            そのほか、ホスティング提供に伴い一般的に記録される技術情報（アクセスログ等）の取り扱いは、
+            各事業者のポリシーに従います。
+          </p>
+          <p>
+            <strong className="text-foreground/90">デスクトップ版（.exe）はこの解析の対象外です。</strong>
+            完全オフラインで動作し、外部へ通信を行いません。
           </p>
         </Section>
 
@@ -78,7 +100,7 @@ export default function PrivacyPage() {
         </Section>
 
         <p className="mt-10 text-xs text-muted/60">
-          制定日：2026年6月23日 ・ CUBICENGINE
+          制定日：2026年6月23日 ・ 最終改定日：2026年8月5日 ・ CUBICENGINE
           <br />
           本ツールは非公式です。Mojang Studios・Microsoft とは関係ありません。Minecraft は Mojang Studios の商標です。
         </p>

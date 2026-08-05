@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Press_Start_2P, M_PLUS_Rounded_1c, Outfit, Nunito } 
 import "./globals.css";
 import ServiceWorkerRegistration from "./ServiceWorkerRegistration";
 import InstallPrompt from "./InstallPrompt";
+import WebAnalytics from "./WebAnalytics";
 import { SITE_URL } from "../lib/site";
 
 const geistSans = Geist({
@@ -104,6 +105,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ServiceWorkerRegistration />
         <InstallPrompt />
+        <WebAnalytics />
         {children}
         {/* 全ページ共通クレジット（クリック透過・控えめ表示） */}
         <div
