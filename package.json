@@ -2,7 +2,7 @@
   "name": "minemodcraft",
   "version": "0.1.0",
   "description": "Minecraft Mod/Addon ビジュアル開発スタジオ",
-  "author": "CubicEngine Studio",
+  "author": "CUBICENGINEstudio",
   "private": true,
   "main": "electron/main.js",
   "scripts": {

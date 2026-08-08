@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'CUBICENGINE Studio',
+    name: 'CUBICENGINEstudio',
     short_name: 'CUBICENGINE',
     description: 'コーディング不要のビジュアル開発環境。非公式（Mojang/Microsoftとは無関係）。',
     start_url: '/',

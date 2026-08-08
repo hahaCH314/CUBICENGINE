@@ -36,7 +36,7 @@ export default function MaintenancePage() {
         メンテナンスを行っています。
       </p>
       <p className="font-pixel" style={{ fontSize: 11, letterSpacing: "0.12em", marginTop: 40, color: "rgba(94,234,212,0.6)" }}>
-        CUBICENGINE studio
+        CUBICENGINEstudio
       </p>
     </main>
   );

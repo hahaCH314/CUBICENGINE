@@ -328,8 +328,9 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
             <CubeIcon className="w-7 h-7 text-accent group-hover:scale-105 transition-transform" />
+            {/* 名乗りは特商法の販売業者名（CUBICENGINEstudio）に統一。3サイトで割れていた */}
             <span className="text-base font-bold tracking-tight">
-              CUBICENGINE<span className="text-accent ml-1">Studio</span>
+              CUBICENGINE<span className="text-accent">studio</span>
             </span>
           </Link>
           <div className="flex items-center gap-3">
@@ -677,10 +678,10 @@ export default function HomePage() {
                   {/* 4段目: 運営情報 */}
                   <div className="pt-4 border-t border-dashed border-white/10 text-xs text-muted/75">
                     <L>
-                      <W>CUBICENGINE studioは<br className="sm:hidden" />保護者が運営しております。</W>
+                      <W>CUBICENGINEstudioは<br className="sm:hidden" />保護者が運営しております。</W>
                     </L>
                     <L className="mt-1">
-                      <W>寄付の受け取り・管理は<br className="sm:hidden" />CUBICENGINE studioが行います。</W>
+                      <W>寄付の受け取り・管理は<br className="sm:hidden" />CUBICENGINEstudioが行います。</W>
                     </L>
                   </div>
                 </>
@@ -867,6 +868,16 @@ export default function HomePage() {
         <p className="mt-2 text-[10px] text-muted/50 font-sans shrink-0">
           {t(locale, "footer.note")}
         </p>
+
+        {/* 開発元への戻り線。ここから会社HP → 他の製品（CMCUBE等）へ辿れるようにする */}
+        <a
+          href="https://cubicenginestudio.vercel.app/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 text-[11px] font-sans underline underline-offset-2 text-muted/60 hover:text-foreground transition-colors shrink-0"
+        >
+          {t(locale, "footer.studio")} ↗
+        </a>
       </section>
 
       {/* 作り方ガイド（エディタと同じものを使い回す＝説明が2箇所に分かれない） */}

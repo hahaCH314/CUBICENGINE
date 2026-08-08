@@ -125,7 +125,7 @@ function createWindow() {
     width: st?.width ?? 1600, height: st?.height ?? 1000,
     x: st?.x, y: st?.y,
     minWidth: 1000, minHeight: 640,
-    title: 'CUBICENGINE Studio',
+    title: 'CUBICENGINEstudio',
     icon:  path.join(__dirname, '..', 'public', 'icon-512.png'),
     backgroundColor: '#0d0d0f',
     show: false,

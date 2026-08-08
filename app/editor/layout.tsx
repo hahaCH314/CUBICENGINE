@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Editor — CUBICENGINE Studio",
-  description: "CUBICENGINE Studio のメインエディター画面。",
+  title: "Editor — CUBICENGINEstudio",
+  description: "CUBICENGINEstudio のメインエディター画面。",
 };
 
 export default function EditorLayout({

@@ -72,7 +72,7 @@ export const metadata: Metadata = {
       ?? "1wgMu0QSDiXBqyXqUambbkG9SGCReJOP7MYUXgDGtyU",
   },
   keywords: ["Minecraft", "マイクラ", "アドオン", "MOD", "統合版", "Java", "コーディング不要", "ビジュアルプログラミング", "CUBICENGINE", "SPROUT", "GROVE"],
-  authors: [{ name: "CUBICENGINE studio" }],
+  authors: [{ name: "CUBICENGINEstudio" }],
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "CUBICENGINE" },
   openGraph: {
     type: "website",
@@ -141,7 +141,7 @@ export default function RootLayout({
             className="whitespace-nowrap"
             style={{ fontSize: "clamp(9px, 2.8vw, 13px)", fontWeight: 700, lineHeight: 1.4, color: "#f0a818", letterSpacing: "0.02em" }}
           >
-            © 2026 CUBICENGINE studio ・ 開発マネージャー：なっとうサイダー
+            © 2026 CUBICENGINEstudio ・ 開発マネージャー：なっとうサイダー
           </span>
           {/* 法務リンク（クレジットは click 透過なので、このリンク行だけ pointerEvents を戻す） */}
           <nav

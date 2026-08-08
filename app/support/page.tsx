@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 // 寄付リンク：Ko-fi / Buy Me a Coffee 等のURLを用意できたら、ここに入れるだけで有効化されます。
-// ※アカウント名義・受け取りは保護者（CUBICENGINE studio）が担当します。
+// ※アカウント名義・受け取りは保護者（CUBICENGINEstudio）が担当します。
 const DONATE_URL = "https://ko-fi.com/ihafam";
 
 // 子どもでも読みやすいよう、意味のかたまり単位で改行する（かたまりの途中では折り返さない）
@@ -118,12 +118,12 @@ export default function SupportPage() {
           {/* ③ 運営 */}
           <div className="relative z-10 pt-4 border-t border-dashed border-emerald-100 text-xs sm:text-sm text-gray-500">
             <L>
-              <W>CUBICENGINE studioは</W>
+              <W>CUBICENGINEstudioは</W>
               <W>保護者が運営しております。</W>
             </L>
             <L>
               <W>寄付の受け取り・管理は</W>
-              <W>CUBICENGINE studioが行います。</W>
+              <W>CUBICENGINEstudioが行います。</W>
             </L>
           </div>
         </div>

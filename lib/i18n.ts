@@ -38,7 +38,7 @@ export const DICT: Record<string, Entry> = {
   "support.story1":     { ja: "「自分のアドオンでマイクラに無限ダイヤを！」\nという夢から始まりました。\nその夢を形にし実現させたのが\n本サイト（CUBICENGINE）です。", en: "It all started with the dream: \"Infinite Diamonds in Minecraft with my own addon!\"\nHe shaped that dream into reality,\ncreating this website (CUBICENGINE)." },
   "support.story2":     { ja: "なっとうサイダーは今、中学生です。\n「同じようにマイクラや、プログラミングが好きな人に、作る楽しさを共有したい」\nとの思いから本人の希望によりコア機能は全て無料でご利用いただけます。", en: "Nattō Cider is now in junior high school.\nOut of a wish to \"share the joy of creating with others who love Minecraft and programming,\"\nall core features are completely free to use." },
   "support.story3":     { ja: "まだまだ未熟な開発マネージャーですが、お小遣いを全て開発費用にあててきました。頂いた寄付は今後の運営費、新たな開発費用として使わせていただきます。\nよろしくお願いいたします", en: "Though still an inexperienced development manager, he has spent all of his allowance on development costs. Donations received will be used for future operations and new development costs.\nThank you for your support." },
-  "support.management": { ja: "CUBICENGINE studioは保護者が運営しております。寄付の受け取り・管理はCUBICENGINE studioが行います。", en: "CUBICENGINE studio is operated by parents. Donation reception and management are handled by CUBICENGINE studio." },
+  "support.management": { ja: "CUBICENGINEstudioは保護者が運営しております。寄付の受け取り・管理はCUBICENGINEstudioが行います。", en: "CUBICENGINEstudio is operated by parents. Donation reception and management are handled by CUBICENGINEstudio." },
   "support.cta":        { ja: "💎 この挑戦を応援する（寄付ページへ）", en: "💎 Support this challenge (Donate)" },
   "support.note":       { ja: "※寄付は完全に任意です。全機能をいつでも無料でご利用いただけます。", en: "*Donations are completely optional. All features are always free." },
   "sprout.tag":       { ja: "統合版・教育版用", en: "Bedrock & Education" },
@@ -68,6 +68,9 @@ export const DICT: Record<string, Entry> = {
   "grove.soonSub":    { ja: "リリースまでもうしばらく ✨", en: "Coming to life soon ✨" },
   "grove.soonTitle":  { ja: "現在開発中です", en: "In development" },
   "footer.note":      { ja: "ローカル/オフラインで動く・アカウント不要・Mac & Windows対応", en: "Runs locally & offline · No account needed · Mac & Windows" },
+  // 開発元（会社HP）への戻り線。ナビのロゴは製品トップに戻る役目があるので奪えない。
+  // ここが無いと CUBICENGINE から他の製品へ辿り着く道が存在しなくなる
+  "footer.studio":    { ja: "開発元 CUBICENGINEstudio について", en: "About CUBICENGINEstudio, our studio" },
   // 作り方ガイド（トップから開く導線）。中身は現状 日本語のみ。
   "guide.open":       { ja: "作り方ガイドを見る", en: "See how it works" },
   "guide.note":       { ja: "はじめての人はこちらから。1分で分かります", en: "New here? It takes about a minute." },
