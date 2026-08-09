@@ -55,6 +55,13 @@ export const DICT: Record<string, Entry> = {
   // 504MB あるので、押す前にサイズが分かるようにする（うっかり通信量を使わせない）。
   // 署名なしインストーラなので Windows の警告も先に伝えておく＝初見で怖がらせない。
   "dl.groveNote":     { ja: "Java版のMODを作るにはパソコン版が必要です（統合版はブラウザだけでOK）\n約504MB・Windows用／「詳細情報」→「実行」で進めます", en: "Making Java Edition mods needs the desktop app (Bedrock works in the browser).\nAbout 504MB, Windows only. Choose \"More info\" → \"Run if\" Windows warns you." },
+  // 署名なしなので Windows の警告は必ず出る。「怪しいから出ている」のではないことを、
+  // 第三者(VirusTotal)の検査結果へのリンクで裏づける。数字は撮った時点のものなので
+  // 日付を添える。リンク先は常に最新なので、古くなっても嘘にはならない。
+  // SHA-256 はあえて出さない。この製品を使うのは主に子どもで、64桁の文字列は
+  // 意味が伝わらず不安を増やすだけ。必要な人はリンク先のURLに入っている。
+  "dl.scanned":       { ja: "🛡 ウイルスチェック済み — 44社中0社が検出（2026-08-09時点）", en: "🛡 Virus-scanned — 0 of 44 engines flagged it (as of 2026-08-09)" },
+  "dl.scanLink":      { ja: "検査結果を見る", en: "View the scan result" },
   "dl.win":           { ja: "💻 Windows版 (.exe)", en: "💻 Windows (.exe)" },
   "dl.mac":           { ja: "🍎 macOS版 (.dmg)", en: "🍎 macOS (.dmg)" },
   "dl.go":            { ja: "⬇ DL", en: "⬇ DL" },

@@ -243,6 +243,15 @@ const RELEASES_READY = false;
 // 2026-07-30: v0.1.0 として公開済み。DLリンクの疎通も確認済み。
 const GROVE_EXE_READY = true;
 
+// 配布中の GROVE_editor.exe の SHA-256。GitHub Releases が公表している digest と
+// ダウンロードした実物のハッシュが一致することを確認済み(2026-08-09)。
+// VirusTotal のファイルレポートURLはこのハッシュそのものなので、値を1か所に持てば
+// リンクも同一性の検証もこれで足りる。
+// ⚠️ 新しいリリースを出したらここも更新すること。古いままだと、いま配っている
+//    ファイルとは別物の検査結果へ誘導してしまう。
+const GROVE_EXE_SHA256 =
+  "515028da96da771da7d7d3bc755b65191f3ef163eca07102fc5e30b9f698efd6";
+
 // SPROUT(統合版)を一時的にメンテナンス中（false）にするフラグ。
 const SPROUT_READY = true;
 
@@ -547,6 +556,21 @@ export default function HomePage() {
             </a>
             <p className="text-[11px] text-muted/70 font-sans text-center leading-relaxed whitespace-pre-line">
               {t(locale, "dl.groveNote")}
+            </p>
+            {/* 署名なしのため Windows の警告は必ず出る。上の案内だけだと「警告が出るけど
+                押して大丈夫」と言っているだけになるので、第三者の検査結果で裏をとれるようにする。
+                リンク先URLの末尾は配布ファイルの SHA-256 そのものなので、確かめたい人は
+                手元のファイルのハッシュと突き合わせれば同一性まで検証できる。 */}
+            <p className="text-[11px] text-muted/70 font-sans text-center leading-relaxed">
+              {t(locale, "dl.scanned")}{" "}
+              <a
+                href={`https://www.virustotal.com/gui/file/${GROVE_EXE_SHA256}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:text-foreground transition-colors"
+              >
+                {t(locale, "dl.scanLink")}
+              </a>
             </p>
           </div>
         )}
