@@ -95,6 +95,14 @@ function waitForServer(port, timeout = 90000) {
 // ━━━ Next.js 起動（インプロセス） ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // output:standalone は JS バンドルの配信構造が変わり Electron でクリックが効かなくなるため使わない
 async function startNextServer(appRoot, sendStatus) {
+  // ⚠️ Next 16 は dir を **カレントディレクトリ基準** で解決する。絶対パスを渡しても
+  //    cwd と連結されるため、cwd を合わせないと全リクエストが 500 になる。
+  //    配布版の cwd はインストール先（resources/app の親）なので、
+  //      <install>\<install>\resources\app\.next\routes-manifest.json
+  //    という二重パスを開こうとして ENOENT で落ちていた（v0.1.0 の実害）。
+  //    開発時は cwd がリポジトリ直下＝appRoot と一致するので表面化しない。
+  try { process.chdir(appRoot); } catch { /* 失敗しても下で拾えるので握りつぶす */ }
+
   // インプロセス Next.js
   sendStatus('🔧 Next.js インプロセスサーバーを起動中...');
   const appRequire = createRequire(path.join(appRoot, 'package.json'));
