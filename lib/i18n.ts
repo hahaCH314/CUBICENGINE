@@ -78,6 +78,8 @@ export const DICT: Record<string, Entry> = {
   // 開発元（会社HP）への戻り線。ナビのロゴは製品トップに戻る役目があるので奪えない。
   // ここが無いと CUBICENGINE から他の製品へ辿り着く道が存在しなくなる
   "footer.studio":    { ja: "開発元 CUBICENGINEstudio について", en: "About CUBICENGINEstudio, our studio" },
+  // 姉妹アプリへの導線。2026-08-10 に「製品どうしは直リンクしない」約束を見直した
+  "footer.tinycube":  { ja: "動画に声とエフェクトを乗せる tinyCUBE（無料・スマホ）", en: "tinyCUBE — add voice and effects to a video (free, phones)" },
   // 作り方ガイド（トップから開く導線）。中身は現状 日本語のみ。
   "guide.open":       { ja: "作り方ガイドを見る", en: "See how it works" },
   "guide.note":       { ja: "はじめての人はこちらから。1分で分かります", en: "New here? It takes about a minute." },

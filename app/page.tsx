@@ -902,6 +902,17 @@ export default function HomePage() {
         >
           {t(locale, "footer.studio")} ↗
         </a>
+
+        {/* 姉妹アプリ。どちらもブラウザで動く無料のものなので、
+            寄付と販売の導線が同じ画面に並ぶことにはならない（2026-08-10） */}
+        <a
+          href="https://tinycube.vercel.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-1 text-[11px] font-sans underline underline-offset-2 text-muted/60 hover:text-foreground transition-colors shrink-0"
+        >
+          {t(locale, "footer.tinycube")} ↗
+        </a>
       </section>
 
       {/* 作り方ガイド（エディタと同じものを使い回す＝説明が2箇所に分かれない） */}
