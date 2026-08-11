@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { DEFAULT_LOCALE, type Locale } from "../../lib/i18n";
+import type { MobIR } from "../../lib/devtab/ir";
 
 /** ロケール初期値: localStorage(mmc_locale) があれば復元、無ければ既定(ja) */
 function initLocale(): Locale {
@@ -104,10 +105,18 @@ export interface EditorState {
   generatedJsCode: string;
   logicGraphJson: string;
 
+  /** デベロッパータブで取り込んだモブ。書き出し時に exporter がここを見る。
+      ボクセル(blocks/items)とは別物なので混ぜない */
+  devMobs: MobIR[];
+
   locale: Locale;
 
   setLocale: (l: Locale) => void;
   setLogicGraphJson: (json: string) => void;
+  /** 同じ id のモブが居たら差し替える。取り込み直しで増殖させないため */
+  upsertDevMob: (mob: MobIR) => void;
+  updateDevMobBehavior: (id: string, patch: Partial<MobIR["behavior"]>) => void;
+  removeDevMob: (id: string) => void;
   setPackIconDataUrl: (url: string) => void;
   addBlock: (block: VoxelBlock) => void;
   removeBlock: (id: string) => void;
@@ -209,6 +218,7 @@ export const useEditorStore = create<EditorState>((set) => ({
 
   generatedJsCode: "",
   logicGraphJson: "",
+  devMobs: [],
 
   locale: initLocale(),
 
@@ -217,6 +227,24 @@ export const useEditorStore = create<EditorState>((set) => ({
     set({ locale: l });
   },
   setLogicGraphJson:  (json) => set({ logicGraphJson: json }),
+
+  upsertDevMob: (mob) =>
+    set((s) => {
+      const i = s.devMobs.findIndex((m) => m.id === mob.id);
+      if (i < 0) return { devMobs: [...s.devMobs, mob] };
+      // 同じモデルを読み直したときに、設定済みの挙動を巻き戻さない。
+      // 見た目だけ差し替えるのが期待される動きなので behavior は残す
+      const next = [...s.devMobs];
+      next[i] = { ...mob, behavior: next[i].behavior };
+      return { devMobs: next };
+    }),
+
+  updateDevMobBehavior: (id, patch) =>
+    set((s) => ({
+      devMobs: s.devMobs.map((m) => (m.id === id ? { ...m, behavior: { ...m.behavior, ...patch } } : m)),
+    })),
+
+  removeDevMob: (id) => set((s) => ({ devMobs: s.devMobs.filter((m) => m.id !== id) })),
   setPackIconDataUrl: (url)  => set({ packIconDataUrl: url }),
   addBlock:    (block)        => set((s) => ({ blocks: [...s.blocks, block] })),
   removeBlock: (id)           => set((s) => ({

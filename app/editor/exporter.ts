@@ -2,6 +2,7 @@ import JSZip from "jszip";
 import type { EditorState } from "./store";
 import type { CBlock } from "./_types";
 import { buildJavaModEventHandler } from "../../lib/codegenJava";
+import { mobsToBedrock } from "../../lib/devtab/toBedrock";
 
 /* ═══════════════════════════════════════════
    悪用防止の注意喚起（生成物に必ず同梱）
@@ -258,6 +259,9 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
   const bpModuleUuid = uuid();
   const rpModuleUuid = uuid();
 
+  // デベロッパータブのモブを先に組み立てておく。fillBP / fillRP の両方から使う
+  const mobFiles = mobsToBedrock(state.devMobs ?? []);
+
   // state.mcVersion から min_engine_version を導出
   let minEngineVersion = [1, 20, 10];
   switch (state.mcVersion) {
@@ -338,6 +342,12 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
     bp.file("NOTICE.txt", NOTICE_TEXT);
 
     bp.file("pack_icon.png", iconBytes);
+
+    // デベロッパータブで取り込んだモブ（entities / loot_tables / spawn_rules）。
+    // 中身の組み立ては lib/devtab/toBedrock.ts にあり、ここは配るだけ
+    for (const f of mobFiles.bp) {
+      if (f.text !== undefined) bp.file(f.path, f.text);
+    }
 
     for (const block of state.blocks) {
       const bn = sanitizeBlockName(block.name); // zip入口パス/識別子の安全化（path traversal防止）
@@ -434,8 +444,17 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
         return `tile.cubicengine:${bn}.name=${disp}`;
       })
       .join("\n");
-    rp.file("texts/en_US.lang", langLines + "\n");
+    // モブの表示名もここに混ぜる。lang ファイルは1つしか置けないので、
+    // ブロックの行と一緒にしないとモブ名が識別子のまま出てしまう
+    const allLangLines = [langLines, ...mobFiles.langLines].filter(Boolean).join("\n");
+    rp.file("texts/en_US.lang", allLangLines + "\n");
     rp.file("texts/languages.json", JSON.stringify(["en_US"], null, 2));
+
+    // モブの見た目（client_entity / geometry / texture）
+    for (const f of mobFiles.rp) {
+      if (f.text !== undefined) rp.file(f.path, f.text);
+      else if (f.dataUrl) rp.file(f.path, await dataUrlToBytes(f.dataUrl));
+    }
 
     for (const block of state.blocks) {
       const bn = sanitizeBlockName(block.name);

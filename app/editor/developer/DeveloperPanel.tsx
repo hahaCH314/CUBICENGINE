@@ -12,18 +12,21 @@
  *   Worker からも同じものを呼べる。
  */
 
-import { useState } from "react";
 import ModelImport from "./ModelImport";
-import type { MobIR } from "../../../lib/devtab/ir";
+import MobBuilder from "./MobBuilder";
+import { useEditorStore } from "../store";
 import { getAiAdapter } from "../../../lib/devtab/ai";
 
 export default function DeveloperPanel() {
-  const [ir, setIr] = useState<MobIR | null>(null);
+  // 取り込んだモブは store に置く。exporter が書き出し時にここを見るので、
+  // タブを離れても、ページ内の他の操作をしても設定が消えない
+  const mobs = useEditorStore(s => s.devMobs);
+  const upsert = useEditorStore(s => s.upsertDevMob);
   const ai = getAiAdapter();
 
   return (
     <div className="h-full flex flex-col">
-      <div className="px-5 pt-4 pb-2 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+      <div className="px-5 pt-4 pb-2 border-b shrink-0" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
         <div className="flex items-center gap-2">
           <span className="text-lg">🛠</span>
           <h1 className="font-black tracking-tight">デベロッパー</h1>
@@ -35,25 +38,30 @@ export default function DeveloperPanel() {
           </span>
         </div>
         <p className="text-[11px] text-muted/60 mt-1">
-          自分で作った3Dモデルを取り込んで、モブとして動かすための画面です。
+          自分で作った3Dモデルを取り込んで、マイクラで動くモブにします。
         </p>
       </div>
 
-      <div className="flex-1 overflow-hidden">
-        <ModelImport onLoaded={setIr} />
+      <div className="flex-1 overflow-auto">
+        <ModelImport onLoaded={upsert} />
+
+        {mobs.length > 0 && (
+          <div className="px-5 pb-6 flex flex-col gap-5">
+            {mobs.map(m => (
+              <div
+                key={m.id}
+                className="rounded-xl p-4"
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)" }}
+              >
+                <MobBuilder mob={m} />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* 次に何ができるようになるかを出しておく。押せない機能をタブとして並べるより、
-          いま何が使えて何が使えないかがはっきりする */}
-      <div className="px-5 py-3 border-t text-[11px] text-muted/50" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-        {ir ? (
-          <>
-            <b className="text-muted/80">{ir.displayName}</b> を読み込み済み。
-            次の段階で、挙動・アニメ・ドロップ品・スポーン条件を設定できるようになります。
-          </>
-        ) : (
-          <>モデルを読み込むと、ここに次の手順が出ます。</>
-        )}
+      <div className="px-5 py-2 border-t text-[11px] text-muted/50 shrink-0" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+        {mobs.length > 0 ? <>モブ {mobs.length} 体を書き出しに含めます。</> : <>モデルを読み込むと、ここで設定できます。</>}
         {!ai.ready && <>　／　自作AI連携: {ai.reason}</>}
       </div>
     </div>
