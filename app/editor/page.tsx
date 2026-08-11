@@ -14,7 +14,7 @@ import LaunchPanel from "./LaunchPanel";
 const ModelPanel   = dynamic(() => import("./ModelPanel"),   { ssr: false });  // Three.js は SSR 不可のため dynamic 維持
 
 /* ─── Types ─── */
-type Tab = "logic" | "model" | "settings" | "launcher";
+type Tab = "logic" | "model" | "developer" | "settings" | "launcher";
 type MenuKey = "file" | "edit" | "view";
 
 interface MenuItem {
@@ -123,6 +123,14 @@ const tabConfig: { key: Tab; label: string; color: string; icon: string }[] = [
     icon: "📦",
   },
   {
+    // 上級者向け。既存のタブより後ろに置く。初めての人の導線（ロジック→モデル→マイクラへ）を
+    // 割り込まないようにするため、「マイクラへ」の手前ではなく後ろに並べている
+    key: "developer",
+    label: "デベロッパー",
+    color: "#a78bfa",
+    icon: "🛠",
+  },
+  {
     key: "settings",
     label: "マイクラへ",
     color: "#3cd070",
@@ -185,6 +193,11 @@ function MenuDropdown({
 
 /* ─── Settings Panel ─── */
 const SettingsPanel = dynamic(() => import("./SettingsPanel"), { ssr: false });
+
+/* ─── Developer Panel ───
+   File API と Web Worker を使うのでブラウザ限定。ssr:false で読み込む。
+   dynamic にしておくと、デベロッパータブを開くまで読み込まれない＝初回表示が重くならない。 */
+const DeveloperPanel = dynamic(() => import("./developer/DeveloperPanel"), { ssr: false });
 
 /* ─── ログインボタン（右上） ─── */
 function EditorAuthButton() {
@@ -376,6 +389,14 @@ export default function EditorPage() {
       <div className="flex-1 overflow-hidden relative" style={{ display: activeTab === "model" ? "block" : "none" }}>
         <ModelPanel />
       </div>
+      {/* 開いたときだけマウントする。モデル取り込みは状態を持たないので、
+          他のタブと違って常時マウントしておく必要がない */}
+      {activeTab === "developer" && (
+        <div className="flex-1 overflow-hidden relative">
+          <DeveloperPanel />
+        </div>
+      )}
+
       <div className="flex-1 overflow-hidden relative" style={{ display: activeTab === "settings" ? "block" : "none" }}>
         <SettingsPanel />
       </div>
