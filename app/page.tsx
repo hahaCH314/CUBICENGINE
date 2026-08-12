@@ -241,7 +241,16 @@ const RELEASES_READY = false;
 // SPROUT_editor.exe へのリンクまで出て 404 になる。版ごとに分けている。
 // ⚠️ GitHub Releases に GROVE_editor.exe を公開してから true にすること。
 // 2026-07-30: v0.1.0 として公開済み。DLリンクの疎通も確認済み。
-const GROVE_EXE_READY = true;
+//
+// 2026-08-10 に false へ戻した。**配布中の v0.1.0 が壊れているため。**
+//   ・exe が素の electron.exe より約170KB小さく、起動した瞬間に 0x80000003 で落ちる
+//   ・仮に起動できても Next 16 の cwd 問題で全リクエストが 500（d65675ad で修正済み）
+// 疎通確認（リンクが200を返すか）は通ってしまうので、それだけでは気づけない。
+//
+// ⚠️ true に戻す前に必ず: タグを打って CI でビルドし直し、
+//    Releases の .exe を実際にインストールして起動するところまで確認すること。
+//    CI には「実際に起動して 127.0.0.1:3200 が 200 を返すか」の検査を入れてある。
+const GROVE_EXE_READY = false;
 
 // 配布中の GROVE_editor.exe の SHA-256。GitHub Releases が公表している digest と
 // ダウンロードした実物のハッシュが一致することを確認済み(2026-08-09)。
@@ -263,7 +272,12 @@ const SPROUT_READY = true;
 //   ・生成された ModEventHandler.java にロジックが入っている（イベント数 N=1）
 //   ・gradlew build が BUILD SUCCESSFUL で .jar を生成する
 //   の2点を確認できたため。止めていた理由は解消済み。
-const JAVA_READY = true;
+//
+// 2026-08-10 に false へ戻した。このカードのリンク先も GROVE_editor.exe で、
+// GROVE_EXE_READY と同じ壊れた配布物を指している。片方だけ止めても
+// もう片方から落とせてしまうので、両方を同時に閉じる。
+// 戻すときも両方まとめて。理由は GROVE_EXE_READY のコメントを見ること。
+const JAVA_READY = false;
 
 // DLボタン：リリース公開済みなら実DL、未公開なら「準備中」の非リンク表示
 function DlButton({
