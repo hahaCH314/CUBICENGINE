@@ -3,6 +3,7 @@ import type { EditorState } from "./store";
 import type { CBlock } from "./_types";
 import { buildJavaModEventHandler } from "../../lib/codegenJava";
 import { mobsToBedrock } from "../../lib/devtab/toBedrock";
+import { isCapacitor } from "../../lib/platform";
 
 /* ═══════════════════════════════════════════
    悪用防止の注意喚起（生成物に必ず同梱）
@@ -131,10 +132,66 @@ function uuid(): string {
 /* ═══════════════════════════════════════════
    Download Helper
    ═══════════════════════════════════════════ */
+/**
+ * Android(Capacitor)版の書き出し。
+ *
+ * WebView の中では `<a download>` が無視され、`navigator.share` も files 付きだと
+ * 動かないため、Web と同じ経路では「押しても何も起きない」ことになる。
+ * アドオンの書き出しはこのアプリの中核なので、ネイティブ経路を用意する。
+ *
+ * 手順: Cache に一旦ファイルとして書く → その file:// を共有シートへ渡す。
+ *  - Cache を使うのは、Documents/ExternalStorage が Android 10+ で権限を要求するため。
+ *    OSが自動で掃除してくれるので後始末も不要。
+ *  - 共有シート経由なので、ユーザーは Minecraft を直接選んでインポートできる。
+ */
+export async function saveViaCapacitor(blob: Blob, filename: string): Promise<boolean> {
+  const { Filesystem, Directory } = await import("@capacitor/filesystem");
+  const { Share } = await import("@capacitor/share");
+
+  // Filesystem は base64 文字列しか受け取れないので Blob を変換する。
+  // FileReader の result は "data:...;base64,XXXX" 形式なのでカンマ以降を取り出す。
+  const base64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error);
+    reader.onload = () => {
+      const s = String(reader.result);
+      resolve(s.slice(s.indexOf(",") + 1));
+    };
+    reader.readAsDataURL(blob);
+  });
+
+  const { uri } = await Filesystem.writeFile({
+    path: filename,
+    data: base64,
+    directory: Directory.Cache,
+  });
+
+  try {
+    await Share.share({
+      title: filename,
+      text: "Minecraftで開いてインポートしてね！",
+      files: [uri],
+    });
+    return true;
+  } catch (e: unknown) {
+    // 共有シートを閉じただけ(キャンセル)は失敗ではない。
+    // ファイルは Cache に残っているので、端末のファイルアプリからも開ける。
+    const msg = e instanceof Error ? e.message : String(e);
+    if (/cancel/i.test(msg)) return true;
+    throw e;
+  }
+}
+
 async function downloadBlob(blob: Blob, filename: string): Promise<boolean> {
   // スマホ等で .mcaddon が勝手に .zip に書き換えられるのを防ぐため、
   // MIME type を強制的に application/octet-stream にする。
   const safeBlob = new Blob([blob], { type: "application/octet-stream" });
+
+  // Android(Capacitor)版はネイティブのファイル保存＋共有を使う。
+  // ここを通さないと WebView では書き出しが無反応になる。
+  if (isCapacitor()) {
+    return await saveViaCapacitor(safeBlob, filename);
+  }
 
   // モバイル端末（スマホ・タブレット）向けのネイティブ共有（シェアシート）を優先
   // PC（Mac, Windows等）ではシェアAPIを使わずそのままダウンロードさせる

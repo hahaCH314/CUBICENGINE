@@ -1,27 +1,22 @@
 import type { NextConfig } from "next";
+// CSP の中身は lib/csp.ts に集約（Android版は layout.tsx が <meta> で埋め込むため、
+// 2箇所に同じ内容を書くと片方だけ直して食い違う事故が起きる）。
+import { buildCsp } from "./lib/csp";
 
-// Blockly and Three.js require unsafe-inline/unsafe-eval for shader compilation
-// and dynamic block code generation, so strict script-src is not possible.
-// The directives below still meaningfully restrict external resource loading
-// and eliminate clickjacking, base-tag injection, and cross-origin data leaks.
-const CSP = [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "font-src 'self' data:",
-  "connect-src 'self'",
-  // 紹介動画は youtube-nocookie のみ（app/page.tsx）。www.youtube.com は追跡Cookieを置くので
-  // プライバシーポリシーと矛盾しないよう許可しない。
-  "frame-src 'self' https://www.youtube-nocookie.com/",
-  "worker-src 'self' blob:",
-  "object-src 'none'",
-  "frame-ancestors 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-].join("; ");
+const CSP = buildCsp("web");
+
+// Android(Capacitor)版は out/ を丸ごと .aab に同梱するので静的エクスポートで書き出す。
+// MMC_TARGET=android のときだけ有効にし、Web版(Vercel)のビルドには一切影響させない。
+//  - headers() は静的エクスポートでは無視される（サーバーが居ないため）。
+//    CSP は Capacitor 側 + <meta> で担保する。ここで外さないとビルドが警告で汚れる。
+//  - trailingSlash: file:// 由来の WebView から /editor を開くと拡張子無しのパスは
+//    解決できないので、/editor/index.html になるディレクトリ形式で出す。
+const isAndroid = process.env.MMC_TARGET === "android";
 
 const nextConfig: NextConfig = {
+  ...(isAndroid
+    ? { output: "export" as const, trailingSlash: true, images: { unoptimized: true } }
+    : {}),
   // 開発中にトンネル(cloudflared 等)経由で動作確認/共有するため、dev リソースへの
   // クロスオリジン要求を許可する。ワイルドカードでサブドメインも許可（毎回URLが変わるため）。
   // 本番(next build)には影響しない dev 専用設定。
@@ -43,6 +38,9 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
+  // 静的エクスポート(Android版)ではサーバーが居ないので headers() は無視される。
+  // 付けたまま build すると「使えない設定」として警告が出るだけなので android では外す。
+  ...(isAndroid ? {} : {
   async headers() {
     return [
       {
@@ -65,6 +63,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  }),
 };
 
 export default nextConfig;

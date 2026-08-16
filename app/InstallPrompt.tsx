@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { isNativeShell } from '../lib/platform'
 
 /**
  * Web版からスマホアプリ（ホーム画面に追加＝PWA）への誘導バナー。
@@ -14,6 +15,9 @@ export default function InstallPrompt() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return
+    // ストア配布のガワ(Capacitor/Electron)の中では出さない。
+    // 既にアプリとして入っているのに「ホーム画面に追加」を勧めることになる。
+    if (isNativeShell()) return
     // 既にアプリとして起動中なら出さない
     const standalone =
       window.matchMedia?.('(display-mode: standalone)').matches ||

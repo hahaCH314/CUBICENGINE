@@ -30,6 +30,7 @@ export const DICT: Record<string, Entry> = {
   "founder.name":     { ja: "なっとうサイダー", en: "Nattō Cider" },
   "founder.role":     { ja: "つくった人", en: "Creator" },
   "founder.follow":   { ja: "活動を見る・つながる", en: "Follow along & say hi" },
+  "studio.follow":    { ja: "CUBICENGINEstudio 公式SNS", en: "CUBICENGINEstudio Official" },
   "founder.intro1":   { ja: "このアプリでアホほどダイヤ出せます\n作る楽しさを\nくだらないことで一緒に笑える仲間へ届きますように(o^―^o)ﾆｺ", en: "This app lets you spawn a ridiculous amount of diamonds.\nMay the joy of making things reach\nfriends I can laugh with over the silliest stuff (o^―^o)" },
   "founder.intro2":   { ja: "ずっと学校に行けなかった\n苦しい地獄の時間だった\nでもね、作る楽しさに出会えて\n僕は１歩踏み出せた", en: "For a long time I couldn't go to school.\nIt was a painful, hellish time.\nBut then I found the joy of making things,\nand I took my first step forward." },
   // 2枚のカードの前に置く"向き先"の問い（独自名SPROUT/GROVEの前に初見を迷わせない）

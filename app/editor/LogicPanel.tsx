@@ -13,6 +13,8 @@ import { BW, BH, GAP, SNAP, BASE_ZOOM } from "./_constants";
 import { CAT, CAT_WORKSHOP } from "../../data/categories";
 import { TEMPLATES, CALC_SUBTABS, getCalcSubCat } from "../../data/templates";
 import { PRESET_TEMPLATES, type PresetTemplate } from "../../lib/presetTemplates";
+import { isCapacitor } from "../../lib/platform";
+import { saveViaCapacitor } from "./exporter";
 import HowToInstallModal from "./HowToInstallModal";
 import TutorialOverlay from "./TutorialOverlay";
 import ShareDialog from "./ShareDialog";
@@ -1561,12 +1563,27 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
     setProjects(Object.values(stored).map(p => ({ name: p.name, savedAt: p.savedAt })));
   };
 
-  const exportJson = () => {
+  const exportJson = async () => {
     // エクスポート(.mcaddon)とは別の「作品データ」保存。独自拡張子 .cubic（中身はJSON）。
     const data = JSON.stringify({ app: "cubicengine", kind: "logic", name: saveName, blocks, version: "2.0" }, null, 2);
-    const url = URL.createObjectURL(new Blob([data], { type: "application/octet-stream" }));
+    const blob = new Blob([data], { type: "application/octet-stream" });
+    const filename = `${saveName.replace(/\s+/g, "_")}.cubic`;
+
+    // Android(Capacitor)では <a download> が効かない。Webと同じ経路のままだと
+    // 何も保存されないのに「保存しました！」と出てしまうため、ネイティブ経路へ回す。
+    if (isCapacitor()) {
+      try {
+        await saveViaCapacitor(blob, filename);
+        flash("💾 .cubic で保存しました！");
+      } catch {
+        flash("⚠️ 保存できませんでした");
+      }
+      return;
+    }
+
+    const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = `${saveName.replace(/\s+/g, "_")}.cubic`; a.click();
+    a.href = url; a.download = filename; a.click();
     URL.revokeObjectURL(url);
     flash("💾 .cubic で保存しました！");
   };

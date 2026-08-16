@@ -870,36 +870,37 @@ export default function HomePage() {
               </span>
             </div>
 
-            {/* つながる先 */}
-            <div className="mt-auto pt-4 border-t border-white/5">
-              <p className="text-[10px] text-muted/60 font-sans tracking-wide mb-2.5">{t(locale, "founder.follow")}</p>
-              <div className="flex flex-wrap items-center gap-2">
-                <a
-                  href="https://www.instagram.com/cubic_engine"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[10px] font-bold transition-all border border-[#e1306c]/40 bg-[#1e1e1a] text-[#f472b6] hover:border-[#e1306c] hover:bg-[#e1306c] hover:text-white hover:shadow-[0_0_12px_rgba(225,48,108,0.25)] hover:scale-[1.04]"
-                >
-                  📷 Instagram
-                </a>
-                <a
-                  href="https://www.youtube.com/channel/UCLFDpyaWesF8TiuYBD5B49w"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[10px] font-bold transition-all border border-[#ff0000]/40 bg-[#1e1e1a] text-[#f87171] hover:border-[#ff0000] hover:bg-[#ff0000] hover:text-white hover:shadow-[0_0_12px_rgba(255,0,0,0.25)] hover:scale-[1.04]"
-                >
-                  ▶️ YouTube
-                </a>
-                <a
-                  href="https://discord.gg/Hm82tUUY8g"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[10px] font-bold transition-all border border-[#5865F2]/40 bg-[#1e1e1a] text-[#818cf8] hover:border-[#5865F2] hover:bg-[#5865F2] hover:text-white hover:shadow-[0_0_12px_rgba(88,101,242,0.25)] hover:scale-[1.04]"
-                >
-                  💬 Discord
-                </a>
-              </div>
-            </div>
+          </div>
+        </div>
+
+        {/* 公式SNS */}
+        <div className="flex flex-col items-center gap-2 sm:gap-3 mt-4 mb-8">
+          <p className="text-[10px] sm:text-[11px] font-pixel tracking-widest text-muted/70">{t(locale, "studio.follow")}</p>
+          <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3">
+            <a
+              href="https://www.instagram.com/cubic_engine"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-[10px] sm:text-[11px] font-bold transition-all border border-[#e1306c]/40 bg-[#1e1e1a]/80 text-[#f472b6] hover:border-[#e1306c] hover:bg-[#e1306c] hover:text-white hover:shadow-[0_0_15px_rgba(225,48,108,0.3)] hover:-translate-y-0.5"
+            >
+              📷 Instagram
+            </a>
+            <a
+              href="https://www.youtube.com/channel/UCLFDpyaWesF8TiuYBD5B49w"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-[10px] sm:text-[11px] font-bold transition-all border border-[#ff0000]/40 bg-[#1e1e1a]/80 text-[#f87171] hover:border-[#ff0000] hover:bg-[#ff0000] hover:text-white hover:shadow-[0_0_15px_rgba(255,0,0,0.3)] hover:-translate-y-0.5"
+            >
+              ▶️ YouTube
+            </a>
+            <a
+              href="https://discord.gg/Hm82tUUY8g"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-[10px] sm:text-[11px] font-bold transition-all border border-[#5865F2]/40 bg-[#1e1e1a]/80 text-[#818cf8] hover:border-[#5865F2] hover:bg-[#5865F2] hover:text-white hover:shadow-[0_0_15px_rgba(88,101,242,0.3)] hover:-translate-y-0.5"
+            >
+              💬 Discord
+            </a>
           </div>
         </div>
 

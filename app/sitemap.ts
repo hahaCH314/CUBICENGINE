@@ -2,6 +2,9 @@ import type { MetadataRoute } from "next";
 import { SITE_URL } from "../lib/site";
 import { RECIPES } from "../data/recipes";
 
+// Android版(output: 'export')ではビルド時に静的ファイルとして書き出す必要がある。
+export const dynamic = "force-static";
+
 // /sitemap.xml を生成。検索エンジンに主要ページを伝える。
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

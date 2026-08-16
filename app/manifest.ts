@@ -1,5 +1,9 @@
 import { MetadataRoute } from 'next'
 
+// Android版(output: 'export')ではビルド時に静的ファイルとして書き出す必要がある。
+// これが無いと「force-static が未設定」で静的エクスポートが失敗する。
+export const dynamic = 'force-static'
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'CUBICENGINEstudio',

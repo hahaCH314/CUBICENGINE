@@ -30,5 +30,12 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    // ビルド生成物。中身は元ソースのコピーなので型検査しても意味がなく、
+    // バンドル後のworkerが相対importを解決できず偽のエラーになる。
+    "out",
+    "android",
+    "dist-exe"
+  ]
 }

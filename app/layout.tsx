@@ -5,6 +5,13 @@ import ServiceWorkerRegistration from "./ServiceWorkerRegistration";
 import InstallPrompt from "./InstallPrompt";
 import WebAnalytics from "./WebAnalytics";
 import { SITE_URL } from "../lib/site";
+import { buildCsp } from "../lib/csp";
+
+// Android(Capacitor)版は静的エクスポートなので next.config.ts の headers() が効かない。
+// CSP をHTTPヘッダで送れないため、<meta http-equiv> として埋め込む。
+// Web版(Vercel)はヘッダで送るのでこの meta は出さない（二重指定は両方の AND になり、
+// 意図せず厳しくなって事故る）。
+const ANDROID_CSP = process.env.MMC_TARGET === "android" ? buildCsp("android") : null;
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -102,6 +109,11 @@ export default function RootLayout({
       lang="ja"
       className={`${geistSans.variable} ${geistMono.variable} ${pressStart.variable} ${rounded.variable} ${outfit.variable} ${nunito.variable} h-full antialiased`}
     >
+      {ANDROID_CSP && (
+        <head>
+          <meta httpEquiv="Content-Security-Policy" content={ANDROID_CSP} />
+        </head>
+      )}
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ServiceWorkerRegistration />
         <InstallPrompt />

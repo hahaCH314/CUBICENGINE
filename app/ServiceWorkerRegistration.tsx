@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { isNativeShell } from '../lib/platform'
 
 /**
  * Service Worker を登録し、新しいバージョンが出たら自動で最新に切り替える。
@@ -16,9 +17,13 @@ export default function ServiceWorkerRegistration() {
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return
 
-    // Electron(デスクトップ)ではSWを使わない。SWが _next/HMR を横取りして
-    // ERR_INVALID_HTTP_RESPONSE / ハイドレート停止(LOADINGのまま)を起こす。SWはWeb PWA専用。
-    if ((window as any).electronAPI?.isElectron) {
+    // ストア配布のガワ(Electron/Capacitor)ではSWを使わない。SWはWeb PWA専用。
+    //  - Electron: SWが _next/HMR を横取りして ERR_INVALID_HTTP_RESPONSE /
+    //    ハイドレート停止(LOADINGのまま)を起こす。
+    //  - Capacitor(Android): アプリ内にHTML/JSを丸ごと同梱しているのでキャッシュは不要。
+    //    むしろ network-first のSWが挟まると、オフライン時に毎回ネットワーク失敗を
+    //    経由してから復帰することになり、同梱版の利点を消してしまう。
+    if (isNativeShell()) {
       navigator.serviceWorker.getRegistrations()
         .then((rs) => rs.forEach((r) => r.unregister())).catch(() => {})
       return

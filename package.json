@@ -19,9 +19,17 @@
     "build:grove:mac": "cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE next build && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE electron-builder --mac --config.appId=com.cubicengine.grove --config.extraMetadata.mmcEdition=grove",
     "build:all:win": "npm run build:sprout:win && npm run build:grove:win",
     "build:all:mac": "npm run build:sprout:mac && npm run build:grove:mac",
-    "build:all": "npm run build:all:win && npm run build:all:mac"
+    "build:all": "npm run build:all:win && npm run build:all:mac",
+    "android:build": "cross-env MMC_TARGET=android next build && cap sync android",
+    "android:apk": "npm run android:build && cd android && gradlew.bat assembleDebug",
+    "android:aab": "npm run android:build && cd android && gradlew.bat bundleRelease",
+    "android:open": "cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/filesystem": "^8.1.2",
+    "@capacitor/share": "^8.0.1",
     "@types/three": "^0.184.0",
     "@vercel/analytics": "^2.0.1",
     "jszip": "^3.10.1",
@@ -33,6 +41,7 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.5.0",
     "@electron/packager": "^20.0.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
