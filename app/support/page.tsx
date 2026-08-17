@@ -161,14 +161,13 @@ export default function SupportPage() {
         {/* お知らせ・連絡（非公式 / Discord は1行、返金不可はその下の行へ） */}
         <div className="mt-8 space-y-1.5 text-xs text-gray-400 leading-relaxed">
           <p>
+            {/* ⚠️ **窓口はメール**（2026-08-17）。Discord は誰もいない */}
             感想・バグ報告は{" "}
             <a
-              href="https://discord.gg/Hm82tUUY8g"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="mailto:syunpoo419@gmail.com"
               className="underline underline-offset-2 hover:text-emerald-500 text-gray-500 transition-colors"
             >
-              Discord
+              メール
             </a>
             {" "}へ ・ <span className="whitespace-nowrap">本ツールは非公式（Mojang Studios・Microsoft とは無関係）</span>
           </p>

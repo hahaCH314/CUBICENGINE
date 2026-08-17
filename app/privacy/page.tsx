@@ -82,14 +82,15 @@ export default function PrivacyPage() {
 
         <Section title="6. お問い合わせ">
           <p>
-            本ポリシーに関するお問い合わせは、公式{" "}
+            {/* ⚠️ **問い合わせ先はメールにする**（2026-08-17）。
+                Discord は誰もいないサーバーなので、窓口として書くと
+                実質連絡が取れない。ポリシーの窓口は必ず届く先を書くこと */}
+            本ポリシーに関するお問い合わせは{" "}
             <a
-              href="https://discord.gg/Hm82tUUY8g"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="mailto:syunpoo419@gmail.com"
               className="underline underline-offset-2 hover:text-foreground transition-colors"
             >
-              Discord
+              syunpoo419@gmail.com
             </a>
             {" "}までお願いします。
           </p>

@@ -93,14 +93,14 @@ export default function TermsPage() {
 
         <Section title="10. お問い合わせ">
           <p>
-            本規約に関するお問い合わせは、公式{" "}
+            {/* ⚠️ **窓口は必ず届く先を書く**（2026-08-17）。Discord は
+                誰もいないサーバーなので、規約の窓口としては成り立たない */}
+            本規約に関するお問い合わせは{" "}
             <a
-              href="https://discord.gg/Hm82tUUY8g"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="mailto:syunpoo419@gmail.com"
               className="underline underline-offset-2 hover:text-foreground transition-colors"
             >
-              Discord
+              syunpoo419@gmail.com
             </a>
             {" "}までお願いします。
           </p>

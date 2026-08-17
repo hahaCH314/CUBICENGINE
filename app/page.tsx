@@ -877,29 +877,21 @@ export default function HomePage() {
         <div className="flex flex-col items-center gap-2 sm:gap-3 mt-4 mb-8">
           <p className="text-[10px] sm:text-[11px] font-pixel tracking-widest text-muted/70">{t(locale, "studio.follow")}</p>
           <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3">
+            {/* ⚠️ **SNS への直リンクは置かない**（2026-08-17、伊波さん
+                「ここはもう会社のだから切り離して欲しい」）。
+                会社HP が唯一のハブで、そこのフッターに Instagram / TikTok /
+                X / YouTube が並んでいる。ここから個別に飛ばすと、
+                　- 会社の公式（cubicenginestudio）と古い個人アカウント
+                　  （cubic_engine）が混ざる
+                　- Discord は誰もいないサーバーなので、招くと逆効果
+                という二つの問題が出る。**ハブ1つへ送るだけにする。** */}
             <a
-              href="https://www.instagram.com/cubic_engine"
+              href="https://cubicenginestudio.vercel.app/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-[10px] sm:text-[11px] font-bold transition-all border border-[#e1306c]/40 bg-[#1e1e1a]/80 text-[#f472b6] hover:border-[#e1306c] hover:bg-[#e1306c] hover:text-white hover:shadow-[0_0_15px_rgba(225,48,108,0.3)] hover:-translate-y-0.5"
+              className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-[10px] sm:text-[11px] font-bold transition-all border border-[#22d3ee]/40 bg-[#1e1e1a]/80 text-[#67e8f9] hover:border-[#22d3ee] hover:bg-[#22d3ee] hover:text-[#0b0b09] hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] hover:-translate-y-0.5"
             >
-              📷 Instagram
-            </a>
-            <a
-              href="https://www.youtube.com/channel/UCLFDpyaWesF8TiuYBD5B49w"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-[10px] sm:text-[11px] font-bold transition-all border border-[#ff0000]/40 bg-[#1e1e1a]/80 text-[#f87171] hover:border-[#ff0000] hover:bg-[#ff0000] hover:text-white hover:shadow-[0_0_15px_rgba(255,0,0,0.3)] hover:-translate-y-0.5"
-            >
-              ▶️ YouTube
-            </a>
-            <a
-              href="https://discord.gg/Hm82tUUY8g"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-[10px] sm:text-[11px] font-bold transition-all border border-[#5865F2]/40 bg-[#1e1e1a]/80 text-[#818cf8] hover:border-[#5865F2] hover:bg-[#5865F2] hover:text-white hover:shadow-[0_0_15px_rgba(88,101,242,0.3)] hover:-translate-y-0.5"
-            >
-              💬 Discord
+              🏠 CUBICENGINEstudio
             </a>
           </div>
         </div>
