@@ -12,9 +12,10 @@
  *   Worker からも同じものを呼べる。
  */
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import ModelImport from "./ModelImport";
 import MobBuilder from "./MobBuilder";
+import ItemBuilder from "./ItemBuilder";
 import { useEditorStore } from "../store";
 import { getAiAdapter } from "../../../lib/devtab/ai";
 import type { MobIR } from "../../../lib/devtab/ir";
@@ -26,6 +27,10 @@ export default function DeveloperPanel() {
   const upsert = useEditorStore(s => s.upsertDevMob);
   const ai = getAiAdapter();
   const mobsRef = useRef<HTMLDivElement>(null);
+  // モブとアイテムは作るものが全く違うので画面を分ける。
+  // 1画面に混ぜると、どちらを作っているのか分からなくなる
+  const [mode, setMode] = useState<"mob" | "item">("mob");
+  const itemCount = useEditorStore(s => s.devItems.length);
 
   // 取り込んだ直後に、下に出たモブの設定まで送る。
   // 取り込み画面は縦に大きいので、放っておくと結果が画面外のままになり
@@ -58,7 +63,25 @@ export default function DeveloperPanel() {
         </p>
       </div>
 
+      <div className="flex gap-1 px-5 pt-3 shrink-0">
+        {([["mob", "🧟 モブ"], ["item", "🍎 アイテム"]] as const).map(([k, label]) => (
+          <button
+            key={k}
+            onClick={() => setMode(k)}
+            className="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+            style={
+              mode === k
+                ? { background: "rgba(167,139,250,0.22)", color: "#ddd6fe" }
+                : { background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.55)" }
+            }
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       <div className="flex-1 overflow-auto">
+        {mode === "item" ? <ItemBuilder /> : <>
         <ModelImport onLoaded={handleLoaded} />
 
         {mobs.length > 0 && (
@@ -74,10 +97,13 @@ export default function DeveloperPanel() {
             ))}
           </div>
         )}
+        </>}
       </div>
 
       <div className="px-5 py-2 border-t text-[11px] text-muted/50 shrink-0" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-        {mobs.length > 0 ? <>モブ {mobs.length} 体を書き出しに含めます。</> : <>モデルを読み込むと、ここで設定できます。</>}
+        {mobs.length + itemCount > 0
+          ? <>書き出しに含めます: モブ {mobs.length} 体 ／ アイテム {itemCount} 個</>
+          : <>モデルや絵を読み込むと、ここで設定できます。</>}
         {!ai.ready && <>　／　自作AI連携: {ai.reason}</>}
       </div>
     </div>

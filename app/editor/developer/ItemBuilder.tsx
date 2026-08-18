@@ -1,0 +1,164 @@
+"use client";
+
+/**
+ * アイテムを作る画面。
+ *
+ * モブと違って3Dモデルは要らない。**絵を1枚入れて名前を付ければできる。**
+ * だから取り込みと設定を1つの画面にまとめている（モブのように分けると
+ * かえって手数が増える）。
+ */
+
+import { useCallback, useRef, useState } from "react";
+import { useEditorStore } from "../store";
+import { defaultFood, makeItem, validateItem, type ItemIR } from "../../../lib/devtab/itemIr";
+
+const numberCls = "w-24 px-2 py-1 rounded text-xs bg-black/40 border border-white/15";
+
+function ItemCard({ item }: { item: ItemIR }) {
+  const update = useEditorStore(s => s.updateDevItem);
+  const remove = useEditorStore(s => s.removeDevItem);
+  const problems = validateItem(item);
+  const food = item.food;
+
+  return (
+    <div className="rounded-xl p-4 flex flex-col gap-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)" }}>
+      <div className="flex items-center gap-3">
+        {/* ドット絵なので拡大時にぼかさない */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={item.iconDataUrl} alt="" width={48} height={48}
+          style={{ imageRendering: "pixelated", background: "rgba(0,0,0,0.4)", borderRadius: 6 }} />
+        <div className="flex-1">
+          <input
+            className="w-full px-2 py-1 rounded text-sm font-bold bg-black/40 border border-white/15"
+            value={item.displayName}
+            onChange={e => update(item.id, { displayName: e.target.value })}
+          />
+          <code className="text-[10px] text-muted/60">cubicengine:{item.id}</code>
+        </div>
+        <button onClick={() => remove(item.id)} className="text-[11px] px-2 py-1 rounded hover:bg-white/10 text-muted/70">
+          取り消す
+        </button>
+      </div>
+
+      <label className="flex items-center gap-3 text-xs">
+        <span className="w-32 shrink-0">重ねられる数<span className="block text-[10px] text-muted/50">1〜64</span></span>
+        <input type="number" min={1} max={64} className={numberCls}
+          value={item.maxStack}
+          onChange={e => update(item.id, { maxStack: Number(e.target.value) })} />
+      </label>
+
+      <label className="flex items-center gap-2 text-xs">
+        <input type="checkbox" checked={food !== null}
+          onChange={e => update(item.id, { food: e.target.checked ? defaultFood() : null })} />
+        食べられるようにする
+      </label>
+
+      {food && (
+        <div className="pl-5 flex flex-col gap-1.5">
+          <label className="flex items-center gap-3 text-xs">
+            <span className="w-32 shrink-0">回復する量<span className="block text-[10px] text-muted/50">肉半分＝1</span></span>
+            <input type="number" min={0} max={20} className={numberCls}
+              value={food.nutrition}
+              onChange={e => update(item.id, { food: { ...food, nutrition: Number(e.target.value) } })} />
+          </label>
+          <label className="flex items-center gap-3 text-xs">
+            <span className="w-32 shrink-0">腹持ち<span className="block text-[10px] text-muted/50">りんご0.3 肉0.8</span></span>
+            <input type="number" min={0} max={2} step={0.1} className={numberCls}
+              value={food.saturation}
+              onChange={e => update(item.id, { food: { ...food, saturation: Number(e.target.value) } })} />
+          </label>
+          <label className="flex items-center gap-3 text-xs">
+            <span className="w-32 shrink-0">食べる時間<span className="block text-[10px] text-muted/50">秒。ふつう1.6</span></span>
+            <input type="number" min={0.1} max={10} step={0.1} className={numberCls}
+              value={food.useDuration}
+              onChange={e => update(item.id, { food: { ...food, useDuration: Number(e.target.value) } })} />
+          </label>
+          <label className="flex items-center gap-2 text-xs">
+            <input type="checkbox" checked={food.canAlwaysEat}
+              onChange={e => update(item.id, { food: { ...food, canAlwaysEat: e.target.checked } })} />
+            お腹いっぱいでも食べられる（金のリンゴと同じ）
+          </label>
+        </div>
+      )}
+
+      {problems.length > 0 ? (
+        <div className="rounded-lg p-2.5 text-xs" style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.4)" }}>
+          <ul className="list-disc pl-4 space-y-0.5">{problems.map((p, i) => <li key={i}>{p}</li>)}</ul>
+        </div>
+      ) : (
+        <div className="rounded-lg p-2.5 text-xs" style={{ background: "rgba(60,208,112,0.10)", border: "1px solid rgba(60,208,112,0.35)" }}>
+          クリエイティブの持ち物に出ます。<code className="font-mono">/give @s cubicengine:{item.id}</code> でも出せます。
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function ItemBuilder() {
+  const items = useEditorStore(s => s.devItems);
+  const upsert = useEditorStore(s => s.upsertDevItem);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState("");
+
+  const add = useCallback(
+    async (file: File) => {
+      setError("");
+      try {
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const r = new FileReader();
+          r.onerror = () => reject(r.error);
+          r.onload = () => resolve(String(r.result));
+          r.readAsDataURL(file);
+        });
+        const name = file.name.replace(/\.(png|jpg|jpeg)$/i, "");
+        // 既存の id を渡して一意性を保証させる。渡さないと日本語名のアイテムが
+        // 全部 custom_item に潰れて上書きし合う
+        upsert(makeItem(name, dataUrl, items.map(x => x.id)));
+      } catch (e) {
+        setError(`画像を読めませんでした（${e instanceof Error ? e.message : String(e)}）`);
+      }
+    },
+    [items, upsert],
+  );
+
+  return (
+    <div className="flex flex-col gap-4 p-5">
+      <div>
+        <h2 className="text-lg font-bold">アイテムを作る</h2>
+        <p className="text-xs text-muted/70 mt-1">
+          絵を1枚入れるだけで作れます。<b>16×16</b> のPNGがおすすめです。
+        </p>
+      </div>
+
+      <div
+        onClick={() => fileRef.current?.click()}
+        onDragOver={e => e.preventDefault()}
+        onDrop={e => {
+          e.preventDefault();
+          const f = e.dataTransfer.files?.[0];
+          if (f) void add(f);
+        }}
+        className="rounded-xl border-2 border-dashed p-6 text-center cursor-pointer"
+        style={{ borderColor: "rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.02)" }}
+      >
+        <div className="text-2xl mb-1">🍎</div>
+        <div className="text-sm font-bold">アイテムの絵をここにドロップ</div>
+        <div className="text-[11px] text-muted/60 mt-1">クリックして選ぶこともできます</div>
+        <input ref={fileRef} type="file" accept="image/png,image/jpeg" className="hidden"
+          onChange={e => {
+            const f = e.target.files?.[0];
+            if (f) void add(f);
+            e.target.value = "";
+          }} />
+      </div>
+
+      {error && (
+        <div className="rounded-lg p-3 text-xs" style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.4)" }}>
+          {error}
+        </div>
+      )}
+
+      {items.map(it => <ItemCard key={it.id} item={it} />)}
+    </div>
+  );
+}

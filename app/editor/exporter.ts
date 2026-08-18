@@ -3,6 +3,7 @@ import type { EditorState } from "./store";
 import type { CBlock } from "./_types";
 import { buildJavaModEventHandler } from "../../lib/codegenJava";
 import { mobsToBedrock } from "../../lib/devtab/toBedrock";
+import { itemsToBedrock } from "../../lib/devtab/itemToBedrock";
 import { isCapacitor } from "../../lib/platform";
 
 /* ═══════════════════════════════════════════
@@ -318,6 +319,8 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
 
   // デベロッパータブのモブを先に組み立てておく。fillBP / fillRP の両方から使う
   const mobFiles = mobsToBedrock(state.devMobs ?? []);
+  // デベロッパータブのアイテム。モブとは別の配列なので別々に組み立てる
+  const itemFiles = itemsToBedrock(state.devItems ?? []);
 
   // state.mcVersion から min_engine_version を導出
   let minEngineVersion = [1, 20, 10];
@@ -402,7 +405,7 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
 
     // デベロッパータブで取り込んだモブ（entities / loot_tables / spawn_rules）。
     // 中身の組み立ては lib/devtab/toBedrock.ts にあり、ここは配るだけ
-    for (const f of mobFiles.bp) {
+    for (const f of [...mobFiles.bp, ...itemFiles.bp]) {
       if (f.text !== undefined) bp.file(f.path, f.text);
     }
 
@@ -503,12 +506,15 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
       .join("\n");
     // モブの表示名もここに混ぜる。lang ファイルは1つしか置けないので、
     // ブロックの行と一緒にしないとモブ名が識別子のまま出てしまう
-    const allLangLines = [langLines, ...mobFiles.langLines].filter(Boolean).join("\n");
+    // ⚠️ 新しく出力するものを足したら、ここにも lang を足すこと。
+    //    忘れるとゲーム内で item.cubicengine:xxx.name のような生のキーが表示される
+    //    （アイテム追加時に実際に忘れた）
+    const allLangLines = [langLines, ...mobFiles.langLines, ...itemFiles.langLines].filter(Boolean).join("\n");
     rp.file("texts/en_US.lang", allLangLines + "\n");
     rp.file("texts/languages.json", JSON.stringify(["en_US"], null, 2));
 
     // モブの見た目（client_entity / geometry / texture）
-    for (const f of mobFiles.rp) {
+    for (const f of [...mobFiles.rp, ...itemFiles.rp]) {
       if (f.text !== undefined) rp.file(f.path, f.text);
       else if (f.dataUrl) rp.file(f.path, await dataUrlToBytes(f.dataUrl));
     }
