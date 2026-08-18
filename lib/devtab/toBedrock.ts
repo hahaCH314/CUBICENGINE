@@ -238,6 +238,50 @@ function geometryJson(ir: MobIR): string {
   );
 }
 
+/** animation.<モブ名>.<動きの名前> が Bedrock 側の識別子になる */
+function animId(ir: MobIR, animName: string): string {
+  return `animation.${ir.id}.${animName}`;
+}
+
+/**
+ * キーフレームを Bedrock の形にする。
+ * Bedrock は **時刻を文字列キーにしたオブジェクト**で持つ（配列ではない）。
+ *   "rotation": { "0.0": [0,0,0], "0.5": [10,0,0] }
+ */
+function toBedrockChannel(frames: { time: number; value: [number, number, number] }[]) {
+  const out: Record<string, [number, number, number]> = {};
+  for (const f of frames) {
+    // 小数第4位で丸めてキーにする。丸めないと 0.30000000000000004 のような値が出る
+    const t = Math.round(f.time * 10000) / 10000;
+    // ⚠️ "0" や "1" のような整数に見えるキーは、JSONオブジェクトの中で
+    //    **先に昇順で並び替えられる**（JSの仕様）。そのため "0","1","0.5" の順になり、
+    //    時系列が崩れたファイルが出来上がる。小数点を必ず付けて配列添字と見なされないようにする
+    out[Number.isInteger(t) ? t.toFixed(1) : String(t)] = f.value;
+  }
+  return out;
+}
+
+function animationsJson(ir: MobIR): string {
+  const animations: Record<string, unknown> = {};
+  for (const a of ir.animations) {
+    const bones: Record<string, unknown> = {};
+    for (const b of a.bones) {
+      const ch: Record<string, unknown> = {};
+      if (b.rotation) ch.rotation = toBedrockChannel(b.rotation);
+      if (b.position) ch.position = toBedrockChannel(b.position);
+      if (b.scale) ch.scale = toBedrockChannel(b.scale);
+      bones[b.bone] = ch;
+    }
+    animations[animId(ir, a.name)] = {
+      loop: a.loop,
+      // 長さ 0 のまま出すと1フレームで終わって静止して見える。最低限の長さを与える
+      animation_length: a.length > 0 ? a.length : 1,
+      bones,
+    };
+  }
+  return JSON.stringify({ format_version: "1.8.0", animations }, null, 2);
+}
+
 function clientEntityJson(ir: MobIR): string {
   return JSON.stringify(
     {
@@ -250,6 +294,15 @@ function clientEntityJson(ir: MobIR): string {
           textures: { default: `textures/entity/${ir.id}` },
           geometry: { default: ir.geometry.identifier },
           render_controllers: ["controller.render.default"],
+          // 短い別名 → 実体の識別子。scripts.animate はこの別名で指す
+          ...(ir.animations.length > 0
+            ? {
+                animations: Object.fromEntries(ir.animations.map(a => [a.name, animId(ir, a.name)])),
+                // ループするものだけ自動再生する。1回きりのものを常時再生すると
+                // 先頭フレームで固まって、かえって不自然に見える
+                scripts: { animate: ir.animations.filter(a => a.loop).map(a => a.name) },
+              }
+            : {}),
         },
       },
     },
@@ -275,6 +328,9 @@ export function mobToBedrock(ir: MobIR): BedrockOutput {
     { path: `entity/${ir.id}.entity.json`, text: clientEntityJson(ir) },
     { path: `models/entity/${ir.id}.geo.json`, text: geometryJson(ir) },
   ];
+  if (ir.animations.length > 0) {
+    rp.push({ path: `animations/${ir.id}.animation.json`, text: animationsJson(ir) });
+  }
   // テクスチャが無くても出力は通る（真っ白になる）。取り込み時に警告済みなのでここでは止めない
   if (ir.textures[0]) {
     rp.push({ path: `textures/entity/${ir.id}.png`, dataUrl: ir.textures[0].dataUrl });

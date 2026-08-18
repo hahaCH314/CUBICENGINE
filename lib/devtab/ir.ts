@@ -59,6 +59,31 @@ export interface IRTexture {
   dataUrl: string;
 }
 
+/** キーフレーム1点。時刻(秒)と、その時点の値 */
+export interface IRKeyframe {
+  time: number;
+  value: Vec3;
+}
+
+/** ボーン1本ぶんの動き。使っていないチャンネルは持たない */
+export interface IRBoneAnimation {
+  /** ボーン名。geometry 側の IRBone.name と対応する */
+  bone: string;
+  rotation?: IRKeyframe[];
+  position?: IRKeyframe[];
+  scale?: IRKeyframe[];
+}
+
+export interface IRAnimation {
+  /** walk / idle など。識別子に使うので英数字と _ に寄せてある */
+  name: string;
+  /** 秒 */
+  length: number;
+  /** ループするか。しないものは1回で止まる */
+  loop: boolean;
+  bones: IRBoneAnimation[];
+}
+
 export interface IRGeometry {
   /** geometry.foo の識別子。出力時に使う */
   identifier: string;
@@ -110,6 +135,8 @@ export interface MobIR {
   displayName: string;
   geometry: IRGeometry;
   textures: IRTexture[];
+  /** Blockbench で付けた動き。無ければ空配列＝棒立ちのモブになる */
+  animations: IRAnimation[];
   behavior: IRBehavior;
 }
 

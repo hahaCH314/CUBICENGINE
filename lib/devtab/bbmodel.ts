@@ -35,8 +35,11 @@ import {
   irOk,
   toIdentifier,
   type FaceName,
+  type IRAnimation,
   type IRBone,
+  type IRBoneAnimation,
   type IRCube,
+  type IRKeyframe,
   type IRGeometry,
   type IRResult,
   type IRTexture,
@@ -163,6 +166,99 @@ function walkOutliner(
   }
 }
 
+/**
+ * bbmodel の animations を IR に変換する。
+ *
+ * bbmodel 側の形:
+ *   "animations": [
+ *     { "name": "walk", "loop": "loop"|"once"|"hold", "length": 1.0,
+ *       "animators": {
+ *         "<uuid>": { "name": "head", "type": "bone",
+ *           "keyframes": [ { "channel": "rotation", "time": 0,
+ *                            "data_points": [ { "x": 0, "y": 0, "z": 0 } ] } ] } } }
+ *   ]
+ *
+ * 注意:
+ *   - data_points の x/y/z は **文字列で入ることがある**（Blockbench が数式を許すため）。
+ *     数値化できないものは 0 にする。ここで NaN を通すと出力JSONが壊れて
+ *     マイクラ側が無言で読み込みを諦める
+ *   - animator は bone 以外（effect など）も入る。type を見て弾く
+ */
+function parseAnimations(raw: unknown, warnings: string[]): IRAnimation[] {
+  if (!Array.isArray(raw)) return [];
+  const out: IRAnimation[] = [];
+
+  const usedNames = new Set<string>();
+
+  for (const a of raw) {
+    if (!isObj(a)) continue;
+    const rawName = str(a.name, `anim_${out.length}`);
+    // 日本語だけの名前は識別子に使える文字が残らず、toIdentifier の
+    // フォールバック名に潰れる。複数あると全部同じ名前になって上書きし合うので、
+    // 重複したら連番を足して必ず一意にする
+    let name = toIdentifier(rawName, `anim_${out.length + 1}`);
+    if (usedNames.has(name)) {
+      let n = 2;
+      while (usedNames.has(`${name}_${n}`)) n++;
+      name = `${name}_${n}`;
+    }
+    if (name !== rawName.toLowerCase()) {
+      warnings.push(`アニメーション「${rawName}」はマイクラ内部では「${name}」になります`);
+    }
+    usedNames.add(name);
+    const length = num(a.length, 0);
+    // Blockbench の loop は文字列。"loop" 以外（once / hold）は繰り返さない
+    const loop = a.loop === "loop" || a.loop === true;
+
+    const bones: IRBoneAnimation[] = [];
+    const animators = isObj(a.animators) ? a.animators : {};
+    for (const anim of Object.values(animators)) {
+      if (!isObj(anim)) continue;
+      if (anim.type !== undefined && anim.type !== "bone") continue;
+      const boneName = str(anim.name, "");
+      if (!boneName) continue;
+
+      const channels: Record<string, IRKeyframe[]> = {};
+      const kfs = Array.isArray(anim.keyframes) ? anim.keyframes : [];
+      for (const kf of kfs) {
+        if (!isObj(kf)) continue;
+        const ch = str(kf.channel, "");
+        if (ch !== "rotation" && ch !== "position" && ch !== "scale") continue;
+        const dp = Array.isArray(kf.data_points) ? kf.data_points[0] : undefined;
+        if (!isObj(dp)) continue;
+        // 数式が入りうるので Number() で通し、駄目なら 0
+        const v = (k: string): number => {
+          const n = Number(dp[k]);
+          return Number.isFinite(n) ? n : 0;
+        };
+        (channels[ch] ??= []).push({ time: num(kf.time, 0), value: [v("x"), v("y"), v("z")] });
+      }
+
+      // 時刻順に並べる。順不同で来ることがあり、そのままだと動きが飛ぶ
+      for (const list of Object.values(channels)) list.sort((p, q) => p.time - q.time);
+
+      if (Object.keys(channels).length === 0) continue;
+      bones.push({
+        bone: boneName,
+        ...(channels.rotation ? { rotation: channels.rotation } : {}),
+        ...(channels.position ? { position: channels.position } : {}),
+        ...(channels.scale ? { scale: channels.scale } : {}),
+      });
+    }
+
+    if (bones.length === 0) {
+      warnings.push(`アニメーション「${str(a.name, name)}」は中身が空なので取り込みませんでした`);
+      continue;
+    }
+    if (length <= 0) {
+      warnings.push(`アニメーション「${str(a.name, name)}」は長さが 0 です`);
+    }
+    out.push({ name, length, loop, bones });
+  }
+
+  return out;
+}
+
 function parseTextures(raw: unknown, warnings: string[]): IRTexture[] {
   if (!Array.isArray(raw)) return [];
   const out: IRTexture[] = [];
@@ -253,6 +349,8 @@ export function parseBbmodel(text: string, fallbackName = "custom_mob"): IRResul
     bones,
   };
 
+  const animations = parseAnimations(root.animations, warnings);
+
   const textures = parseTextures(root.textures, warnings);
   if (textures.length === 0) {
     warnings.push("テクスチャが取り込めませんでした。真っ白なモブになります");
@@ -266,6 +364,7 @@ export function parseBbmodel(text: string, fallbackName = "custom_mob"): IRResul
       displayName,
       geometry,
       textures,
+      animations,
       behavior: defaultBehavior(),
     },
     warnings,
