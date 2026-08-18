@@ -145,18 +145,26 @@ function entityJson(ir: MobIR): string {
     components["minecraft:loot"] = { table: `loot_tables/entities/${ir.id}.json` };
   }
 
+  const description: Record<string, unknown> = {
+    identifier: id,
+    is_spawnable: true,
+    is_summonable: true,
+    is_experimental: false,
+  };
+
+  // スポーンエッグは entity の description に書く。別ファイルではない。
+  // 色を渡せば Bedrock が卵の絵を作ってくれるので、画像を用意しなくていい
+  if (b.spawnEgg.enabled) {
+    description.spawn_egg = {
+      base_color: b.spawnEgg.baseColor,
+      overlay_color: b.spawnEgg.overlayColor,
+    };
+  }
+
   return JSON.stringify(
     {
       format_version: "1.20.0",
-      "minecraft:entity": {
-        description: {
-          identifier: id,
-          is_spawnable: true,
-          is_summonable: true,
-          is_experimental: false,
-        },
-        components,
-      },
+      "minecraft:entity": { description, components },
     },
     null,
     2,
@@ -338,7 +346,13 @@ export function mobToBedrock(ir: MobIR): BedrockOutput {
 
   // 改行が混ざると lang ファイルの行が壊れるので落とす
   const name = ir.displayName.replace(/[\r\n]/g, " ");
-  return { bp, rp, langLines: [`entity.${NAMESPACE}:${ir.id}.name=${name}`] };
+  const langLines = [`entity.${NAMESPACE}:${ir.id}.name=${name}`];
+  if (ir.behavior.spawnEgg.enabled) {
+    // スポーンエッグの名前は entity とは別のキー。書かないと
+    // 持ち物欄で「item.spawn_egg.entity.cubicengine:xxx.name」と生のキーが出る
+    langLines.push(`item.spawn_egg.entity.${NAMESPACE}:${ir.id}.name=${name}のスポーンエッグ`);
+  }
+  return { bp, rp, langLines };
 }
 
 /** 複数体をまとめて。呼び出し側で1件ずつ回さなくていいように */

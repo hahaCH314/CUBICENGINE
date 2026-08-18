@@ -113,6 +113,21 @@ export interface IRSpawn {
   weight: number;
 }
 
+/**
+ * スポーンエッグ。バニラと同じ「2色の卵」の見た目になる。
+ *
+ * 画像を用意しなくていいのが利点。Bedrock が色から自動で卵の絵を作る。
+ * 出さない選択もできるようにしてあるのは、自然発生だけで出したい場合や
+ * クリエイティブのタブを汚したくない場合があるため。
+ */
+export interface IRSpawnEgg {
+  enabled: boolean;
+  /** 卵の地の色。#rrggbb */
+  baseColor: string;
+  /** 斑点の色。#rrggbb */
+  overlayColor: string;
+}
+
 /** モブの挙動。Phase 2 の MobBuilder がここを埋める */
 export interface IRBehavior {
   health: number;
@@ -122,6 +137,7 @@ export interface IRBehavior {
   attackDamage: number;
   drops: IRDrop[];
   spawn: IRSpawn;
+  spawnEgg: IRSpawnEgg;
 }
 
 /** モブ1体ぶんの完全な定義。これが変換の入口であり出口 */
@@ -179,6 +195,9 @@ export function defaultBehavior(): IRBehavior {
       maxLightLevel: 15,
       weight: 10,
     },
+    // 既定で出す。作ったモブを自分で呼び出せないと確かめようがないため。
+    // 色はバニラのどの卵とも被りにくい中間色にしてある
+    spawnEgg: { enabled: true, baseColor: "#8ab55c", overlayColor: "#3f5d2a" },
   };
 }
 

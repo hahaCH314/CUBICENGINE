@@ -136,6 +136,44 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
       </section>
 
       <section>
+        <h3 className="text-xs font-bold mb-1 text-muted/80">スポーンエッグ</h3>
+        <label className="flex items-center gap-2 text-xs py-1">
+          <input type="checkbox" checked={b.spawnEgg.enabled}
+            onChange={e => update(mob.id, { spawnEgg: { ...b.spawnEgg, enabled: e.target.checked } })} />
+          クリエイティブに卵を出す
+        </label>
+        {b.spawnEgg.enabled ? (
+          <>
+            <Row label="卵の色" hint="下地と斑点">
+              <input type="color" className="w-10 h-7 rounded bg-transparent border border-white/15"
+                value={b.spawnEgg.baseColor}
+                onChange={e => update(mob.id, { spawnEgg: { ...b.spawnEgg, baseColor: e.target.value } })} />
+              <input type="color" className="w-10 h-7 rounded bg-transparent border border-white/15"
+                value={b.spawnEgg.overlayColor}
+                onChange={e => update(mob.id, { spawnEgg: { ...b.spawnEgg, overlayColor: e.target.value } })} />
+              {/* 実物と同じ見え方を出しておく。マイクラを開かずに色を決められる */}
+              <span
+                className="inline-block w-5 h-6 ml-1"
+                title="でき上がりの見た目"
+                style={{
+                  background: b.spawnEgg.baseColor,
+                  borderRadius: "50% 50% 45% 45% / 60% 60% 40% 40%",
+                  boxShadow: `inset 0 -3px 0 ${b.spawnEgg.overlayColor}, inset 3px 2px 0 ${b.spawnEgg.overlayColor}`,
+                }}
+              />
+            </Row>
+            <p className="text-[10px] text-muted/50 pl-1">
+              画像は要りません。色から自動で卵の絵が作られます。
+            </p>
+          </>
+        ) : (
+          <p className="text-[10px] text-muted/50 pl-1">
+            卵を出さない場合、<code className="font-mono">/summon</code> か自然発生でしか出せません。
+          </p>
+        )}
+      </section>
+
+      <section>
         <h3 className="text-xs font-bold mb-1 text-muted/80">自然にわいてくる</h3>
         <label className="flex items-center gap-2 text-xs py-1">
           <input type="checkbox" checked={b.spawn.enabled}
