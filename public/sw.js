@@ -7,7 +7,8 @@
 //   - オフライン時のみキャッシュへフォールバック（ローカル/オフライン運営の盾を維持）。
 // キャッシュ名を上げると activate で旧キャッシュ(古いHTML)を一掃する。
 // ⚠️ 新しいビルドを配るたびに必ずこの版番号を上げる（activate で旧キャッシュを一掃するトリガー）。
-const CACHE_NAME = 'cubicengine-v3'
+// v4: fetch ハンドラが undefined を返しうるバグを直したので、旧キャッシュを一掃する
+const CACHE_NAME = 'cubicengine-v4'
 // 実在するものだけ。存在しないURL(例: 削除した /icon.svg)を入れると addAll が丸ごと reject し、
 // install 自体が失敗 → 新SWが有効化されず旧キャッシュが永久に残る（特にiOSで顕著だった事故）。
 const STATIC_ASSETS = [
@@ -62,6 +63,22 @@ function putIfOk(request, response) {
   return response
 }
 
+// respondWith に undefined を渡すと "Failed to convert value to 'Response'" で
+// ナビゲーション自体が失敗し、ページが開けなくなる。**必ず Response を返す**ための最後の砦。
+// 毎回新しく作る（Response は一度読まれると使い回せない）。
+function offlineResponse(isNavigation) {
+  if (!isNavigation) return new Response('', { status: 504, statusText: 'Offline' })
+  return new Response(
+    '<!doctype html><html lang="ja"><meta charset="utf-8">' +
+      '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+      '<title>オフライン</title>' +
+      '<body style="background:#151411;color:#eee;font-family:sans-serif;text-align:center;padding:3rem">' +
+      '<h1>つながりませんでした</h1><p>通信を確認して、もう一度ひらいてください。</p>' +
+      '<p><a href="/" style="color:#3cd070">トップへ</a></p>',
+    { status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+  )
+}
+
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return
 
@@ -78,11 +95,21 @@ self.addEventListener('fetch', (event) => {
 
   if (isNavigation) {
     event.respondWith(
-      fetch(event.request)
-        .then((response) => putIfOk(event.request, response))
-        .catch(() =>
-          caches.match(event.request).then((c) => c || caches.match('/'))
-        )
+      (async () => {
+        try {
+          return putIfOk(event.request, await fetch(event.request))
+        } catch {
+          // ⚠️ ignoreSearch が要る。/editor?mode=tsumiki は既定の照合では
+          //    キャッシュ済みの /editor と一致せず undefined が返っていた。
+          //    それが respondWith に渡って TypeError になり、
+          //    デプロイ直後にエディタが開けない事故になっていた。
+          const cached = await caches.match(event.request, { ignoreSearch: true })
+          if (cached) return cached
+          const root = await caches.match('/')
+          if (root) return root
+          return offlineResponse(true)
+        }
+      })()
     )
     return
   }
@@ -90,11 +117,23 @@ self.addEventListener('fetch', (event) => {
   // ── それ以外(ハッシュ付き静的アセット等)は stale-while-revalidate ──
   // 即キャッシュを返しつつ裏で更新。ビルドごとにファイル名が変わるので古くならない。
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const networkFetch = fetch(event.request)
-        .then((response) => putIfOk(event.request, response))
-        .catch(() => cached)
-      return cached || networkFetch
-    })
+    (async () => {
+      const cached = await caches.match(event.request)
+      if (cached) {
+        // 裏で更新。respondWith とは切り離す（失敗しても表示中の応答に影響させない）
+        event.waitUntil(
+          fetch(event.request)
+            .then((r) => putIfOk(event.request, r))
+            .catch(() => {})
+        )
+        return cached
+      }
+      try {
+        return putIfOk(event.request, await fetch(event.request))
+      } catch {
+        // 未キャッシュ かつ 取得失敗。ここで undefined を返すと同じ TypeError になる
+        return offlineResponse(false)
+      }
+    })()
   )
 })

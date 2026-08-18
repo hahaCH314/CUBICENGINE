@@ -33,7 +33,15 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
         const text = await file.text();
         // 拡張子を落とした名前を既定のモデル名にする（bbmodel 内に name が無い場合の保険）
         const fallback = file.name.replace(/\.(bbmodel|json)$/i, "");
-        const res = await parseBbmodelAsync(text, fallback);
+        // client 側にも保険はあるが、ここでも必ず終わるようにしておく。
+        // 「読み込み中…」のまま永久に止まるのが利用者にとって一番困る状態なので、
+        // 原因が何であれ画面が返ってくることを優先する
+        const res = await Promise.race([
+          parseBbmodelAsync(text, fallback),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("時間内に読み込めませんでした")), 15000),
+          ),
+        ]);
         setWarnings(res.warnings);
         if (res.ok && res.value) {
           setIr(res.value);

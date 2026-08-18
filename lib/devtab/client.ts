@@ -44,6 +44,19 @@ function getWorker(): Worker | null {
   }
 }
 
+/**
+ * Worker が黙り込んだときの保険。
+ *
+ * Worker は「起動に失敗する」だけでなく「起動したのに応答しない」ことがある
+ * （バンドラの包み方で待ち受けが登録されない等）。onerror も発火しないので、
+ * 待つだけだと画面が「読み込み中…」のまま永久に固まる。**実際にそうなった。**
+ * 一定時間で見切りをつけ、その場実行に切り替える。
+ *
+ * .bbmodel のパース自体は数ミリ秒で終わるので、この待ち時間は
+ * 「Worker が生きているか確かめる猶予」でしかない。長く取る意味がない。
+ */
+const WORKER_TIMEOUT_MS = 3000;
+
 function send(req: Omit<DevWorkerRequest, "id">): Promise<DevWorkerResponse> {
   const id = ++seq;
   const full = { ...req, id } as DevWorkerRequest;
@@ -51,10 +64,28 @@ function send(req: Omit<DevWorkerRequest, "id">): Promise<DevWorkerResponse> {
   if (!w) return Promise.resolve(handleRequest(full));
 
   return new Promise<DevWorkerResponse>(resolve => {
-    pending.set(id, resolve);
-    w.postMessage(full);
+    const timer = setTimeout(() => {
+      if (!pending.has(id)) return;
+      pending.delete(id);
+      // 以後はもう Worker を当てにしない。毎回3秒待たせないため
+      workerBroken = true;
+      resolve(handleRequest(full));
+    }, WORKER_TIMEOUT_MS);
+
+    pending.set(id, res => {
+      clearTimeout(timer);
+      resolve(res);
+    });
+    try {
+      w.postMessage(full);
+    } catch {
+      clearTimeout(timer);
+      pending.delete(id);
+      workerBroken = true;
+      resolve(handleRequest(full));
+    }
   }).then(res => {
-    // Worker が途中で壊れた場合はその場実行でやり直す（利用者には成功して見える）
+    // Worker が壊れた扱いになった場合はその場実行でやり直す（利用者には成功して見える）
     if (!res.ok && workerBroken) return handleRequest(full);
     return res;
   });

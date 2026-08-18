@@ -40,9 +40,29 @@ export function handleRequest(req: DevWorkerRequest): DevWorkerResponse {
   }
 }
 
+/**
+ * いま Worker の中で動いているか。
+ *
+ * 以前は「window が undefined か」で判定していたが、バンドラの包み方によっては
+ * 期待どおりにならず、**待ち受けが登録されないまま Worker が沈黙する**ことがある。
+ * そうなると client 側は永久に待ち続け、画面が「読み込み中…」で固まる（実際に起きた）。
+ * WorkerGlobalScope を直接見るのが確実。
+ */
+function inWorkerScope(): boolean {
+  try {
+    // WorkerGlobalScope は lib.dom の型定義に無いので、globalThis 越しに実体を見る
+    const g = globalThis as unknown as { WorkerGlobalScope?: unknown };
+    const scope = g.WorkerGlobalScope;
+    if (typeof scope !== "function") return false;
+    return typeof self !== "undefined" && self instanceof (scope as new () => unknown);
+  } catch {
+    return false;
+  }
+}
+
 // Worker として読み込まれたときだけ待ち受ける。
 // client.ts が同じモジュールを import しても、ここは実行されない。
-if (typeof self !== "undefined" && typeof (self as unknown as { postMessage?: unknown }).postMessage === "function" && typeof window === "undefined") {
+if (inWorkerScope()) {
   self.onmessage = (e: MessageEvent<DevWorkerRequest>) => {
     self.postMessage(handleRequest(e.data));
   };
