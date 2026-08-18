@@ -7,9 +7,13 @@
  * この画面を閉じても設定は残るし、「マイクラへ」を押すだけでアドオンに入る。
  */
 
+import dynamic from "next/dynamic";
 import { useEditorStore } from "../store";
 import { validateMob } from "../../../lib/devtab/toBedrock";
 import type { MobIR } from "../../../lib/devtab/ir";
+
+// three.js は SSR 不可。ModelPanel と同じ扱いにする
+const MobPreview = dynamic(() => import("./MobPreview"), { ssr: false });
 
 function Row({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
@@ -45,6 +49,18 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
           取り消す
         </button>
       </div>
+
+      <MobPreview ir={mob} />
+
+      {mob.animations.length > 0 && (
+        <p className="text-[11px] text-muted/60">
+          動き {mob.animations.length} 個: {mob.animations.map(a => `${a.name}${a.loop ? "（くり返し）" : ""}`).join(" / ")}
+          <br />
+          <span className="text-muted/45">
+            くり返す動きはマイクラで自動再生されます。プレビューには出ません。
+          </span>
+        </p>
+      )}
 
       <section>
         <h3 className="text-xs font-bold mb-1 text-muted/80">基本</h3>
