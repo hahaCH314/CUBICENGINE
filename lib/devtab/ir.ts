@@ -213,5 +213,10 @@ export function toIdentifier(name: string, fallback = "custom_mob"): string {
   // 全部落ちた場合（名前が日本語だけの場合など）は固定名にする。空の識別子は出力を壊す。
   // ⚠️ 用途ごとに fallback を渡すこと。モブ用の既定名をアニメーション名に使うと
   //    「攻撃モーション」が custom_mob になり、モブ自身の名前と紛らわしくなる
-  return s.length > 0 ? s : fallback;
+  if (s.length === 0) return fallback;
+  // ⚠️ マイクラの識別子は**数字で始められない**。
+  //    モデル名が「2」だと cubicengine:2 になり、エンティティが読み込まれず
+  //    /summon の候補にすら出ない。マイクラは何もエラーを出さないので原因が
+  //    分からない（実際に配布物で発生した）。頭に _ を足して数字始まりを避ける。
+  return /^[0-9]/.test(s) ? `_${s}` : s;
 }

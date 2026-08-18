@@ -29,11 +29,34 @@ function Row({ label, hint, children }: { label: string; hint?: string; children
 
 const numberCls = "w-24 px-2 py-1 rounded text-xs bg-black/40 border border-white/15";
 
+/**
+ * ドロップ品の入力候補（バニラ）。
+ * 全部載せる意味はないので、モブが落としそうなものだけに絞ってある。
+ * ここに無いものも入力欄に直接打てば使える。
+ */
+const VANILLA_DROPS = [
+  { id: "minecraft:diamond", label: "ダイヤモンド" },
+  { id: "minecraft:emerald", label: "エメラルド" },
+  { id: "minecraft:gold_ingot", label: "金インゴット" },
+  { id: "minecraft:iron_ingot", label: "鉄インゴット" },
+  { id: "minecraft:bone", label: "骨" },
+  { id: "minecraft:string", label: "糸" },
+  { id: "minecraft:leather", label: "革" },
+  { id: "minecraft:feather", label: "羽" },
+  { id: "minecraft:gunpowder", label: "火薬" },
+  { id: "minecraft:rotten_flesh", label: "腐った肉" },
+  { id: "minecraft:apple", label: "リンゴ" },
+  { id: "minecraft:beef", label: "生の牛肉" },
+] as const;
+
 export default function MobBuilder({ mob }: { mob: MobIR }) {
   const update = useEditorStore(s => s.updateDevMobBehavior);
   const remove = useEditorStore(s => s.removeDevMob);
+  // 自分で作ったアイテムをドロップ品にできるようにする。
+  // 識別子を手で打たせると綴りを間違えても気づけず、倒しても何も落ちない
+  const myItems = useEditorStore(s => s.devItems);
   const b = mob.behavior;
-  const problems = validateMob(mob);
+  const problems = validateMob(mob, myItems.map(i => `cubicengine:${i.id}`));
 
   return (
     <div className="flex flex-col gap-4">
@@ -99,7 +122,11 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
         <h3 className="text-xs font-bold mb-1 text-muted/80">たおしたとき落とすもの</h3>
         {b.drops.map((d, i) => (
           <div key={i} className="flex items-center gap-2 py-1">
+            {/* 自作アイテムを一覧から選べるようにする。手打ちだと綴りを間違えても
+                気づけず、倒しても何も落ちないモブになる。
+                バニラのアイテムも使えるよう、入力欄自体は残す（datalist 方式） */}
             <input
+              list={`drops-${mob.id}`}
               className="flex-1 px-2 py-1 rounded text-xs bg-black/40 border border-white/15 font-mono"
               value={d.item} placeholder="minecraft:diamond"
               onChange={e => {
@@ -126,13 +153,50 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
               onClick={() => update(mob.id, { drops: b.drops.filter((_, j) => j !== i) })}>×</button>
           </div>
         ))}
-        <button
-          className="text-[11px] px-2 py-1 rounded mt-1"
-          style={{ background: "rgba(255,255,255,0.07)" }}
-          onClick={() => update(mob.id, { drops: [...b.drops, { item: "minecraft:diamond", min: 1, max: 1, chance: 1 }] })}
-        >
-          ＋ 落とすものを足す
-        </button>
+        {/* 入力欄の候補。自作アイテムを先に出す（探しに来る理由がこちらのため） */}
+        <datalist id={`drops-${mob.id}`}>
+          {myItems.map(it => (
+            <option key={it.id} value={`cubicengine:${it.id}`}>{it.displayName}（自分で作ったもの）</option>
+          ))}
+          {VANILLA_DROPS.map(v => (
+            <option key={v.id} value={v.id}>{v.label}</option>
+          ))}
+        </datalist>
+
+        <div className="flex items-center gap-2 mt-1 flex-wrap">
+          <button
+            className="text-[11px] px-2 py-1 rounded"
+            style={{ background: "rgba(255,255,255,0.07)" }}
+            onClick={() => update(mob.id, { drops: [...b.drops, { item: "minecraft:diamond", min: 1, max: 1, chance: 1 }] })}
+          >
+            ＋ 落とすものを足す
+          </button>
+          {/* 作ったアイテムはワンタッチで足せるようにする。
+              識別子を覚えていなくても繋げられるのが狙い */}
+          {myItems.map(it => (
+            <button
+              key={it.id}
+              className="text-[11px] px-2 py-1 rounded flex items-center gap-1"
+              style={{ background: "rgba(167,139,250,0.18)", color: "#ddd6fe" }}
+              title={`cubicengine:${it.id} を落とすものに足す`}
+              onClick={() =>
+                update(mob.id, {
+                  drops: [...b.drops, { item: `cubicengine:${it.id}`, min: 1, max: 1, chance: 1 }],
+                })
+              }
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={it.iconDataUrl} alt="" width={14} height={14} style={{ imageRendering: "pixelated" }} />
+              ＋ {it.displayName}
+            </button>
+          ))}
+        </div>
+
+        {myItems.length === 0 && (
+          <p className="text-[10px] text-muted/50 mt-1">
+            🍎 アイテム で作ったものは、ここから直接えらべるようになります。
+          </p>
+        )}
       </section>
 
       <section>

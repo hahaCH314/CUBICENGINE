@@ -367,10 +367,19 @@ export function mobsToBedrock(mobs: MobIR[]): BedrockOutput {
   return out;
 }
 
-/** 出す前に確かめる。ここで止めれば、マイクラ側で無言で読み込み失敗するのを防げる */
-export function validateMob(ir: MobIR): string[] {
+/**
+ * 出す前に確かめる。ここで止めれば、マイクラ側で無言で読み込み失敗するのを防げる。
+ *
+ * knownCustomItems には「いま作ってあるアイテム」の識別子を渡す。
+ * cubicengine: で始まるのにその中に無いものは、消したアイテムを指したままか
+ * 綴り間違い。**倒しても何も落ちないモブになるが、マイクラは何も言わない。**
+ */
+export function validateMob(ir: MobIR, knownCustomItems: readonly string[] = []): string[] {
   const problems: string[] = [];
   if (!/^[a-z0-9_]+$/.test(ir.id)) problems.push(`内部名「${ir.id}」に使えない文字が含まれています`);
+  // 数字始まりはマイクラが黙って無視する。/summon の候補にすら出ないので
+  // 「出てこない」以外の手がかりが無くなる
+  if (/^[0-9]/.test(ir.id)) problems.push(`内部名「${ir.id}」は数字で始められません（モデル名を英字から始めてください）`);
   if (ir.geometry.bones.length === 0) problems.push("ボーンが1つもありません");
   if (ir.geometry.bones.every(b => b.cubes.length === 0)) problems.push("立方体が1つもありません");
   if (ir.behavior.health <= 0) problems.push("体力は1以上にしてください");
@@ -380,6 +389,10 @@ export function validateMob(ir: MobIR): string[] {
   for (const d of ir.behavior.drops) {
     if (!/^[a-z0-9_]+:[a-z0-9_]+$/.test(d.item)) {
       problems.push(`ドロップ品「${d.item}」は minecraft:diamond のような形式で書いてください`);
+    } else if (d.item.startsWith(`${NAMESPACE}:`) && !knownCustomItems.includes(d.item)) {
+      // 自作アイテムを消したあとドロップ品に残っている、または綴り間違い。
+      // このまま出すと、倒しても何も落ちないのに理由が分からない状態になる
+      problems.push(`ドロップ品「${d.item}」に対応するアイテムがありません（消したか、名前が違います）`);
     }
     if (d.min > d.max) problems.push(`ドロップ品「${d.item}」の最小が最大を超えています`);
   }

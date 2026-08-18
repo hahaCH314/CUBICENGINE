@@ -76,6 +76,8 @@ export function makeItem(displayName: string, iconDataUrl: string, existingIds: 
 export function validateItem(item: ItemIR): string[] {
   const problems: string[] = [];
   if (!/^[a-z0-9_]+$/.test(item.id)) problems.push(`内部名「${item.id}」に使えない文字が含まれています`);
+  // 数字始まりはマイクラが受け付けない。モブと同じ理由（toIdentifier のコメント参照）
+  if (/^[0-9]/.test(item.id)) problems.push(`内部名「${item.id}」は数字で始められません（名前を英字から始めてください）`);
   if (!item.iconDataUrl) problems.push("アイコンの画像がありません");
   if (item.maxStack < 1 || item.maxStack > 64) problems.push("重ねられる数は 1〜64 にしてください");
   if (item.food) {
