@@ -18,6 +18,26 @@ function itemJson(item: ItemIR): string {
     "minecraft:creative_category": { parent: "itemGroup.name.miscFood" },
   };
 
+  if (item.weapon) {
+    // 攻撃力。持って殴ったときのダメージ
+    components["minecraft:damage"] = item.weapon.damage;
+    // 耐久値。これが無いと壊れない剣になる
+    components["minecraft:durability"] = { max_durability: item.weapon.durability };
+    // ⚠️ 剣として扱わせるには「何を壊すと耐久が減るか」を書く必要がある。
+    //    無いとダメージは出るのに耐久が一切減らない
+    components["minecraft:digger"] = {
+      use_efficiency: false,
+      destroy_speeds: [{ block: "minecraft:web", speed: 15 }],
+    };
+    // 手に持ったときの見え方。剣らしく斜めに構える
+    components["minecraft:enchantable"] = { value: 10, slot: "sword" };
+    // 剣は重ねられない。耐久値を持つアイテムの仕様なので、ここで強制する。
+    // UI 側でも検査しているが、出力が壊れるより静かに直すほうが安全
+    components["minecraft:max_stack_size"] = 1;
+    // 食べ物と違い、こちらは装備扱いのタブに出す
+    components["minecraft:creative_category"] = { parent: "itemGroup.name.sword" };
+  }
+
   if (item.food) {
     components["minecraft:food"] = {
       nutrition: item.food.nutrition,

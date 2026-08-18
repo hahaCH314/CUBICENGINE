@@ -27,6 +27,20 @@ export interface ItemFood {
   canAlwaysEat: boolean;
 }
 
+/**
+ * 武器（剣）の設定。
+ *
+ * ツルハシや斧はまだ扱わない。あれらは「どのブロックを速く掘れるか」を
+ * ブロックの種類ごとに書く必要があり、剣より一段複雑になる。
+ * 剣が実機で動いてから足すほうが安全なので、まず剣だけにしてある。
+ */
+export interface ItemWeapon {
+  /** 与えるダメージ。素手が1、木の剣が4、ダイヤの剣が7 */
+  damage: number;
+  /** 耐久値。木の剣が59、ダイヤの剣が1561 */
+  durability: number;
+}
+
 export interface ItemIR {
   schema: typeof ITEM_IR_SCHEMA_VERSION;
   /** 英数字と _ のみ。マイクラの識別子になる */
@@ -38,10 +52,21 @@ export interface ItemIR {
   /** 何個まで重ねられるか。1〜64 */
   maxStack: number;
   /**
-   * 食べ物にするか。null なら「見た目だけのアイテム」。
+   * 食べ物にするか。null なら食べ物ではない。
    * 分けているのは、食べ物にしたときだけ要る設定があるため。
    */
   food: ItemFood | null;
+  /**
+   * 剣にするか。null なら武器ではない。
+   * ⚠️ food と両方 null でないのは許さない（validateItem で弾く）。
+   *    食べられる剣は作れるが、持ち替えるたびに食べる動作が出て使い物にならない。
+   */
+  weapon: ItemWeapon | null;
+}
+
+export function defaultWeapon(): ItemWeapon {
+  // 鉄の剣くらいの強さ。木より強く、ダイヤほどではない手頃な値
+  return { damage: 6, durability: 250 };
 }
 
 export function defaultFood(): ItemFood {
@@ -69,6 +94,7 @@ export function makeItem(displayName: string, iconDataUrl: string, existingIds: 
     iconDataUrl,
     maxStack: 64,
     food: null,
+    weapon: null,
   };
 }
 
@@ -80,6 +106,15 @@ export function validateItem(item: ItemIR): string[] {
   if (/^[0-9]/.test(item.id)) problems.push(`内部名「${item.id}」は数字で始められません（名前を英字から始めてください）`);
   if (!item.iconDataUrl) problems.push("アイコンの画像がありません");
   if (item.maxStack < 1 || item.maxStack > 64) problems.push("重ねられる数は 1〜64 にしてください");
+  if (item.food && item.weapon) {
+    problems.push("食べ物と剣は同時にできません（持ち替えるたびに食べる動作が出てしまいます）");
+  }
+  if (item.weapon) {
+    if (item.weapon.damage < 1) problems.push("攻撃力は1以上にしてください");
+    if (item.weapon.durability < 1) problems.push("耐久値は1以上にしてください");
+    // 耐久値のある道具は重ねられない。マイクラの仕様
+    if (item.maxStack !== 1) problems.push("剣は重ねられません（重ねる数を1にしてください）");
+  }
   if (item.food) {
     if (item.food.nutrition < 0) problems.push("回復量は0以上にしてください");
     if (item.food.useDuration <= 0) problems.push("食べる時間は0より大きくしてください");

@@ -10,7 +10,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { useEditorStore } from "../store";
-import { defaultFood, makeItem, validateItem, type ItemIR } from "../../../lib/devtab/itemIr";
+import { defaultFood, defaultWeapon, makeItem, validateItem, type ItemIR } from "../../../lib/devtab/itemIr";
 
 const numberCls = "w-24 px-2 py-1 rounded text-xs bg-black/40 border border-white/15";
 
@@ -19,6 +19,8 @@ function ItemCard({ item }: { item: ItemIR }) {
   const remove = useEditorStore(s => s.removeDevItem);
   const problems = validateItem(item);
   const food = item.food;
+  const weapon = item.weapon;
+  const kind = weapon ? "weapon" : food ? "food" : "plain";
 
   return (
     <div className="rounded-xl p-4 flex flex-col gap-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)" }}>
@@ -40,18 +42,58 @@ function ItemCard({ item }: { item: ItemIR }) {
         </button>
       </div>
 
-      <label className="flex items-center gap-3 text-xs">
-        <span className="w-32 shrink-0">重ねられる数<span className="block text-[10px] text-muted/50">1〜64</span></span>
-        <input type="number" min={1} max={64} className={numberCls}
-          value={item.maxStack}
-          onChange={e => update(item.id, { maxStack: Number(e.target.value) })} />
-      </label>
+      {!weapon && (
+        <label className="flex items-center gap-3 text-xs">
+          <span className="w-32 shrink-0">重ねられる数<span className="block text-[10px] text-muted/50">1〜64</span></span>
+          <input type="number" min={1} max={64} className={numberCls}
+            value={item.maxStack}
+            onChange={e => update(item.id, { maxStack: Number(e.target.value) })} />
+        </label>
+      )}
 
-      <label className="flex items-center gap-2 text-xs">
-        <input type="checkbox" checked={food !== null}
-          onChange={e => update(item.id, { food: e.target.checked ? defaultFood() : null })} />
-        食べられるようにする
-      </label>
+      {/* 種類は排他。食べられる剣は作れてしまうが、持ち替えるたびに
+          食べる動作が出て使い物にならないので、選ばせる形にする */}
+      <div className="flex flex-col gap-1">
+        {([
+          ["plain", "見た目だけ", "持てる・置ける。それだけ"],
+          ["food", "食べられる", "回復量を決められます"],
+          ["weapon", "剣", "攻撃力と耐久値を決められます"],
+        ] as const).map(([k, label, hint]) => (
+          <label key={k} className="flex items-start gap-2 text-xs cursor-pointer">
+            <input type="radio" name={`kind-${item.id}`} className="mt-0.5"
+              checked={kind === k}
+              onChange={() => {
+                if (k === "food") update(item.id, { food: defaultFood(), weapon: null, maxStack: 64 });
+                else if (k === "weapon") update(item.id, { weapon: defaultWeapon(), food: null, maxStack: 1 });
+                else update(item.id, { food: null, weapon: null, maxStack: 64 });
+              }} />
+            <span>
+              {label}
+              <span className="block text-[10px] text-muted/50">{hint}</span>
+            </span>
+          </label>
+        ))}
+      </div>
+
+      {weapon && (
+        <div className="pl-5 flex flex-col gap-1.5">
+          <label className="flex items-center gap-3 text-xs">
+            <span className="w-32 shrink-0">攻撃力<span className="block text-[10px] text-muted/50">木の剣4 ダイヤ7</span></span>
+            <input type="number" min={1} max={100} className={numberCls}
+              value={weapon.damage}
+              onChange={e => update(item.id, { weapon: { ...weapon, damage: Number(e.target.value) } })} />
+          </label>
+          <label className="flex items-center gap-3 text-xs">
+            <span className="w-32 shrink-0">耐久値<span className="block text-[10px] text-muted/50">木59 ダイヤ1561</span></span>
+            <input type="number" min={1} max={10000} className={numberCls}
+              value={weapon.durability}
+              onChange={e => update(item.id, { weapon: { ...weapon, durability: Number(e.target.value) } })} />
+          </label>
+          <p className="text-[10px] text-muted/50">
+            剣は重ねられません。金床での修理はまだできません。
+          </p>
+        </div>
+      )}
 
       {food && (
         <div className="pl-5 flex flex-col gap-1.5">
