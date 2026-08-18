@@ -9,6 +9,7 @@
  * 入力側（bbmodel）には一切触らずに済む。
  */
 
+import { normalizeAggression } from "./ir";
 import type { IRBone, IRCube, MobIR } from "./ir";
 
 /** 既存のブロック出力と同じ名前空間に揃える */
@@ -127,18 +128,46 @@ function entityJson(ir: MobIR): string {
     "minecraft:behavior.random_look_around": { priority: 8 },
   };
 
-  if (b.hostile) {
-    components["minecraft:attack"] = { damage: b.attackDamage };
-    components["minecraft:behavior.melee_attack"] = { priority: 3, speed_multiplier: 1.2 };
-    components["minecraft:behavior.nearest_attackable_target"] = {
-      priority: 2,
-      must_see: true,
-      reselect_targets: true,
-      entity_types: [{ filters: { test: "is_family", subject: "other", value: "player" }, max_dist: 16 }],
-    };
-  } else {
+  const aggression = normalizeAggression(b.aggression);
+
+  if (aggression === "peaceful") {
     // 中立のモブは殴られたら逃げる。何も入れないと棒立ちのまま殴られ続けて不自然になる
     components["minecraft:behavior.panic"] = { priority: 1, speed_multiplier: 1.25 };
+  } else {
+    components["minecraft:attack"] = { damage: b.attackDamage };
+    components["minecraft:behavior.melee_attack"] = { priority: 3, speed_multiplier: 1.2 };
+
+    if (aggression === "player") {
+      components["minecraft:behavior.nearest_attackable_target"] = {
+        priority: 2,
+        must_see: true,
+        reselect_targets: true,
+        entity_types: [{ filters: { test: "is_family", subject: "other", value: "player" }, max_dist: 16 }],
+      };
+    } else {
+      // 戦闘狂。見えるもの全部を狙う。
+      //
+      // ⚠️ ここで value: "mob" のような大枠を1つ指定しても、プレイヤーや
+      //    同じ種類は拾えない。**狙う相手ごとに条件を並べる**必要がある。
+      //
+      // 同士討ちもさせる。除外すると2匹以上出したとき仲間だけ無傷で残り、
+      // 「なんでも襲う」と言いながら例外がある状態になる。
+      components["minecraft:behavior.nearest_attackable_target"] = {
+        priority: 2,
+        must_see: true,
+        reselect_targets: true,
+        // 見失っても追い続ける。戦闘狂が一瞬で標的を変えて棒立ちになるのを防ぐ
+        must_see_forget_duration: 8,
+        entity_types: [
+          { filters: { test: "is_family", subject: "other", value: "player" }, max_dist: 24 },
+          { filters: { test: "is_family", subject: "other", value: "mob" }, max_dist: 24 },
+          // 同じ種類。type_family に自分の id を入れてあるのでこれで拾える
+          { filters: { test: "is_family", subject: "other", value: ir.id }, max_dist: 24 },
+        ],
+      };
+      // 殴られた相手にも即座に反撃する。先に殴られたまま無視するのを防ぐ
+      components["minecraft:behavior.hurt_by_target"] = { priority: 1 };
+    }
   }
 
   if (b.drops.length > 0) {
@@ -383,8 +412,8 @@ export function validateMob(ir: MobIR, knownCustomItems: readonly string[] = [])
   if (ir.geometry.bones.length === 0) problems.push("ボーンが1つもありません");
   if (ir.geometry.bones.every(b => b.cubes.length === 0)) problems.push("立方体が1つもありません");
   if (ir.behavior.health <= 0) problems.push("体力は1以上にしてください");
-  if (ir.behavior.hostile && ir.behavior.attackDamage <= 0) {
-    problems.push("敵対にする場合、攻撃力を1以上にしてください");
+  if (normalizeAggression(ir.behavior.aggression) !== "peaceful" && ir.behavior.attackDamage <= 0) {
+    problems.push("襲う設定にする場合、攻撃力を1以上にしてください");
   }
   for (const d of ir.behavior.drops) {
     if (!/^[a-z0-9_]+:[a-z0-9_]+$/.test(d.item)) {

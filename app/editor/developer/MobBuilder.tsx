@@ -10,6 +10,7 @@
 import dynamic from "next/dynamic";
 import { useEditorStore } from "../store";
 import { validateMob } from "../../../lib/devtab/toBedrock";
+import { normalizeAggression } from "../../../lib/devtab/ir";
 import type { MobIR } from "../../../lib/devtab/ir";
 
 // three.js は SSR 不可。ModelPanel と同じ扱いにする
@@ -56,6 +57,8 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
   // 識別子を手で打たせると綴りを間違えても気づけず、倒しても何も落ちない
   const myItems = useEditorStore(s => s.devItems);
   const b = mob.behavior;
+  // 古い形（hostile: boolean）で保存されたモブも読めるようにする
+  const aggr = normalizeAggression(b.aggression);
   const problems = validateMob(mob, myItems.map(i => `cubicengine:${i.id}`));
 
   return (
@@ -101,20 +104,38 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
 
       <section>
         <h3 className="text-xs font-bold mb-1 text-muted/80">性格</h3>
-        <label className="flex items-center gap-2 text-xs py-1">
-          <input type="checkbox" checked={b.hostile}
-            onChange={e => update(mob.id, { hostile: e.target.checked })} />
-          プレイヤーを襲う
-        </label>
-        {b.hostile && (
+        <div className="flex flex-col gap-1 py-1">
+          {([
+            ["peaceful", "おとなしい", "襲いません。殴られると逃げます"],
+            ["player", "プレイヤーを襲う", "ふつうの敵モブ"],
+            ["berserk", "なんでも襲う（戦闘狂）", "プレイヤーも動物も、同じ種類も襲います"],
+          ] as const).map(([v, label, hint]) => (
+            <label key={v} className="flex items-start gap-2 text-xs cursor-pointer">
+              <input type="radio" name={`aggr-${mob.id}`} checked={aggr === v} className="mt-0.5"
+                onChange={() => update(mob.id, {
+                  aggression: v,
+                  // おとなしい以外にするとき攻撃力0のままだと殴っても効かない。
+                  // 検査で弾かれるので、切り替えた時点で最低限の値を入れておく
+                  ...(v !== "peaceful" && b.attackDamage <= 0 ? { attackDamage: 3 } : {}),
+                })} />
+              <span>
+                {label}
+                <span className="block text-[10px] text-muted/50">{hint}</span>
+              </span>
+            </label>
+          ))}
+        </div>
+        {aggr !== "peaceful" && (
           <Row label="攻撃力" hint="ハート半分＝1">
             <input type="number" min={1} max={100} className={numberCls}
               value={b.attackDamage}
               onChange={e => update(mob.id, { attackDamage: Number(e.target.value) })} />
           </Row>
         )}
-        {!b.hostile && (
-          <p className="text-[10px] text-muted/50 pl-1">襲わないモブは、殴られると逃げます。</p>
+        {aggr === "berserk" && (
+          <p className="text-[10px] pl-1" style={{ color: "rgba(251,191,36,0.8)" }}>
+            ⚠️ 同じ種類同士も襲います。2匹以上出すと共食いして1匹になります。
+          </p>
         )}
       </section>
 

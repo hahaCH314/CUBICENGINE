@@ -128,12 +128,25 @@ export interface IRSpawnEgg {
   overlayColor: string;
 }
 
+/**
+ * 誰を襲うか。
+ *
+ * - peaceful  … 襲わない。殴られたら逃げる
+ * - player    … プレイヤーだけ狙う（ふつうの敵モブ）
+ * - berserk   … 見えるもの全部。**同じ種類も襲う**ので2匹出すと共食いする
+ */
+export type IRAggression = "peaceful" | "player" | "berserk";
+
 /** モブの挙動。Phase 2 の MobBuilder がここを埋める */
 export interface IRBehavior {
   health: number;
   movementSpeed: number;
-  /** プレイヤーを攻撃するか */
-  hostile: boolean;
+  /**
+   * 誰を襲うか。
+   * ⚠️ 以前は boolean だった。保存済みのデータを読めるよう、
+   *    受け取る側は normalizeAggression を通すこと。
+   */
+  aggression: IRAggression;
   attackDamage: number;
   drops: IRDrop[];
   spawn: IRSpawn;
@@ -185,7 +198,7 @@ export function defaultBehavior(): IRBehavior {
   return {
     health: 20,
     movementSpeed: 0.25,
-    hostile: false,
+    aggression: "peaceful",
     attackDamage: 0,
     drops: [],
     spawn: {
@@ -199,6 +212,17 @@ export function defaultBehavior(): IRBehavior {
     // 色はバニラのどの卵とも被りにくい中間色にしてある
     spawnEgg: { enabled: true, baseColor: "#8ab55c", overlayColor: "#3f5d2a" },
   };
+}
+
+/**
+ * 古い形（hostile: boolean）も受けられるようにする。
+ * 保存済みのプロジェクトや、途中まで作ったモブを壊さないため。
+ */
+export function normalizeAggression(v: unknown): IRAggression {
+  if (v === "peaceful" || v === "player" || v === "berserk") return v;
+  // 旧: hostile === true はプレイヤーを狙う設定だった
+  if (v === true) return "player";
+  return "peaceful";
 }
 
 /**
