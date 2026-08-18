@@ -12,10 +12,12 @@
  *   Worker からも同じものを呼べる。
  */
 
+import { useCallback, useRef } from "react";
 import ModelImport from "./ModelImport";
 import MobBuilder from "./MobBuilder";
 import { useEditorStore } from "../store";
 import { getAiAdapter } from "../../../lib/devtab/ai";
+import type { MobIR } from "../../../lib/devtab/ir";
 
 export default function DeveloperPanel() {
   // 取り込んだモブは store に置く。exporter が書き出し時にここを見るので、
@@ -23,6 +25,20 @@ export default function DeveloperPanel() {
   const mobs = useEditorStore(s => s.devMobs);
   const upsert = useEditorStore(s => s.upsertDevMob);
   const ai = getAiAdapter();
+  const mobsRef = useRef<HTMLDivElement>(null);
+
+  // 取り込んだ直後に、下に出たモブの設定まで送る。
+  // 取り込み画面は縦に大きいので、放っておくと結果が画面外のままになり
+  // 「取り込めたのに何も起きない」ように見える
+  const handleLoaded = useCallback(
+    (ir: MobIR) => {
+      upsert(ir);
+      requestAnimationFrame(() => {
+        mobsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    },
+    [upsert],
+  );
 
   return (
     <div className="h-full flex flex-col">
@@ -43,10 +59,10 @@ export default function DeveloperPanel() {
       </div>
 
       <div className="flex-1 overflow-auto">
-        <ModelImport onLoaded={upsert} />
+        <ModelImport onLoaded={handleLoaded} />
 
         {mobs.length > 0 && (
-          <div className="px-5 pb-6 flex flex-col gap-5">
+          <div ref={mobsRef} className="px-5 pb-6 flex flex-col gap-5">
             {mobs.map(m => (
               <div
                 key={m.id}

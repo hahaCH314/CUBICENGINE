@@ -74,7 +74,11 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
   const stats = ir ? describeIR(ir) : null;
 
   return (
-    <div className="flex flex-col gap-4 p-5 overflow-auto h-full">
+    // ⚠️ h-full / overflow-auto を付けないこと。
+    // この画面だけで親の高さを使い切ってしまい、下に並ぶモブの設定が
+    // 画面外へ押し出される（スクロールすれば見えるが、誰も気づけない）。
+    // 縦スクロールは親の DeveloperPanel が持っている。
+    <div className="flex flex-col gap-4 p-5">
       <div>
         <h2 className="text-lg font-bold">モデルを取り込む</h2>
         <p className="text-xs text-muted/70 mt-1">
