@@ -63,6 +63,8 @@
     "files": [
       "electron/**",
       ".next/**",
+      "next.config.ts",
+      "lib/**",
       "!.next/cache/**",
       "public/**",
       "package.json",
