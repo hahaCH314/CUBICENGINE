@@ -12,6 +12,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { disposeDevWorker, parseBbmodelAsync } from "../../../lib/devtab/client";
 import { describeIR } from "../../../lib/devtab/bbmodel";
 import type { MobIR } from "../../../lib/devtab/ir";
+import { useEditorStore } from "../store";
+import { describeVoxels, voxelsToMobIR } from "../../../lib/devtab/voxelToIr";
 
 export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => void }) {
   const [busy, setBusy] = useState(false);
@@ -20,6 +22,10 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
   const [warnings, setWarnings] = useState<string[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  // モデルタブで積んだボクセル。これをそのままモブにできる
+  const voxels = useEditorStore(s => s.blocks);
+  const projectName = useEditorStore(s => s.projectName);
+  const voxelStats = describeVoxels(voxels);
 
   // 画面を離れるときに Worker を残さない
   useEffect(() => () => disposeDevWorker(), []);
@@ -60,6 +66,30 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
     },
     [onLoaded],
   );
+
+  const fromVoxels = useCallback(() => {
+    setErrors([]);
+    setWarnings([]);
+    // 名前はプロジェクト名を使う。モデルタブ側に「作品の名前」が無いため。
+    // 識別子はここから作られるので、日本語なら voxel_mob に落ちる（警告は出す）
+    const ir = voxelsToMobIR(voxels, projectName);
+    if (!ir) {
+      setErrors(["モデルタブに立方体がありません"]);
+      return;
+    }
+    if (!ir.textures[0]?.dataUrl) {
+      setErrors(["色のテクスチャを作れませんでした"]);
+      return;
+    }
+    const w: string[] = [];
+    if (ir.id === "voxel_mob") {
+      w.push(`マイクラ内部の名前は「${ir.id}」になります（プロジェクト名に英字を入れると変えられます）`);
+    }
+    w.push("面の色をそのまま貼っています。細かい模様を付けたいときは Blockbench を使ってください。");
+    setWarnings(w);
+    setIr(ir);
+    onLoaded?.(ir);
+  }, [voxels, projectName, onLoaded]);
 
   const onDrop = useCallback(
     (e: React.DragEvent) => {
@@ -118,6 +148,27 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
           }}
         />
       </div>
+
+      {/* モデルタブで積んだものを、そのままモブにできる。
+          Blockbench を持っていない人でもモブが作れるようにするための入口 */}
+      {voxelStats.cubes > 0 && (
+        <div className="rounded-xl p-4 flex items-center gap-3" style={{ background: "rgba(60,208,112,0.08)", border: "1px solid rgba(60,208,112,0.3)" }}>
+          <span className="text-2xl">📦</span>
+          <div className="flex-1 text-xs">
+            <b>モデルタブで作った形</b>をモブにできます
+            <span className="block text-[10px] text-muted/60">
+              立方体 {voxelStats.cubes} 個 ／ 色 {voxelStats.colors} 種。面の色はそのまま貼られます
+            </span>
+          </div>
+          <button
+            onClick={fromVoxels}
+            className="text-xs font-bold px-3 py-2 rounded-lg shrink-0"
+            style={{ background: "#3cd070", color: "#06240f" }}
+          >
+            モブにする
+          </button>
+        </div>
+      )}
 
       {errors.length > 0 && (
         <div className="rounded-lg p-3 text-xs" style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.4)" }}>
