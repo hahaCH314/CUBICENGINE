@@ -471,6 +471,12 @@ export default function HomePage() {
           </div>
 
           {/* GROVE Card */}
+          {/* ⚠️ スマホでは出さない（hidden md:flex）。
+              Java版は「準備中」の告知しか出せない状態で、スマホでは縦に積まれるため
+              統合版カードの真下に居座り、本題（さっそく作る）の後ろに
+              まだ使えないものを読ませることになる。
+              スマホから来た人は統合版(.mcaddon)の利用者なので、Java版は
+              そもそも関係がない。パソコンでは横に並ぶので今までどおり出す。 */}
           <div
             style={{
               maxWidth: "320px",
@@ -479,14 +485,15 @@ export default function HomePage() {
               background: "rgba(255, 255, 255, 0.05)",
               border: "3px solid #0ea5e9",
               boxShadow: "0 12px 40px -10px rgba(0, 0, 0, 0.6), 0 0 25px 0 rgba(14, 165, 233, 0.12)",
-              display: "flex",
+              // ⚠️ display はここに書かないこと。インラインstyleは Tailwind の hidden より
+              //    強いので、書くとスマホで隠せなくなる。className 側で hidden md:flex を掛ける
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
               gap: "20px",
               transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
-            className="w-full md:w-auto md:flex-[1_1_240px] hover:scale-[1.03] hover:border-[#38bdf8] hover:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8),0_0_35px_0_rgba(14, 165, 233, 0.2)]"
+            className="hidden md:flex w-full md:w-auto md:flex-[1_1_240px] hover:scale-[1.03] hover:border-[#38bdf8] hover:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8),0_0_35px_0_rgba(14, 165, 233, 0.2)]"
           >
             {/* Tag */}
             <span className="px-4 py-1.5 rounded-full text-xs font-pixel tracking-wider" style={{ background: "rgba(14, 165, 233, 0.15)", color: "#38bdf8", border: "1.5px solid rgba(14, 165, 233, 0.3)", textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>
