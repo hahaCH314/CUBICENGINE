@@ -26,8 +26,10 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         // ⚠️ versionCode は Play に上げるたびに **必ず増やす**。
         //    同じ番号は二度と使えず、下げることもできない。
+        //    アップロードが途中で失敗した場合でも番号は消費される
+        //    （1 は 2026-08-20 のクローズドテストで消費済み）。
         //    Windows版のタグ(v0.1.2)とは無関係の、Android専用の通し番号。
-        versionCode 1
+        versionCode 2
         // 利用者に見える文字。Windows版と揃えておく
         versionName "0.1.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
