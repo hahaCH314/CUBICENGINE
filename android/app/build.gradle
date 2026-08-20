@@ -1,5 +1,22 @@
 apply plugin: 'com.android.application'
 
+// Google Play へ出す .aab に署名するための鍵。
+// パスワードは keystore.properties（.gitignore で除外済み）から読む。
+// 書き方は keystore.properties.example を参照。
+//
+// ⚠️ ファイルが無くても落とさないこと。
+//    無いのは「clone しただけの人」や CI で普通に起きる状態で、
+//    その場合でも debug ビルドと ./gradlew tasks は通る必要がある。
+def keystorePropsFile = rootProject.file("keystore.properties")
+def keystoreProps = new Properties()
+if (keystorePropsFile.exists()) {
+    // ⚠️ InputStream 版の load() は中身を **ISO-8859-1** として読む（.properties の仕様）。
+    //    鍵の置き場所が「I:\CUBICENGINE署名鍵_大切に保管\」のような日本語パスだと
+    //    そこで文字化けし、"Keystore file not found" になる。
+    //    Reader 版に UTF-8 を渡して読ませること。
+    keystorePropsFile.withReader("UTF-8") { keystoreProps.load(it) }
+}
+
 android {
     namespace = "com.cubicenginestudio.cubicengine"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -7,8 +24,12 @@ android {
         applicationId "com.cubicenginestudio.cubicengine"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
+        // ⚠️ versionCode は Play に上げるたびに **必ず増やす**。
+        //    同じ番号は二度と使えず、下げることもできない。
+        //    Windows版のタグ(v0.1.2)とは無関係の、Android専用の通し番号。
         versionCode 1
-        versionName "1.0"
+        // 利用者に見える文字。Windows版と揃えておく
+        versionName "0.1.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,10 +37,29 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            // keystore.properties が無いときは何も設定しない。
+            // 下の buildTypes 側で signingConfig 自体を付けないので、
+            // 「鍵が無い環境でも release タスクの評価までは通る」状態になる。
+            if (keystorePropsFile.exists()) {
+                storeFile file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // 鍵がある環境でだけ署名する。
+            // 付けないまま bundleRelease すると **未署名の .aab** が出来て、
+            // Play Console のアップロード時点ではじかれる（原因が分かりにくい）。
+            if (keystorePropsFile.exists()) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
