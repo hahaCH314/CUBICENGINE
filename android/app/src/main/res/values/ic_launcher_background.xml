@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">#FFFFFF</color>
+    <!-- アイコンの絵(public/icon-512.png)の主色。白のままだと立方体のまわりに
+         白い縁が出て、ストアに出る絵と別物に見える -->
+    <color name="ic_launcher_background">#0A1121</color>
 </resources>
