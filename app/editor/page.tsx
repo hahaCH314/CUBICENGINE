@@ -236,6 +236,48 @@ function PhoneHint() {
 /* ─── Main Editor Page ─── */
 export default function EditorPage() {
   const [activeTab, setActiveTab] = useState<Tab>("logic");
+
+  // タブ列がはみ出しているか（スマホでは4つ並びきらない）。
+  // 端の帯を出すかどうかの判定に使う。両端とも「その方向にまだ続くか」を持つ
+  const tabBarRef = useRef<HTMLDivElement>(null);
+  const [tabOverflow, setTabOverflow] = useState({ left: false, right: false });
+
+  const handleTabScroll = useCallback(() => {
+    const el = tabBarRef.current;
+    if (!el) return;
+    // 端ぴったりで帯が残ってチラつかないよう、1px の遊びを持たせる
+    const left = el.scrollLeft > 1;
+    const right = el.scrollLeft + el.clientWidth < el.scrollWidth - 1;
+    setTabOverflow(prev => (prev.left === left && prev.right === right ? prev : { left, right }));
+  }, []);
+
+  // 初回と、画面の向きが変わったときに測り直す。
+  // 横向きにすると収まって帯が要らなくなることがある。
+  //
+  // ⚠️ ResizeObserver では拾えない。あれが見るのは要素自身の大きさで、
+  //    タブ列の幅は画面幅のまま変わらない。伸びるのは中身(scrollWidth)のほう。
+  // ⚠️ マウント直後の1回だけでも足りない。Webフォント(var(--font-yusei))が
+  //    届く前は文字幅が確定しておらず、あとからタブが広がって溢れる。
+  //    → フォントの読み込み完了を待って測り直す。
+  useEffect(() => {
+    // 描画が一度済んでから測る。同じ回で測ると scrollWidth が確定していない
+    const raf = requestAnimationFrame(handleTabScroll);
+    window.addEventListener("resize", handleTabScroll);
+    // document.fonts は Safari 含め主要ブラウザにある。念のため存在確認する
+    document.fonts?.ready.then(handleTabScroll).catch(() => {});
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", handleTabScroll);
+    };
+  }, [handleTabScroll]);
+
+  // 選んだタブが画面外だと「押したのに見えない」状態になるので引き寄せる。
+  // ⚠️ block: "nearest" が要る。既定の "center" は縦にもスクロールしてしまい、
+  //    タブを押すたびにエディタ本体が上下に飛ぶ
+  useEffect(() => {
+    const el = document.getElementById(`tab-${activeTab}`);
+    el?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+  }, [activeTab]);
   const [logicView, setLogicView] = useState<"tsumiki" | "grape">("tsumiki");
   const [isElectron, setIsElectron] = useState<boolean | null>(null);
 
@@ -339,9 +381,18 @@ export default function EditorPage() {
       </div>
 
       {/* ─ Premium Modern Tab Bar ─ */}
-      <div 
-        className="h-12 flex items-center justify-start md:justify-center px-4 gap-2 shrink-0 relative z-10 overflow-x-auto whitespace-nowrap scrollbar-hide"
-        style={{ 
+      {/* スマホでは4つのタブが横に並びきらない（412px幅に対して中身は約600px）。
+          横スクロールはできるが、**できることに気づけない**のが問題だった。
+          一番右の「マイクラへ」は作ったアドオンを書き出すボタンなので、
+          見つからないと作業が完結しない。
+          → 右端にグラデーションを重ねて「まだ続く」ことを見せる。
+            スクロールしきったら消えるので、端末が広いときは何も出ない。 */}
+      <div className="relative shrink-0">
+      <div
+        ref={tabBarRef}
+        onScroll={handleTabScroll}
+        className="h-12 flex items-center justify-start md:justify-center px-4 gap-2 relative z-10 overflow-x-auto whitespace-nowrap scrollbar-hide"
+        style={{
           background: "linear-gradient(to bottom, #2d3436, #222f3e)",
           borderBottom: "2px solid rgba(255,255,255,0.1)",
           boxShadow: "0 4px 15px rgba(0,0,0,0.3)"
@@ -354,7 +405,9 @@ export default function EditorPage() {
               key={tab.key}
               id={`tab-${tab.key}`}
               onClick={() => setActiveTab(tab.key)}
-              className="relative px-6 py-1.5 flex items-center gap-2 rounded-full transition-all duration-200 ease-out outline-none shrink-0"
+              // スマホでは px-6 だと4つで約600px になり画面(412px)に入らない。
+              // 狭いときだけ詰める。広い画面は今までどおりゆったり見せる
+              className="relative px-3 sm:px-6 py-1.5 flex items-center gap-1.5 sm:gap-2 rounded-full transition-all duration-200 ease-out outline-none shrink-0"
               style={{
                 background: isActive
                   ? `linear-gradient(180deg, ${lighten(tab.color)}, ${tab.color})`
@@ -377,6 +430,27 @@ export default function EditorPage() {
             </button>
           );
         })}
+      </div>
+
+        {/* 「まだ右に続く」ことを示す帯。押せてしまうと混乱するので pointer-events は切る。
+            タブ列と同じ色から透明へ向かわせ、タブが霧に溶けるように見せる */}
+        {tabOverflow.right && (
+          <div
+            className="absolute top-0 right-0 h-12 w-14 z-20 pointer-events-none flex items-center justify-end pr-1"
+            style={{ background: "linear-gradient(to right, rgba(34,47,62,0), #222f3e 65%)" }}
+          >
+            <span className="text-white/45 text-lg leading-none select-none">›</span>
+          </div>
+        )}
+        {/* 左も同じ。右端まで送ったあと、左に戻れることを示す */}
+        {tabOverflow.left && (
+          <div
+            className="absolute top-0 left-0 h-12 w-14 z-20 pointer-events-none flex items-center justify-start pl-1"
+            style={{ background: "linear-gradient(to left, rgba(45,52,54,0), #2d3436 65%)" }}
+          >
+            <span className="text-white/45 text-lg leading-none select-none">‹</span>
+          </div>
+        )}
       </div>
 
       {/* ─ Tab Content ─ */}
