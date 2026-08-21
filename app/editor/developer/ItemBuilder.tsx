@@ -10,9 +10,106 @@
 
 import { useCallback, useRef, useState } from "react";
 import { useEditorStore } from "../store";
-import { defaultFood, defaultWeapon, makeItem, validateItem, type ItemIR } from "../../../lib/devtab/itemIr";
+import {
+  WEAPON_EFFECTS,
+  defaultFood,
+  defaultWeapon,
+  makeItem,
+  validateItem,
+  type ItemIR,
+  type ItemWeapon,
+  type WeaponEffect,
+} from "../../../lib/devtab/itemIr";
 
 const numberCls = "w-24 px-2 py-1 rounded text-xs bg-black/40 border border-white/15";
+
+/**
+ * 効果のリストを編集する部品。「殴った相手に」と「持っている自分に」で
+ * 同じ形なので共通にしてある。
+ *
+ * ⚠️ 効果IDは自由入力にしないこと。マイクラは知らないIDを**黙って無視する**ので、
+ *    打ち間違えると「効果が付かない」原因が分からなくなる。必ず選択肢から選ばせる。
+ */
+function EffectList({
+  title,
+  hint,
+  forSelf,
+  list,
+  onChange,
+}: {
+  title: string;
+  hint: string;
+  forSelf: boolean;
+  list: WeaponEffect[];
+  onChange: (next: WeaponEffect[]) => void;
+}) {
+  // 相手に掛けるものと自分に掛けるものを分ける。
+  // 「相手を速くする」は作れてしまうが、まず作りたいものではない
+  const choices = WEAPON_EFFECTS.filter(e => e.forSelf === forSelf);
+
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="text-xs font-bold">
+        {title}
+        <span className="block text-[10px] text-muted/50 font-normal">{hint}</span>
+      </div>
+
+      {list.map((e, i) => (
+        <div key={i} className="flex items-center gap-1.5 text-xs">
+          <select
+            className="flex-1 px-2 py-1 rounded text-xs bg-black/40 border border-white/15"
+            value={e.id}
+            onChange={ev => {
+              const next = [...list];
+              next[i] = { ...e, id: ev.target.value };
+              onChange(next);
+            }}
+          >
+            {choices.map(c => (
+              <option key={c.id} value={c.id}>{c.label}</option>
+            ))}
+          </select>
+          {/* 秒数は「持っている間」には意味がない（掛け直し続けるため） */}
+          {!forSelf && (
+            <>
+              <input type="number" min={1} className="w-14 px-2 py-1 rounded text-xs bg-black/40 border border-white/15"
+                value={e.seconds}
+                onChange={ev => {
+                  const next = [...list];
+                  next[i] = { ...e, seconds: Number(ev.target.value) };
+                  onChange(next);
+                }} />
+              <span className="text-[10px] text-muted/50">秒</span>
+            </>
+          )}
+          {/* 強さ。マイクラの表記より1小さいので、画面には見た目の数字を出す */}
+          <input type="number" min={1} max={256} className="w-14 px-2 py-1 rounded text-xs bg-black/40 border border-white/15"
+            value={e.amplifier + 1}
+            onChange={ev => {
+              const next = [...list];
+              next[i] = { ...e, amplifier: Math.max(0, Number(ev.target.value) - 1) };
+              onChange(next);
+            }} />
+          <span className="text-[10px] text-muted/50">の強さ</span>
+          <button
+            onClick={() => onChange(list.filter((_, j) => j !== i))}
+            className="text-[11px] px-1.5 py-1 rounded hover:bg-white/10 text-muted/70"
+          >
+            ✕
+          </button>
+        </div>
+      ))}
+
+      <button
+        onClick={() => onChange([...list, { id: choices[0].id, seconds: 5, amplifier: 0 }])}
+        className="self-start text-[11px] px-2 py-1 rounded"
+        style={{ background: "rgba(167,139,250,0.15)", border: "1px solid rgba(167,139,250,0.35)" }}
+      >
+        ＋ 効果を足す
+      </button>
+    </div>
+  );
+}
 
 function ItemCard({ item }: { item: ItemIR }) {
   const update = useEditorStore(s => s.updateDevItem);
@@ -103,6 +200,47 @@ function ItemCard({ item }: { item: ItemIR }) {
               ⚡ 攻撃力{weapon.damage} ＝ ほぼ何でも一撃です
             </p>
           )}
+          {/* ── ここから「技」にあたる部分 ──
+              JSON では書けないので、書き出すときにスクリプトが作られる。
+              スクリプトが要るのはこの3つ（燃やす／相手に効果／自分に効果）だけで、
+              何も設定しなければスクリプトは1行も足されない */}
+          <div className="mt-2 pt-2 flex flex-col gap-2.5" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+            <div className="text-xs font-bold" style={{ color: "#a78bfa" }}>
+              ⚔ 特殊効果
+              <span className="block text-[10px] text-muted/50 font-normal">
+                設定するとスクリプトが作られます（ワールドの「ベータAPI」が要ります）
+              </span>
+            </div>
+
+            <label className="flex items-center gap-3 text-xs">
+              <span className="w-32 shrink-0">
+                殴ると燃やす
+                <span className="block text-[10px] text-muted/50">秒。0で燃やさない</span>
+              </span>
+              <input type="number" min={0} className={numberCls}
+                value={weapon.fireSeconds ?? 0}
+                onChange={e => update(item.id, { weapon: { ...weapon, fireSeconds: Number(e.target.value) } })} />
+            </label>
+
+            {/* ⚠️ ?? [] を外さないこと。この機能より前に保存された作品には
+                effects / selfEffects が無く、undefined を .map して画面が落ちる */}
+            <EffectList
+              title="殴った相手に起きること"
+              hint="毒・衰弱など。複数入れると同時に掛かります"
+              forSelf={false}
+              list={weapon.effects ?? []}
+              onChange={next => update(item.id, { weapon: { ...weapon, effects: next } })}
+            />
+
+            <EffectList
+              title="持っている間ずっと自分に"
+              hint="足を速くする・力を上げるなど。手に持っている間だけ効きます"
+              forSelf
+              list={weapon.selfEffects ?? []}
+              onChange={next => update(item.id, { weapon: { ...weapon, selfEffects: next } })}
+            />
+          </div>
+
           <p className="text-[10px] text-muted/50">
             剣は重ねられません。金床での修理はまだできません。
           </p>

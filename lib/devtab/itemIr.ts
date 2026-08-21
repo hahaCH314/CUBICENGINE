@@ -170,10 +170,12 @@ export function validateItem(item: ItemIR): string[] {
     if (item.weapon.durability < 0) problems.push("耐久値は0以上にしてください（0にすると壊れなくなります）");
     // 耐久値のある道具は重ねられない。マイクラの仕様
     if (item.maxStack !== 1) problems.push("剣は重ねられません（重ねる数を1にしてください）");
-    if (item.weapon.fireSeconds < 0) problems.push("燃やす秒数は0以上にしてください");
+    // ⚠️ ?? を通すこと。この機能より前に保存された作品には無いフィールドで、
+    //    そのまま比べると保存済みの作品が「壊れている」扱いになる
+    if ((item.weapon.fireSeconds ?? 0) < 0) problems.push("燃やす秒数は0以上にしてください");
 
     const known = new Set<string>(WEAPON_EFFECTS.map(e => e.id));
-    for (const list of [item.weapon.effects, item.weapon.selfEffects]) {
+    for (const list of [item.weapon.effects ?? [], item.weapon.selfEffects ?? []]) {
       for (const e of list) {
         // ⚠️ 知らないIDはマイクラが**黙って無視する**。エラーも出ないので、
         //    「効果が付かない」原因を探して延々悩むことになる。ここで止める

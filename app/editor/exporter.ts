@@ -4,6 +4,7 @@ import type { CBlock } from "./_types";
 import { buildJavaModEventHandler } from "../../lib/codegenJava";
 import { mobsToBedrock } from "../../lib/devtab/toBedrock";
 import { itemsToBedrock } from "../../lib/devtab/itemToBedrock";
+import { itemsToScript, itemsScriptImports } from "../../lib/devtab/itemToScript";
 import { isCapacitor } from "../../lib/platform";
 
 /* ═══════════════════════════════════════════
@@ -321,6 +322,10 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
   const mobFiles = mobsToBedrock(state.devMobs ?? []);
   // デベロッパータブのアイテム。モブとは別の配列なので別々に組み立てる
   const itemFiles = itemsToBedrock(state.devItems ?? []);
+  // 武器の効果（毒・炎・持ち続ける効果）はスクリプトで実現する。
+  // 効果を持つ武器が1つも無ければ空文字が返り、main.js には何も足されない
+  const devScript = itemsToScript(state.devItems ?? []);
+  const devNeeds = itemsScriptImports(state.devItems ?? []);
 
   // state.mcVersion から min_engine_version を導出
   let minEngineVersion = [1, 20, 10];
@@ -336,7 +341,12 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
   // betaApiトグルOFFでも、検出したらbeta版を宣言しないとロード自体が失敗する（「作ったのに動かない」の温床）。
   // beta版は安定版APIを包含するので、万一の誤検出でも安全側。
   // TODO: chatSendが安定版に昇格したら条件を見直す（実機確認）。
-  const usesBetaOnlyApi = jsCode.includes("beforeEvents.chatSend");
+  // ⚠️ jsCode だけでなく devScript も見ること。デベロッパータブが出すコードを
+  //    見落とすと、ベータ専用APIを使っているのに安定版を宣言してロードに失敗する。
+  //    （今の devScript は entityHurt / addEffect / setOnFire で安定版の範囲だが、
+  //      あとで機能を足したときに気づけなくなる）
+  const allJs = jsCode + "\n" + devScript;
+  const usesBetaOnlyApi = allJs.includes("beforeEvents.chatSend");
   const useBeta = state.betaApi || usesBetaOnlyApi;
 
   // アイコン: カスタム画像があればそれを使う、なければデフォルト
@@ -373,7 +383,7 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
             // OFF=安定版(1.6.0 / Minecraft 1.20.30 以降・実験的機能不要)
             { module_name: "@minecraft/server", version: useBeta ? "1.6.0-beta" : "1.6.0" },
             // @minecraft/server-ui は使用時のみ追加（常時追加するとロード失敗の原因になる）
-            ...(jsCode.includes("ActionFormData") || jsCode.includes("ModalFormData") || jsCode.includes("MessageFormData")
+            ...(allJs.includes("ActionFormData") || allJs.includes("ModalFormData") || allJs.includes("MessageFormData")
               ? [{ module_name: "@minecraft/server-ui", version: useBeta ? "1.1.0-beta" : "1.1.0" }]
               : []),
             { uuid: rpUuid, version: [1, 0, 0] },
@@ -386,7 +396,7 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
     );
 
     // ★ jsCode はすでに import 文・console.warn ログを含むので二重追加しない
-    const mainJsBody = jsCode.trim()
+    const baseJs = jsCode.trim()
       ? jsCode
       : [
           `// ${escComment(state.projectName)} — CUBICENGINE`,
@@ -396,6 +406,29 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
           ``,
           `console.warn("[${escJs(state.projectName)}] ロジックブロックが空です");`,
         ].join("\n");
+
+    // ── デベロッパータブの武器効果を合流させる ──
+    // 毒・炎・持ち続ける効果は JSON では書けないのでスクリプトで出す
+    // （詳しい理由は lib/devtab/itemToScript.ts のコメント）。
+    // ⚠️ import は「既に無いものだけ」足す。同じ名前を二重に import すると
+    //    SyntaxError になり、**スクリプト全体が動かなくなる**。
+    let mainJsBody = baseJs;
+    if (devScript) {
+      const need: string[] = [];
+      // ロジックタブ側が既に import 済みかを、雑にだが確実に見る。
+      // 生成コードは必ず `import { ... } from "@minecraft/server"` の形なので、
+      // 名前が現れているかどうかで足りる
+      const importLine = baseJs.match(/import\s*\{[^}]*\}\s*from\s*["']@minecraft\/server["']/)?.[0] ?? "";
+      if (devNeeds.world && !/\bworld\b/.test(importLine)) need.push("world");
+      if (devNeeds.system && !/\bsystem\b/.test(importLine)) need.push("system");
+
+      mainJsBody =
+        (need.length > 0 ? `import { ${need.join(", ")} } from "@minecraft/server";\n\n` : "") +
+        baseJs +
+        "\n\n" +
+        devScript;
+    }
+
     bp.file("scripts/main.js", NOTICE_COMMENT + "\n\n" + mainJsBody);
 
     // 悪用防止の注意喚起を同梱
