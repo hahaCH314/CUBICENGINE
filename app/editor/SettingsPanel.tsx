@@ -476,9 +476,43 @@ export default function SettingsPanel() {
             )}
           </div>
 
-          {/* 「出力 & 識別子」カード(出力フォーマット/圧縮/UUID/namespace/min_engine)は撤去。
-             技術者向けの内部設定で、しかもJava(GROVE)なのに.mcaddon(Bedrock)表示でちぐはぐだった。
-             賢い既定に任せる＝「コードを書かず誰でも作る」の芯に合わせてノイズを消す。 */}
+          {/* 「出力 & 識別子」カード(圧縮/UUID/namespace/min_engine)は撤去したまま。
+             技術者向けの内部設定で、賢い既定に任せるほうがよい。
+
+             ただし **拡張子だけは戻した**。Android は .mcaddon を知らない拡張子として
+             扱い、保存そのものを拒否することがある（「このファイルは保存できません」）。
+             そうなると作ったアドオンを取り出す手段が一切なくなるので、
+             .zip で受け取れる逃げ道が要る。技術的な設定ではなく「保存できない人の出口」。 */}
+          {targetPlatform === "bedrock" && (
+            <div className="bg-panel rounded-xl border border-border p-3">
+              <div className="text-[11px] font-bold mb-2">保存できないとき</div>
+              <div className="flex gap-2">
+                {([
+                  ["mcaddon", ".mcaddon", "ふつうはこちら"],
+                  ["zip", ".zip", "スマホで保存できないとき"],
+                ] as const).map(([v, label, hint]) => (
+                  <button
+                    key={v}
+                    onClick={() => setExportFormat(v)}
+                    className="flex-1 px-2 py-2 rounded-lg text-[11px] text-left transition-colors"
+                    style={{
+                      background: exportFormat === v ? "rgba(60,208,112,0.15)" : "rgba(255,255,255,0.03)",
+                      border: `1px solid ${exportFormat === v ? "rgba(60,208,112,0.5)" : "rgba(255,255,255,0.1)"}`,
+                    }}
+                  >
+                    <span className="font-bold">{label}</span>
+                    <span className="block text-[10px] text-muted/60">{hint}</span>
+                  </button>
+                ))}
+              </div>
+              {exportFormat === "zip" && (
+                <p className="text-[10px] text-muted/70 mt-2 leading-relaxed">
+                  保存したあと、ファイル名の <b>.zip</b> を <b>.mcaddon</b> に変えると
+                  マイクラで開けます。中身は同じものです。
+                </p>
+              )}
+            </div>
+          )}
 
           {/* ステータス */}
           <div className="bg-panel rounded-xl border border-border p-3 flex gap-4 text-[11px] text-muted">
