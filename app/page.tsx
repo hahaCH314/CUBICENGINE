@@ -250,7 +250,7 @@ const RELEASES_READY = false;
 // ⚠️ true に戻す前に必ず: タグを打って CI でビルドし直し、
 //    Releases の .exe を実際にインストールして起動するところまで確認すること。
 //    CI には「実際に起動して 127.0.0.1:3200 が 200 を返すか」の検査を入れてある。
-const GROVE_EXE_READY = false;
+const GROVE_EXE_READY = true;
 
 // 配布中の GROVE_editor.exe の SHA-256。GitHub Releases が公表している digest と
 // ダウンロードした実物のハッシュが一致することを確認済み(2026-08-09)。
@@ -258,8 +258,10 @@ const GROVE_EXE_READY = false;
 // リンクも同一性の検証もこれで足りる。
 // ⚠️ 新しいリリースを出したらここも更新すること。古いままだと、いま配っている
 //    ファイルとは別物の検査結果へ誘導してしまう。
+// 2026-08-22 更新: v0.1.2 のもの。GitHub API の digest と、実際に
+// releases/latest/download から落とした実物の SHA-256 が一致することを確認済み。
 const GROVE_EXE_SHA256 =
-  "515028da96da771da7d7d3bc755b65191f3ef163eca07102fc5e30b9f698efd6";
+  "bb1c2064be8a9fe255f36f299a6809bbc4b9f9cd2dfda575419344713157851b";
 
 // SPROUT(統合版)を一時的にメンテナンス中（false）にするフラグ。
 const SPROUT_READY = true;
@@ -277,7 +279,7 @@ const SPROUT_READY = true;
 // GROVE_EXE_READY と同じ壊れた配布物を指している。片方だけ止めても
 // もう片方から落とせてしまうので、両方を同時に閉じる。
 // 戻すときも両方まとめて。理由は GROVE_EXE_READY のコメントを見ること。
-const JAVA_READY = false;
+const JAVA_READY = true;
 
 // DLボタン：リリース公開済みなら実DL、未公開なら「準備中」の非リンク表示
 function DlButton({
