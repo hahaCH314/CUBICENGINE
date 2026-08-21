@@ -116,6 +116,72 @@ export interface ItemIR {
    *    食べられる剣は作れるが、持ち替えるたびに食べる動作が出て使い物にならない。
    */
   weapon: ItemWeapon | null;
+  /** 防具にするか。null なら防具ではない */
+  armor: ItemArmor | null;
+  /**
+   * 右クリック（長押し）で出す技。null なら技を持たない。
+   * 武器にも防具にも、ただのアイテムにも付けられる。
+   */
+  skill: ItemSkill | null;
+}
+
+/** どこに着るか。マイクラのスロット名にそのまま対応する */
+export type ArmorSlot = "head" | "chest" | "legs" | "feet";
+
+export const ARMOR_SLOTS: { id: ArmorSlot; label: string; example: string }[] = [
+  { id: "head", label: "かぶと", example: "ダイヤ3" },
+  { id: "chest", label: "むねあて", example: "ダイヤ8" },
+  { id: "legs", label: "ズボン", example: "ダイヤ6" },
+  { id: "feet", label: "くつ", example: "ダイヤ3" },
+];
+
+export interface ItemArmor {
+  slot: ArmorSlot;
+  /** 防御力。ダイヤ一式で20 */
+  protection: number;
+  /** 耐久値。0 なら壊れない */
+  durability: number;
+  /**
+   * 着ている間ずっと掛かる効果。
+   * 武器の selfEffects と同じ仕組みで、見る場所が手ではなく防具スロットになる。
+   */
+  wearEffects: WeaponEffect[];
+}
+
+/**
+ * 右クリックで出す技。
+ *
+ * ⚠️ ここは **JSON では絶対に作れない**。スクリプト専用。
+ *    itemUse イベントを拾って、その場で効果を起こす。
+ */
+export type SkillKind =
+  /** まわりの敵をまとめて殴る */
+  | "shockwave"
+  /** 自分を回復する */
+  | "heal"
+  /** 見ている方向へ飛ぶ */
+  | "dash"
+  /** まわりの敵を吹き飛ばす */
+  | "knockback"
+  /** 雷を落とす */
+  | "lightning";
+
+export const SKILL_KINDS: { id: SkillKind; label: string; hint: string; hasPower: boolean; hasRange: boolean }[] = [
+  { id: "shockwave", label: "衝撃波", hint: "まわりの敵をまとめて攻撃します", hasPower: true, hasRange: true },
+  { id: "lightning", label: "雷を落とす", hint: "見ている場所に雷が落ちます", hasPower: false, hasRange: true },
+  { id: "knockback", label: "吹き飛ばす", hint: "まわりの敵を空へ飛ばします", hasPower: true, hasRange: true },
+  { id: "heal", label: "回復する", hint: "自分の体力を回復します", hasPower: true, hasRange: false },
+  { id: "dash", label: "飛ぶ", hint: "見ている方向へ勢いよく飛びます", hasPower: true, hasRange: false },
+];
+
+export interface ItemSkill {
+  kind: SkillKind;
+  /** 威力。技によって意味が変わる（ダメージ量／回復量／飛ぶ勢い） */
+  power: number;
+  /** 効く範囲（ブロック数）。範囲を持たない技では使わない */
+  range: number;
+  /** 次に使えるまでの秒数。0 なら連打できる */
+  cooldownSeconds: number;
 }
 
 export function defaultWeapon(): ItemWeapon {
@@ -126,6 +192,17 @@ export function defaultWeapon(): ItemWeapon {
 
 export function defaultFood(): ItemFood {
   return { nutrition: 4, saturation: 0.3, useDuration: 1.6, canAlwaysEat: false };
+}
+
+export function defaultArmor(): ItemArmor {
+  // ダイヤのむねあてくらい。着替えの効果が分かる程度の強さ
+  return { slot: "chest", protection: 8, durability: 400, wearEffects: [] };
+}
+
+export function defaultSkill(): ItemSkill {
+  // 衝撃波。一番「技らしい」ので最初に出す。
+  // クールダウン1秒は入れておく。0だと押しっぱなしで連発され、何が起きたか分からない
+  return { kind: "shockwave", power: 10, range: 5, cooldownSeconds: 1 };
 }
 
 /**
@@ -150,6 +227,8 @@ export function makeItem(displayName: string, iconDataUrl: string, existingIds: 
     maxStack: 64,
     food: null,
     weapon: null,
+    armor: null,
+    skill: null,
   };
 }
 
@@ -161,8 +240,27 @@ export function validateItem(item: ItemIR): string[] {
   if (/^[0-9]/.test(item.id)) problems.push(`内部名「${item.id}」は数字で始められません（名前を英字から始めてください）`);
   if (!item.iconDataUrl) problems.push("アイコンの画像がありません");
   if (item.maxStack < 1 || item.maxStack > 64) problems.push("重ねられる数は 1〜64 にしてください");
-  if (item.food && item.weapon) {
-    problems.push("食べ物と剣は同時にできません（持ち替えるたびに食べる動作が出てしまいます）");
+  // 種類はひとつだけ。組み合わせると、どれかの動作が邪魔をして使い物にならない
+  const kinds = [item.food && "食べ物", item.weapon && "剣", item.armor && "防具"].filter(Boolean);
+  if (kinds.length > 1) {
+    problems.push(`${kinds.join("と")}は同時にできません（どれか1つにしてください）`);
+  }
+
+  if (item.armor) {
+    if (item.armor.protection < 0) problems.push("防御力は0以上にしてください");
+    if (item.armor.durability < 0) problems.push("耐久値は0以上にしてください（0にすると壊れなくなります）");
+    if (item.maxStack !== 1) problems.push("防具は重ねられません（重ねる数を1にしてください）");
+    const known = new Set<string>(WEAPON_EFFECTS.map(e => e.id));
+    for (const e of item.armor.wearEffects ?? []) {
+      if (!known.has(e.id)) problems.push(`「${e.id}」は使えない効果です`);
+      if (e.amplifier < 0 || e.amplifier > 255) problems.push("効果の強さは 1〜256 にしてください");
+    }
+  }
+
+  if (item.skill) {
+    if (item.skill.power < 0) problems.push("技の威力は0以上にしてください");
+    if (item.skill.range < 0) problems.push("技の範囲は0以上にしてください");
+    if (item.skill.cooldownSeconds < 0) problems.push("技のクールダウンは0以上にしてください");
   }
   if (item.weapon) {
     if (item.weapon.damage < 1) problems.push("攻撃力は1以上にしてください");

@@ -41,6 +41,16 @@ function hasEffect(it: ItemIR): boolean {
   return e.effects.length > 0 || e.selfEffects.length > 0 || e.fireSeconds > 0;
 }
 
+/** 着ている間の効果を持つ防具か */
+function hasWearEffect(it: ItemIR): boolean {
+  return (it.armor?.wearEffects?.length ?? 0) > 0;
+}
+
+/** 技を持つか */
+function hasSkill(it: ItemIR): boolean {
+  return !!it.skill;
+}
+
 /**
  * 武器の効果を持つアイテムがあれば、その処理を書いたコードを返す。
  * 1つも無ければ空文字。**空のときに空文字を返すのが大事**で、
@@ -51,7 +61,9 @@ export function itemsToScript(items: readonly ItemIR[]): string {
   // ⚠️ ?? を必ず通すこと。この機能より前に保存されたプロジェクトには
   //    effects / selfEffects / fireSeconds が無く、.length で落ちる
   const armed = items.filter(it => hasEffect(it));
-  if (armed.length === 0) return "";
+  const armors = items.filter(it => hasWearEffect(it));
+  const skills = items.filter(it => hasSkill(it));
+  if (armed.length === 0 && armors.length === 0 && skills.length === 0) return "";
 
   // 殴ったときの処理が要るか / 持っている間の処理が要るか を分けて判定する。
   // 要らないほうの仕掛けまで動かすと、無駄に毎tick走ることになる
@@ -142,6 +154,107 @@ export function itemsToScript(items: readonly ItemIR[]): string {
     lines.push("");
   }
 
+  // ── 着ている間ずっと効く防具 ──
+  if (armors.length > 0) {
+    lines.push("const CE_ARMOR_EFFECTS = {");
+    for (const it of armors) {
+      const es = (it.armor!.wearEffects ?? [])
+        .map(e => `{ id: ${q(e.id)}, amp: ${e.amplifier} }`)
+        .join(", ");
+      lines.push(`  ${q(`${NAMESPACE}:${it.id}`)}: [${es}],`);
+    }
+    lines.push("};");
+    lines.push("");
+    lines.push("// 防具スロット4つを毎秒見る。手持ちと違い、着ていれば手に何を持っていても効く");
+    lines.push("const CE_ARMOR_SLOTS = ['Head', 'Chest', 'Legs', 'Feet'];");
+    lines.push("system.runInterval(() => {");
+    lines.push("  for (const p of world.getAllPlayers()) {");
+    lines.push("    let eq;");
+    lines.push("    try { eq = p.getComponent('minecraft:equippable'); } catch { continue; }");
+    lines.push("    if (!eq) continue;");
+    lines.push("    for (const slot of CE_ARMOR_SLOTS) {");
+    lines.push("      let worn;");
+    lines.push("      try { worn = eq.getEquipment(slot); } catch { continue; }");
+    lines.push("      const list = worn && CE_ARMOR_EFFECTS[worn.typeId];");
+    lines.push("      if (!list) continue;");
+    lines.push("      for (const e of list) {");
+    lines.push("        try {");
+    lines.push("          p.addEffect(e.id, 40, { amplifier: e.amp, showParticles: false });");
+    lines.push("        } catch { /* 死亡直後など */ }");
+    lines.push("      }");
+    lines.push("    }");
+    lines.push("  }");
+    lines.push("}, 20);");
+    lines.push("");
+  }
+
+  // ── 右クリックで出す技 ──
+  if (skills.length > 0) {
+    lines.push("const CE_SKILLS = {");
+    for (const it of skills) {
+      const s = it.skill!;
+      lines.push(
+        `  ${q(`${NAMESPACE}:${it.id}`)}: { kind: ${q(s.kind)}, power: ${s.power}, range: ${s.range} },`,
+      );
+    }
+    lines.push("};");
+    lines.push("");
+    lines.push("world.afterEvents.itemUse.subscribe(ev => {");
+    lines.push("  const p = ev.source;");
+    lines.push("  const skill = CE_SKILLS[ev.itemStack?.typeId];");
+    lines.push("  if (!p || !skill) return;");
+    lines.push("  try {");
+    lines.push("    const loc = p.location;");
+    lines.push("    const dim = p.dimension;");
+    lines.push("");
+    lines.push("    if (skill.kind === 'heal') {");
+    lines.push("      const hp = p.getComponent('minecraft:health');");
+    lines.push("      // setCurrentValue は上限を超えられない。超えた分は捨てられる");
+    lines.push("      if (hp) hp.setCurrentValue(Math.min(hp.effectiveMax, hp.currentValue + skill.power));");
+    lines.push("");
+    lines.push("    } else if (skill.kind === 'dash') {");
+    lines.push("      // 見ている向きへ弾く。applyKnockback は水平＋垂直を分けて渡す");
+    lines.push("      const v = p.getViewDirection();");
+    lines.push("      p.applyKnockback({ x: v.x * skill.power, z: v.z * skill.power }, v.y * skill.power);");
+    lines.push("");
+    lines.push("    } else if (skill.kind === 'lightning') {");
+    lines.push("      // 見ている先に落とす。当たらなければ足元");
+    lines.push("      const hit = p.getBlockFromViewDirection({ maxDistance: Math.max(1, skill.range) });");
+    lines.push("      const at = hit?.block?.location ?? loc;");
+    lines.push("      dim.spawnEntity('minecraft:lightning_bolt', at);");
+    lines.push("");
+    lines.push("    } else {");
+    lines.push("      // shockwave / knockback。まわりの相手を集めて処理する");
+    lines.push("      // ⚠️ excludeNames で自分を外す。入れないと自分ごと吹き飛ぶ");
+    lines.push("      const targets = dim.getEntities({");
+    lines.push("        location: loc,");
+    lines.push("        maxDistance: Math.max(1, skill.range),");
+    lines.push("        excludeNames: [p.name],");
+    lines.push("      });");
+    lines.push("      for (const t of targets) {");
+    lines.push("        try {");
+    lines.push("          if (skill.kind === 'shockwave') {");
+    lines.push("            t.applyDamage(skill.power, { cause: 'entityAttack', damagingEntity: p });");
+    lines.push("          } else {");
+    lines.push("            // 自分から見て外向きへ飛ばす");
+    lines.push("            const dx = t.location.x - loc.x;");
+    lines.push("            const dz = t.location.z - loc.z;");
+    lines.push("            const len = Math.hypot(dx, dz) || 1;");
+    lines.push("            t.applyKnockback(");
+    lines.push("              { x: (dx / len) * skill.power, z: (dz / len) * skill.power },");
+    lines.push("              skill.power * 0.4,");
+    lines.push("            );");
+    lines.push("          }");
+    lines.push("        } catch { /* 無敵時間中など。1体飛ばして続ける */ }");
+    lines.push("      }");
+    lines.push("    }");
+    lines.push("  } catch (err) {");
+    lines.push("    // 技が失敗しても他の処理を巻き込まない");
+    lines.push("  }");
+    lines.push("});");
+    lines.push("");
+  }
+
   return lines.join("\n");
 }
 
@@ -152,9 +265,11 @@ export function itemsToScript(items: readonly ItemIR[]): string {
  */
 export function itemsScriptImports(items: readonly ItemIR[]): { world: boolean; system: boolean } {
   const armed = items.filter(it => hasEffect(it));
+  const armors = items.filter(it => hasWearEffect(it));
+  const skills = items.filter(it => hasSkill(it));
   return {
-    world: armed.length > 0,
-    // system は「持っている間」の処理だけが使う
-    system: armed.some(it => eff(it.weapon).selfEffects.length > 0),
+    world: armed.length > 0 || armors.length > 0 || skills.length > 0,
+    // system は「毎秒くり返す」処理だけが使う（手持ち効果・防具効果）
+    system: armed.some(it => eff(it.weapon).selfEffects.length > 0) || armors.length > 0,
   };
 }

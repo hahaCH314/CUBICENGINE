@@ -42,6 +42,36 @@ function itemJson(item: ItemIR): string {
     components["minecraft:creative_category"] = { parent: "itemGroup.name.sword" };
   }
 
+  if (item.armor) {
+    const a = item.armor;
+    // 防御力。ダイヤ一式で20 になるくらいが目安
+    components["minecraft:armor"] = { protection: a.protection };
+    // ⚠️ wearable が無いと**着られない**。armor だけでは「防御力を持つ置物」になる
+    components["minecraft:wearable"] = { slot: `slot.armor.${a.slot}` };
+    if (a.durability > 0) {
+      components["minecraft:durability"] = { max_durability: a.durability };
+    }
+    components["minecraft:max_stack_size"] = 1;
+    // エンチャント枠。防具の部位ごとに指定が違う
+    components["minecraft:enchantable"] = { value: 10, slot: `armor_${a.slot}` };
+    components["minecraft:creative_category"] = { parent: "itemGroup.name.helmet" };
+  }
+
+  if (item.skill) {
+    // ⚠️ 技そのものはスクリプトが動かす（itemToScript.ts）。ここでは
+    //    「右クリックを押せる状態にする」ことだけをやる。
+    //    use_modifiers が無いと itemUse イベントが飛ばず、押しても無反応になる
+    components["minecraft:use_modifiers"] = { use_duration: 0.1, movement_modifier: 1 };
+    if (item.skill.cooldownSeconds > 0) {
+      // クールダウンはマイクラ側の仕組みを使う。自前で数えるより確実で、
+      // 画面にも残り時間が出る
+      components["minecraft:cooldown"] = {
+        category: `${NAMESPACE}_${item.id}`,
+        duration: item.skill.cooldownSeconds,
+      };
+    }
+  }
+
   if (item.food) {
     components["minecraft:food"] = {
       nutrition: item.food.nutrition,
