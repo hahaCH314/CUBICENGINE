@@ -2170,15 +2170,31 @@ function SlotReel<T>({
 /* ══════════════════════════════════════════════════════════
    FieldSlot — 「テキストごとにスロット」。
    ══════════════════════════════════════════════════════════ */
-function FieldSlot({ label, value, options, onChange }: {
-  label: string; value: string; options?: string[]; onChange: (v: string) => void;
+function FieldSlot({ label, fieldId, value, options, onChange }: {
+  label: string; fieldId?: string; value: string; options?: string[]; onChange: (v: string) => void;
 }) {
-  const hasOpts = !!options && options.length > 0;
-  const idx = hasOpts ? Math.max(0, options!.indexOf(value)) : 0;
+  // デベロッパータブで作ったモブ／アイテムを選べるようにする。
+  // ⚠️ ここでやるのが要点。テンプレート(data/templates.ts)の options は静的なので、
+  //    作った直後のモブを載せられない。描画のたびに store から取って先頭に足す。
+  //    先頭に置くのは「自分で作ったものが最初に出る」ほうが探さずに済むため。
+  const devMobs = useEditorStore(s => s.devMobs);
+  const devItems = useEditorStore(s => s.devItems);
+  const mine =
+    fieldId === "mob" || fieldId === "entity"
+      ? devMobs.map(m => `cubicengine:${m.id}`)
+      : fieldId === "item"
+        ? devItems.map(i => `cubicengine:${i.id}`)
+        : [];
+  // 同じものが二重に出ないよう混ぜる。options が無いカードでも、
+  // 自作分があるならスロットとして選べるようにする
+  const merged = mine.length > 0 ? [...mine, ...(options ?? []).filter(o => !mine.includes(o))] : options;
+
+  const hasOpts = !!merged && merged.length > 0;
+  const idx = hasOpts ? Math.max(0, merged!.indexOf(value)) : 0;
   const go = (d: number) => {
     if (!hasOpts) return;
-    const n = (idx + d + options!.length) % options!.length;
-    onChange(options![n]);
+    const n = (idx + d + merged!.length) % merged!.length;
+    onChange(merged![n]);
     playSlotTickSound();
   };
   return (
@@ -3686,7 +3702,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                   key={f.id}
                   label={f.label}
                   value={fieldVals[f.id] ?? f.value}
-                  options={f.options}
+                  fieldId={f.id} options={f.options}
                   onChange={v => setFieldVals(prev => ({ ...prev, [f.id]: v }))}
                 />
               ))}
@@ -4515,7 +4531,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                     style={{ marginLeft: "auto", width: 22, height: 22, borderRadius: 6, border: "1.5px solid #e2e8f0", background: "#f8fafc", color: "#64748b", fontSize: 12, fontWeight: 900, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>✕</button>
                 </div>
                 {sb.fields.map(f => (
-                  <FieldSlot key={f.id} label={f.label} value={f.value} options={f.options}
+                  <FieldSlot key={f.id} label={f.label} value={f.value} fieldId={f.id} options={f.options}
                     onChange={v => handleFieldChange(sb.id, f.id, v)} />
                 ))}
 
@@ -4552,7 +4568,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                           </div>
                           {/* しきい値やアイテム名など、その条件のパラメータ */}
                           {s.fields.map(f => (
-                            <FieldSlot key={f.id} label={f.label} value={f.value} options={f.options}
+                            <FieldSlot key={f.id} label={f.label} value={f.value} fieldId={f.id} options={f.options}
                               onChange={v => setStickerField(sb.id, s.id, f.id, v)} />
                           ))}
                         </div>
