@@ -74,38 +74,46 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
   const I=indent;
   switch(b.type){
     // ★ await を全て除去 — subscribe コールバックは同期でなければならない
+    //
+    // ⚠️ コマンドは runCommand を使うこと。runCommandAsync は**削除された古いAPI**で、
+    //    呼ぶとその場でエラーになり、そのカードだけ動かない。
+    //    しかもマイクラ側は何も言わないので「置いたのに何も起きない」としか見えない。
+    //    （2026-08-21、エンティティ召喚・パーティクル表示が動かない原因がこれだった。
+    //      アイテム付与・音・タイトル・エフェクトなど10枚が同時に壊れていた）
+    //    runCommand は同期なので呼べる場所に制限があるが、生成コードは常に
+    //    system.runTimeout の中で動くため問題ない。
     case"ac_msg":
       // world.sendMessage は古いAPIバージョンで存在しないためループで代替
       return f("target","@a")==="@a"
         ? `${I}for (const _tp of world.getPlayers()) _tp.sendMessage("${escStr(f("msg","こんにちは"))}");`
         : `${I}player.sendMessage("${escStr(f("msg","こんにちは"))}");`;
-    case"ac_give":   return`${I}player.runCommandAsync("give @s ${escId(f("item","minecraft:diamond"))} ${f("count","1")}");`;
+    case"ac_give":   return`${I}player.runCommand("give @s ${escId(f("item","minecraft:diamond"))} ${f("count","1")}");`;
     case"ac_tp":     return`${I}player.teleport({x:${f("x","0")},y:${f("y","64")},z:${f("z","0")}});`;
-    case"ac_cmd":    return`${I}player.runCommandAsync("${escStr(f("cmd","say hi"))}");`;
-    case"ac_sound":  return`${I}player.runCommandAsync("playsound ${escId(f("snd","random.orb"))} @s ~ ~ ~ ${f("vol","1")}");`;
+    case"ac_cmd":    return`${I}player.runCommand("${escStr(f("cmd","say hi"))}");`;
+    case"ac_sound":  return`${I}player.runCommand("playsound ${escId(f("snd","random.orb"))} @s ~ ~ ~ ${f("vol","1")}");`;
     case"ac_title":  return[
-      `${I}player.runCommandAsync(\`titleraw @s title {"rawtext":[{"text":"${escStr(f("title",""))}"}]}\`);`,
-      `${I}player.runCommandAsync(\`titleraw @s subtitle {"rawtext":[{"text":"${escStr(f("sub",""))}"}]}\`);`,
+      `${I}player.runCommand(\`titleraw @s title {"rawtext":[{"text":"${escStr(f("title",""))}"}]}\`);`,
+      `${I}player.runCommand(\`titleraw @s subtitle {"rawtext":[{"text":"${escStr(f("sub",""))}"}]}\`);`,
     ].join("\n");
-    case"ac_effect": return`${I}player.runCommandAsync("effect @s ${escId(f("eff","speed"))} ${f("dur","10")} 0");`;
+    case"ac_effect": return`${I}player.runCommand("effect @s ${escId(f("eff","speed"))} ${f("dur","10")} 0");`;
     case"ac_score":{
       const ops:Record<string,string>={"加算":"add","減算":"remove","セット":"set","リセット":"set"};
       const cmd=ops[f("op","加算")]??"add";
       const val=f("op","加算")==="リセット"?"0":f("val","1");
-      return`${I}player.runCommandAsync("scoreboard players ${cmd} @s ${escId(f("obj","points"))} ${val}");`;
+      return`${I}player.runCommand("scoreboard players ${cmd} @s ${escId(f("obj","points"))} ${val}");`;
     }
     case"ac_tag":
       return f("op","追加")==="追加"
         ? `${I}player.addTag("${escId(f("tag","vip"))}");`
         : `${I}player.removeTag("${escId(f("tag","vip"))}");`;
     case"ac_kick":
-      return`${I}player.runCommandAsync(\`kick \${player.name} ${escStr(f("msg","ルール違反"))}\`);`;
+      return`${I}player.runCommand(\`kick \${player.name} ${escStr(f("msg","ルール違反"))}\`);`;
     case"ac_actionbar":
       return`${I}player.onScreenDisplay.setActionBar("${escStr(f("msg","こんにちは！"))}");`;
     case"ac_summon":
-      return`${I}player.runCommandAsync("summon ${escId(f("mob","minecraft:zombie"))} ~ ~ ~");`;
+      return`${I}player.runCommand("summon ${escId(f("mob","minecraft:zombie"))} ~ ~ ~");`;
     case"ac_particle":
-      return`${I}player.runCommandAsync("particle ${escId(f("particle","minecraft:heart_particle"))} ~ ~1 ~");`;
+      return`${I}player.runCommand("particle ${escId(f("particle","minecraft:heart_particle"))} ~ ~1 ~");`;
     case"ac_xp":
       return`${I}player.addExperience(Number(${f("amount","10")})||0);`;
     case"ac_heal":

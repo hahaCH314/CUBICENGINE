@@ -71,7 +71,9 @@ export function defaultSpec(kind: FormKind = "menu"): FormSpec {
 /* ───────── アクション1つ → 1行コード ───────── */
 function genAction(a: FormAction, indent: string): string {
   if (!a || a.type === "none" || !a.value.trim()) return `${indent}// なにもしない`;
-  if (a.type === "command") return `${indent}player.runCommandAsync("${fEscStr(a.value)}");`;
+  // ⚠️ runCommandAsync は削除された古いAPI。呼ぶとエラーになり、
+  //    そのボタンだけ無反応になる（詳しい理由は lib/codegen.ts のコメント）
+  if (a.type === "command") return `${indent}player.runCommand("${fEscStr(a.value)}");`;
   return `${indent}player.sendMessage("${fEscStr(a.value)}");`;
 }
 
