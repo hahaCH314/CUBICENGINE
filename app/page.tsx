@@ -258,10 +258,12 @@ const GROVE_EXE_READY = true;
 // リンクも同一性の検証もこれで足りる。
 // ⚠️ 新しいリリースを出したらここも更新すること。古いままだと、いま配っている
 //    ファイルとは別物の検査結果へ誘導してしまう。
-// 2026-08-22 更新: v0.1.2 のもの。GitHub API の digest と、実際に
+// 2026-08-22 更新: v0.1.3 のもの。GitHub API の digest と、実際に
 // releases/latest/download から落とした実物の SHA-256 が一致することを確認済み。
+// ⚠️ タグを打ち直したら必ずここも更新すること。古いままだと、いま配っている
+//    ファイルとは**別物の検査結果**へ「これは安全です」と誘導することになる。
 const GROVE_EXE_SHA256 =
-  "bb1c2064be8a9fe255f36f299a6809bbc4b9f9cd2dfda575419344713157851b";
+  "0b822763b2a41cb88825b71a630ea32093a10f6b7fd6bdf8bba8f54fa4eb08c9";
 
 // SPROUT(統合版)を一時的にメンテナンス中（false）にするフラグ。
 const SPROUT_READY = true;
