@@ -97,10 +97,10 @@ export default function TermsPage() {
                 誰もいないサーバーなので、規約の窓口としては成り立たない */}
             本規約に関するお問い合わせは{" "}
             <a
-              href="mailto:syunpoo419@gmail.com"
+              href="mailto:cubicenginestudio@icloud.com"
               className="underline underline-offset-2 hover:text-foreground transition-colors"
             >
-              syunpoo419@gmail.com
+              cubicenginestudio@icloud.com
             </a>
             {" "}までお願いします。
           </p>

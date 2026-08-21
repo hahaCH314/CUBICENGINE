@@ -448,7 +448,7 @@ export default function SettingsPanel() {
               🏠 CUBICENGINEstudio
             </a>
             <p className="text-[9px] text-muted/50 mt-1.5 text-center leading-tight">
-              お問い合わせ: syunpoo419@gmail.com
+              お問い合わせ: cubicenginestudio@icloud.com
             </p>
           </div>
         </div>

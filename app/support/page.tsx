@@ -164,7 +164,7 @@ export default function SupportPage() {
             {/* ⚠️ **窓口はメール**（2026-08-17）。Discord は誰もいない */}
             感想・バグ報告は{" "}
             <a
-              href="mailto:syunpoo419@gmail.com"
+              href="mailto:cubicenginestudio@icloud.com"
               className="underline underline-offset-2 hover:text-emerald-500 text-gray-500 transition-colors"
             >
               メール

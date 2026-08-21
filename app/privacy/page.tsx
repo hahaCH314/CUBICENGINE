@@ -87,10 +87,10 @@ export default function PrivacyPage() {
                 実質連絡が取れない。ポリシーの窓口は必ず届く先を書くこと */}
             本ポリシーに関するお問い合わせは{" "}
             <a
-              href="mailto:syunpoo419@gmail.com"
+              href="mailto:cubicenginestudio@icloud.com"
               className="underline underline-offset-2 hover:text-foreground transition-colors"
             >
-              syunpoo419@gmail.com
+              cubicenginestudio@icloud.com
             </a>
             {" "}までお願いします。
           </p>
