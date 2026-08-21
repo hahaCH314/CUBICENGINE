@@ -30,7 +30,7 @@ android {
         //       1 と 2 はそれで潰れた（2026-08-20〜21）。連番である必要はないので、
         //       詰まったときは大きく飛ばすほうが早い。
         //    Windows版のタグ(v0.1.2)とは無関係の、Android専用の通し番号。
-        versionCode 10
+        versionCode 11
         // 利用者に見える文字。Windows版と揃えておく
         versionName "0.1.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
