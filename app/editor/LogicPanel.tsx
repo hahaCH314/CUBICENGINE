@@ -1566,7 +1566,10 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
   const exportJson = async () => {
     // エクスポート(.mcaddon)とは別の「作品データ」保存。独自拡張子 .cubic（中身はJSON）。
     const data = JSON.stringify({ app: "cubicengine", kind: "logic", name: saveName, blocks, version: "2.0" }, null, 2);
-    const blob = new Blob([data], { type: "application/octet-stream" });
+    // ⚠️ application/octet-stream にしないこと。Android が「知らない形式」として扱い、
+    //    保存先アプリが受け取りを拒否して「このファイルは保存できません」が出る。
+    //    中身は JSON なので正直に名乗る。拡張子(.cubic)は下の download 属性で保つ
+    const blob = new Blob([data], { type: "application/json" });
     const filename = `${saveName.replace(/\s+/g, "_")}.cubic`;
 
     // Android(Capacitor)では <a download> が効かない。Webと同じ経路のままだと
@@ -1584,7 +1587,10 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url; a.download = filename; a.click();
-    URL.revokeObjectURL(url);
+    // ⚠️ 即 revoke しないこと。click() が返った時点ではダウンロードはまだ
+    //    始まっておらず、先に破棄すると端末が取りに行ったとき中身が消えている
+    //    （PCは間に合うのでスマホでだけ起きる）。詳しくは exporter.ts のコメント
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
     flash("💾 .cubic で保存しました！");
   };
 
