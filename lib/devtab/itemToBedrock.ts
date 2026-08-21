@@ -21,14 +21,18 @@ function itemJson(item: ItemIR): string {
   if (item.weapon) {
     // 攻撃力。持って殴ったときのダメージ
     components["minecraft:damage"] = item.weapon.damage;
-    // 耐久値。これが無いと壊れない剣になる
-    components["minecraft:durability"] = { max_durability: item.weapon.durability };
-    // ⚠️ 剣として扱わせるには「何を壊すと耐久が減るか」を書く必要がある。
-    //    無いとダメージは出るのに耐久が一切減らない
-    components["minecraft:digger"] = {
-      use_efficiency: false,
-      destroy_speeds: [{ block: "minecraft:web", speed: 15 }],
-    };
+    // 耐久値。**0 のときは何も書かない**。durability コンポーネント自体が
+    // 無ければ減るものが無いので、そのまま「壊れない武器」になる
+    if (item.weapon.durability > 0) {
+      components["minecraft:durability"] = { max_durability: item.weapon.durability };
+      // ⚠️ 剣として扱わせるには「何を壊すと耐久が減るか」を書く必要がある。
+      //    無いとダメージは出るのに耐久が一切減らない。
+      //    耐久が無いなら digger も要らない（あっても害はないが意味がない）
+      components["minecraft:digger"] = {
+        use_efficiency: false,
+        destroy_speeds: [{ block: "minecraft:web", speed: 15 }],
+      };
+    }
     // 手に持ったときの見え方。剣らしく斜めに構える
     components["minecraft:enchantable"] = { value: 10, slot: "sword" };
     // 剣は重ねられない。耐久値を持つアイテムの仕様なので、ここで強制する。

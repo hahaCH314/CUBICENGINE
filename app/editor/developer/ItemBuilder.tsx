@@ -42,9 +42,11 @@ function ItemCard({ item }: { item: ItemIR }) {
         </button>
       </div>
 
+      {/* ⚠️ 重ねられる数だけは 1〜64 を外さないこと。マイクラのスロットは64個までで、
+          65以上を書くとアイテムごと読み込まれない（他の数値と違い上限が要る） */}
       {!weapon && (
         <label className="flex items-center gap-3 text-xs">
-          <span className="w-32 shrink-0">重ねられる数<span className="block text-[10px] text-muted/50">1〜64</span></span>
+          <span className="w-32 shrink-0">重ねられる数<span className="block text-[10px] text-muted/50">1〜64（マイクラの上限）</span></span>
           <input type="number" min={1} max={64} className={numberCls}
             value={item.maxStack}
             onChange={e => update(item.id, { maxStack: Number(e.target.value) })} />
@@ -77,18 +79,30 @@ function ItemCard({ item }: { item: ItemIR }) {
 
       {weapon && (
         <div className="pl-5 flex flex-col gap-1.5">
+          {/* ⚠️ max を付けないこと。上限があると「最強の剣を作る」ができない。
+              マイクラ側は大きい値をそのまま受け取るので、上限は要らない */}
           <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">攻撃力<span className="block text-[10px] text-muted/50">木の剣4 ダイヤ7</span></span>
-            <input type="number" min={1} max={100} className={numberCls}
+            <span className="w-32 shrink-0">攻撃力<span className="block text-[10px] text-muted/50">木の剣4 ダイヤ7 ／ 上限なし</span></span>
+            <input type="number" min={1} className={numberCls}
               value={weapon.damage}
               onChange={e => update(item.id, { weapon: { ...weapon, damage: Number(e.target.value) } })} />
           </label>
           <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">耐久値<span className="block text-[10px] text-muted/50">木59 ダイヤ1561</span></span>
-            <input type="number" min={1} max={10000} className={numberCls}
+            <span className="w-32 shrink-0">耐久値<span className="block text-[10px] text-muted/50">木59 ダイヤ1561 ／ 0で無限</span></span>
+            <input type="number" min={0} className={numberCls}
               value={weapon.durability}
               onChange={e => update(item.id, { weapon: { ...weapon, durability: Number(e.target.value) } })} />
           </label>
+          {weapon.durability === 0 && (
+            <p className="text-[10px]" style={{ color: "#fbbf24" }}>
+              ⚡ 耐久値0 ＝ <b>絶対に壊れない剣</b>になります
+            </p>
+          )}
+          {weapon.damage >= 100 && (
+            <p className="text-[10px]" style={{ color: "#fbbf24" }}>
+              ⚡ 攻撃力{weapon.damage} ＝ ほぼ何でも一撃です
+            </p>
+          )}
           <p className="text-[10px] text-muted/50">
             剣は重ねられません。金床での修理はまだできません。
           </p>
@@ -97,21 +111,22 @@ function ItemCard({ item }: { item: ItemIR }) {
 
       {food && (
         <div className="pl-5 flex flex-col gap-1.5">
+          {/* ここも上限なし。満腹度が最大20でも、それを超える値は無害に切り捨てられる */}
           <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">回復する量<span className="block text-[10px] text-muted/50">肉半分＝1</span></span>
-            <input type="number" min={0} max={20} className={numberCls}
+            <span className="w-32 shrink-0">回復する量<span className="block text-[10px] text-muted/50">肉半分＝1 ／ 上限なし</span></span>
+            <input type="number" min={0} className={numberCls}
               value={food.nutrition}
               onChange={e => update(item.id, { food: { ...food, nutrition: Number(e.target.value) } })} />
           </label>
           <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">腹持ち<span className="block text-[10px] text-muted/50">りんご0.3 肉0.8</span></span>
-            <input type="number" min={0} max={2} step={0.1} className={numberCls}
+            <span className="w-32 shrink-0">腹持ち<span className="block text-[10px] text-muted/50">りんご0.3 肉0.8 ／ 上限なし</span></span>
+            <input type="number" min={0} step={0.1} className={numberCls}
               value={food.saturation}
               onChange={e => update(item.id, { food: { ...food, saturation: Number(e.target.value) } })} />
           </label>
           <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">食べる時間<span className="block text-[10px] text-muted/50">秒。ふつう1.6</span></span>
-            <input type="number" min={0.1} max={10} step={0.1} className={numberCls}
+            <span className="w-32 shrink-0">食べる時間<span className="block text-[10px] text-muted/50">秒。ふつう1.6 ／ 小さいほど速い</span></span>
+            <input type="number" min={0.1} step={0.1} className={numberCls}
               value={food.useDuration}
               onChange={e => update(item.id, { food: { ...food, useDuration: Number(e.target.value) } })} />
           </label>

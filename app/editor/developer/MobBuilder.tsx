@@ -90,16 +90,28 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
 
       <section>
         <h3 className="text-xs font-bold mb-1 text-muted/80">基本</h3>
-        <Row label="体力" hint="ハート半分＝1">
-          <input type="number" min={1} max={1024} className={numberCls}
+        {/* ⚠️ max を付けないこと。「倒せないボス」を作れることが価値なので、
+            上限を設けると作りたいものが作れなくなる */}
+        <Row label="体力" hint="ハート半分＝1 ／ 上限なし">
+          <input type="number" min={1} className={numberCls}
             value={b.health}
             onChange={e => update(mob.id, { health: Number(e.target.value) })} />
         </Row>
-        <Row label="歩く速さ" hint="0.25でふつう">
-          <input type="number" min={0} max={2} step={0.05} className={numberCls}
+        <Row label="歩く速さ" hint="0.25でふつう ／ 上限なし">
+          <input type="number" min={0} step={0.05} className={numberCls}
             value={b.movementSpeed}
             onChange={e => update(mob.id, { movementSpeed: Number(e.target.value) })} />
         </Row>
+        {b.movementSpeed >= 1 && (
+          <p className="text-[10px] pl-1" style={{ color: "#fbbf24" }}>
+            ⚡ 速さ{b.movementSpeed} ＝ 走っても逃げきれません
+          </p>
+        )}
+        {b.health >= 1000 && (
+          <p className="text-[10px] pl-1" style={{ color: "#fbbf24" }}>
+            ⚡ 体力{b.health} ＝ ハート{Math.floor(b.health / 2)}個ぶんのボスです
+          </p>
+        )}
       </section>
 
       <section>
@@ -126,11 +138,16 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
           ))}
         </div>
         {aggr !== "peaceful" && (
-          <Row label="攻撃力" hint="ハート半分＝1">
-            <input type="number" min={1} max={100} className={numberCls}
+          <Row label="攻撃力" hint="ハート半分＝1 ／ 上限なし">
+            <input type="number" min={1} className={numberCls}
               value={b.attackDamage}
               onChange={e => update(mob.id, { attackDamage: Number(e.target.value) })} />
           </Row>
+        )}
+        {aggr !== "peaceful" && b.attackDamage >= 50 && (
+          <p className="text-[10px] pl-1" style={{ color: "#fbbf24" }}>
+            ⚡ 攻撃力{b.attackDamage} ＝ ダイヤ装備でも一撃です
+          </p>
         )}
         {aggr === "berserk" && (
           <p className="text-[10px] pl-1" style={{ color: "rgba(251,191,36,0.8)" }}>
@@ -267,6 +284,8 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
         </label>
         {b.spawn.enabled && (
           <>
+            {/* ⚠️ ここは 0〜15 を外さないこと。マイクラの明るさは16段階しかなく、
+                16以上を書くとスポーンルールごと読み込まれない（他と違い上限が要る） */}
             <Row label="明るさ" hint="0=真っ暗 15=昼">
               <input type="number" min={0} max={15} className={numberCls}
                 value={b.spawn.minLightLevel}
@@ -276,11 +295,16 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
                 value={b.spawn.maxLightLevel}
                 onChange={e => update(mob.id, { spawn: { ...b.spawn, maxLightLevel: Number(e.target.value) } })} />
             </Row>
-            <Row label="出やすさ" hint="大きいほど多い">
-              <input type="number" min={1} max={100} className={numberCls}
+            <Row label="出やすさ" hint="大きいほど多い ／ 上限なし">
+              <input type="number" min={1} className={numberCls}
                 value={b.spawn.weight}
                 onChange={e => update(mob.id, { spawn: { ...b.spawn, weight: Number(e.target.value) } })} />
             </Row>
+            {b.spawn.weight >= 500 && (
+              <p className="text-[10px] pl-1" style={{ color: "#fbbf24" }}>
+                ⚡ 出やすさ{b.spawn.weight} ＝ ワールドがこのモブだらけになります
+              </p>
+            )}
           </>
         )}
       </section>
