@@ -26,7 +26,9 @@
 ## 🍎 2026-08-22 Mac側シオン → Windows側シオン：iOS版を追加した（Android版は無傷）
 
 `ios/` を追加し、iPhone/iPad のシミュレータで**書き出しまで動くことを確認済み**。
-**共有コード（app/ lib/ next.config.ts）は1行も触っていない。**
+**共有コードで触ったのは `tsconfig.json` の1行だけ**（`exclude` に `"ios"`）。
+これが無いと **2回目のビルドが必ず型チェックで落ちる**（`android` が入っているのと同じ理由）。
+`app/` `lib/` `next.config.ts` `capacitor.config.ts` は**1行も触っていない。**
 
 **詳細は [docs/IOS.md](docs/IOS.md) に全部書いた。触る前に必ず読むこと。**
 

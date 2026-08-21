@@ -8,8 +8,9 @@
 ## 結論だけ先に
 
 - `ios/` を追加して、**iPhone / iPad のシミュレータで動くところまで確認済み**。
-- **共有しているコード（app/ lib/ next.config.ts など）は1行も変えていない。**
-  変えたのは `package.json`（`@capacitor/ios` の追加と iOS 用スクリプト2行）と、`ios/` の中だけ。
+- 共有しているコードで変えたのは **`tsconfig.json` の1行だけ**（`exclude` に `"ios"` を追加）。
+  `app/` `lib/` `next.config.ts` `capacitor.config.ts` は**1行も変えていない。**
+  ほかは `package.json`（`@capacitor/ios` と iOS 用スクリプト2行）と `ios/` の中だけ。
 - **書き出し（.mcaddon → 共有シート）は iPhone・iPad の両方で成功。**
 
 ---
@@ -41,6 +42,18 @@ iPhone でも全部そのまま必要なので、**android のまま使うのが
 `lib/csp.ts:19` の android 用の値に `capacitor://localhost` が最初から入っている。
 iOS の WKWebView が使うのはまさにこのスキームなので、**そのままで真っ白にならない。**
 `CspTarget` に `"ios"` を足す必要は無い。
+
+## 2.5 ⚠️ `tsconfig.json` に `"ios"` を足さないと**2回目のビルドが必ず失敗する**
+
+`cap sync ios` が `ios/App/App/public/` に out/ をコピーする。その中に
+バンドル済みの `.ts` が混じっており、次の `next build` の型チェックが拾って落ちる。
+
+```
+ios/App/App/public/_next/static/media/worker.xxxx.ts: error TS2307: Cannot find module './bbmodel'
+```
+
+`android` がまったく同じ理由ですでに `exclude` に入っていたので、`"ios"` も並べた。
+**Android/Web のビルドには影響しない**（存在しないディレクトリを除外するだけ）。
 
 ## 3. CocoaPods は使っていない（SPM で作った）
 
@@ -133,6 +146,22 @@ UTImportedTypeDeclarations → public.filename-extension: mcaddon
   **端末にファイルマネージャーが無かったこと**だった件と同じで、
   iOS で同じ症状が出たら**まず共有先の候補に何が並んでいるか**を見ること。
 - 書き出しの失敗は必ず画面に出す方針（`alert`）は iOS でもそのまま有効。
+
+## 5.5 申請の準備でやったこと（2026-08-22）
+
+| 項目 | 内容 |
+|---|---|
+| アプリアイコン | `public/icon-512.png` を元に 1024×1024 を作成。**四隅の白を濃紺 `#0a1121` で埋めた**（角丸が焼き込まれていて、iOS が重ねて丸めると白が残るため） |
+| スプラッシュ | **Capacitor の初期ロゴのままだった**ので作り直した。他社ロゴを出したまま申請してはいけない |
+| バージョン | `MARKETING_VERSION` を `0.1.3` に（Android の `versionName` に合わせた）。ビルド番号は 1 |
+| 暗号化の申告 | `Info.plist` に `ITSAppUsesNonExemptEncryption = false`。アップロードのたびに聞かれるのを防ぐ |
+| 対象端末 | `TARGETED_DEVICE_FAMILY = "1,2"`（iPhone + iPad）。**iPad 用のスクリーンショットも必要** |
+
+### ⚠️ 審査で引っかかりうる点
+
+トップページに **「MINECRAFT アドオン MOD」** と大きく出る。App Store は Play より
+他社の知的財産に厳しいので、**スクリーンショットに含めるかは判断が要る**。
+テクスチャとロゴを写さないだけでは足りない可能性がある。
 
 ## 6. まだ手つかず
 
