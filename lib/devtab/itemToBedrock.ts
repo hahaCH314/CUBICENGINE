@@ -73,7 +73,11 @@ function itemJson(item: ItemIR): string {
     components["minecraft:creative_category"] = { parent: "itemGroup.name.helmet" };
   }
 
-  if (item.skill) {
+  // ⚠️ 食べ物と技は両立しない。どちらも右クリックを奪い合い、use_modifiers を
+  //    上書きし合う。UI と validateItem 側で選べないようにしてあるが、
+  //    ここでも食べ物を優先して静かに壊れないようにしておく
+  //    （出力が壊れるより、技が付かないほうがまだ気づける）
+  if (item.skill && !item.food) {
     // ⚠️ 技そのものはスクリプトが動かす（itemToScript.ts）。ここでは
     //    「右クリックを押せる状態にする」ことだけをやる。
     //    use_modifiers が無いと itemUse イベントが飛ばず、押しても無反応になる

@@ -20,6 +20,7 @@ import {
   defaultSkill,
   defaultWeapon,
   makeItem,
+  toNumber,
   validateItem,
   type ArmorSlot,
   type ItemIR,
@@ -52,7 +53,15 @@ function EffectList({
 }) {
   // 相手に掛けるものと自分に掛けるものを分ける。
   // 「相手を速くする」は作れてしまうが、まず作りたいものではない
-  const choices = WEAPON_EFFECTS.filter(e => e.forSelf === forSelf);
+  const base = WEAPON_EFFECTS.filter(e => e.forSelf === forSelf);
+  // ⚠️ いま入っている効果が候補に無いと、<select> は先頭の項目を表示してしまう。
+  //    画面には「毒」と出ているのに書き出されるのは別物、という食い違いが起きる
+  //    （古い作品や、あとで分類を変えたときに実際に起きる）。
+  //    実際に入っている値は必ず候補に混ぜる
+  const extra = WEAPON_EFFECTS.filter(
+    e => e.forSelf !== forSelf && list.some(x => x.id === e.id),
+  );
+  const choices = [...base, ...extra];
 
   return (
     <div className="flex flex-col gap-1">
@@ -83,7 +92,7 @@ function EffectList({
                 value={e.seconds}
                 onChange={ev => {
                   const next = [...list];
-                  next[i] = { ...e, seconds: Number(ev.target.value) };
+                  next[i] = { ...e, seconds: toNumber(ev.target.value) };
                   onChange(next);
                 }} />
               <span className="text-[10px] text-muted/50">秒</span>
@@ -94,7 +103,7 @@ function EffectList({
             value={e.amplifier + 1}
             onChange={ev => {
               const next = [...list];
-              next[i] = { ...e, amplifier: Math.max(0, Number(ev.target.value) - 1) };
+              next[i] = { ...e, amplifier: Math.max(0, toNumber(ev.target.value) - 1) };
               onChange(next);
             }} />
           <span className="text-[10px] text-muted/50">の強さ</span>
@@ -155,7 +164,7 @@ function ItemCard({ item }: { item: ItemIR }) {
           <span className="w-32 shrink-0">重ねられる数<span className="block text-[10px] text-muted/50">1〜64（マイクラの上限）</span></span>
           <input type="number" min={1} max={64} className={numberCls}
             value={item.maxStack}
-            onChange={e => update(item.id, { maxStack: Number(e.target.value) })} />
+            onChange={e => update(item.id, { maxStack: toNumber(e.target.value) })} />
         </label>
       )}
 
@@ -172,9 +181,12 @@ function ItemCard({ item }: { item: ItemIR }) {
             <input type="radio" name={`kind-${item.id}`} className="mt-0.5"
               checked={kind === k}
               onChange={() => {
+                // ⚠️ 既にその種類なら何もしない。同じラジオを押し直しただけで
+                //    default…() に戻ると、設定した攻撃力も効果もすべて消える
+                if (kind === k) return;
                 // 種類を変えたら他は必ず null にする。残っていると
                 // 「剣なのに食べる動作が出る」ような組み合わせができてしまう
-                if (k === "food") update(item.id, { food: defaultFood(), weapon: null, armor: null, maxStack: 64 });
+                if (k === "food") update(item.id, { food: defaultFood(), weapon: null, armor: null, skill: null, maxStack: 64 });
                 else if (k === "weapon") update(item.id, { weapon: defaultWeapon(), food: null, armor: null, maxStack: 1 });
                 else if (k === "armor") update(item.id, { armor: defaultArmor(), food: null, weapon: null, maxStack: 1 });
                 else update(item.id, { food: null, weapon: null, armor: null, maxStack: 64 });
@@ -212,7 +224,7 @@ function ItemCard({ item }: { item: ItemIR }) {
               <span className="w-32 shrink-0">掘る速さ<span className="block text-[10px] text-muted/50">ダイヤ8 ／ 上限なし</span></span>
               <input type="number" min={0} className={numberCls}
                 value={weapon.digSpeed ?? 8}
-                onChange={e => update(item.id, { weapon: { ...weapon, digSpeed: Number(e.target.value) } })} />
+                onChange={e => update(item.id, { weapon: { ...weapon, digSpeed: toNumber(e.target.value) } })} />
             </label>
           )}
           {(weapon.digSpeed ?? 8) >= 100 && (weapon.kind ?? "sword") !== "sword" && (
@@ -227,13 +239,13 @@ function ItemCard({ item }: { item: ItemIR }) {
             <span className="w-32 shrink-0">攻撃力<span className="block text-[10px] text-muted/50">木の剣4 ダイヤ7 ／ 上限なし</span></span>
             <input type="number" min={1} className={numberCls}
               value={weapon.damage}
-              onChange={e => update(item.id, { weapon: { ...weapon, damage: Number(e.target.value) } })} />
+              onChange={e => update(item.id, { weapon: { ...weapon, damage: toNumber(e.target.value) } })} />
           </label>
           <label className="flex items-center gap-3 text-xs">
             <span className="w-32 shrink-0">耐久値<span className="block text-[10px] text-muted/50">木59 ダイヤ1561 ／ 0で無限</span></span>
             <input type="number" min={0} className={numberCls}
               value={weapon.durability}
-              onChange={e => update(item.id, { weapon: { ...weapon, durability: Number(e.target.value) } })} />
+              onChange={e => update(item.id, { weapon: { ...weapon, durability: toNumber(e.target.value) } })} />
           </label>
           {weapon.durability === 0 && (
             <p className="text-[10px]" style={{ color: "#fbbf24" }}>
@@ -264,7 +276,7 @@ function ItemCard({ item }: { item: ItemIR }) {
               </span>
               <input type="number" min={0} className={numberCls}
                 value={weapon.fireSeconds ?? 0}
-                onChange={e => update(item.id, { weapon: { ...weapon, fireSeconds: Number(e.target.value) } })} />
+                onChange={e => update(item.id, { weapon: { ...weapon, fireSeconds: toNumber(e.target.value) } })} />
             </label>
 
             {/* ⚠️ ?? [] を外さないこと。この機能より前に保存された作品には
@@ -310,13 +322,13 @@ function ItemCard({ item }: { item: ItemIR }) {
             <span className="w-32 shrink-0">防御力<span className="block text-[10px] text-muted/50">ダイヤ一式で20 ／ 上限なし</span></span>
             <input type="number" min={0} className={numberCls}
               value={armor.protection}
-              onChange={e => update(item.id, { armor: { ...armor, protection: Number(e.target.value) } })} />
+              onChange={e => update(item.id, { armor: { ...armor, protection: toNumber(e.target.value) } })} />
           </label>
           <label className="flex items-center gap-3 text-xs">
             <span className="w-32 shrink-0">耐久値<span className="block text-[10px] text-muted/50">0で無限</span></span>
             <input type="number" min={0} className={numberCls}
               value={armor.durability}
-              onChange={e => update(item.id, { armor: { ...armor, durability: Number(e.target.value) } })} />
+              onChange={e => update(item.id, { armor: { ...armor, durability: toNumber(e.target.value) } })} />
           </label>
           {armor.protection >= 20 && (
             <p className="text-[10px]" style={{ color: "#fbbf24" }}>
@@ -342,15 +354,19 @@ function ItemCard({ item }: { item: ItemIR }) {
         </div>
       )}
 
-      {/* ── 技。武器・防具・ただのアイテム、どれにも付けられる ── */}
+      {/* ── 技。武器・防具・ただのアイテムに付けられる ──
+          ⚠️ 食べ物には付けられない。どちらも右クリックを使うため、
+             use_modifiers を奪い合って技が黙って効かなくなる */}
       <div className="flex flex-col gap-2">
-        <label className="flex items-center gap-2 text-xs cursor-pointer">
-          <input type="checkbox" checked={!!skill}
+        <label className={`flex items-center gap-2 text-xs ${food ? "opacity-40" : "cursor-pointer"}`}>
+          <input type="checkbox" checked={!!skill} disabled={!!food}
             onChange={e => update(item.id, { skill: e.target.checked ? defaultSkill() : null })} />
           <span className="font-bold" style={{ color: "#a78bfa" }}>
             ✨ 右クリックで技を出す
             <span className="block text-[10px] text-muted/50 font-normal">
-              スクリプトが作られます（ワールドの「ベータAPI」が要ります）
+              {food
+                ? "食べ物には付けられません（右クリックが食べる動作に使われるため）"
+                : "スクリプトが作られます（ワールドの「ベータAPI」が要ります）"}
             </span>
           </span>
         </label>
@@ -383,7 +399,7 @@ function ItemCard({ item }: { item: ItemIR }) {
                   </span>
                   <input type="number" min={0} className={numberCls}
                     value={skill.power}
-                    onChange={e => update(item.id, { skill: { ...skill, power: Number(e.target.value) } })} />
+                    onChange={e => update(item.id, { skill: { ...skill, power: toNumber(e.target.value) } })} />
                 </label>
               )}
               {def?.hasRange && (
@@ -391,14 +407,14 @@ function ItemCard({ item }: { item: ItemIR }) {
                   <span className="w-32 shrink-0">範囲<span className="block text-[10px] text-muted/50">ブロック ／ 上限なし</span></span>
                   <input type="number" min={0} className={numberCls}
                     value={skill.range}
-                    onChange={e => update(item.id, { skill: { ...skill, range: Number(e.target.value) } })} />
+                    onChange={e => update(item.id, { skill: { ...skill, range: toNumber(e.target.value) } })} />
                 </label>
               )}
               <label className="flex items-center gap-3 text-xs">
                 <span className="w-32 shrink-0">次に使えるまで<span className="block text-[10px] text-muted/50">秒。0で連打できる</span></span>
                 <input type="number" min={0} className={numberCls}
                   value={skill.cooldownSeconds}
-                  onChange={e => update(item.id, { skill: { ...skill, cooldownSeconds: Number(e.target.value) } })} />
+                  onChange={e => update(item.id, { skill: { ...skill, cooldownSeconds: toNumber(e.target.value) } })} />
               </label>
               {skill.cooldownSeconds === 0 && (
                 <p className="text-[10px]" style={{ color: "rgba(251,191,36,0.8)" }}>
@@ -417,19 +433,19 @@ function ItemCard({ item }: { item: ItemIR }) {
             <span className="w-32 shrink-0">回復する量<span className="block text-[10px] text-muted/50">肉半分＝1 ／ 上限なし</span></span>
             <input type="number" min={0} className={numberCls}
               value={food.nutrition}
-              onChange={e => update(item.id, { food: { ...food, nutrition: Number(e.target.value) } })} />
+              onChange={e => update(item.id, { food: { ...food, nutrition: toNumber(e.target.value) } })} />
           </label>
           <label className="flex items-center gap-3 text-xs">
             <span className="w-32 shrink-0">腹持ち<span className="block text-[10px] text-muted/50">りんご0.3 肉0.8 ／ 上限なし</span></span>
             <input type="number" min={0} step={0.1} className={numberCls}
               value={food.saturation}
-              onChange={e => update(item.id, { food: { ...food, saturation: Number(e.target.value) } })} />
+              onChange={e => update(item.id, { food: { ...food, saturation: toNumber(e.target.value) } })} />
           </label>
           <label className="flex items-center gap-3 text-xs">
             <span className="w-32 shrink-0">食べる時間<span className="block text-[10px] text-muted/50">秒。ふつう1.6 ／ 小さいほど速い</span></span>
             <input type="number" min={0.1} step={0.1} className={numberCls}
               value={food.useDuration}
-              onChange={e => update(item.id, { food: { ...food, useDuration: Number(e.target.value) } })} />
+              onChange={e => update(item.id, { food: { ...food, useDuration: toNumber(e.target.value) } })} />
           </label>
           <label className="flex items-center gap-2 text-xs">
             <input type="checkbox" checked={food.canAlwaysEat}

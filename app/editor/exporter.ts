@@ -415,12 +415,22 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
     let mainJsBody = baseJs;
     if (devScript) {
       const need: string[] = [];
-      // ロジックタブ側が既に import 済みかを、雑にだが確実に見る。
-      // 生成コードは必ず `import { ... } from "@minecraft/server"` の形なので、
-      // 名前が現れているかどうかで足りる
-      const importLine = baseJs.match(/import\s*\{[^}]*\}\s*from\s*["']@minecraft\/server["']/)?.[0] ?? "";
-      if (devNeeds.world && !/\bworld\b/.test(importLine)) need.push("world");
-      if (devNeeds.system && !/\bsystem\b/.test(importLine)) need.push("system");
+      // ロジックタブ側が既に何を import 済みかを調べる。
+      // ⚠️ 3つとも外さないこと。どれが欠けても壊れ方が同じ（SyntaxError で
+      //    main.js が丸ごと動かない）で、原因が非常に分かりにくい。
+      //  ① /gm で **全部の import 行** を見る。最初の1行だけ見ると、
+      //     2行目以降で world を入れていた場合に二重定義になる
+      //  ② ^\s* で行頭に限る。付けないとコメントや文字列の中の
+      //     "import { world } ..." を本物と誤認し、必要な import を足さなくなる
+      //     （world が undefined のまま動いて、原因が別に見える）
+      //  ③ 中身(bindings)だけを集めて名前を照合する
+      const bindings = Array.from(
+        baseJs.matchAll(/^\s*import\s*\{([^}]*)\}\s*from\s*["']@minecraft\/server["']/gm),
+      )
+        .map(m => m[1])
+        .join(",");
+      if (devNeeds.world && !/\bworld\b/.test(bindings)) need.push("world");
+      if (devNeeds.system && !/\bsystem\b/.test(bindings)) need.push("system");
 
       mainJsBody =
         (need.length > 0 ? `import { ${need.join(", ")} } from "@minecraft/server";\n\n` : "") +

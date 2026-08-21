@@ -312,6 +312,51 @@ export function makeItem(displayName: string, iconDataUrl: string, existingIds: 
   };
 }
 
+/**
+ * ちゃんとした数か。
+ *
+ * ⚠️ これが要るのは NaN のため。入力欄を空にすると Number("") が NaN になり、
+ *    **NaN との比較は `<` も `>` も全部 false** なので `n < 0` では捕まらない。
+ *    そのまま書き出すと JSON に null が入り、マイクラが読み込みに失敗する。
+ *    数値を検査するときは必ずここを通すこと。
+ */
+function num(v: unknown): v is number {
+  return typeof v === "number" && Number.isFinite(v);
+}
+
+/**
+ * 入力欄の文字を数にする。**UI から必ずこれを通すこと。**
+ *
+ * ⚠️ Number("") は 0 ではなく **NaN**。入力欄を一度空にしただけで NaN が
+ *    state に入り、そのまま JSON に書かれると null になってマイクラが
+ *    読み込みに失敗する。しかも NaN は比較が全部 false なので、
+ *    あとの検査でも捕まらない。入口で止めるのが唯一確実な方法。
+ *
+ * @param fallback 読めなかったときに使う値。多くの場合は 0
+ */
+export function toNumber(text: string, fallback = 0): number {
+  const n = Number(text);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+/** 効果のリストを検査する。武器と防具で同じ規則なので共通にする */
+function checkEffects(list: readonly WeaponEffect[], needSeconds: boolean): string[] {
+  const out: string[] = [];
+  const known = new Set<string>(WEAPON_EFFECTS.map(e => e.id));
+  for (const e of list) {
+    // ⚠️ 知らないIDはマイクラが**黙って無視する**。エラーも出ないので、
+    //    「効果が付かない」原因を探して延々悩むことになる。ここで止める
+    if (!known.has(e.id)) out.push(`「${e.id}」は使えない効果です`);
+    if (needSeconds && (!num(e.seconds) || e.seconds <= 0)) out.push("効果の秒数は1以上にしてください");
+    // 画面には「1〜256」と出しているので、メッセージもそれに合わせる。
+    // 内部の amplifier は0始まりで、画面の数字より1小さい
+    if (!num(e.amplifier) || e.amplifier < 0 || e.amplifier > 255) {
+      out.push("効果の強さは 1〜256 にしてください");
+    }
+  }
+  return out;
+}
+
 /** 出す前に確かめる。ここで止めればマイクラ側で無言の読み込み失敗を防げる */
 export function validateItem(item: ItemIR): string[] {
   const problems: string[] = [];
@@ -319,55 +364,52 @@ export function validateItem(item: ItemIR): string[] {
   // 数字始まりはマイクラが受け付けない。モブと同じ理由（toIdentifier のコメント参照）
   if (/^[0-9]/.test(item.id)) problems.push(`内部名「${item.id}」は数字で始められません（名前を英字から始めてください）`);
   if (!item.iconDataUrl) problems.push("アイコンの画像がありません");
-  if (item.maxStack < 1 || item.maxStack > 64) problems.push("重ねられる数は 1〜64 にしてください");
-  // 種類はひとつだけ。組み合わせると、どれかの動作が邪魔をして使い物にならない
+  if (!num(item.maxStack) || item.maxStack < 1 || item.maxStack > 64) {
+    problems.push("重ねられる数は 1〜64 にしてください");
+  }
+  // 種類はひとつだけ。組み合わせると、どれかの動作が邪魔をして使い物にならない。
+  // ⚠️ 技もここに入れること。食べ物と技はどちらも右クリックを使うため、
+  //    両方あると use_modifiers を上書きし合って片方が黙って効かなくなる
   const kinds = [item.food && "食べ物", item.weapon && "道具", item.armor && "防具"].filter(Boolean);
   if (kinds.length > 1) {
     problems.push(`${kinds.join("と")}は同時にできません（どれか1つにしてください）`);
   }
+  if (item.food && item.skill) {
+    problems.push("食べ物に技は付けられません（どちらも右クリックを使うため、技が効かなくなります）");
+  }
 
   if (item.armor) {
-    if (item.armor.protection < 0) problems.push("防御力は0以上にしてください");
-    if (item.armor.durability < 0) problems.push("耐久値は0以上にしてください（0にすると壊れなくなります）");
+    if (!num(item.armor.protection) || item.armor.protection < 0) problems.push("防御力は0以上の数にしてください");
+    if (!num(item.armor.durability) || item.armor.durability < 0) problems.push("耐久値は0以上の数にしてください（0にすると壊れなくなります）");
     if (item.maxStack !== 1) problems.push("防具は重ねられません（重ねる数を1にしてください）");
-    const known = new Set<string>(WEAPON_EFFECTS.map(e => e.id));
-    for (const e of item.armor.wearEffects ?? []) {
-      if (!known.has(e.id)) problems.push(`「${e.id}」は使えない効果です`);
-      if (e.amplifier < 0 || e.amplifier > 255) problems.push("効果の強さは 1〜256 にしてください");
-    }
+    problems.push(...checkEffects(item.armor.wearEffects ?? [], false));
   }
 
   if (item.skill) {
-    if (item.skill.power < 0) problems.push("技の威力は0以上にしてください");
-    if (item.skill.range < 0) problems.push("技の範囲は0以上にしてください");
-    if (item.skill.cooldownSeconds < 0) problems.push("技のクールダウンは0以上にしてください");
+    if (!num(item.skill.power) || item.skill.power < 0) problems.push("技の威力は0以上の数にしてください");
+    if (!num(item.skill.range) || item.skill.range < 0) problems.push("技の範囲は0以上の数にしてください");
+    if (!num(item.skill.cooldownSeconds) || item.skill.cooldownSeconds < 0) problems.push("技のクールダウンは0以上の数にしてください");
   }
   if (item.weapon) {
-    if (item.weapon.damage < 1) problems.push("攻撃力は1以上にしてください");
+    if (!num(item.weapon.damage) || item.weapon.damage < 1) problems.push("攻撃力は1以上の数にしてください");
     // 0 は「壊れない武器」として通す。負の値だけ弾く
-    if (item.weapon.durability < 0) problems.push("耐久値は0以上にしてください（0にすると壊れなくなります）");
+    if (!num(item.weapon.durability) || item.weapon.durability < 0) problems.push("耐久値は0以上の数にしてください（0にすると壊れなくなります）");
     // 耐久値のある道具は重ねられない。マイクラの仕様
     if (item.maxStack !== 1) problems.push("道具は重ねられません（重ねる数を1にしてください）");
-    if ((item.weapon.digSpeed ?? 8) < 0) problems.push("掘る速さは0以上にしてください");
     // ⚠️ ?? を通すこと。この機能より前に保存された作品には無いフィールドで、
     //    そのまま比べると保存済みの作品が「壊れている」扱いになる
-    if ((item.weapon.fireSeconds ?? 0) < 0) problems.push("燃やす秒数は0以上にしてください");
+    const dig = item.weapon.digSpeed ?? 8;
+    if (!num(dig) || dig < 0) problems.push("掘る速さは0以上の数にしてください");
+    const fire = item.weapon.fireSeconds ?? 0;
+    if (!num(fire) || fire < 0) problems.push("燃やす秒数は0以上の数にしてください");
 
-    const known = new Set<string>(WEAPON_EFFECTS.map(e => e.id));
-    for (const list of [item.weapon.effects ?? [], item.weapon.selfEffects ?? []]) {
-      for (const e of list) {
-        // ⚠️ 知らないIDはマイクラが**黙って無視する**。エラーも出ないので、
-        //    「効果が付かない」原因を探して延々悩むことになる。ここで止める
-        if (!known.has(e.id)) problems.push(`「${e.id}」は使えない効果です`);
-        if (e.seconds <= 0) problems.push("効果の秒数は1以上にしてください");
-        // 255段階まで。それ以上はマイクラが受け付けない
-        if (e.amplifier < 0 || e.amplifier > 255) problems.push("効果の強さは 0〜255 にしてください");
-      }
-    }
+    problems.push(...checkEffects(item.weapon.effects ?? [], true));
+    problems.push(...checkEffects(item.weapon.selfEffects ?? [], false));
   }
   if (item.food) {
-    if (item.food.nutrition < 0) problems.push("回復量は0以上にしてください");
-    if (item.food.useDuration <= 0) problems.push("食べる時間は0より大きくしてください");
+    if (!num(item.food.nutrition) || item.food.nutrition < 0) problems.push("回復量は0以上の数にしてください");
+    if (!num(item.food.saturation) || item.food.saturation < 0) problems.push("腹持ちは0以上の数にしてください");
+    if (!num(item.food.useDuration) || item.food.useDuration <= 0) problems.push("食べる時間は0より大きい数にしてください");
     // 食べ物なのに1個しか持てないと、作った本人が意図していない可能性が高い
     if (item.maxStack === 1) problems.push("食べ物なのに重ねられません（重ねる数を増やすか、そのままでよいか確認してください）");
   }

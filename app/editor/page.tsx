@@ -263,9 +263,14 @@ export default function EditorPage() {
     // 描画が一度済んでから測る。同じ回で測ると scrollWidth が確定していない
     const raf = requestAnimationFrame(handleTabScroll);
     window.addEventListener("resize", handleTabScroll);
+    // ⚠️ Promise は途中で止められないので、外れたかどうかを自分で覚えておく。
+    //    付けないと、画面を離れたあとにフォントが届いたとき、
+    //    もう無い要素に対して測りにいく
+    let alive = true;
     // document.fonts は Safari 含め主要ブラウザにある。念のため存在確認する
-    document.fonts?.ready.then(handleTabScroll).catch(() => {});
+    document.fonts?.ready.then(() => { if (alive) handleTabScroll(); }).catch(() => {});
     return () => {
+      alive = false;
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", handleTabScroll);
     };

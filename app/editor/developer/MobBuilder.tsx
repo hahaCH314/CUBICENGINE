@@ -11,6 +11,9 @@ import dynamic from "next/dynamic";
 import { useEditorStore } from "../store";
 import { validateMob } from "../../../lib/devtab/toBedrock";
 import { normalizeAggression } from "../../../lib/devtab/ir";
+// 入力欄を空にすると Number("") が NaN になり、そのまま JSON に入ると
+// マイクラが読み込みに失敗する。必ずこれを通す（理由は itemIr.ts のコメント）
+import { toNumber } from "../../../lib/devtab/itemIr";
 import type { MobIR } from "../../../lib/devtab/ir";
 
 // three.js は SSR 不可。ModelPanel と同じ扱いにする
@@ -95,12 +98,12 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
         <Row label="体力" hint="ハート半分＝1 ／ 上限なし">
           <input type="number" min={1} className={numberCls}
             value={b.health}
-            onChange={e => update(mob.id, { health: Number(e.target.value) })} />
+            onChange={e => update(mob.id, { health: toNumber(e.target.value) })} />
         </Row>
         <Row label="歩く速さ" hint="0.25でふつう ／ 上限なし">
           <input type="number" min={0} step={0.05} className={numberCls}
             value={b.movementSpeed}
-            onChange={e => update(mob.id, { movementSpeed: Number(e.target.value) })} />
+            onChange={e => update(mob.id, { movementSpeed: toNumber(e.target.value) })} />
         </Row>
         {b.movementSpeed >= 1 && (
           <p className="text-[10px] pl-1" style={{ color: "#fbbf24" }}>
@@ -141,7 +144,7 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
           <Row label="攻撃力" hint="ハート半分＝1 ／ 上限なし">
             <input type="number" min={1} className={numberCls}
               value={b.attackDamage}
-              onChange={e => update(mob.id, { attackDamage: Number(e.target.value) })} />
+              onChange={e => update(mob.id, { attackDamage: toNumber(e.target.value) })} />
           </Row>
         )}
         {aggr !== "peaceful" && b.attackDamage >= 50 && (
@@ -176,7 +179,7 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
               value={d.min}
               onChange={e => {
                 const drops = [...b.drops];
-                drops[i] = { ...d, min: Number(e.target.value) };
+                drops[i] = { ...d, min: toNumber(e.target.value) };
                 update(mob.id, { drops });
               }} />
             <span className="text-[10px] text-muted/50">〜</span>
@@ -184,7 +187,7 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
               value={d.max}
               onChange={e => {
                 const drops = [...b.drops];
-                drops[i] = { ...d, max: Number(e.target.value) };
+                drops[i] = { ...d, max: toNumber(e.target.value) };
                 update(mob.id, { drops });
               }} />
             <button className="text-[11px] px-2 text-muted/60 hover:text-white"
@@ -289,16 +292,16 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
             <Row label="明るさ" hint="0=真っ暗 15=昼">
               <input type="number" min={0} max={15} className={numberCls}
                 value={b.spawn.minLightLevel}
-                onChange={e => update(mob.id, { spawn: { ...b.spawn, minLightLevel: Number(e.target.value) } })} />
+                onChange={e => update(mob.id, { spawn: { ...b.spawn, minLightLevel: toNumber(e.target.value) } })} />
               <span className="text-[10px] text-muted/50">〜</span>
               <input type="number" min={0} max={15} className={numberCls}
                 value={b.spawn.maxLightLevel}
-                onChange={e => update(mob.id, { spawn: { ...b.spawn, maxLightLevel: Number(e.target.value) } })} />
+                onChange={e => update(mob.id, { spawn: { ...b.spawn, maxLightLevel: toNumber(e.target.value) } })} />
             </Row>
             <Row label="出やすさ" hint="大きいほど多い ／ 上限なし">
               <input type="number" min={1} className={numberCls}
                 value={b.spawn.weight}
-                onChange={e => update(mob.id, { spawn: { ...b.spawn, weight: Number(e.target.value) } })} />
+                onChange={e => update(mob.id, { spawn: { ...b.spawn, weight: toNumber(e.target.value) } })} />
             </Row>
             {b.spawn.weight >= 500 && (
               <p className="text-[10px] pl-1" style={{ color: "#fbbf24" }}>
