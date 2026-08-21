@@ -10,7 +10,8 @@
       "Bash(python -c ' *)",
       "Bash(python blur_founder.py)",
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('electron', d.get\\('version'\\), d.get\\('license'\\)\\)\")",
-      "Bash(node scripts/gen-notices.mjs)"
+      "Bash(node scripts/gen-notices.mjs)",
+      "Bash(curl -s -o /dev/null -w \"og.jpg  HTTP %{http_code}  %{content_type}  %{size_download} bytes\\\\n\" https://cubicenginestudio.vercel.app/og.jpg)"
     ]
   }
 }
