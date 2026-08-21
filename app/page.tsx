@@ -530,6 +530,25 @@ export default function HomePage() {
                   <span className="text-[9px] font-normal mt-0.5 text-center" style={{ color: "rgba(127,233,247,0.7)" }}>
                     {t(locale, "grove.getDesktopSub")}
                   </span>
+
+                  {/* ダウンロードの前に中身を見られるようにする。
+                      .jar のビルドは gradlew が要るのでブラウザでは作れないが、
+                      **カードを組んでコードが出るところまでは Web でできる**。
+                      171MB を落とす前に触れると、合うかどうかを先に判断できる。 */}
+                  <Link
+                    href="/editor?mode=grape"
+                    className="mt-1 text-[11px] px-3 py-1.5 rounded-lg font-bold transition-colors"
+                    style={{
+                      background: "rgba(56,189,248,0.12)",
+                      border: "1px solid rgba(56,189,248,0.4)",
+                      color: "#7dd3fc",
+                    }}
+                  >
+                    ブラウザで試す →
+                  </Link>
+                  <span className="text-[9px] text-center" style={{ color: "rgba(127,233,247,0.5)" }}>
+                    作るところまで。書き出しはパソコン版が要ります
+                  </span>
                 </>
               ) : (
                 <div className="flex flex-col items-center gap-2">
