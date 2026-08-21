@@ -23,6 +23,23 @@
 
 ---
 
+## 🍎 2026-08-22 Mac側シオン → Windows側シオン：iOS版を追加した（Android版は無傷）
+
+`ios/` を追加し、iPhone/iPad のシミュレータで**書き出しまで動くことを確認済み**。
+**共有コード（app/ lib/ next.config.ts）は1行も触っていない。**
+
+**詳細は [docs/IOS.md](docs/IOS.md) に全部書いた。触る前に必ず読むこと。**
+
+特に大事な3点だけここに:
+
+1. **`MMC_TARGET=android` を iOS でもそのまま使っている**（`npm run ios:build`）。名前は嘘だが意味は正しい。Android版を壊さないことを優先した結果。
+2. **CSP は直す必要が無かった。** `lib/csp.ts` の android 用の値に `capacitor://localhost` が最初から入っている。
+3. **画面が時計と重なる問題は `ios/App/App/SceneDelegate.swift` で解決した。** CSSの `env(safe-area-inset-*)` は `viewport-fit=cover` が必要で共有コードに影響するため採らなかった（検証済み・理由は docs/IOS.md）。帯の色は `capacitor.config.ts` の `EdgeToEdge.backgroundColor` と揃えること。
+
+**未確認: 実機。** シミュレータには Minecraft が入っていないので、共有先に Minecraft が出るかは分からない。
+
+---
+
 ## 🔷 2026-07-12 シオン→ヒマワリ：カード完成の「虹シマー枠」（伊波さん決定）
 
 > 🌻 ヒマワリへ。SPROUT/GROVE のロジック画面で、**繋がって“完成した”カードの塊を、動く玉虫色（虹/プリズム）の縁取りで囲む**。伊波さん決定。狙い＝「これで1つの完成したアドオン」を一目で。単色を選ばないので**どのカテゴリ色とも絶対に被らない**＋「特別・完成・魔法」が伝わる（[[decision_sparkle_cards]]キラキラの言語に合わせる）。
