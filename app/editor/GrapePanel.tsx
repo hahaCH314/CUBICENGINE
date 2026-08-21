@@ -741,7 +741,17 @@ export default function GrapePanel() {
       try {
         await exportProject(outState, ""); // Web: ZIP ダウンロード
       } catch (err) {
+        // ⚠️ console.error だけにしないこと。
+        //    スマホには開発者ツールが無く、失敗しても利用者には
+        //    「押したのに何も起きない」としか見えない。原因を掴む手段が
+        //    ゼロになり、作者に報告することもできなくなる（実際にそうなった）。
         console.error("Failed to export project:", err);
+        const msg = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+        alert(
+          "❌ アドオンを書き出せませんでした\n\n" +
+          msg +
+          "\n\nこの文をそのまま作者に伝えてもらえると、原因が分かります。",
+        );
       }
     }
 

@@ -52,7 +52,19 @@ function useMenuItems() {
       return;
     }
 
-    await exportProject(state, state.generatedJsCode);
+    // ⚠️ 失敗を握りつぶさないこと。スマホには開発者ツールが無いので、
+    //    黙って終わると利用者は「押したのに何も起きない」としか分からない
+    try {
+      await exportProject(state, state.generatedJsCode);
+    } catch (err) {
+      console.error("Failed to export project:", err);
+      const msg = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+      alert(
+        "❌ アドオンを書き出せませんでした\n\n" +
+        msg +
+        "\n\nこの文をそのまま作者に伝えてもらえると、原因が分かります。",
+      );
+    }
   }, []);
 
   const menuItems: Record<MenuKey, MenuItem[]> = {

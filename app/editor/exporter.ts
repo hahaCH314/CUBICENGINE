@@ -162,11 +162,21 @@ export async function saveViaCapacitor(blob: Blob, filename: string): Promise<bo
     reader.readAsDataURL(blob);
   });
 
-  const { uri } = await Filesystem.writeFile({
-    path: filename,
-    data: base64,
-    directory: Directory.Cache,
-  });
+  // ⚠️ どちらの段階で失敗したか分かるようにする。
+  //    ひとまとめの catch だと「保存に失敗した」のか「共有に失敗した」のか
+  //    区別がつかず、スマホからは原因を辿れない
+  let uri: string;
+  try {
+    const res = await Filesystem.writeFile({
+      path: filename,
+      data: base64,
+      directory: Directory.Cache,
+    });
+    uri = res.uri;
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    throw new Error(`端末にファイルを書けませんでした（${msg}）`);
+  }
 
   try {
     await Share.share({
@@ -179,15 +189,20 @@ export async function saveViaCapacitor(blob: Blob, filename: string): Promise<bo
     // 共有シートを閉じただけ(キャンセル)は失敗ではない。
     // ファイルは Cache に残っているので、端末のファイルアプリからも開ける。
     const msg = e instanceof Error ? e.message : String(e);
-    if (/cancel/i.test(msg)) return true;
-    throw e;
+    if (/cancel|abort|dismiss/i.test(msg)) return true;
+    throw new Error(`共有できませんでした（${msg}）\n保存先: ${uri}`);
   }
 }
 
 async function downloadBlob(blob: Blob, filename: string): Promise<boolean> {
-  // スマホ等で .mcaddon が勝手に .zip に書き換えられるのを防ぐため、
-  // MIME type を強制的に application/octet-stream にする。
-  const safeBlob = new Blob([blob], { type: "application/octet-stream" });
+  // ⚠️ MIME は application/zip にすること。
+  //    application/octet-stream にすると Android が「知らない形式」として扱い、
+  //    共有先アプリが受け取りを拒否して **「このファイルは保存できません」** が出る。
+  //    .mcaddon の中身は実際に ZIP なので嘘ではない。
+  //    マイクラは拡張子で判断するので、MIME を変えても取り込みには影響しない。
+  //    （かつて .zip に書き換えられるのを防ぐ目的で octet-stream にしていたが、
+  //      その副作用のほうが重い。ファイル名の拡張子は下の a.download で保つ）
+  const safeBlob = new Blob([blob], { type: "application/zip" });
 
   // Android(Capacitor)版はネイティブのファイル保存＋共有を使う。
   // ここを通さないと WebView では書き出しが無反応になる。
@@ -201,7 +216,8 @@ async function downloadBlob(blob: Blob, filename: string): Promise<boolean> {
 
   if (isMobile && navigator.canShare) {
     try {
-      const file = new File([safeBlob], filename, { type: "application/octet-stream" });
+      // ここも application/zip。octet-stream だと共有先が受け取りを拒否する
+      const file = new File([safeBlob], filename, { type: "application/zip" });
       if (navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
@@ -228,7 +244,13 @@ async function downloadBlob(blob: Blob, filename: string): Promise<boolean> {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  // ⚠️ ここで即 revokeObjectURL しないこと。
+  //    click() が返った時点ではダウンロードはまだ**始まっていない**。
+  //    先に破棄すると、端末が取りに行ったときには中身が消えていて
+  //    Android が「このファイルは保存できません」を出す。
+  //    PC は処理が速くて間に合うため、スマホでだけ起きて原因が分かりにくい。
+  //    十分に間を置いてから捨てる（放置してもタブを閉じれば解放される）。
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
   return false; // ダウンロードを実行した
 }
 
