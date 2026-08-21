@@ -44,12 +44,82 @@ export interface WeaponEffect {
 }
 
 /**
- * 武器の設定。
+ * 道具の種類。
  *
- * ツルハシや斧はまだ扱わない。あれらは「どのブロックを速く掘れるか」を
- * ブロックの種類ごとに書く必要があり、剣より一段複雑になる。
+ * マイクラの道具は「殴れて掘れるもの」で、違いは
+ *   ① 何を速く掘れるか（destroy_speeds）
+ *   ② どのブロックを「正しい道具で壊した」ことにするか
+ * の2点しかない。剣もこの仲間で、クモの巣だけを速く壊せる道具として扱う。
+ */
+export type ToolKind = "sword" | "pickaxe" | "axe" | "shovel" | "hoe";
+
+/**
+ * 種類ごとの掘れるブロック。
+ *
+ * ⚠️ `tag` はブロックを1つずつ書かずに済むマイクラ側の仕組み。
+ *    石を全部並べるのは現実的でないので、これを使う。
+ *    ここに嘘のタグを書くと**アイテムごと読み込まれない**ので、
+ *    バニラに実在するものだけを書くこと。
+ */
+export const TOOL_KINDS: {
+  id: ToolKind;
+  label: string;
+  hint: string;
+  /** クリエイティブのどのタブに出すか */
+  category: string;
+  /** エンチャント枠の名前 */
+  enchantSlot: string;
+  /** 速く掘れる対象（マイクラのブロックタグ） */
+  tags: string[];
+}[] = [
+  // ⚠️ category は itemGroup.name.sword だけを使う。
+  //    itemGroup.name.pickaxe のような名前が実在するか確証が無く、存在しない
+  //    タブ名を書くとクリエイティブの持ち物から**探せなくなる**（過去に
+  //    アイテムが見つからない事故を起こしている）。sword は実績があり、
+  //    道具はどれも「装備」タブに並ぶので探すのに困らない。
+  {
+    id: "sword", label: "剣", hint: "戦うための道具。クモの巣を速く切れます",
+    category: "itemGroup.name.sword", enchantSlot: "sword",
+    tags: ["'minecraft:web'"],
+  },
+  {
+    id: "pickaxe", label: "ツルハシ", hint: "石・鉱石を掘ります",
+    category: "itemGroup.name.sword", enchantSlot: "pickaxe",
+    tags: ["q.any_tag('stone', 'metal', 'diamond_pick_diggable', 'iron_pick_diggable', 'gold_pick_diggable', 'stone_pick_diggable')"],
+  },
+  {
+    id: "axe", label: "斧", hint: "木を切ります。攻撃力も高めです",
+    category: "itemGroup.name.sword", enchantSlot: "axe",
+    tags: ["q.any_tag('wood', 'pumpkin', 'plant')"],
+  },
+  {
+    id: "shovel", label: "シャベル", hint: "土・砂・雪を掘ります",
+    category: "itemGroup.name.sword", enchantSlot: "shovel",
+    tags: ["q.any_tag('sand', 'dirt', 'gravel', 'grass', 'snow')"],
+  },
+  {
+    id: "hoe", label: "クワ", hint: "葉・草を刈ります。畑も作れます",
+    category: "itemGroup.name.sword", enchantSlot: "hoe",
+    tags: ["q.any_tag('leaves', 'plant', 'vine_damage')"],
+  },
+];
+
+/**
+ * 武器・道具の設定。
+ *
+ * 剣もツルハシも同じ型で扱う。違いは kind と、そこから決まる
+ * 「何を速く掘れるか」だけなので、別の型に分けると設定がまるごと二重になる。
  */
 export interface ItemWeapon {
+  /**
+   * 道具の種類。無いときは剣として扱う（この項目より前に保存された作品のため）。
+   */
+  kind?: ToolKind;
+  /**
+   * 掘る速さ。大きいほど速い。ダイヤのツルハシで 8 くらい。
+   * 剣では使わない。
+   */
+  digSpeed?: number;
   /** 与えるダメージ。素手が1、木の剣が4、ダイヤの剣が7 */
   damage: number;
   /**
@@ -184,10 +254,20 @@ export interface ItemSkill {
   cooldownSeconds: number;
 }
 
-export function defaultWeapon(): ItemWeapon {
-  // 鉄の剣くらいの強さ。木より強く、ダイヤほどではない手頃な値。
+export function defaultWeapon(kind: ToolKind = "sword"): ItemWeapon {
+  // 鉄の道具くらいの強さ。木より強く、ダイヤほどではない手頃な値。
   // 効果は空から始める。最初から毒が付いていると、外し方を探すことになる
-  return { damage: 6, durability: 250, effects: [], fireSeconds: 0, selfEffects: [] };
+  return {
+    kind,
+    // 剣は攻撃寄り、ツルハシ等は掘る寄りの既定値にする。
+    // 種類を選んだ直後に「それらしい数字」が入っているほうが分かりやすい
+    damage: kind === "sword" ? 6 : kind === "axe" ? 8 : 3,
+    durability: 250,
+    digSpeed: 8,
+    effects: [],
+    fireSeconds: 0,
+    selfEffects: [],
+  };
 }
 
 export function defaultFood(): ItemFood {
@@ -241,7 +321,7 @@ export function validateItem(item: ItemIR): string[] {
   if (!item.iconDataUrl) problems.push("アイコンの画像がありません");
   if (item.maxStack < 1 || item.maxStack > 64) problems.push("重ねられる数は 1〜64 にしてください");
   // 種類はひとつだけ。組み合わせると、どれかの動作が邪魔をして使い物にならない
-  const kinds = [item.food && "食べ物", item.weapon && "剣", item.armor && "防具"].filter(Boolean);
+  const kinds = [item.food && "食べ物", item.weapon && "道具", item.armor && "防具"].filter(Boolean);
   if (kinds.length > 1) {
     problems.push(`${kinds.join("と")}は同時にできません（どれか1つにしてください）`);
   }
@@ -267,7 +347,8 @@ export function validateItem(item: ItemIR): string[] {
     // 0 は「壊れない武器」として通す。負の値だけ弾く
     if (item.weapon.durability < 0) problems.push("耐久値は0以上にしてください（0にすると壊れなくなります）");
     // 耐久値のある道具は重ねられない。マイクラの仕様
-    if (item.maxStack !== 1) problems.push("剣は重ねられません（重ねる数を1にしてください）");
+    if (item.maxStack !== 1) problems.push("道具は重ねられません（重ねる数を1にしてください）");
+    if ((item.weapon.digSpeed ?? 8) < 0) problems.push("掘る速さは0以上にしてください");
     // ⚠️ ?? を通すこと。この機能より前に保存された作品には無いフィールドで、
     //    そのまま比べると保存済みの作品が「壊れている」扱いになる
     if ((item.weapon.fireSeconds ?? 0) < 0) problems.push("燃やす秒数は0以上にしてください");

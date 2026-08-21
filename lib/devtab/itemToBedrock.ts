@@ -8,7 +8,7 @@
 
 import type { OutFile, BedrockOutput } from "./toBedrock";
 import { NAMESPACE } from "./toBedrock";
-import type { ItemIR } from "./itemIr";
+import { TOOL_KINDS, type ItemIR } from "./itemIr";
 
 function itemJson(item: ItemIR): string {
   const components: Record<string, unknown> = {
@@ -19,27 +19,43 @@ function itemJson(item: ItemIR): string {
   };
 
   if (item.weapon) {
+    const w = item.weapon;
+    // 種類が無いのは、この項目より前に保存された作品。剣として扱う
+    const kind = w.kind ?? "sword";
+    const def = TOOL_KINDS.find(k => k.id === kind) ?? TOOL_KINDS[0];
+    // 剣は「速く掘る」ものではないので固定。他は設定値を使う
+    const speed = kind === "sword" ? 15 : (w.digSpeed ?? 8);
+
     // 攻撃力。持って殴ったときのダメージ
-    components["minecraft:damage"] = item.weapon.damage;
+    components["minecraft:damage"] = w.damage;
+
+    // ⚠️ digger は耐久の有無と関係なく必要。
+    //    これが無いとツルハシで石を掘っても素手と同じ速さになる。
+    //    （耐久がある場合は「何を壊すと減るか」の役割も兼ねる）
+    components["minecraft:digger"] = {
+      // 効率のエンチャントを効かせるか。掘る道具では効かせたい
+      use_efficiency: kind !== "sword",
+      destroy_speeds: def.tags.map(tag => ({
+        // block に文字列ではなく tags を渡すと、ブロックを1つずつ
+        // 並べずに「石ぜんぶ」のような指定ができる
+        block: { tags: tag },
+        speed,
+      })),
+    };
+
     // 耐久値。**0 のときは何も書かない**。durability コンポーネント自体が
-    // 無ければ減るものが無いので、そのまま「壊れない武器」になる
-    if (item.weapon.durability > 0) {
-      components["minecraft:durability"] = { max_durability: item.weapon.durability };
-      // ⚠️ 剣として扱わせるには「何を壊すと耐久が減るか」を書く必要がある。
-      //    無いとダメージは出るのに耐久が一切減らない。
-      //    耐久が無いなら digger も要らない（あっても害はないが意味がない）
-      components["minecraft:digger"] = {
-        use_efficiency: false,
-        destroy_speeds: [{ block: "minecraft:web", speed: 15 }],
-      };
+    // 無ければ減るものが無いので、そのまま「壊れない道具」になる
+    if (w.durability > 0) {
+      components["minecraft:durability"] = { max_durability: w.durability };
     }
-    // 手に持ったときの見え方。剣らしく斜めに構える
-    components["minecraft:enchantable"] = { value: 10, slot: "sword" };
-    // 剣は重ねられない。耐久値を持つアイテムの仕様なので、ここで強制する。
+
+    // 手に持ったときの見え方と、エンチャント台での扱い
+    components["minecraft:enchantable"] = { value: 10, slot: def.enchantSlot };
+    // 耐久値を持つアイテムは重ねられない。マイクラの仕様なのでここで強制する。
     // UI 側でも検査しているが、出力が壊れるより静かに直すほうが安全
     components["minecraft:max_stack_size"] = 1;
     // 食べ物と違い、こちらは装備扱いのタブに出す
-    components["minecraft:creative_category"] = { parent: "itemGroup.name.sword" };
+    components["minecraft:creative_category"] = { parent: def.category };
   }
 
   if (item.armor) {

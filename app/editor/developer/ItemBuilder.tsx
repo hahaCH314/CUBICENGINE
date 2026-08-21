@@ -13,6 +13,7 @@ import { useEditorStore } from "../store";
 import {
   ARMOR_SLOTS,
   SKILL_KINDS,
+  TOOL_KINDS,
   WEAPON_EFFECTS,
   defaultArmor,
   defaultFood,
@@ -23,6 +24,7 @@ import {
   type ArmorSlot,
   type ItemIR,
   type SkillKind,
+  type ToolKind,
   type WeaponEffect,
 } from "../../../lib/devtab/itemIr";
 
@@ -163,7 +165,7 @@ function ItemCard({ item }: { item: ItemIR }) {
         {([
           ["plain", "見た目だけ", "持てる・置ける。それだけ"],
           ["food", "食べられる", "回復量を決められます"],
-          ["weapon", "剣", "攻撃力・耐久値・特殊効果を決められます"],
+          ["weapon", "道具・武器", "剣・ツルハシ・斧・シャベル・クワ"],
           ["armor", "防具", "防御力と、着ている間ずっと効く力"],
         ] as const).map(([k, label, hint]) => (
           <label key={k} className="flex items-start gap-2 text-xs cursor-pointer">
@@ -187,6 +189,38 @@ function ItemCard({ item }: { item: ItemIR }) {
 
       {weapon && (
         <div className="pl-5 flex flex-col gap-1.5">
+          <label className="flex items-center gap-3 text-xs">
+            <span className="w-32 shrink-0">道具の種類</span>
+            <select
+              className="flex-1 px-2 py-1 rounded text-xs bg-black/40 border border-white/15"
+              value={weapon.kind ?? "sword"}
+              onChange={e => update(item.id, { weapon: { ...weapon, kind: e.target.value as ToolKind } })}
+            >
+              {TOOL_KINDS.map(k => (
+                <option key={k.id} value={k.id}>{k.label}</option>
+              ))}
+            </select>
+          </label>
+          <p className="text-[10px] text-muted/50 pl-1">
+            {TOOL_KINDS.find(k => k.id === (weapon.kind ?? "sword"))?.hint}
+          </p>
+
+          {/* 剣は「掘る道具」ではないので速さを出さない。
+              出しても意味が無いうえ、何の速さか分からず迷わせる */}
+          {(weapon.kind ?? "sword") !== "sword" && (
+            <label className="flex items-center gap-3 text-xs">
+              <span className="w-32 shrink-0">掘る速さ<span className="block text-[10px] text-muted/50">ダイヤ8 ／ 上限なし</span></span>
+              <input type="number" min={0} className={numberCls}
+                value={weapon.digSpeed ?? 8}
+                onChange={e => update(item.id, { weapon: { ...weapon, digSpeed: Number(e.target.value) } })} />
+            </label>
+          )}
+          {(weapon.digSpeed ?? 8) >= 100 && (weapon.kind ?? "sword") !== "sword" && (
+            <p className="text-[10px]" style={{ color: "#fbbf24" }}>
+              ⚡ 速さ{weapon.digSpeed} ＝ 触れた瞬間に壊れます
+            </p>
+          )}
+
           {/* ⚠️ max を付けないこと。上限があると「最強の剣を作る」ができない。
               マイクラ側は大きい値をそのまま受け取るので、上限は要らない */}
           <label className="flex items-center gap-3 text-xs">
