@@ -152,12 +152,30 @@ android:apk: ... && cd android && gradlew.bat assembleDebug
 ### 署名鍵（Android）
 
 ```
-I:\CUBICENGINE署名鍵_大切に保管\cubicengine-release.jks
+CUBICENGINE署名鍵_大切に保管\cubicengine-release.jks
 ```
 
-**Windows 側の外付けドライブにあります。Mac からは見えません。**
-iOS には無関係ですが、`android/keystore.properties` が無い環境でも
-`./gradlew` が落ちないように書いてあります。そこを壊さないでください。
+**USB の中にあります。** ⚠️ **ドライブ文字は挿すたびに変わります。**
+I: だったものが H: になっていて、`.aab` が作れず時間を溶かしました。
+`android/keystore.properties` の `storeFile` を実際の文字に直せば通ります。
+（このファイルは .gitignore 済みなので、環境ごとに書き換えて構いません）
+
+iOS には無関係ですが、`keystore.properties` が無い環境でも `./gradlew` が
+落ちないように書いてあります。そこを壊さないでください。
+
+### 署名（iOS）— **Android とは全く別物**
+
+iOS に `.jks` は使いません。**Apple の証明書とプロビジョニングプロファイル**が要ります。
+
+- **Apple Developer Program（年 $99）の登録が先。** 保護者名義で登録してください
+- Xcode の Signing & Capabilities で Team を選べば、証明書は自動で作られます
+  （"Automatically manage signing" を使うのが早い）
+- Bundle Identifier は **`com.cubicenginestudio.cubicengine`**。Android と揃える
+- ⚠️ App Store Connect でアプリを作るとき、この ID を打ち間違えないこと。
+  **一度作ると変更できません**（Android で同じことを踏みかけました）
+
+**実機で試すだけなら無料アカウントでもできます。**（7日で切れる制限つき）
+まず動くところを見てから $99 を払う、という順でも構いません。
 
 ### appId
 
