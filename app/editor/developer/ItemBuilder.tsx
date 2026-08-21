@@ -116,13 +116,17 @@ function EffectList({
         </div>
       ))}
 
-      <button
-        onClick={() => onChange([...list, { id: choices[0].id, seconds: 5, amplifier: 0 }])}
-        className="self-start text-[11px] px-2 py-1 rounded"
-        style={{ background: "rgba(167,139,250,0.15)", border: "1px solid rgba(167,139,250,0.35)" }}
-      >
-        ＋ 効果を足す
-      </button>
+      {/* ⚠️ choices が空だと choices[0].id で落ちる。今の分類では起きないが、
+          効果を足したり分類を変えたときに空になりうる */}
+      {choices.length > 0 && (
+        <button
+          onClick={() => onChange([...list, { id: choices[0].id, seconds: 5, amplifier: 0 }])}
+          className="self-start text-[11px] px-2 py-1 rounded"
+          style={{ background: "rgba(167,139,250,0.15)", border: "1px solid rgba(167,139,250,0.35)" }}
+        >
+          ＋ 効果を足す
+        </button>
+      )}
     </div>
   );
 }
@@ -186,6 +190,8 @@ function ItemCard({ item }: { item: ItemIR }) {
                 if (kind === k) return;
                 // 種類を変えたら他は必ず null にする。残っていると
                 // 「剣なのに食べる動作が出る」ような組み合わせができてしまう
+                // ⚠️ 技は防具にも付けられるので消さない。ただし食べ物だけは
+                //    右クリックを奪い合うため必ず外す
                 if (k === "food") update(item.id, { food: defaultFood(), weapon: null, armor: null, skill: null, maxStack: 64 });
                 else if (k === "weapon") update(item.id, { weapon: defaultWeapon(), food: null, armor: null, maxStack: 1 });
                 else if (k === "armor") update(item.id, { armor: defaultArmor(), food: null, weapon: null, maxStack: 1 });

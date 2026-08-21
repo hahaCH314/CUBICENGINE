@@ -294,7 +294,11 @@ export default function EditorPage() {
   useEffect(() => {
     const el = document.getElementById(`tab-${activeTab}`);
     el?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
-  }, [activeTab]);
+    // ⚠️ 滑らかスクロールが終わったあとにもう一度測る。onScroll でも更新されるが、
+    //    最後の1フレームを取りこぼすと端の帯（‹ ›）が出たままになる
+    const t = setTimeout(handleTabScroll, 500);
+    return () => clearTimeout(t);
+  }, [activeTab, handleTabScroll]);
   const [logicView, setLogicView] = useState<"tsumiki" | "grape">("tsumiki");
   const [isElectron, setIsElectron] = useState<boolean | null>(null);
 

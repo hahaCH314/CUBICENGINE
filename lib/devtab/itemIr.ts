@@ -78,9 +78,13 @@ export const TOOL_KINDS: {
   //    アイテムが見つからない事故を起こしている）。sword は実績があり、
   //    道具はどれも「装備」タブに並ぶので探すのに困らない。
   {
+    // ⚠️ tags は必ず q.any_tag(...) の形にすること。
+    //    "'minecraft:web'" のような裸の文字列は Molang としてタグ判定にならず、
+    //    剣がクモの巣を切れなくなる（以前の block:"minecraft:web" 形式からの移行時に
+    //    ここだけ形を揃え忘れて壊していた）
     id: "sword", label: "剣", hint: "戦うための道具。クモの巣を速く切れます",
     category: "itemGroup.name.sword", enchantSlot: "sword",
-    tags: ["'minecraft:web'"],
+    tags: ["q.any_tag('web')"],
   },
   {
     id: "pickaxe", label: "ツルハシ", hint: "石・鉱石を掘ります",

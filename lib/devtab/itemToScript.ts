@@ -194,15 +194,26 @@ export function itemsToScript(items: readonly ItemIR[]): string {
     for (const it of skills) {
       const s = it.skill!;
       lines.push(
-        `  ${q(`${NAMESPACE}:${it.id}`)}: { kind: ${q(s.kind)}, power: ${s.power}, range: ${s.range} },`,
+        `  ${q(`${NAMESPACE}:${it.id}`)}: { kind: ${q(s.kind)}, power: ${s.power}, range: ${s.range}, cd: ${s.cooldownSeconds} },`,
       );
     }
     lines.push("};");
     lines.push("");
+    lines.push("// ⚠️ minecraft:cooldown はアイテムの使用を抑えるだけで、");
+    lines.push("//    itemUse イベント自体は飛んでくる。押しっぱなしで連発されるので、");
+    lines.push("//    ここでも「誰がいつ使ったか」を覚えて弾く。");
+    lines.push("const CE_LAST_USE = new Map();");
     lines.push("world.afterEvents.itemUse.subscribe(ev => {");
     lines.push("  const p = ev.source;");
     lines.push("  const skill = CE_SKILLS[ev.itemStack?.typeId];");
     lines.push("  if (!p || !skill) return;");
+    lines.push("  if (skill.cd > 0) {");
+    lines.push("    const key = p.id + '|' + ev.itemStack.typeId;");
+    lines.push("    const now = system.currentTick;");
+    lines.push("    const last = CE_LAST_USE.get(key) ?? -Infinity;");
+    lines.push("    if (now - last < skill.cd * 20) return;");
+    lines.push("    CE_LAST_USE.set(key, now);");
+    lines.push("  }");
     lines.push("  try {");
     lines.push("    const loc = p.location;");
     lines.push("    const dim = p.dimension;");
@@ -229,10 +240,13 @@ export function itemsToScript(items: readonly ItemIR[]): string {
     lines.push("      dim.spawnEntity('minecraft:lightning_bolt', at);");
     lines.push("");
     lines.push("    } else {");
-    lines.push("      // shockwave / knockback。まわりの相手を集めて処理する");
+    lines.push("      // shockwave / knockback。まわりの相手を集めて処理する。");
+    lines.push("      // ⚠️ 絞り込まないと村人・ペット・友達まで巻き込む。");
+    lines.push("      //    'monster' ファミリーに絞って、敵だけに当てる");
     lines.push("      const targets = dim.getEntities({");
     lines.push("        location: loc,");
     lines.push("        maxDistance: Math.max(1, skill.range),");
+    lines.push("        families: ['monster'],");
     lines.push("      });");
     lines.push("      for (const t of targets) {");
     lines.push("        // ⚠️ 自分を外すのは id で見ること。excludeNames は**名前**で");
@@ -276,7 +290,11 @@ export function itemsScriptImports(items: readonly ItemIR[]): { world: boolean; 
   const skills = items.filter(it => hasSkill(it));
   return {
     world: armed.length > 0 || armors.length > 0 || skills.length > 0,
-    // system は「毎秒くり返す」処理だけが使う（手持ち効果・防具効果）
-    system: armed.some(it => eff(it.weapon).selfEffects.length > 0) || armors.length > 0,
+    // system が要るのは「毎秒くり返す」処理（手持ち効果・防具効果）と、
+    // 技のクールダウン判定（system.currentTick を読む）
+    system:
+      armed.some(it => eff(it.weapon).selfEffects.length > 0) ||
+      armors.length > 0 ||
+      skills.some(it => (it.skill?.cooldownSeconds ?? 0) > 0),
   };
 }

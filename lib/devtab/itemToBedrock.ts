@@ -58,7 +58,11 @@ function itemJson(item: ItemIR): string {
     components["minecraft:creative_category"] = { parent: def.category };
   }
 
-  if (item.armor) {
+  // ⚠️ 武器と防具が両方あるときは防具を出さない。
+  //    両方書くと durability / enchantable / creative_category が衝突し、
+  //    あとから書いたほうで上書きされて「剣のつもりが防具」になる。
+  //    UI では選べないが、古いデータや手書きの .cubic では起こりうる
+  if (item.armor && !item.weapon) {
     const a = item.armor;
     // 防御力。ダイヤ一式で20 になるくらいが目安
     components["minecraft:armor"] = { protection: a.protection };

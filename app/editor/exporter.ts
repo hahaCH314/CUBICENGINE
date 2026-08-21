@@ -446,13 +446,25 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
       //     "import { world } ..." を本物と誤認し、必要な import を足さなくなる
       //     （world が undefined のまま動いて、原因が別に見える）
       //  ③ 中身(bindings)だけを集めて名前を照合する
-      const bindings = Array.from(
-        baseJs.matchAll(/^\s*import\s*\{([^}]*)\}\s*from\s*["']@minecraft\/server["']/gm),
-      )
-        .map(m => m[1])
-        .join(",");
-      if (devNeeds.world && !/\bworld\b/.test(bindings)) need.push("world");
-      if (devNeeds.system && !/\bsystem\b/.test(bindings)) need.push("system");
+      //  ④ 名前は「,」で切って完全一致で見る。/\bworld\b/ のような部分一致だと
+      //     worldSettings のような別名を world と誤認し、必要な import を
+      //     足さなくなる（world が undefined のまま動いて原因が別に見える）
+      const bound = new Set<string>();
+      for (const m of baseJs.matchAll(
+        /^\s*import\s*\{([^}]*)\}\s*from\s*["']@minecraft\/server["']/gm,
+      )) {
+        for (const raw of m[1].split(",")) {
+          // "world as w" のような別名にも備えて、最後の語を見る
+          const name = raw.trim().split(/\s+as\s+/).pop()?.trim();
+          if (name) bound.add(name);
+        }
+      }
+      // 名前空間 import (import * as mc from ...) があれば、こちらから足すと壊れる
+      const hasNamespace = /^\s*import\s*\*\s*as\s+\w+\s*from\s*["']@minecraft\/server["']/m.test(baseJs);
+      if (!hasNamespace) {
+        if (devNeeds.world && !bound.has("world")) need.push("world");
+        if (devNeeds.system && !bound.has("system")) need.push("system");
+      }
 
       mainJsBody =
         (need.length > 0 ? `import { ${need.join(", ")} } from "@minecraft/server";\n\n` : "") +

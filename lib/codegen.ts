@@ -80,8 +80,9 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
     //    しかもマイクラ側は何も言わないので「置いたのに何も起きない」としか見えない。
     //    （2026-08-21、エンティティ召喚・パーティクル表示が動かない原因がこれだった。
     //      アイテム付与・音・タイトル・エフェクトなど10枚が同時に壊れていた）
-    //    runCommand は同期なので呼べる場所に制限があるが、生成コードは常に
-    //    system.runTimeout の中で動くため問題ない。
+    //    ⚠️ ただし runCommand は **beforeEvents の中では呼べない**（読み取り専用）。
+    //       body を beforeEvents に直接埋めるトリガーを足すときは、
+    //       ev_chat のように system.run で次のティックへ逃がすこと。
     case"ac_msg":
       // world.sendMessage は古いAPIバージョンで存在しないためループで代替
       return f("target","@a")==="@a"
@@ -450,14 +451,24 @@ function genTrigger(b:CBlock,blocks:CBlock[]):string{
         `}, 1);`,
       ].join("\n");
     case"ev_chat":
+      // ⚠️ beforeEvents の中では **読み取りしかできない**。
+      //    runCommand も teleport も、その場で呼ぶとエラーになる。
+      //    event.cancel = true はここでしか書けないので、
+      //    「打ち消しはここで、処理は次のティックで」に分ける。
+      //    ⚠️ event.sender は callback を抜けると使えなくなる恐れがあるので、
+      //       名前で取り直す（ev_join と同じ作り）。
       return[
         `// 💬 チャットしたとき ("${f("pat","!hi")}")`,
         `world.beforeEvents.chatSend.subscribe((event) => {`,
         `  if (event.message !== "${escStr(f("pat","!hi"))}") return;`,
         `  event.cancel = true;`,
-        `  const player = event.sender;`,
-        `  if (!player) return;`,
+        `  const _chatName = event.sender?.name;`,
+        `  if (!_chatName) return;`,
+        `  system.run(() => {`,
+        `    const player = world.getPlayers().find(p => p.name === _chatName);`,
+        `    if (!player) return;`,
         body,
+        `  });`,
         `});`,
       ].join("\n");
     case"ev_hurt":
