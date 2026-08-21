@@ -48,7 +48,7 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
         label: "効果音を鳴らす",
         category: "action",
         fields: [
-          { id: "sound", label: "効果音", value: "random.explode" },
+          { id: "snd", label: "効果音", value: "random.explode" },
           { id: "vol", label: "音量", value: "1" },
         ],
         x: 80,
@@ -62,8 +62,7 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
         category: "action",
         fields: [
           { id: "item", label: "アイテム", value: "minecraft:diamond" },
-          { id: "cnt", label: "個数", value: "16" },
-          { id: "target", label: "対象", value: "@s" },
+          { id: "count", label: "個数", value: "16" },
         ],
         x: 80,
         y: 300,
@@ -138,7 +137,7 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
         label: "効果音を鳴らす",
         category: "action",
         fields: [
-          { id: "sound", label: "効果音", value: "random.levelup" },
+          { id: "snd", label: "効果音", value: "random.levelup" },
           { id: "vol", label: "音量", value: "1" },
         ],
         x: 80,
@@ -152,8 +151,7 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
         category: "action",
         fields: [
           { id: "item", label: "アイテム", value: "minecraft:diamond" },
-          { id: "cnt", label: "個数", value: "64" },
-          { id: "target", label: "対象", value: "@s" },
+          { id: "count", label: "個数", value: "64" },
         ],
         x: 80,
         y: 300,
