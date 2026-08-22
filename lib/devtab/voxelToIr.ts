@@ -23,6 +23,7 @@ import {
   toIdentifier,
   type FaceName,
   type IRBone,
+  type IRAnimation,
   type IRCube,
   type MobIR,
   type UvRect,
@@ -31,6 +32,70 @@ import {
 
 /** 1ブロック = 16単位。Bedrock のモデル座標に合わせる */
 const UNITS_PER_BLOCK = 16;
+
+/**
+ * 選べる動きのパターン。
+ *
+ * ボクセルは1本のボーン(root)に全部の立方体が入っているので、
+ * **体ぜんぶが同じ動きをする**。腕だけ振るような分割はできない。
+ * その制約の中で「見て分かる」動きに絞ってある。
+ *
+ * ⚠️ 時刻のキーは toBedrock 側で t.toFixed(1) される。
+ *    整数に見えるキー("0")はJSONオブジェクト内で先に並び替えられてしまうため。
+ */
+export type MobMotion = "none" | "float" | "spin" | "bounce" | "wobble";
+
+export const MOB_MOTIONS: { id: MobMotion; label: string; hint: string }[] = [
+  { id: "none",   label: "動かない",     hint: "その場に立っているだけ" },
+  { id: "float",  label: "ふわふわ浮く", hint: "上下にゆっくり揺れます" },
+  { id: "spin",   label: "くるくる回る", hint: "その場で回転し続けます" },
+  { id: "bounce", label: "ぴょんぴょん", hint: "跳ねるように上下します" },
+  { id: "wobble", label: "ゆらゆら",     hint: "左右に傾いて揺れます" },
+];
+
+/** パターン名 → 実際のキーフレーム。root ボーン1本ぶん */
+function buildMotion(kind: MobMotion): IRAnimation[] {
+  if (kind === "none") return [];
+
+  // ループする動きは「始点と終点を同じ値」にしないと、
+  // 一周したときにガクッと戻る
+  const anim = (
+    name: string,
+    length: number,
+    channel: "position" | "rotation",
+    frames: [number, Vec3][],
+  ): IRAnimation => ({
+    name,
+    length,
+    loop: true,
+    bones: [{ bone: "root", [channel]: frames.map(([time, value]) => ({ time, value })) }],
+  });
+
+  switch (kind) {
+    case "float":
+      // 上下2単位ぶん。ゆっくりめの3秒周期
+      return [anim("float", 3, "position", [
+        [0, [0, 0, 0]], [1.5, [0, 2, 0]], [3, [0, 0, 0]],
+      ])];
+    case "spin":
+      // Y軸まわりに1周。360度を一度に書くと補間が効かないので半周ずつ
+      return [anim("spin", 2, "rotation", [
+        [0, [0, 0, 0]], [1, [0, 180, 0]], [2, [0, 360, 0]],
+      ])];
+    case "bounce":
+      // 跳ねる。上がる時間より落ちる時間を短くすると跳ねて見える
+      return [anim("bounce", 1, "position", [
+        [0, [0, 0, 0]], [0.6, [0, 5, 0]], [1, [0, 0, 0]],
+      ])];
+    case "wobble":
+      // Z軸まわりに左右へ傾ける
+      return [anim("wobble", 2, "rotation", [
+        [0, [0, 0, -8]], [1, [0, 0, 8]], [2, [0, 0, -8]],
+      ])];
+    default:
+      return [];
+  }
+}
 
 /** パレット1マスの大きさ（px）。小さすぎると隣の色がにじむ */
 const CELL = 4;
@@ -102,7 +167,11 @@ function buildPaletteTexture(colors: string[], size: number): string {
  * @param voxels モデルタブの blocks（または items）
  * @param displayName モブの名前。識別子はここから作る
  */
-export function voxelsToMobIR(voxels: readonly VoxelSource[], displayName: string): MobIR | null {
+export function voxelsToMobIR(
+  voxels: readonly VoxelSource[],
+  displayName: string,
+  motion: MobMotion = "none",
+): MobIR | null {
   if (voxels.length === 0) return null;
 
   // 使われている色を集めて、色 → パレット上の位置 を決める。
@@ -177,7 +246,7 @@ export function voxelsToMobIR(voxels: readonly VoxelSource[], displayName: strin
         dataUrl: buildPaletteTexture([...colorIndex.keys()], texSize),
       },
     ],
-    animations: [],
+    animations: buildMotion(motion),
     behavior: defaultBehavior(),
   };
 }

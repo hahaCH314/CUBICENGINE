@@ -13,7 +13,7 @@ import { disposeDevWorker, parseBbmodelAsync } from "../../../lib/devtab/client"
 import { describeIR } from "../../../lib/devtab/bbmodel";
 import type { MobIR } from "../../../lib/devtab/ir";
 import { useEditorStore } from "../store";
-import { describeVoxels, voxelsToMobIR } from "../../../lib/devtab/voxelToIr";
+import { MOB_MOTIONS, describeVoxels, voxelsToMobIR, type MobMotion } from "../../../lib/devtab/voxelToIr";
 
 export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => void }) {
   const [busy, setBusy] = useState(false);
@@ -21,6 +21,8 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
   const [errors, setErrors] = useState<string[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [dragOver, setDragOver] = useState(false);
+  // ボクセルをモブにするときの動き。root ボーン1本なので体ぜんぶが同じ動きになる
+  const [motion, setMotion] = useState<MobMotion>("none");
   const fileRef = useRef<HTMLInputElement>(null);
   // モデルタブで積んだボクセル。これをそのままモブにできる
   const voxels = useEditorStore(s => s.blocks);
@@ -72,7 +74,7 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
     setWarnings([]);
     // 名前はプロジェクト名を使う。モデルタブ側に「作品の名前」が無いため。
     // 識別子はここから作られるので、日本語なら voxel_mob に落ちる（警告は出す）
-    const ir = voxelsToMobIR(voxels, projectName);
+    const ir = voxelsToMobIR(voxels, projectName, motion);
     if (!ir) {
       setErrors(["モデルタブに立方体がありません"]);
       return;
@@ -89,7 +91,7 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
     setWarnings(w);
     setIr(ir);
     onLoaded?.(ir);
-  }, [voxels, projectName, onLoaded]);
+  }, [voxels, projectName, motion, onLoaded]);
 
   const onDrop = useCallback(
     (e: React.DragEvent) => {
@@ -152,7 +154,7 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
       {/* モデルタブで積んだものを、そのままモブにできる。
           Blockbench を持っていない人でもモブが作れるようにするための入口 */}
       {voxelStats.cubes > 0 && (
-        <div className="rounded-xl p-4 flex items-center gap-3" style={{ background: "rgba(60,208,112,0.08)", border: "1px solid rgba(60,208,112,0.3)" }}>
+        <div className="rounded-xl p-4 flex flex-wrap items-center gap-3" style={{ background: "rgba(60,208,112,0.08)", border: "1px solid rgba(60,208,112,0.3)" }}>
           <span className="text-2xl">📦</span>
           <div className="flex-1 text-xs">
             <b>モデルタブで作った形</b>をモブにできます
@@ -160,6 +162,18 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
               立方体 {voxelStats.cubes} 個 ／ 色 {voxelStats.colors} 種。面の色はそのまま貼られます
             </span>
           </div>
+            <label className="flex items-center gap-2 text-xs w-full">
+              <span className="shrink-0">動き</span>
+              <select
+                className="flex-1 px-2 py-1 rounded text-xs bg-black/40 border border-white/15"
+                value={motion}
+                onChange={e => setMotion(e.target.value as MobMotion)}
+              >
+                {MOB_MOTIONS.map(m => (
+                  <option key={m.id} value={m.id}>{m.label}</option>
+                ))}
+              </select>
+            </label>
           <button
             onClick={fromVoxels}
             className="text-xs font-bold px-3 py-2 rounded-lg shrink-0"
