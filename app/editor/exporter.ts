@@ -5,6 +5,7 @@ import { buildJavaModEventHandler } from "../../lib/codegenJava";
 import { mobsToBedrock } from "../../lib/devtab/toBedrock";
 import { itemsToBedrock } from "../../lib/devtab/itemToBedrock";
 import { itemsToScript, itemsScriptImports } from "../../lib/devtab/itemToScript";
+import { blocksToScript, blocksScriptImports } from "../../lib/devtab/blockToScript";
 import { isCapacitor } from "../../lib/platform";
 
 /* ═══════════════════════════════════════════
@@ -346,8 +347,23 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
   const itemFiles = itemsToBedrock(state.devItems ?? []);
   // 武器の効果（毒・炎・持ち続ける効果）はスクリプトで実現する。
   // 効果を持つ武器が1つも無ければ空文字が返り、main.js には何も足されない
-  const devScript = itemsToScript(state.devItems ?? []);
-  const devNeeds = itemsScriptImports(state.devItems ?? []);
+  const itemScript = itemsToScript(state.devItems ?? []);
+  const itemNeeds = itemsScriptImports(state.devItems ?? []);
+  // モデルタブのブロックに付けた粒子。ブロックのJSONではなくスクリプトで出す
+  // （理由は lib/devtab/blockToScript.ts のコメント）。
+  // ⚠️ id は sanitizeBlockName を通すこと。ブロック本体のファイル名と識別子が
+  //    これで作られているので、ここだけ生の name を使うと一致せず粒子が出ない。
+  const particleSrc = (state.blocks ?? [])
+    .filter(b => b.registered && b.particle)
+    .map(b => ({ id: sanitizeBlockName(b.name), particle: b.particle }));
+  const blockScript = blocksToScript(particleSrc);
+  const blockNeeds = blocksScriptImports(particleSrc);
+
+  const devScript = [itemScript, blockScript].filter(Boolean).join("\n");
+  const devNeeds = {
+    world: itemNeeds.world || blockNeeds.world,
+    system: itemNeeds.system || blockNeeds.system,
+  };
 
   // state.mcVersion から min_engine_version を導出
   let minEngineVersion = [1, 20, 10];

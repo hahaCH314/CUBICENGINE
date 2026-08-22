@@ -6,6 +6,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { useEditorStore } from "./store";
 import type { VoxelBlock } from "./store";
 import { McButton } from "../_mc";
+import { BLOCK_PARTICLES } from "../../lib/devtab/blockToScript";
 
 /* ═══════════════════════════════════════════
    Three.js Viewport
@@ -985,6 +986,30 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
                     <option key={n} value={n}>
                       {n}{n === 0 ? "（光らない）" : n === 15 ? "（最大）" : ""}
                     </option>
+                  ))}
+                </select>
+              </div>
+              {/* ⚠️ 粒子はブロックのJSONではなくスクリプトで出す。
+                  minecraft:particle_emitter の書式に確証が無く、間違えると
+                  ブロックごと読み込まれなくなるため（詳しくは lib/devtab/blockToScript.ts）。
+                  そのため**ワールドの「ベータAPI」が要る**。ここに明記しないと
+                  「設定したのに出ない」の原因が分からない */}
+              <div className="col-span-2">
+                <label className="text-[10px] text-foreground/80 font-bold block mb-1">
+                  まわりに出る粒子
+                  <span className="block text-[9px] text-foreground/45 font-normal">
+                    ワールドの「ベータAPI」をONにすると出ます
+                  </span>
+                </label>
+                <select
+                  value={sel.particle ?? ""}
+                  title="まわりに出る粒子"
+                  onChange={(e) => updateFn(sel.id, { particle: e.target.value })}
+                  className="w-full px-2 py-1 bg-[#1a1916] border-2 border-[#2c2c2c] mc-bevel-inset text-xs text-foreground/85 focus:outline-none"
+                  style={{ borderRadius: "4px" }}
+                >
+                  {BLOCK_PARTICLES.map(p => (
+                    <option key={p.id} value={p.id}>{p.label}</option>
                   ))}
                 </select>
               </div>

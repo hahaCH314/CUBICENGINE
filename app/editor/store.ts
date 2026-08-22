@@ -52,6 +52,13 @@ export interface VoxelBlock {
   displayName?: string;   // ゲーム内表示名（日本語OK）
   hardness?: number;      // かたさ（壊れにくさ）
   lightLevel?: number;    // 発光レベル 0〜15
+  /**
+   * ブロックの周りに出す粒子。空なら出さない。
+   * ⚠️ ブロックのJSONではなく**スクリプト**で出す。
+   *    minecraft:particle_emitter の書式に確証が無く、間違えると
+   *    ブロックごと読み込まれなくなるため（過去にアイテムで同じ事故を起こしている）。
+   */
+  particle?: string;
 }
 
 export interface VoxelItem {
@@ -72,6 +79,8 @@ export interface VoxelItem {
   displayName?: string;
   hardness?: number;
   lightLevel?: number;
+  /** ブロックと同じ UI を使うので型も揃える。アイテムでは今のところ出力に使わない */
+  particle?: string;
 }
 
 export interface EditorState {
