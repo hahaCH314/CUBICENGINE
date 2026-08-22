@@ -11,7 +11,22 @@
       "Bash(python blur_founder.py)",
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('electron', d.get\\('version'\\), d.get\\('license'\\)\\)\")",
       "Bash(node scripts/gen-notices.mjs)",
-      "Bash(curl -s -o /dev/null -w \"og.jpg  HTTP %{http_code}  %{content_type}  %{size_download} bytes\\\\n\" https://cubicenginestudio.vercel.app/og.jpg)"
+      "Bash(curl -s -o /dev/null -w \"og.jpg  HTTP %{http_code}  %{content_type}  %{size_download} bytes\\\\n\" https://cubicenginestudio.vercel.app/og.jpg)",
+      "Bash(ls -la \"I:/\" 2>&1 | sed 's/^/  /')",
+      "Read(//i//**)",
+      "Bash(mkdir -p I:/iOS移行_MACのシオンへ)",
+      "Bash(cp E:/iOS移行_MACのシオンへ/iOS版の引き継ぎ_まずこれを読んで.md I:/iOS移行_MACのシオンへ/)",
+      "Bash(gh release *)",
+      "Bash(curl -s \"https://api.github.com/repos/hahaCH314/CUBICENGINE/releases\")",
+      "Bash(curl -s \"https://api.github.com/repos/hahaCH314/CUBICENGINE/releases/tags/v0.1.2\")",
+      "Bash(curl -s \"https://api.github.com/repos/hahaCH314/CUBICENGINE/actions/runs?per_page=10\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://www.virustotal.com/gui/file/bb1c2064be8a9fe255f36f299a6809bbc4b9f9cd2dfda575419344713157851b\")",
+      "Bash(node -e \"console.log\\('  package.json: ' + require\\('./package.json'\\).version\\)\")",
+      "Bash(awk 'NR>=2173 && NR<=2245' app/editor/LogicPanel.tsx)",
+      "Bash(cp \"E:/iOS移行_MACのシオンへ/iOS版の引き継ぎ_まずこれを読んで.md\" \"I:/iOS移行_MACのシオンへ/\")",
+      "Read(//i/iOS移行_MACのシオンへ/**)",
+      "Bash(node --check __TRACKED_VAR__/v.mjs)",
+      "Bash(curl -s \"https://api.github.com/repos/hahaCH314/CUBICENGINE/releases/tags/v0.1.3\")"
     ]
   }
 }

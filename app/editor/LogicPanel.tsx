@@ -56,6 +56,16 @@ interface FriendlyGroup { key: string; label: string; sub: string; icon: string;
 // ※パラメータ付き(co_tag/co_item)はv2まで従来どおり置けるよう残す。
 const HIDDEN_COND_TYPES = new Set(["co_sneak", "co_night", "co_rain", "co_hp"]);
 
+/** 初心者モードで見せるカード。「押したら何が起きるか」が一目で分かるものだけに絞る。
+ *  132種を全部見せると選べなくなる（実測でカード132種・8カテゴリ）。
+ *  きっかけ4 + すること8 = 12種。条件・変数・計算は「ぜんぶ見る」に切り替えたら出る。
+ *  ⚠️ 検索は初心者モードでも全カードを対象にする。名前を打つのは明確な意図なので。 */
+const STARTER_TYPES = new Set([
+  "ev_join", "ev_break", "ev_attack", "ev_item",
+  "ac_msg", "ac_give", "ac_summon", "ac_sound",
+  "ac_effect", "ac_particle", "ac_title", "ac_tp",
+]);
+
 /** 条件シールとして貼れる条件。カード1枚に対して「このときだけ動く」を付ける用途なので、
  *  他の条件を組み合わせる系(co_and/co_or/co_not)は入れない。
  *  複数貼り＝かつ、めくる＝〜じゃない、で同じことができる。 */
@@ -2476,12 +2486,23 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
   const [selected, setSelected] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [showLib, setShowLib] = useState(true);
+  // 初心者モード。ONだと STARTER_TYPES の12種だけ見せる。
+  // 初期値は「はじめて開いた人= ON」。一度切り替えたら localStorage で覚える
+  const [simpleMode, setSimpleMode] = useState(true);
+  useEffect(() => {
+    try { const v = localStorage.getItem("ce-simple-mode"); if (v !== null) setSimpleMode(v === "1"); } catch {}
+  }, []);
+  const toggleSimple = () => setSimpleMode(prev => {
+    const next = !prev;
+    try { localStorage.setItem("ce-simple-mode", next ? "1" : "0"); } catch {}
+    return next;
+  });
   const [activeGroup, setActiveGroup] = useState<string>("when");
   const [selectedTemplate, setSelectedTemplate] = useState<Tmpl | null>(null);
 
   useEffect(() => {
     const g = FRIENDLY_GROUPS.find(x => x.key === activeGroup) ?? FRIENDLY_GROUPS[0];
-    const defaultTemplates = TEMPLATES.filter(t => g.cats.includes(t.category) && !HIDDEN_COND_TYPES.has(t.type));
+    const defaultTemplates = TEMPLATES.filter(t => g.cats.includes(t.category) && !HIDDEN_COND_TYPES.has(t.type) && (!simpleMode || STARTER_TYPES.has(t.type)));
     setSelectedTemplate(defaultTemplates.length > 0 ? defaultTemplates[0] : null);
   }, [activeGroup]);
 
@@ -2504,7 +2525,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
   const currentGroup = FRIENDLY_GROUPS.find(g => g.key === activeGroup) ?? FRIENDLY_GROUPS[0];
   const filtered = (searching
     ? TEMPLATES.filter(t => t.label.includes(search) || t.sublabel.includes(search))
-    : TEMPLATES.filter(t => currentGroup.cats.includes(t.category))
+    : TEMPLATES.filter(t => currentGroup.cats.includes(t.category) && (!simpleMode || STARTER_TYPES.has(t.type)))
   ).filter(t => !HIDDEN_COND_TYPES.has(t.type));
 
   // 下部キーボード：8カテゴリ直割り＋計算だけサブタブ。キーを押すと即カードがキャンバスへ
@@ -2513,7 +2534,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
   const kbItems = (kbCat === "calc"
     ? TEMPLATES.filter(t => t.category === "calc" && getCalcSubCat(t) === kbCalcSub)
     : TEMPLATES.filter(t => t.category === kbCat)
-  ).filter(t => !HIDDEN_COND_TYPES.has(t.type));
+  ).filter(t => !HIDDEN_COND_TYPES.has(t.type) && (!simpleMode || STARTER_TYPES.has(t.type)));
   const [showCode, setShowCode] = useState(false);
   const [showHelp, setShowHelp] = useState(false); // 起動時は閉じておく（ユーザーが ? で開く）
   const [genCode, setGenCode] = useState("");
@@ -3591,6 +3612,20 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
             <div style={{ fontSize: 10, fontWeight: 900, color: "#64748b", letterSpacing: "0.08em", paddingLeft: 4 }}>
               STEP 1: まず えらぶ
             </div>
+              {/* 初心者モードの切替。カード132種を全部見せると選べなくなるので、
+                  最初は12種だけ。物足りなくなったら自分で開ける。
+                  切替はここ（カードを選ぶ場所）に置く。設定の奥だと存在に気づけない */}
+              <button
+                onClick={toggleSimple}
+                className="self-start text-[10px] font-bold px-2 py-1 rounded-full"
+                style={{
+                  background: simpleMode ? "rgba(250,204,21,0.15)" : "rgba(167,139,250,0.15)",
+                  border: `1px solid ${simpleMode ? "rgba(250,204,21,0.5)" : "rgba(167,139,250,0.5)"}`,
+                  color: simpleMode ? "#facc15" : "#a78bfa",
+                }}
+              >
+                {simpleMode ? "🔰 かんたん（12まい）→ ぜんぶ見る" : "🎓 ぜんぶ（132まい）→ かんたんに戻す"}
+              </button>
             <div style={{ display: "flex", gap: 8 }}>
               {FRIENDLY_GROUPS.map(g => {
                 const TIcon = (LucideIcons as any)[g.icon] || LucideIcons.HelpCircle;
