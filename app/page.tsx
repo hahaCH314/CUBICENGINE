@@ -583,8 +583,14 @@ export default function HomePage() {
             そこだけはデスクトップ版が必要になるので、トップから直接落とせるようにする。
             ※フラグは版ごとに分けている。統合版の .exe はまだ公開していないので、
               共通フラグにすると存在しないファイルへのリンクが出て404になる。 */}
+        {/* ⚠️ スマホでは出さない（hidden md:flex）。
+            Java版のMODはパソコンでしか作れないので、スマホの人には
+            **押せてしまうこと自体が害**になる。171MBのWindows用インストーラを
+            落とさせても、その端末では絶対に使えない。
+            上の Java版カードは既に隠してあるが、この配布セクションは別物なので
+            片方だけ隠しても意味がない（実際にスマホから見えていた）。 */}
         {GROVE_EXE_READY && (
-          <div className="w-full flex flex-col items-center gap-2 mt-10 mb-2 px-4">
+          <div className="hidden md:flex w-full flex-col items-center gap-2 mt-10 mb-2 px-4">
             <a
               href={DOWNLOADS.grove.win}
               download
