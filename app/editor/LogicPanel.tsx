@@ -2467,15 +2467,19 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
       showToast(who ? `${who} の作品をひらきました 🔁` : "作品をひらきました 🔁", "success");
     })();
   }, []);
+  // 説明書を見た印。⚠️ 中身を作り直したら、この番号を上げること。
+  // 上げないと、前の説明書を見たことがある人には新しいものが一生出ない。
+  // v2 = 横スワイプの5枚組（文字だらけで読みにくい、と言われて作り直した版）
+  const TUTORIAL_SEEN_KEY = "mmc-tutorial-seen-v2";
   useEffect(() => {
     try {
-      if (localStorage.getItem("mmc-tutorial-seen")) return;
+      if (localStorage.getItem(TUTORIAL_SEEN_KEY)) return;
     } catch { return; } // localStorage が使えない環境では出さない（毎回出るのを防ぐ）
     setShowTutorial(true);
   }, []);
   const closeTutorial = useCallback(() => {
     setShowTutorial(false);
-    try { localStorage.setItem("mmc-tutorial-seen", "1"); } catch { }
+    try { localStorage.setItem(TUTORIAL_SEEN_KEY, "1"); } catch { }
   }, []);
 
   const [draggingId, setDraggingId] = useState<string | null>(null);
