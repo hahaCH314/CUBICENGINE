@@ -3612,20 +3612,6 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
             <div style={{ fontSize: 10, fontWeight: 900, color: "#64748b", letterSpacing: "0.08em", paddingLeft: 4 }}>
               STEP 1: まず えらぶ
             </div>
-              {/* 初心者モードの切替。カード132種を全部見せると選べなくなるので、
-                  最初は12種だけ。物足りなくなったら自分で開ける。
-                  切替はここ（カードを選ぶ場所）に置く。設定の奥だと存在に気づけない */}
-              <button
-                onClick={toggleSimple}
-                className="self-start text-[10px] font-bold px-2 py-1 rounded-full"
-                style={{
-                  background: simpleMode ? "rgba(250,204,21,0.15)" : "rgba(167,139,250,0.15)",
-                  border: `1px solid ${simpleMode ? "rgba(250,204,21,0.5)" : "rgba(167,139,250,0.5)"}`,
-                  color: simpleMode ? "#facc15" : "#a78bfa",
-                }}
-              >
-                {simpleMode ? "🔰 かんたん（12まい）→ ぜんぶ見る" : "🎓 ぜんぶ（132まい）→ かんたんに戻す"}
-              </button>
             <div style={{ display: "flex", gap: 8 }}>
               {FRIENDLY_GROUPS.map(g => {
                 const TIcon = (LucideIcons as any)[g.icon] || LucideIcons.HelpCircle;
@@ -4218,6 +4204,23 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
             <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: isMobile ? 4 : 8 }}>
               {/* カテゴリタブ列 */}
               <div className="scrollbar-hide" style={{ display: "flex", gap: 6, flexWrap: isMobile ? "nowrap" : "wrap", overflowX: isMobile ? "auto" : "visible" }}>
+                  {/* 初心者モードの切替。カードは132種あり、はじめての人には多すぎて選べない。
+                      最初は12種だけ見せ、物足りなくなったら自分で開ける。
+                      ⚠️ 置き場所はここ（スマホでも必ず見える下部パレットの先頭）。
+                         上の STEP1 側に置いたら、閉じている領域の中で 0x0 になって
+                         スマホからは存在に気づけなかった。 */}
+                  <button
+                    onClick={toggleSimple}
+                    className="shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full"
+                    style={{
+                      background: simpleMode ? "rgba(250,204,21,0.18)" : "rgba(167,139,250,0.18)",
+                      border: `1px solid ${simpleMode ? "rgba(250,204,21,0.55)" : "rgba(167,139,250,0.55)"}`,
+                      color: simpleMode ? "#facc15" : "#a78bfa",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {simpleMode ? "🔰 かんたん" : "🎓 ぜんぶ"}
+                  </button>
                 {KEYBOARD_CATS.map(kc => {
                   const c = CAT[kc.cat];
                   const TIcon = (LucideIcons as any)[kc.icon] || LucideIcons.HelpCircle;
