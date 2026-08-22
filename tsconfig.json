@@ -36,6 +36,7 @@
     // バンドル後のworkerが相対importを解決できず偽のエラーになる。
     "out",
     "android",
+    "ios",
     "dist-exe"
   ]
 }

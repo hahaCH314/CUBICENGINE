@@ -23,12 +23,15 @@
     "android:build": "cross-env MMC_TARGET=android next build && cap sync android",
     "android:apk": "npm run android:build && cd android && gradlew.bat assembleDebug",
     "android:aab": "npm run android:build && cd android && gradlew.bat bundleRelease",
-    "android:open": "cap open android"
+    "android:open": "cap open android",
+    "ios:build": "cross-env MMC_TARGET=android next build && cap sync ios",
+    "ios:open": "cap open ios"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.0",
     "@capacitor/core": "^8.5.0",
     "@capacitor/filesystem": "^8.1.2",
+    "@capacitor/ios": "^8.5.0",
     "@capacitor/share": "^8.0.1",
     "@capawesome/capacitor-android-edge-to-edge-support": "^8.0.8",
     "@types/three": "^0.184.0",
