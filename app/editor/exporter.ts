@@ -991,6 +991,10 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
     zip.file(`assets/${modId}/cubic_data.json`, JSON.stringify(cubicData, null, 2));
 
     // pack.mcmeta の上書き
+    // base-mod.jar に残っている古いパスの残骸を消す。
+    // 実害は無いが、assets 配下に別 modId のフォルダがあると
+    // 「どっちが本物か」を追うときに必ず迷う。
+    zip.remove("assets/cubicengine_generic");
     zip.file("pack.mcmeta", JSON.stringify({ pack: { description: `${state.projectName} Resources`, pack_format: 15 } }, null, 2));
 
     // mods.toml の上書き
@@ -1031,9 +1035,16 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
       const tex = await createColoredTexture(block.faces.top.color);
       zip.file(`assets/${modId}/textures/block/${bn}.png`, tex);
       
-      langEntries[`block.${modId}.${bn}`] = bn.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+      // ⚠️ 表示名は displayName を使うこと。id を英語化しただけだと
+      //    「魔法の石」と名付けても Magicstone と表示され、名前が捨てられる。
+      //    日本語のままゲーム内に出したいので ja_jp にも同じ値を入れる。
+      const disp = (block.registered && block.displayName) ? block.displayName : block.name;
+      langEntries[`block.${modId}.${bn}`] = disp.split(String.fromCharCode(10)).join(" ");
     }
     zip.file(`assets/${modId}/lang/en_us.json`, JSON.stringify(langEntries, null, 2));
+    // 日本語環境でも同じ名前が出るようにする。en_us だけだと
+    // 日本語設定のマイクラでは翻訳キーがそのまま表示される
+    zip.file(`assets/${modId}/lang/ja_jp.json`, JSON.stringify(langEntries, null, 2));
 
     const compression = (state.compress ? "DEFLATE" : "STORE") as "DEFLATE" | "STORE";
     const compressionOptions = state.compress ? { level: 6 } : undefined;
