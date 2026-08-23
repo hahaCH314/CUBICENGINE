@@ -8,6 +8,7 @@ import { Gem, Sparkles } from "lucide-react";
 import TutorialOverlay from "./editor/TutorialOverlay";
 import DraggableLogo from "./DraggableLogo";
 import CubeParticles from "./CubeParticles";
+import MagicalSpores from "./MagicalSpores";
 
 // 子どもでも読みやすいよう、意味のかたまり単位で改行する（かたまりの途中では折り返さない）
 // ※スマホ(狭い画面)では、かたまりが画面幅を超えて横にはみ出すのを防ぐため折り返しを許可。
@@ -352,6 +353,7 @@ export default function HomePage() {
   const [showGuide, setShowGuide] = useState(false);
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden" style={{ background: "radial-gradient(circle at 20% 10%, rgba(74, 222, 128, 0.12) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 50%), radial-gradient(circle at 50% 60%, rgba(253, 224, 71, 0.05) 0%, transparent 60%), #0d1410" }}>
+      <MagicalSpores />
       <CubeParticles />
       {/* Navigation（ログイン/新規登録は撤去・ローカル版） */}
       <nav className="shrink-0 h-14 z-50">
