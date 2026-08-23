@@ -351,7 +351,7 @@ export default function HomePage() {
   // 作り方ガイド（エディタと同じ TutorialOverlay を使い回す）
   const [showGuide, setShowGuide] = useState(false);
   return (
-    <div className="min-h-screen flex flex-col relative overflow-x-hidden" style={{ background: "radial-gradient(circle at 25% 15%, rgba(132, 204, 22, 0.16) 0%, transparent 45%), radial-gradient(circle at 75% 15%, rgba(14, 165, 233, 0.16) 0%, transparent 45%), radial-gradient(circle at 50% 60%, rgba(245, 158, 11, 0.1) 0%, transparent 55%), #171715" }}>
+    <div className="min-h-screen flex flex-col relative overflow-x-hidden" style={{ background: "radial-gradient(circle at 20% 10%, rgba(74, 222, 128, 0.12) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 50%), radial-gradient(circle at 50% 60%, rgba(253, 224, 71, 0.05) 0%, transparent 60%), #0d1410" }}>
       <CubeParticles />
       {/* Navigation（ログイン/新規登録は撤去・ローカル版） */}
       <nav className="shrink-0 h-14 z-50">
