@@ -6,6 +6,7 @@ import { useEditorStore } from "./editor/store";
 import { t } from "../lib/i18n";
 import { Gem, Sparkles } from "lucide-react";
 import TutorialOverlay from "./editor/TutorialOverlay";
+import DraggableLogo from "./DraggableLogo";
 
 // 子どもでも読みやすいよう、意味のかたまり単位で改行する（かたまりの途中では折り返さない）
 // ※スマホ(狭い画面)では、かたまりが画面幅を超えて横にはみ出すのを防ぐため折り返しを許可。
@@ -353,15 +354,7 @@ export default function HomePage() {
       {/* Navigation（ログイン/新規登録は撤去・ローカル版） */}
       <nav className="shrink-0 h-14 z-50">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
-          <a href="https://cubicenginestudio.vercel.app/" target="_blank" rel="noopener noreferrer" className="flex items-center group relative w-14 h-full justify-center mix-blend-screen opacity-95 animate-[lapAround_300s_ease-in-out_infinite]">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] pointer-events-none group-hover:scale-110 transition-transform duration-700">
-              <img 
-                src="/studio-logo.jpg" 
-                alt="CUBICENGINEstudio" 
-                className="w-full h-full object-contain" 
-              />
-            </div>
-          </a>
+          <DraggableLogo />
           <div className="flex items-center gap-3">
             <span className="font-pixel text-[8px] sm:text-[10px] opacity-0 animate-[cyberSlideUp_0.8s_cubic-bezier(0.1,0.9,0.2,1)_forwards]" style={{ color: "#f0a818", animationDelay: "0.2s" }}>
               {t(locale, "nav.edition")}
