@@ -22,8 +22,14 @@
  *   チャットに警告を出す（＝黙って壊れない）。
  */
 
-/** 設計図のバージョン。エンジン側と一致しない場合は警告を出す */
-export const SPEC_VERSION = 1;
+/**
+ * 設計図のバージョン。エンジン側と一致しない場合は警告を出す。
+ *
+ * 1 → 2 (2026-08-23): mobs を追加。
+ * ⚠️ エンジンが 1 のままだと mobs は黙って無視される。
+ *    上げるときは base-mod.jar 側も同時に対応すること。
+ */
+export const SPEC_VERSION = 2;
 
 /** MOD の識別子。base-mod.jar の mods.toml と必ず一致させること */
 // ⚠️ この値は base-mod.jar の .class に焼かれている 30文字のプレースホルダ。
@@ -106,6 +112,34 @@ export interface CEItem {
   maxStack: number;
 }
 
+/**
+ * 追加するモブ。
+ *
+ * ⚠️ 統合版と違い、**3Dモデルは持てない**。
+ *    Bedrock は geometry の JSON をそのまま読むが、Forge のエンティティモデルは
+ *    Java のコードで書くもので、JSONから動的に作れない。
+ *    そこで Java版では「バニラのモブを土台にして、強さと見た目の色を変える」形にする。
+ *    作った形をそのまま出したい人は統合版を使ってもらう。
+ */
+export interface CEMob {
+  /** 英数字と _ のみ */
+  id: string;
+  displayName: string;
+  /**
+   * 土台にするバニラのモブ。"minecraft:zombie" など。
+   * ⚠️ ここに存在しない ID を書くと、エンティティごと登録に失敗する。
+   */
+  base: string;
+  /** 体力。バニラのゾンビが 20 */
+  health: number;
+  /** 攻撃力。ハート半分＝1 */
+  attackDamage: number;
+  /** 移動速度。バニラのゾンビが 0.23 */
+  movementSpeed: number;
+  /** 倒したときに落とすもの。空なら何も落とさない */
+  drops: { item: string; min: number; max: number }[];
+}
+
 /** 設計図ぜんぶ。これが cubic_data.json になる */
 export interface CubicData {
   spec: typeof SPEC_VERSION;
@@ -113,10 +147,16 @@ export interface CubicData {
   projectName: string;
   blocks: CEBlock[];
   items: CEItem[];
+  /**
+   * モブ。spec 2 から。
+   * ⚠️ エンジンが spec 1 のままだと、この配列は黙って無視される。
+   *    エンジン側で spec の不一致を検出して警告を出してもらうこと。
+   */
+  mobs: CEMob[];
   rules: CERule[];
 }
 
 /** 空の設計図。エンジンは中身が空でも落ちてはいけない */
 export function emptyData(projectName: string): CubicData {
-  return { spec: SPEC_VERSION, projectName, blocks: [], items: [], rules: [] };
+  return { spec: SPEC_VERSION, projectName, blocks: [], items: [], mobs: [], rules: [] };
 }

@@ -16,12 +16,14 @@
 
 import type { CBlock } from "../../app/editor/_types";
 import type { VoxelBlock, VoxelItem } from "../../app/editor/store";
+import { normalizeAggression, type MobIR } from "../devtab/ir";
 import {
   SPEC_VERSION,
   type CEAction,
   type CECondition,
   type CEBlock,
   type CEItem,
+  type CEMob,
   type CERule,
   type CETrigger,
   type CEValue,
@@ -173,6 +175,36 @@ export function toCEBlocks(blocks: readonly VoxelBlock[]): CEBlock[] {
     }));
 }
 
+/**
+ * デベロッパータブのモブ → 設計図。
+ *
+ * ⚠️ 3Dモデルは写せない。Forge のエンティティモデルは Java のコードで書くもので、
+ *    JSON から動的に作れないため。土台にするバニラのモブを性格から選び、
+ *    強さと名前だけを持たせる。形をそのまま出したい人は統合版を使う。
+ */
+export function toCEMobs(mobs: readonly MobIR[]): CEMob[] {
+  return mobs.map(m => {
+    const b = m.behavior;
+    // 性格から土台を選ぶ。おとなしい＝村人、襲う＝ゾンビ。
+    // 見た目が挙動と食い違うと「なぜ襲ってくるのか」が分からなくなる
+    const aggr = normalizeAggression(b.aggression);
+    const base = aggr === "peaceful" ? "minecraft:villager" : "minecraft:zombie";
+    return {
+      id: toMcId(m.id, "mob"),
+      displayName: oneLine(m.displayName || m.id || "モブ"),
+      base,
+      health: Math.max(1, Math.round(b.health ?? 20)),
+      attackDamage: Math.max(0, Math.round(b.attackDamage ?? 0)),
+      movementSpeed: Math.max(0, b.movementSpeed ?? 0.25),
+      drops: (b.drops ?? []).map(d => ({
+        item: d.item,
+        min: Math.max(0, Math.round(d.min ?? 1)),
+        max: Math.max(0, Math.round(d.max ?? 1)),
+      })),
+    };
+  });
+}
+
 /** モデルタブのアイテム → 設計図 */
 export function toCEItems(items: readonly VoxelItem[]): CEItem[] {
   return items
@@ -203,6 +235,7 @@ export function toCubicData(
   projectName: string,
   voxelBlocks: readonly VoxelBlock[] = [],
   voxelItems: readonly VoxelItem[] = [],
+  devMobs: readonly MobIR[] = [],
 ): ConvertResult {
   const warnings: string[] = [];
   const rules: CERule[] = [];
@@ -245,6 +278,7 @@ export function toCubicData(
       projectName,
       blocks: toCEBlocks(voxelBlocks),
       items: toCEItems(voxelItems),
+      mobs: toCEMobs(devMobs),
       rules,
     },
     warnings: [...new Set(warnings)],

@@ -976,6 +976,7 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
       state.projectName,
       state.blocks ?? [],
       (state as unknown as { items?: [] }).items ?? [],
+      state.devMobs ?? [],
     );
 
     // ⚠️ 変換できなかったカードは黙って消える。マイクラも何も言わないので、
