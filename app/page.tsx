@@ -532,23 +532,10 @@ export default function HomePage() {
                       .jar がそのまま落ちてきます／インストール不要
                     </span>
 
-                    {/* パソコン版は「mods に自動で入れたい人」向けの補助に降格。
-                        Web で完結するので、ここは目立たなくてよい */}
-                    <a
-                      href={DOWNLOADS.grove.win}
-                      download
-                      className="mt-1 text-[11px] px-3 py-1.5 rounded-lg"
-                      style={{
-                        background: "rgba(255,255,255,0.06)",
-                        border: "1px solid rgba(255,255,255,0.15)",
-                        color: "rgba(200,235,255,0.75)",
-                      }}
-                    >
-                      パソコン版もあります
-                    </a>
-                    <span className="text-[9px] text-center" style={{ color: "rgba(127,233,247,0.45)" }}>
-                      mods フォルダに自動で入れたい人向け
-                    </span>
+                    {/* ⚠️ ここにパソコン版のリンクを置かないこと。
+                        すぐ下に GROVE_EXE_READY のDLセクション（大きいボタン）が
+                        別にあり、同じものが2つ並んで見える。実際に一度そうなった。
+                        カードは「ブラウザで作る」1本に絞る。 */}
                 </>
               ) : (
                 <div className="flex flex-col items-center gap-2">
