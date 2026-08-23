@@ -891,7 +891,7 @@ export default function HomePage() {
                   ドーユー☆ラボ
                 </span>
               </div>
-              <span className="font-pixel text-[11px] text-white tracking-widest pl-16">
+              <span className="font-sans font-light text-[11px] text-white/90 tracking-widest pl-16">
                 PC99 LABO
               </span>
             </div>
