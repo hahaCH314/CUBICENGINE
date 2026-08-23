@@ -353,8 +353,8 @@ export default function HomePage() {
       {/* Navigation（ログイン/新規登録は撤去・ローカル版） */}
       <nav className="shrink-0 bg-panel border-b-4 border-[#121210] h-14">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
-          <a href="https://cubicenginestudio.vercel.app/" target="_blank" rel="noopener noreferrer" className="flex items-center group relative w-14 h-full justify-center">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] pointer-events-none mix-blend-screen opacity-95 group-hover:scale-110 transition-transform duration-700">
+          <a href="https://cubicenginestudio.vercel.app/" target="_blank" rel="noopener noreferrer" className="flex items-center group relative w-14 h-full justify-center -ml-4">
+            <div className="absolute top-1/2 left-[45%] -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] pointer-events-none mix-blend-screen opacity-95 group-hover:scale-110 transition-transform duration-700">
               <img 
                 src="/studio-logo.jpg" 
                 alt="CUBICENGINEstudio" 
