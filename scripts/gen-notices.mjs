@@ -92,6 +92,25 @@ const FONTS = `## フォント / Fonts
 
 // デスクトップ版(.exe/.dmg)にだけ同梱されるランタイム。npm の dependencies には出てこないが、
 // 実体はアプリと一緒に再配布されるので表記義務がある（特に Chromium の BSD-3-Clause）。
+// ⚠️ npm の依存ではないが、**生成物に入れて配っている**もの。
+//    この生成器は package.json の dependencies しか見ないので、
+//    ここに手で書かないと表記が丸ごと抜ける（2026-08-23 に抜けているのを発見）。
+//    lib/gradleWrapper.ts に base64 で持っている Gradle の Wrapper は
+//    Apache-2.0 で、再配布にはライセンスの明示が必要。
+const GENERATED_ARTIFACTS = `## 生成物に同梱されるもの / Bundled in generated output
+
+CUBICENGINE が書き出す Java版のソースコード ZIP には、以下が含まれます。
+
+- **Gradle Wrapper** \`8.8\` © Gradle Inc. and the original authors — Apache License 2.0
+  （\`gradlew\` / \`gradlew.bat\` / \`gradle/wrapper/gradle-wrapper.jar\` / \`gradle-wrapper.properties\`。
+  Forge 1.20.1 MDK 由来。実体は \`lib/gradleWrapper.ts\` に base64 で保持）
+  <https://www.apache.org/licenses/LICENSE-2.0>
+
+※ ブラウザから直接書き出す \`.jar\`（base-mod.jar への注入方式）には Gradle は含まれません。
+   Minecraft 本体・Minecraft Forge は再配布しておらず、利用者が各自で用意します。
+   本ツールおよび生成物は非公式で、Mojang Studios・Microsoft とは関係ありません。
+`;
+
 function runtimeSection() {
   let ver = "(未インストール)";
   try {
@@ -129,6 +148,9 @@ const out = [
   "---",
   "",
   FONTS,
+  "---",
+  "",
+  GENERATED_ARTIFACTS,
   "---",
   "",
   runtimeSection(),

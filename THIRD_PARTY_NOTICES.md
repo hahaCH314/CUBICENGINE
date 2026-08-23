@@ -4,17 +4,24 @@ CUBICENGINE は以下のオープンソースソフトウェアを利用して�
 
 This product (**CUBICENGINE**) includes the third-party open-source software listed below. Each component remains the property of its respective owners and is distributed under its own license.
 
-> このファイルは `node scripts/gen-notices.mjs` で自動生成されています（最終生成: 2026-07-25）。
+> このファイルは `node scripts/gen-notices.mjs` で自動生成されています（最終生成: 2026-08-23）。
 > 本番依存(dependencies)のみを対象。実際の配布物にはこれらの推移的依存も含まれ、いずれも各OSSライセンスに従います。
 
 ## 一覧 / Summary
 
 | Package | Version | License |
 | :--- | :--- | :--- |
+| @capacitor/android | 8.5.0 | MIT |
+| @capacitor/core | 8.5.0 | MIT |
+| @capacitor/filesystem | 8.1.2 | MIT |
+| @capacitor/ios | 8.5.0 | MIT |
+| @capacitor/share | 8.0.1 | MIT |
+| @capawesome/capacitor-android-edge-to-edge-support | 8.0.8 | MIT |
 | @types/three | 0.184.0 | MIT |
+| @vercel/analytics | 2.0.1 | MIT |
 | jszip | 3.10.1 | (MIT OR GPL-3.0-or-later) |
 | lucide-react | 0.475.0 | ISC |
-| next | 16.2.9 | MIT |
+| next | 16.3.0 | MIT |
 | react | 19.2.4 | MIT |
 | react-dom | 19.2.4 | MIT |
 | three | 0.184.0 | MIT |
@@ -38,11 +45,26 @@ This product (**CUBICENGINE**) includes the third-party open-source software lis
 
 ---
 
+## 生成物に同梱されるもの / Bundled in generated output
+
+CUBICENGINE が書き出す Java版のソースコード ZIP には、以下が含まれます。
+
+- **Gradle Wrapper** `8.8` © Gradle Inc. and the original authors — Apache License 2.0
+  （`gradlew` / `gradlew.bat` / `gradle/wrapper/gradle-wrapper.jar` / `gradle-wrapper.properties`。
+  Forge 1.20.1 MDK 由来。実体は `lib/gradleWrapper.ts` に base64 で保持）
+  <https://www.apache.org/licenses/LICENSE-2.0>
+
+※ ブラウザから直接書き出す `.jar`（base-mod.jar への注入方式）には Gradle は含まれません。
+   Minecraft 本体・Minecraft Forge は再配布しておらず、利用者が各自で用意します。
+   本ツールおよび生成物は非公式で、Mojang Studios・Microsoft とは関係ありません。
+
+---
+
 ## デスクトップ版に同梱されるランタイム / Bundled runtimes (desktop build)
 
 Web版には含まれません。デスクトップ版（`.exe` / `.dmg`）はアプリ実行のため以下を同梱して再配布しています。
 
-- **Electron** `33.2.0` — MIT License
+- **Electron** `33.4.11` — MIT License
 - **Chromium** — BSD-3-Clause ほか（ライセンス全文は配布物内の `LICENSES.chromium.html`）
 - **Node.js / V8** — MIT License / BSD-3-Clause
 
@@ -53,6 +75,158 @@ Electron 由来の `LICENSE` と `LICENSES.chromium.html` は electron-builder �
 
 ## 各ライセンス全文 / Full license texts
 
+### @capacitor/android `8.5.0` — MIT
+<https://github.com/ionic-team/capacitor>
+```
+MIT License
+
+Copyright (c) 2017-present Drifty Co.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+### @capacitor/core `8.5.0` — MIT
+<https://github.com/ionic-team/capacitor>
+```
+MIT License
+
+Copyright (c) 2017-present Drifty Co.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+### @capacitor/filesystem `8.1.2` — MIT
+<https://github.com/ionic-team/capacitor-filesystem>
+```
+MIT License
+
+Copyright (c) 2025 Ionic
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+### @capacitor/ios `8.5.0` — MIT
+<https://github.com/ionic-team/capacitor>
+```
+MIT License
+
+Copyright (c) 2017-present Drifty Co.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+### @capacitor/share `8.0.1` — MIT
+<https://github.com/ionic-team/capacitor-plugins>
+```
+Copyright 2020-present Ionic
+https://ionic.io
+
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
+### @capawesome/capacitor-android-edge-to-edge-support `8.0.8` — MIT
+<https://github.com/capawesome-team/capacitor-plugins>
+```
+MIT License
+
+Copyright (c) 2025 Robin Genz
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
 ### @types/three `0.184.0` — MIT
 <https://github.com/DefinitelyTyped/DefinitelyTyped>
 ```
@@ -77,6 +251,31 @@ MIT License
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE
+```
+### @vercel/analytics `2.0.1` — MIT
+<github:vercel/analytics>
+```
+The MIT License (MIT)
+
+Copyright (c) 2026 Vercel, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 ```
 ### jszip `3.10.1` — (MIT OR GPL-3.0-or-later)
 <https://github.com/Stuk/jszip>
@@ -752,7 +951,7 @@ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 ```
-### next `16.2.9` — MIT
+### next `16.3.0` — MIT
 <vercel/next.js>
 ```
 The MIT License (MIT)

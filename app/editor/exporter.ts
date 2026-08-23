@@ -1009,6 +1009,14 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
     zip.remove("assets/cubicengine_generic");
     zip.file("pack.mcmeta", JSON.stringify({ pack: { description: `${state.projectName} Resources`, pack_format: 15 } }, null, 2));
 
+    // ⚠️ 免責と注意書きを .jar にも必ず入れる。
+    //    統合版のパックにも、ZIP フォールバックにも入っているのに、
+    //    **実際に配られる Java版の .jar にだけ入っていなかった**（2026-08-23 に発覚）。
+    //    「非公式・Mojang とは無関係・自己責任・悪用禁止」は、
+    //    配布物そのものに付いていないと相手に届かない。
+    //    Forge は .jar 直下の見知らぬファイルを無視するので、入れても害はない。
+    zip.file("NOTICE.txt", NOTICE_TEXT);
+
     // mods.toml の上書き
     zip.file("META-INF/mods.toml", [
       `modLoader="javafml"`,

@@ -385,14 +385,22 @@ export default function HomePage() {
                   75% { transform: translateX(0) translateY(calc(100vh - 100px)) rotate(3240deg); }
                   100% { transform: translateX(0) translateY(0) rotate(4320deg); }
                 }
+                @keyframes floatBalloon {
+                  0%, 100% { transform: translateY(0px) rotate(0deg); }
+                  50% { transform: translateY(-4px) rotate(2deg); }
+                }
               `}</style>
             </span>
             <button
               type="button"
               onClick={() => setLocale(locale === "ja" ? "en" : "ja")}
               aria-label="switch language"
-              className="ml-2 font-pixel text-[10px] px-2.5 py-1 rounded border border-white/15 hover:border-white/40 transition-colors"
-              style={{ color: "#e5e7eb" }}
+              className="ml-2 font-pixel text-[10px] px-3 py-1.5 rounded-full border border-white/20 hover:border-white/60 transition-all hover:scale-105 animate-[floatBalloon_3.5s_ease-in-out_infinite]"
+              style={{
+                color: "#fff",
+                background: "linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.02))",
+                boxShadow: "0 4px 12px rgba(255,255,255,0.1), inset 0 2px 4px rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.5)"
+              }}
             >
               🌐 {t(locale, "lang.toggle")}
             </button>
