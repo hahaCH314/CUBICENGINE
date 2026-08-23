@@ -8,7 +8,6 @@ import { Gem, Sparkles } from "lucide-react";
 import TutorialOverlay from "./editor/TutorialOverlay";
 import DraggableLogo from "./DraggableLogo";
 import CubeParticles from "./CubeParticles";
-import MagicalSpores from "./MagicalSpores";
 
 // 子どもでも読みやすいよう、意味のかたまり単位で改行する（かたまりの途中では折り返さない）
 // ※スマホ(狭い画面)では、かたまりが画面幅を超えて横にはみ出すのを防ぐため折り返しを許可。
@@ -361,7 +360,6 @@ export default function HomePage() {
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath d='M40 40c-11.046 0-20-8.954-20-20 0-11.045 8.954-20 20-20 11.045 0 20 8.955 20 20 0 11.046-8.955 20-20 20zm0 40c-11.046 0-20-8.954-20-20 0-11.045 8.954-20 20-20 11.045 0 20 8.955 20 20 0 11.046-8.955 20-20 20zM0 40c-11.046 0-20-8.954-20-20 0-11.045 8.954-20 20-20 11.045 0 20 8.955 20 20 0 11.046-8.955 20-20 20zm80 0c-11.046 0-20-8.954-20-20 0-11.045 8.954-20 20-20 11.045 0 20 8.955 20 20 0 11.046-8.955 20-20 20z' fill='%2310b981' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E")
       ` 
     }}>
-      <MagicalSpores />
       <CubeParticles />
       {/* Navigation（ログイン/新規登録は撤去・ローカル版） */}
       <nav className="shrink-0 h-14 z-50">
