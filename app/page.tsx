@@ -353,12 +353,12 @@ export default function HomePage() {
       {/* Navigation（ログイン/新規登録は撤去・ローカル版） */}
       <nav className="shrink-0 h-14 z-50">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
-          <a href="https://cubicenginestudio.vercel.app/" target="_blank" rel="noopener noreferrer" className="flex items-center group relative w-14 h-full justify-center -ml-4">
-            <div className="absolute top-1/2 left-[45%] -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] pointer-events-none mix-blend-screen opacity-95 group-hover:scale-110 transition-transform duration-700">
+          <a href="https://cubicenginestudio.vercel.app/" target="_blank" rel="noopener noreferrer" className="flex items-center group relative w-14 h-full justify-center z-50 animate-[lapAround_15s_ease-in-out_infinite]">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] pointer-events-none mix-blend-screen opacity-95 group-hover:scale-110 transition-transform duration-700">
               <img 
                 src="/studio-logo.jpg" 
                 alt="CUBICENGINEstudio" 
-                className="w-full h-full object-contain animate-[korokoro_4s_ease-in-out_infinite]" 
+                className="w-full h-full object-contain" 
               />
             </div>
           </a>
@@ -378,10 +378,12 @@ export default function HomePage() {
                   25% { left: 100%; opacity: 0; }
                   100% { left: 100%; opacity: 0; }
                 }
-                @keyframes korokoro {
-                  0% { transform: translateX(-20px) rotate(-60deg); }
-                  50% { transform: translateX(40px) rotate(90deg); }
-                  100% { transform: translateX(-20px) rotate(-60deg); }
+                @keyframes lapAround {
+                  0% { transform: translateX(0) rotate(0deg); }
+                  45% { transform: translateX(calc(100vw - 120px)) rotate(1440deg); }
+                  50% { transform: translateX(calc(100vw - 120px)) rotate(1440deg); }
+                  95% { transform: translateX(0) rotate(0deg); }
+                  100% { transform: translateX(0) rotate(0deg); }
                 }
               `}</style>
             </span>
