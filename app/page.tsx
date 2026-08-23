@@ -353,15 +353,15 @@ export default function HomePage() {
       {/* Navigation（ログイン/新規登録は撤去・ローカル版） */}
       <nav className="shrink-0 bg-panel border-b-4 border-[#121210] h-14">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
-          <Link href="/" className="flex items-center group relative w-14 h-full justify-center">
+          <a href="https://cubicenginestudio.vercel.app/" target="_blank" rel="noopener noreferrer" className="flex items-center group relative w-14 h-full justify-center">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] pointer-events-none mix-blend-screen opacity-95 group-hover:scale-110 transition-transform duration-700">
               <img 
                 src="/studio-logo.jpg" 
                 alt="CUBICENGINEstudio" 
-                className="w-full h-full object-contain animate-[spin_360s_linear_infinite]" 
+                className="w-full h-full object-contain animate-[spin_3600s_linear_infinite]" 
               />
             </div>
-          </Link>
+          </a>
           <div className="flex items-center gap-3">
             <span className="font-pixel text-[8px] sm:text-[10px]" style={{ color: "#f0a818", opacity: 0.9 }}>{t(locale, "nav.edition")}</span>
             <button
