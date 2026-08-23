@@ -372,6 +372,12 @@ export default function HomePage() {
                   75% { transform: translateY(1px) scale(0.99); filter: hue-rotate(0deg); text-shadow: 0 0 2px #f0a818; }
                   100% { transform: translateY(0) scale(1); opacity: 0.9; text-shadow: none; }
                 }
+                @keyframes buttonShine {
+                  0% { left: -100%; opacity: 0; }
+                  15% { left: 100%; opacity: 1; }
+                  25% { left: 100%; opacity: 0; }
+                  100% { left: 100%; opacity: 0; }
+                }
               `}</style>
             </span>
             <button
@@ -444,7 +450,7 @@ export default function HomePage() {
                 <>
                   <Link
                     href="/editor?mode=tsumiki"
-                    className="w-20 h-20 inline-flex items-center justify-center rounded-2xl transition-all duration-75 relative hover:-translate-y-1 hover:shadow-[0_8px_0_#14532d,0_12px_24px_rgba(0,0,0,0.4)] active:translate-y-1 active:shadow-[0_2px_0_#14532d,0_4px_8px_rgba(0,0,0,0.25)]"
+                    className="w-20 h-20 inline-flex items-center justify-center rounded-2xl transition-all duration-75 relative overflow-hidden group hover:-translate-y-1 hover:shadow-[0_8px_0_#14532d,0_12px_24px_rgba(0,0,0,0.4)] active:translate-y-1 active:shadow-[0_2px_0_#14532d,0_4px_8px_rgba(0,0,0,0.25)]"
                     style={{
                       background: "linear-gradient(135deg, #22c55e, #16a34a)",
                       border: "3px solid #14532d",
@@ -453,7 +459,8 @@ export default function HomePage() {
                     }}
                     aria-label={t(locale, "cta.tryWeb")}
                   >
-                    <CubeIcon className="w-9 h-9 text-yellow-300" />
+                    <CubeIcon className="w-9 h-9 text-yellow-300 relative z-10" />
+                    <div className="absolute top-0 -left-[100%] w-[150%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-[-20deg] animate-[buttonShine_5s_ease-in-out_infinite]" />
                   </Link>
                   <span className="text-xs font-bold text-white/95" style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
                     {t(locale, "cta.tryWeb")}
@@ -526,7 +533,7 @@ export default function HomePage() {
                         Web を大きく、パソコン版を補助に落とす。 */}
                     <Link
                       href="/editor?mode=grape"
-                      className="w-20 h-20 inline-flex items-center justify-center rounded-2xl transition-all duration-75 relative hover:-translate-y-1 hover:shadow-[0_8px_0_#0369a1,0_12px_24px_rgba(0,0,0,0.4)] active:translate-y-1 active:shadow-[0_2px_0_#0369a1,0_4px_8px_rgba(0,0,0,0.25)]"
+                      className="w-20 h-20 inline-flex items-center justify-center rounded-2xl transition-all duration-75 relative overflow-hidden group hover:-translate-y-1 hover:shadow-[0_8px_0_#0369a1,0_12px_24px_rgba(0,0,0,0.4)] active:translate-y-1 active:shadow-[0_2px_0_#0369a1,0_4px_8px_rgba(0,0,0,0.25)]"
                       style={{
                         background: "linear-gradient(135deg, #38bdf8, #0ea5e9)",
                         border: "3px solid #0369a1",
@@ -535,7 +542,8 @@ export default function HomePage() {
                       }}
                       aria-label="ブラウザでJava版を作る"
                     >
-                      <CubeIcon className="w-9 h-9 text-yellow-200" />
+                      <CubeIcon className="w-9 h-9 text-yellow-200 relative z-10" />
+                      <div className="absolute top-0 -left-[100%] w-[150%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-[-20deg] animate-[buttonShine_5s_ease-in-out_infinite]" style={{ animationDelay: "2.5s" }} />
                     </Link>
                     <span className="text-xs font-bold text-white/95" style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
                       ✨ ブラウザで作る
