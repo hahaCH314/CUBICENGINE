@@ -379,11 +379,11 @@ export default function HomePage() {
                   100% { left: 100%; opacity: 0; }
                 }
                 @keyframes lapAround {
-                  0% { transform: translateX(0) rotate(0deg); }
-                  45% { transform: translateX(calc(100vw - 120px)) rotate(1440deg); }
-                  50% { transform: translateX(calc(100vw - 120px)) rotate(1440deg); }
-                  95% { transform: translateX(0) rotate(0deg); }
-                  100% { transform: translateX(0) rotate(0deg); }
+                  0% { transform: translateX(0) translateY(0) rotate(0deg); }
+                  25% { transform: translateX(calc(100vw - 100px)) translateY(0) rotate(1080deg); }
+                  50% { transform: translateX(calc(100vw - 100px)) translateY(calc(100vh - 100px)) rotate(2160deg); }
+                  75% { transform: translateX(0) translateY(calc(100vh - 100px)) rotate(3240deg); }
+                  100% { transform: translateX(0) translateY(0) rotate(4320deg); }
                 }
               `}</style>
             </span>
