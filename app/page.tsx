@@ -353,12 +353,12 @@ export default function HomePage() {
       {/* Navigation（ログイン/新規登録は撤去・ローカル版） */}
       <nav className="shrink-0 bg-panel border-b-4 border-[#121210] h-14">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <CubeIcon className="w-7 h-7 text-accent group-hover:scale-105 transition-transform" />
-            {/* 名乗りは特商法の販売業者名（CUBICENGINEstudio）に統一。3サイトで割れていた */}
-            <span className="text-base font-bold tracking-tight">
-              CUBICENGINE<span className="text-accent">studio</span>
-            </span>
+          <Link href="/" className="flex items-center group">
+            <img 
+              src="/studio-logo.jpg" 
+              alt="CUBICENGINEstudio" 
+              className="h-7 w-auto group-hover:scale-105 transition-transform" 
+            />
           </Link>
           <div className="flex items-center gap-3">
             <span className="font-pixel text-[8px] sm:text-[10px]" style={{ color: "#f0a818", opacity: 0.9 }}>{t(locale, "nav.edition")}</span>
@@ -885,11 +885,14 @@ export default function HomePage() {
 
             <div className="flex flex-col items-center gap-1.5 my-auto">
               {/* 下部の署名「なっとうサイダー」は撤去（上部「これを作ってる人」に名前があり重複のため） */}
-              <span className="flex items-center gap-1.5 text-[10px] font-sans">
+              <div className="flex items-center gap-1.5 text-[10px] font-sans">
                 <span className="tracking-wide text-white">Special Thanks</span>
                 <span className="font-pixel text-[11px] bg-gradient-to-r from-[#ff5ca2] via-[#ffd23f] to-[#22d3ee] bg-clip-text text-transparent">
                   ドーユー☆ラボ
                 </span>
+              </div>
+              <span className="font-pixel text-[11px] text-white tracking-widest pl-16">
+                PC99 LABO
               </span>
             </div>
 
