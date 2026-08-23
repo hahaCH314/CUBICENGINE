@@ -358,7 +358,7 @@ export default function HomePage() {
               <img 
                 src="/studio-logo.jpg" 
                 alt="CUBICENGINEstudio" 
-                className="w-full h-full object-contain animate-[spin_3600s_linear_infinite]" 
+                className="w-full h-full object-contain animate-[korokoro_4s_ease-in-out_infinite]" 
               />
             </div>
           </a>
@@ -377,6 +377,11 @@ export default function HomePage() {
                   15% { left: 100%; opacity: 1; }
                   25% { left: 100%; opacity: 0; }
                   100% { left: 100%; opacity: 0; }
+                }
+                @keyframes korokoro {
+                  0% { transform: translateX(-20px) rotate(-60deg); }
+                  50% { transform: translateX(40px) rotate(90deg); }
+                  100% { transform: translateX(-20px) rotate(-60deg); }
                 }
               `}</style>
             </span>
