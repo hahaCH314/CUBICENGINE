@@ -15,10 +15,13 @@
  */
 
 import type { CBlock } from "../../app/editor/_types";
+import type { VoxelBlock, VoxelItem } from "../../app/editor/store";
 import {
   SPEC_VERSION,
   type CEAction,
   type CECondition,
+  type CEBlock,
+  type CEItem,
   type CERule,
   type CETrigger,
   type CEValue,
@@ -138,6 +141,50 @@ function toAction(b: CBlock, all: CBlock[]): CEAction | null {
   }
 }
 
+/**
+ * マイクラの識別子に使える形へ。
+ * ⚠️ exporter.ts の sanitizeBlockName と**同じ規則**にすること。
+ *    ここがズレると、設計図に書いた id とエンジンが登録する id が食い違い、
+ *    ブロックはあるのに置けない状態になる（マイクラは何も言わない）。
+ */
+/** 改行を取り除く。lang ファイルに改行が入ると行が壊れる */
+function oneLine(s: string): string {
+  // 正規表現リテラルを使わない。生成スクリプト経由で書くと
+  // \n がそのまま実改行に化けて構文が壊れるため（実際に2回壊した）。
+  const LF = String.fromCharCode(10);
+  const CR = String.fromCharCode(13);
+  return s.split(LF).join(" ").split(CR).join(" ");
+}
+
+function toMcId(s: string, fb: string): string {
+  return s.toLowerCase().replace(/[^a-z0-9_-]/g, "") || fb;
+}
+
+/** モデルタブのブロック → 設計図。registered=ON のものだけ出す */
+export function toCEBlocks(blocks: readonly VoxelBlock[]): CEBlock[] {
+  return blocks
+    .filter(b => b.registered)
+    .map(b => ({
+      id: toMcId(b.name, "block"),
+      displayName: oneLine(b.displayName || b.name || "ブロック"),
+      hardness: Number.isFinite(b.hardness) ? Math.max(0, b.hardness as number) : 1.5,
+      // ⚠️ 0〜15 はマイクラの上限。16以上を書くと登録に失敗する
+      lightLevel: Math.min(15, Math.max(0, Math.round(b.lightLevel ?? 0))),
+    }));
+}
+
+/** モデルタブのアイテム → 設計図 */
+export function toCEItems(items: readonly VoxelItem[]): CEItem[] {
+  return items
+    .filter(i => i.registered)
+    .map(i => ({
+      id: toMcId(i.name, "item"),
+      displayName: oneLine(i.displayName || i.name || "アイテム"),
+      // ⚠️ 1〜64 はマイクラの上限。65以上はアイテムごと読み込まれない
+      maxStack: 64,
+    }));
+}
+
 export interface ConvertResult {
   data: CubicData;
   /** 変換できなかったカード。画面に出して「無言で消える」のを防ぐ */
@@ -151,7 +198,12 @@ export interface ConvertResult {
  * ⚠️ 循環参照でも止まるよう、たどった id を覚えておくこと。
  *    利用者が輪のように繋ぐことは実際に起こりうる。
  */
-export function toCubicData(blocks: CBlock[], projectName: string): ConvertResult {
+export function toCubicData(
+  blocks: CBlock[],
+  projectName: string,
+  voxelBlocks: readonly VoxelBlock[] = [],
+  voxelItems: readonly VoxelItem[] = [],
+): ConvertResult {
   const warnings: string[] = [];
   const rules: CERule[] = [];
 
@@ -188,7 +240,13 @@ export function toCubicData(blocks: CBlock[], projectName: string): ConvertResul
   }
 
   return {
-    data: { spec: SPEC_VERSION, projectName, blocks: [], items: [], rules },
+    data: {
+      spec: SPEC_VERSION,
+      projectName,
+      blocks: toCEBlocks(voxelBlocks),
+      items: toCEItems(voxelItems),
+      rules,
+    },
     warnings: [...new Set(warnings)],
   };
 }

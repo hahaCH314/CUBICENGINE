@@ -62,3 +62,8 @@ repro_dev.log
 /check.js
 /git_check.js
 /find_history.js
+
+# Java版 base-mod.jar のビルド作業場（126MB。成果物の .jar だけ public/ に置く）
+# ⚠️ ここを追跡すると Gradle のキャッシュごと GitHub に入る
+generic_engine/
+extractMdk.ts

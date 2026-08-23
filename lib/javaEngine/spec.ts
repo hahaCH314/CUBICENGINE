@@ -8,7 +8,7 @@
  *   これで **サーバー不要・待ち時間ゼロ**で、mods に入れるだけの .jar が手に入る。
  *
  * ■ modId は固定
- *   mods.toml の modId は base-mod.jar に焼かれており、注入では変えない方針
+ *   modId は base-mod.jar の .class に焼かれた固定値で、注入では変えない方針
  *   （2026-08-22 の判断）。よって **MOD は常に1つ**で、その中に何個でも
  *   ブロック・アイテム・イベントを持つ形にする。
  *   ⚠️ 別の作品を遊ぶときは .jar を入れ替える。同時には入れられない。
@@ -26,7 +26,13 @@
 export const SPEC_VERSION = 1;
 
 /** MOD の識別子。base-mod.jar の mods.toml と必ず一致させること */
-export const ENGINE_MOD_ID = "cubicengine";
+// ⚠️ この値は base-mod.jar の .class に焼かれている 30文字のプレースホルダ。
+//    1文字でも違うと Java 側が自分の modId を認識できず、
+//    MOD は起動するのにブロックもルールも一切動かない（マイクラは何も言わない）。
+//    エンジンを再ビルドして別の値にしたときは、ここも必ず同時に直すこと。
+//    実測: DynamicRegistry.class 2回 / ModEventHandler.class 1回 /
+//          cubicenginegenericMod.class 1回 に出現（2026-08-23）。
+export const ENGINE_MOD_ID = "cubic_xxxxxxxxxxxxxxxxxxxxxxxx";
 
 /** 値。文字列そのままか、実行時に解決する式か */
 export type CEValue =

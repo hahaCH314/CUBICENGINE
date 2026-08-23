@@ -2443,7 +2443,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
     // カード群の中心が画面中央に来る pan を求める（画面座標 = pan + 盤面座標 * zoom）
     // ⚠️ 下部にはパレット等のUIが重なる。素直に中央へ置くと
     //    「カード」ボタンの裏に隠れるので、その分だけ上へ寄せる。
-    const BOTTOM_UI = 190;
+    const BOTTOM_UI = 260;   // 実測: 190だとカード下端が20px重なった。余白込みで260
     setPan({ x: w / 2 - cx * z, y: (h - BOTTOM_UI) / 2 - cy * z });
   }, [blocks, getDefaultZoom]);
   // 📖 はじめての人向けチュートリアル。初回だけ自動で開く。
