@@ -357,10 +357,16 @@ export default function HomePage() {
           <DraggableLogo />
           <div className="flex items-center gap-3">
             <span className="opacity-0 animate-[cyberSlideUp_0.8s_cubic-bezier(0.1,0.9,0.2,1)_forwards]" style={{ animationDelay: "0.2s" }}>
-              <div className="inline-block font-pixel text-[8px] sm:text-[10px] animate-[inchworm_1.5s_ease-in-out_infinite] origin-bottom" style={{ color: "#f0a818" }}>
-                {t(locale, "nav.edition")}
+              <div className="animate-[walkLeft_60s_linear_infinite]">
+                <div className="inline-block font-pixel text-[8px] sm:text-[10px] animate-[inchworm_1.5s_ease-in-out_infinite] origin-bottom" style={{ color: "#f0a818" }}>
+                  {t(locale, "nav.edition")}
+                </div>
               </div>
               <style>{`
+                @keyframes walkLeft {
+                  0% { transform: translateX(50vw); }
+                  100% { transform: translateX(-120vw); }
+                }
                 @keyframes inchworm {
                   0%, 100% { transform: scaleX(1) translateY(0); }
                   25% { transform: scaleX(0.85) scaleY(1.1) translateY(-2px); }
