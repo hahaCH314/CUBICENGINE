@@ -352,7 +352,15 @@ export default function HomePage() {
   // 作り方ガイド（エディタと同じ TutorialOverlay を使い回す）
   const [showGuide, setShowGuide] = useState(false);
   return (
-    <div className="min-h-screen flex flex-col relative overflow-x-hidden" style={{ background: "radial-gradient(circle at 20% 10%, rgba(74, 222, 128, 0.12) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 50%), radial-gradient(circle at 50% 60%, rgba(253, 224, 71, 0.05) 0%, transparent 60%), #0d1410" }}>
+    <div className="min-h-screen flex flex-col relative overflow-x-hidden" style={{ 
+      backgroundColor: "#0d1410",
+      backgroundImage: `
+        radial-gradient(circle at 20% 10%, rgba(74, 222, 128, 0.12) 0%, transparent 50%), 
+        radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 50%), 
+        radial-gradient(circle at 50% 60%, rgba(253, 224, 71, 0.05) 0%, transparent 60%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath d='M40 40c-11.046 0-20-8.954-20-20 0-11.045 8.954-20 20-20 11.045 0 20 8.955 20 20 0 11.046-8.955 20-20 20zm0 40c-11.046 0-20-8.954-20-20 0-11.045 8.954-20 20-20 11.045 0 20 8.955 20 20 0 11.046-8.955 20-20 20zM0 40c-11.046 0-20-8.954-20-20 0-11.045 8.954-20 20-20 11.045 0 20 8.955 20 20 0 11.046-8.955 20-20 20zm80 0c-11.046 0-20-8.954-20-20 0-11.045 8.954-20 20-20 11.045 0 20 8.955 20 20 0 11.046-8.955 20-20 20z' fill='%2310b981' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E")
+      ` 
+    }}>
       <MagicalSpores />
       <CubeParticles />
       {/* Navigation（ログイン/新規登録は撤去・ローカル版） */}
