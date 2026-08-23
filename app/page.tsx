@@ -423,6 +423,37 @@ export default function HomePage() {
                   0%, 100% { transform: translateY(0px) rotate(0deg); }
                   50% { transform: translateY(-4px) rotate(2deg); }
                 }
+                .btn-squishy-sprout {
+                  border-radius: 26px;
+                  background: linear-gradient(135deg, #4ade80, #16a34a);
+                  border: 3px solid #14532d;
+                  box-shadow: 0 8px 0 #14532d, 0 10px 20px rgba(0,0,0,0.35), inset 0 8px 15px rgba(255,255,255,0.5), inset 0 -8px 15px rgba(0,0,0,0.2);
+                  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+                }
+                .btn-squishy-sprout:hover {
+                  transform: translateY(-2px);
+                  box-shadow: 0 10px 0 #14532d, 0 15px 30px rgba(0,0,0,0.4), inset 0 8px 15px rgba(255,255,255,0.6), inset 0 -8px 15px rgba(0,0,0,0.3);
+                }
+                .btn-squishy-sprout:active {
+                  transform: translateY(10px) scaleY(0.75) scaleX(1.15);
+                  box-shadow: 0 0px 0 #14532d, 0 4px 10px rgba(0,0,0,0.2), inset 0 4px 10px rgba(255,255,255,0.7), inset 0 -4px 10px rgba(0,0,0,0.4);
+                }
+                
+                .btn-squishy-grove {
+                  border-radius: 26px;
+                  background: linear-gradient(135deg, #38bdf8, #0284c7);
+                  border: 3px solid #0369a1;
+                  box-shadow: 0 8px 0 #0369a1, 0 10px 20px rgba(0,0,0,0.35), inset 0 8px 15px rgba(255,255,255,0.5), inset 0 -8px 15px rgba(0,0,0,0.2);
+                  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+                }
+                .btn-squishy-grove:hover {
+                  transform: translateY(-2px);
+                  box-shadow: 0 10px 0 #0369a1, 0 15px 30px rgba(0,0,0,0.4), inset 0 8px 15px rgba(255,255,255,0.6), inset 0 -8px 15px rgba(0,0,0,0.3);
+                }
+                .btn-squishy-grove:active {
+                  transform: translateY(10px) scaleY(0.75) scaleX(1.15);
+                  box-shadow: 0 0px 0 #0369a1, 0 4px 10px rgba(0,0,0,0.2), inset 0 4px 10px rgba(255,255,255,0.7), inset 0 -4px 10px rgba(0,0,0,0.4);
+                }
               `}</style>
             </span>
           </div>
@@ -504,13 +535,7 @@ export default function HomePage() {
                 <>
                   <Link
                     href="/editor?mode=tsumiki"
-                    className="w-20 h-20 inline-flex items-center justify-center rounded-2xl transition-all duration-75 relative overflow-hidden group hover:-translate-y-1 hover:shadow-[0_8px_0_#14532d,0_12px_24px_rgba(0,0,0,0.4)] active:translate-y-1 active:shadow-[0_2px_0_#14532d,0_4px_8px_rgba(0,0,0,0.25)]"
-                    style={{
-                      background: "linear-gradient(135deg, #22c55e, #16a34a)",
-                      border: "3px solid #14532d",
-                      boxShadow: "0 6px 0 #14532d, 0 8px 16px rgba(0,0,0,0.35)",
-                      transform: "translateY(0)",
-                    }}
+                    className="w-20 h-20 inline-flex items-center justify-center relative overflow-hidden group btn-squishy-sprout"
                     aria-label={t(locale, "cta.tryWeb")}
                   >
                     <CubeIcon className="w-9 h-9 text-yellow-300 relative z-10" />
@@ -587,13 +612,7 @@ export default function HomePage() {
                         Web を大きく、パソコン版を補助に落とす。 */}
                     <Link
                       href="/editor?mode=grape"
-                      className="w-20 h-20 inline-flex items-center justify-center rounded-2xl transition-all duration-75 relative overflow-hidden group hover:-translate-y-1 hover:shadow-[0_8px_0_#0369a1,0_12px_24px_rgba(0,0,0,0.4)] active:translate-y-1 active:shadow-[0_2px_0_#0369a1,0_4px_8px_rgba(0,0,0,0.25)]"
-                      style={{
-                        background: "linear-gradient(135deg, #38bdf8, #0ea5e9)",
-                        border: "3px solid #0369a1",
-                        boxShadow: "0 6px 0 #0369a1, 0 8px 16px rgba(0,0,0,0.35)",
-                        transform: "translateY(0)",
-                      }}
+                      className="w-20 h-20 inline-flex items-center justify-center relative overflow-hidden group btn-squishy-grove"
                       aria-label="ブラウザでJava版を作る"
                     >
                       <CubeIcon className="w-9 h-9 text-yellow-200 relative z-10" />
