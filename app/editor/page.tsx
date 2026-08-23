@@ -249,12 +249,11 @@ function PhoneHint() {
 export default function EditorPage() {
   const [activeTab, setActiveTab] = useState<Tab>("logic");
 
-  // ⚠️ デベロッパータブは統合版(Bedrock)専用。
-  //    Java の書き出しは devMobs / devItems を一切見ないので、
-  //    タブを出したままだと「作ったのに .jar に入らない」＝無言で消える。
-  //    このプロジェクトで何度も踏んだ型なので、出さないことで塞ぐ。
-  //    Java 側の設計図(cubic_data.json)に mobs/items を足せたら、ここを外す。
-  const isJava = useEditorStore((s) => s.targetPlatform) === "java";
+  // 2026-08-23、Java の設計図に mobs を足した（spec 2）ので、
+  // デベロッパータブは Java でも出す。中で「モブだけ使える」ように
+  // 制限しているので、ここでタブごと隠す必要はなくなった。
+  // ⚠️ アイテム・道具・防具・技はまだ Bedrock 専用。
+  //    制限は DeveloperPanel 側にある（そちらのコメント参照）。
 
   // タブ列がはみ出しているか（スマホでは4つ並びきらない）。
   // 端の帯を出すかどうかの判定に使う。両端とも「その方向にまだ続くか」を持つ
@@ -426,9 +425,7 @@ export default function EditorPage() {
           boxShadow: "0 4px 15px rgba(0,0,0,0.3)"
         }}
       >
-        {tabConfig
-          .filter((tab) => !(isJava && tab.key === "developer"))
-          .map((tab) => {
+        {tabConfig.map((tab) => {
           const isActive = activeTab === tab.key;
           return (
             <button
@@ -495,28 +492,7 @@ export default function EditorPage() {
       </div>
       {/* 開いたときだけマウントする。モデル取り込みは状態を持たないので、
           他のタブと違って常時マウントしておく必要がない */}
-      {/* ⚠️ タブを隠すだけでは足りない。?mode=grape に切り替える前から
-          デベロッパータブを開いていた場合、activeTab が "developer" のまま残る。
-          その状態で作らせると .jar には何も入らないので、ここでも塞ぐ。 */}
-      {activeTab === "developer" && isJava && (
-        <div className="flex-1 overflow-auto relative p-6 flex flex-col items-center justify-center text-center gap-3">
-          <div className="text-4xl">🛠</div>
-          <div className="text-sm font-bold">デベロッパータブは統合版むけです</div>
-          <p className="text-xs text-muted/70 leading-relaxed max-w-xs">
-            いま Java版（パソコン）を作るモードになっています。<br />
-            モブやアイテムづくりは、統合版に切り替えると使えます。
-          </p>
-          <a
-            href="/editor?mode=tsumiki"
-            className="mt-1 text-xs font-bold px-4 py-2 rounded-lg"
-            style={{ background: "#3cd070", color: "#06240f" }}
-          >
-            統合版に切りかえる
-          </a>
-        </div>
-      )}
-
-      {activeTab === "developer" && !isJava && (
+      {activeTab === "developer" && (
         <div className="flex-1 overflow-hidden relative">
           <DeveloperPanel />
         </div>
