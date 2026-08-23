@@ -358,8 +358,28 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <span className="opacity-0 animate-[cyberSlideUp_0.8s_cubic-bezier(0.1,0.9,0.2,1)_forwards]" style={{ animationDelay: "0.2s" }}>
               <div className="animate-[walkLeft_60s_linear_infinite]">
-                <div className="inline-block font-pixel text-[8px] sm:text-[10px] animate-[inchworm_1.5s_ease-in-out_infinite] origin-bottom" style={{ color: "#f0a818" }}>
-                  {t(locale, "nav.edition")}
+                <div className="flex font-pixel text-[8px] sm:text-[10px]" style={{ color: "#f0a818" }}>
+                  {t(locale, "nav.edition").split("").map((char, i, arr) => {
+                    const ratio = i / Math.max(1, arr.length - 1);
+                    const arch = Math.sin(ratio * Math.PI);
+                    const angle = Math.cos(ratio * Math.PI) * 25;
+                    return (
+                      <span
+                        key={i}
+                        className="animate-[inchwormArch_1.5s_ease-in-out_infinite]"
+                        style={{
+                          display: "inline-block",
+                          whiteSpace: "pre",
+                          transformOrigin: "bottom center",
+                          "--ratio": ratio,
+                          "--arch": arch,
+                          "--angle": angle,
+                        } as React.CSSProperties}
+                      >
+                        {char}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
               <style>{`
@@ -367,11 +387,16 @@ export default function HomePage() {
                   0% { transform: translateX(50vw); }
                   100% { transform: translateX(-120vw); }
                 }
-                @keyframes inchworm {
-                  0%, 100% { transform: scaleX(1) translateY(0); }
-                  25% { transform: scaleX(0.85) scaleY(1.1) translateY(-2px); }
-                  50% { transform: scaleX(1.1) scaleY(0.95) translateY(0); }
-                  75% { transform: scaleX(0.95) scaleY(1.02) translateY(-1px); }
+                @keyframes inchwormArch {
+                  0%, 100% {
+                    transform: translateX(0px) translateY(0px) rotate(0deg);
+                  }
+                  50% {
+                    transform: 
+                      translateX(calc((0.5 - var(--ratio)) * 14px)) 
+                      translateY(calc(var(--arch) * -10px))
+                      rotate(calc(var(--angle) * 1deg));
+                  }
                 }
                 @keyframes cyberSlideUp {
                   0% { transform: translateY(15px) scale(0.95); opacity: 0; filter: blur(4px) hue-rotate(-30deg); text-shadow: 0 0 10px #f0a818; }
@@ -397,6 +422,7 @@ export default function HomePage() {
                   50% { transform: translateY(-4px) rotate(2deg); }
                 }
               `}</style>
+            </span>
           </div>
         </div>
       </nav>
