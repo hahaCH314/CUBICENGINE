@@ -351,7 +351,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col relative" style={{ background: "radial-gradient(circle at 25% 15%, rgba(132, 204, 22, 0.16) 0%, transparent 45%), radial-gradient(circle at 75% 15%, rgba(14, 165, 233, 0.16) 0%, transparent 45%), radial-gradient(circle at 50% 60%, rgba(245, 158, 11, 0.1) 0%, transparent 55%), #171715" }}>
       {/* Navigation（ログイン/新規登録は撤去・ローカル版） */}
-      <nav className="shrink-0 bg-panel border-b-4 border-[#121210] h-14">
+      <nav className="shrink-0 h-14 z-50">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
           <a href="https://cubicenginestudio.vercel.app/" target="_blank" rel="noopener noreferrer" className="flex items-center group relative w-14 h-full justify-center -ml-4">
             <div className="absolute top-1/2 left-[45%] -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] pointer-events-none group-hover:scale-110 transition-transform duration-700">
