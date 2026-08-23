@@ -357,7 +357,7 @@ export default function HomePage() {
             <img 
               src="/studio-logo.jpg" 
               alt="CUBICENGINEstudio" 
-              className="h-10 w-auto animate-[spin_8s_linear_infinite] group-hover:scale-105 transition-transform" 
+              className="h-[52px] w-auto animate-[spin_120s_linear_infinite] group-hover:scale-105 transition-transform" 
             />
           </Link>
           <div className="flex items-center gap-3">
