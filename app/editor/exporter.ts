@@ -975,7 +975,13 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
       logicBlocks,
       state.projectName,
       state.blocks ?? [],
-      (state as unknown as { items?: [] }).items ?? [],
+      // ⚠️ アイテムは今は渡さない（空配列を固定で渡す）。
+      //    エンジンは items を読んで登録するが、下のアセット生成ループは
+      //    state.blocks しか回っていないので、モデル・テクスチャ・lang が
+      //    1つも入らない。そのまま登録すると紫と黒の四角が出て、
+      //    名前も翻訳キーのまま表示される。
+      //    アセット生成をアイテムにも広げてから state.items に戻すこと。
+      [],
       state.devMobs ?? [],
     );
 

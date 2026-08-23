@@ -740,14 +740,10 @@ export default function GrapePanel() {
       })();
     } else {
       // フェーズ1：Web版ではクラウドビルドではなくソースコード(ZIP)ダウンロードになるため、確認とデスクトップ版への誘導を挟む
-      const proceed = confirm(
-        "Java版MODのソースコード一式（ZIP）をダウンロードします。\n手元で .jar にビルドするには、Java環境などの設定が必要です。\n\n※ボタン一つで簡単ビルドができる「デスクトップアプリ版」をおすすめします（トップページからダウンロードできます）。\n\nこのままソースコード（ZIP）をダウンロードしますか？"
-      );
-      if (!proceed) {
-        setLaunchPhase(null);
-        setSending(false);
-        return;
-      }
+      // ⚠️ 2026-08-23、ここは .jar が直接落ちる経路になった（base-mod.jar への注入）。
+      //    以前の「ソースZIPが出る／Java環境が要る／デスクトップ版を勧める」という
+      //    文言のままだと、実態と食い違ううえ**ほぼ全員がキャンセルする**。
+      //    確認自体も要らなくなったので出さない。失敗したときだけ下の catch が伝える。
       try {
         await exportProject(outState, ""); // Web: ZIP ダウンロード
       } catch (err) {

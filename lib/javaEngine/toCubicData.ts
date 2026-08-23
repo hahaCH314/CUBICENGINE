@@ -158,16 +158,42 @@ function oneLine(s: string): string {
   return s.split(LF).join(" ").split(CR).join(" ");
 }
 
+/**
+ * マイクラの識別子に使える形へ。
+ *
+ * ⚠️ exporter.ts の sanitizeMcId と**まったく同じ規則**にすること。
+ *    以前ここだけ toLowerCase していて、"MagicStone" が
+ *    exporter 側は "agictone"（大文字を削除）、こちらは "magicstone" になり、
+ *    設計図のIDとアセットのパスが食い違ってテクスチャが出なかった。
+ *    大文字は落とす。小文字化しない。
+ */
 function toMcId(s: string, fb: string): string {
-  return s.toLowerCase().replace(/[^a-z0-9_-]/g, "") || fb;
+  return s.replace(/[^a-z0-9_-]/g, "") || fb;
+}
+
+/**
+ * 同じIDが2つ以上できないようにする。
+ *
+ * ⚠️ 日本語だけの名前は全滅して既定値に潰れる（"魔法の石" → "block"）。
+ *    2つ作ると同じIDになり、Forge の DeferredRegister が
+ *    Duplicate registration を投げて**マイクラが起動時に落ちる**。
+ *    落とすくらいなら連番を付けて必ず一意にする。
+ */
+function uniqueId(base: string, used: Set<string>): string {
+  let id = base;
+  let n = 2;
+  while (used.has(id)) id = `${base}_${n++}`;
+  used.add(id);
+  return id;
 }
 
 /** モデルタブのブロック → 設計図。registered=ON のものだけ出す */
 export function toCEBlocks(blocks: readonly VoxelBlock[]): CEBlock[] {
+  const used = new Set<string>();
   return blocks
     .filter(b => b.registered)
     .map(b => ({
-      id: toMcId(b.name, "block"),
+      id: uniqueId(toMcId(b.name, "block"), used),
       displayName: oneLine(b.displayName || b.name || "ブロック"),
       hardness: Number.isFinite(b.hardness) ? Math.max(0, b.hardness as number) : 1.5,
       // ⚠️ 0〜15 はマイクラの上限。16以上を書くと登録に失敗する
@@ -183,6 +209,7 @@ export function toCEBlocks(blocks: readonly VoxelBlock[]): CEBlock[] {
  *    強さと名前だけを持たせる。形をそのまま出したい人は統合版を使う。
  */
 export function toCEMobs(mobs: readonly MobIR[]): CEMob[] {
+  const usedMobIds = new Set<string>();
   return mobs.map(m => {
     const b = m.behavior;
     // 性格から土台を選ぶ。おとなしい＝村人、襲う＝ゾンビ。
@@ -190,7 +217,7 @@ export function toCEMobs(mobs: readonly MobIR[]): CEMob[] {
     const aggr = normalizeAggression(b.aggression);
     const base = aggr === "peaceful" ? "minecraft:villager" : "minecraft:zombie";
     return {
-      id: toMcId(m.id, "mob"),
+      id: uniqueId(toMcId(m.id, "mob"), usedMobIds),
       displayName: oneLine(m.displayName || m.id || "モブ"),
       base,
       health: Math.max(1, Math.round(b.health ?? 20)),
@@ -207,10 +234,11 @@ export function toCEMobs(mobs: readonly MobIR[]): CEMob[] {
 
 /** モデルタブのアイテム → 設計図 */
 export function toCEItems(items: readonly VoxelItem[]): CEItem[] {
+  const used = new Set<string>();
   return items
     .filter(i => i.registered)
     .map(i => ({
-      id: toMcId(i.name, "item"),
+      id: uniqueId(toMcId(i.name, "item"), used),
       displayName: oneLine(i.displayName || i.name || "アイテム"),
       // ⚠️ 1〜64 はマイクラの上限。65以上はアイテムごと読み込まれない
       maxStack: 64,
@@ -270,6 +298,16 @@ export function toCubicData(
     }
 
     if (actions.length > 0) rules.push({ trigger, conditions, actions });
+  }
+
+  // ⚠️ 同梱エンジンが spec 1 のあいだ、mobs は読まれず**黙って消える**。
+  //    設計図には出しておく（エンジンが対応したら即動く）が、
+  //    作った人には必ず伝える。無言で消えるのがこのプロジェクト最大の落とし穴。
+  //    エンジンが mobs に対応したら、この警告ごと消すこと。
+  if (SPEC_VERSION < 2 && devMobs.length > 0) {
+    warnings.push(
+      `モブ${devMobs.length}体は Java版ではまだ出ません（統合版では動きます）`,
+    );
   }
 
   return {
