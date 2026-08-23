@@ -45,10 +45,14 @@ export const DICT: Record<string, Entry> = {
   "sprout.tag":       { ja: "統合版・教育版用", en: "Bedrock & Education" },
   "sprout.desc":      { ja: "統合版（スマホ・Switch・PC）で遊ぶ人はこっち。", en: "Bedrock edition — phone, Switch & PC." },
   // Java版はブラウザでは作れない（MODのビルドに gradlew が要る）。カードはDLへ繋ぐ。
+  // ⚠️ 下の3つは現在どこからも参照していない（2026-08-23 時点）。
+  //    Java版カードは app/page.tsx に直接書いている。
+  //    使い回すときは中身を確かめること。Web だけで .jar が作れるようになったので、
+  //    「パソコン版が要る」前提の文言はそのままだと嘘になる。
   "grove.getDesktop":    { ja: "💻 パソコン版をダウンロード", en: "💻 Get the desktop app" },
   "grove.getDesktopSub": { ja: "ブラウザで .jar まで作れます", en: "Build the .jar right in your browser" },
+  "grove.desc":       { ja: "Java版（パソコン用）はこっち。ブラウザで .jar まで作れます。", en: "Java Edition — build the .jar right in your browser." },
   "grove.tag":        { ja: "Java版用", en: "For Java" },
-  "grove.desc":       { ja: "JAVA版（パソコン）で作る人はこっち。", en: "Java edition — PC." },
   "cta.tryWeb":       { ja: "✨ さっそく作る", en: "✨ Start creating" },
   // Java版(GROVE)デスクトップ版のDL導線。
   // ⚠️ 2026-08-23、base-mod.jar への注入方式でブラウザだけで .jar が作れるようになった

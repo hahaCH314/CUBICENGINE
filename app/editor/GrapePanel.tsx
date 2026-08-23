@@ -305,9 +305,10 @@ export default function GrapePanel() {
   const [draft, setDraft] = useState("");
   const [reveal, setReveal] = useState<string[] | null>(null); // コード誕生の演出
   const [launchPhase, setLaunchPhase] = useState<null | "gather" | "coalesce" | "launch">(null);
-  // デスクトップ(Electron)判定：Web公開版の「現在開発中」の蓋を、Electronでは外す（Javaが主役）
-  const [isElectron, setIsElectron] = useState(false);
-  useEffect(() => { setIsElectron(!!(window as any).electronAPI?.isElectron); }, []);
+  // ⚠️ isElectron の state は削除した（2026-08-23）。
+  //    かつては「Web版は現在開発中」の蓋を出す判定だったが、Web でも
+  //    base-mod.jar への注入で .jar が作れるようになり、蓋ごと撤去した。
+  //    書き出し先の分岐は、下の送信処理で window.electronAPI を直接見ている。
 
   // ★ロジックを常時ストアへ同期（実→CBlock）。
   //   旧版は sendToMc(「放つ」)の中でしか setLogicGraphJson していなかったため、
