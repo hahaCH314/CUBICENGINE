@@ -363,7 +363,17 @@ export default function HomePage() {
             </div>
           </a>
           <div className="flex items-center gap-3">
-            <span className="font-pixel text-[8px] sm:text-[10px]" style={{ color: "#f0a818", opacity: 0.9 }}>{t(locale, "nav.edition")}</span>
+            <span className="font-pixel text-[8px] sm:text-[10px] opacity-0 animate-[cyberSlideUp_0.8s_cubic-bezier(0.1,0.9,0.2,1)_forwards]" style={{ color: "#f0a818", animationDelay: "0.2s" }}>
+              {t(locale, "nav.edition")}
+              <style>{`
+                @keyframes cyberSlideUp {
+                  0% { transform: translateY(15px) scale(0.95); opacity: 0; filter: blur(4px) hue-rotate(-30deg); text-shadow: 0 0 10px #f0a818; }
+                  50% { transform: translateY(-2px) scale(1.02); opacity: 1; filter: blur(0px) hue-rotate(15deg); text-shadow: 0 0 5px #f0a818; }
+                  75% { transform: translateY(1px) scale(0.99); filter: hue-rotate(0deg); text-shadow: 0 0 2px #f0a818; }
+                  100% { transform: translateY(0) scale(1); opacity: 0.9; text-shadow: none; }
+                }
+              `}</style>
+            </span>
             <button
               type="button"
               onClick={() => setLocale(locale === "ja" ? "en" : "ja")}
