@@ -1,49 +1,93 @@
 "use client";
 
-import React from "react";
-import { TreePine, TreeDeciduous, Leaf, Flower2, Sprout, Clover } from "lucide-react";
+import React, { useMemo } from "react";
 
 export default function ForestLineArt() {
+  const leaves = useMemo(() => {
+    const items: React.ReactNode[] = [];
+    
+    // 大人っぽくオーガニックな「ユーカリ」や「オリーブ」のような、
+    // しなやかで美しい曲線の茎を3本定義します。
+    const branches = [
+      // 左下から右上へ大きく伸びる枝
+      { startX: -100, startY: 850, endX: 1600, endY: 100, curveHeight: 300, scale: 1 },
+      // 右下から左上へ交差する枝
+      { startX: 1500, startY: 700, endX: 100, endY: -100, curveHeight: -250, scale: 0.7 },
+      // 下部を這うような短い枝
+      { startX: -200, startY: 600, endX: 1000, endY: 900, curveHeight: -150, scale: 0.5 },
+    ];
+
+    branches.forEach((b, bIdx) => {
+      // ベジェ曲線の制御点
+      const qx = (b.startX + b.endX) / 2;
+      const qy = b.startY - b.curveHeight;
+
+      // 茎（極細の線で上品に）
+      items.push(
+        <path
+          key={`stem-${bIdx}`}
+          d={`M ${b.startX} ${b.startY} Q ${qx} ${qy} ${b.endX} ${b.endY}`}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={0.8 * b.scale}
+        />
+      );
+
+      // 茎に沿って葉っぱを配置
+      const steps = 30; // 葉の数
+      for (let i = 1; i < steps; i++) {
+        const t = i / steps;
+        
+        // ベジェ曲線上の現在位置を計算
+        const x = (1 - t) * (1 - t) * b.startX + 2 * (1 - t) * t * qx + t * t * b.endX;
+        const y = (1 - t) * (1 - t) * b.startY + 2 * (1 - t) * t * qy + t * t * b.endY;
+
+        // 接線の角度（茎の流れる向き）を計算
+        const dx = 2 * (1 - t) * (qx - b.startX) + 2 * t * (b.endX - qx);
+        const dy = 2 * (1 - t) * (qy - b.startY) + 2 * t * (b.endY - qy);
+        const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+        // オリーブやユーカリのように、左右に交互に葉をつける（互生）
+        const side = i % 2 === 0 ? 1 : -1;
+        // 茎の進行方向に対して斜め前方に葉を向ける
+        const leafAngle = angle + side * (35 + Math.random() * 15);
+        
+        // 端に行くほど葉を小さくする（自然なボタニカル感）
+        const leafSize = (40 + Math.random() * 20) * b.scale * Math.sin(t * Math.PI);
+        
+        if (leafSize < 5) continue; // 小さすぎる葉は描画しない
+
+        // 葉の輪郭（繊細なアーモンド型）
+        const leafPath = `M 0 0 C ${leafSize/3} ${-leafSize/3}, ${leafSize*2/3} ${-leafSize/3}, ${leafSize} 0 C ${leafSize*2/3} ${leafSize/3}, ${leafSize/3} ${leafSize/3}, 0 0`;
+
+        items.push(
+          <g key={`leaf-${bIdx}-${i}`} transform={`translate(${x}, ${y}) rotate(${leafAngle})`}>
+            {/* 葉脈（さらに細い線） */}
+            <path d={`M 0 0 Q ${leafSize/2} ${leafSize/10} ${leafSize*0.9} 0`} fill="none" stroke="currentColor" strokeWidth={0.3 * b.scale} />
+            {/* 葉の輪郭 */}
+            <path d={leafPath} fill="none" stroke="currentColor" strokeWidth={0.6 * b.scale} />
+          </g>
+        );
+      }
+    });
+
+    return items;
+  }, []);
+
   return (
-    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-[0.07] mix-blend-screen text-emerald-400">
-      
-      {/* 左上の大きな木 */}
-      <div className="absolute -top-32 -left-32">
-        <TreeDeciduous size={600} strokeWidth={0.5} className="rotate-[15deg]" />
-      </div>
-
-      {/* 左下の松の木 */}
-      <div className="absolute -bottom-20 -left-10">
-        <TreePine size={450} strokeWidth={0.5} className="-rotate-6" />
-      </div>
-
-      {/* 右下の大きなツル/葉っぱ */}
-      <div className="absolute -bottom-40 -right-20">
-        <Leaf size={700} strokeWidth={0.5} className="-rotate-45" />
-      </div>
-
-      {/* 右上の花 */}
-      <div className="absolute top-10 -right-32">
-        <Flower2 size={500} strokeWidth={0.5} className="rotate-[30deg]" />
-      </div>
-
-      {/* 画面端に散らした小さな草花 */}
-      <div className="absolute top-[40%] -left-16">
-        <Clover size={250} strokeWidth={0.5} className="rotate-[45deg]" />
-      </div>
-
-      <div className="absolute bottom-[20%] right-[10%]">
-        <Sprout size={200} strokeWidth={0.5} className="-rotate-12" />
-      </div>
-
-      <div className="absolute top-[20%] right-[30%]">
-        <Leaf size={150} strokeWidth={0.5} className="rotate-[120deg]" />
-      </div>
-
-      <div className="absolute bottom-[10%] left-[30%]">
-        <Flower2 size={180} strokeWidth={0.5} className="-rotate-[20deg]" />
-      </div>
-
+    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden mix-blend-screen opacity-[0.25]">
+      <svg
+        width="100%"
+        height="100%"
+        viewBox="0 0 1440 800"
+        preserveAspectRatio="xMidYMid slice"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ color: "#6ee7b7" }} // 大人っぽい淡いセージグリーン
+      >
+        <g strokeLinecap="round" strokeLinejoin="round">
+          {leaves}
+        </g>
+      </svg>
     </div>
   );
 }
