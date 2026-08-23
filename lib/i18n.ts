@@ -46,16 +46,19 @@ export const DICT: Record<string, Entry> = {
   "sprout.desc":      { ja: "統合版（スマホ・Switch・PC）で遊ぶ人はこっち。", en: "Bedrock edition — phone, Switch & PC." },
   // Java版はブラウザでは作れない（MODのビルドに gradlew が要る）。カードはDLへ繋ぐ。
   "grove.getDesktop":    { ja: "💻 パソコン版をダウンロード", en: "💻 Get the desktop app" },
-  "grove.getDesktopSub": { ja: "Java版はパソコン版で作ります", en: "Java Edition needs the desktop app" },
+  "grove.getDesktopSub": { ja: "ブラウザで .jar まで作れます", en: "Build the .jar right in your browser" },
   "grove.tag":        { ja: "Java版用", en: "For Java" },
   "grove.desc":       { ja: "JAVA版（パソコン）で作る人はこっち。", en: "Java edition — PC." },
   "cta.tryWeb":       { ja: "✨ さっそく作る", en: "✨ Start creating" },
-  // Java版(GROVE)デスクトップ版のDL導線。Java版は gradlew でのビルドが要るので、
-  // ブラウザだけでは完結しない＝ここだけデスクトップ版が必要になる。
+  // Java版(GROVE)デスクトップ版のDL導線。
+  // ⚠️ 2026-08-23、base-mod.jar への注入方式でブラウザだけで .jar が作れるようになった
+  //    （実機 Forge 1.20.1 で MOD読込・メッセージ・ブロック登録まで確認済み）。
+  //    デスクトップ版は「mods フォルダへ自動で入れたい人」向けの補助に降格している。
+  //    文言を「パソコン版が必要」に戻さないこと。もう嘘になる。
   "dl.groveWin":      { ja: "Java版をダウンロード（Windows）", en: "Download for Java Edition (Windows)" },
   // 504MB あるので、押す前にサイズが分かるようにする（うっかり通信量を使わせない）。
   // 署名なしインストーラなので Windows の警告も先に伝えておく＝初見で怖がらせない。
-  "dl.groveNote":     { ja: "Java版のMODを作るにはパソコン版が必要です（統合版はブラウザだけでOK）\n約171MB・Windows用／「詳細情報」→「実行」で進めます", en: "Making Java Edition mods needs the desktop app (Bedrock works in the browser).\nAbout 171MB, Windows only. Choose \"More info\" → \"Run if\" Windows warns you." },
+  "dl.groveNote":     { ja: "ブラウザだけで .jar を作れます。パソコン版は mods へ自動で入れたい人向けです\n約171MB・Windows用／「詳細情報」→「実行」で進めます", en: "You can build the .jar in your browser. The desktop app just installs it into mods for you.\nAbout 171MB, Windows only. Choose \"More info\" → \"Run\" if Windows warns you." },
   // 署名なしなので Windows の警告は必ず出る。「怪しいから出ている」のではないことを、
   // 第三者(VirusTotal)の検査結果へのリンクで裏づける。数字は撮った時点のものなので
   // 日付を添える。リンク先は常に最新なので、古くなっても嘘にはならない。
