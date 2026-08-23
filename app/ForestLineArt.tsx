@@ -9,12 +9,14 @@ export default function ForestLineArt() {
     // 大人っぽくオーガニックな「ユーカリ」や「オリーブ」のような、
     // しなやかで美しい曲線の茎を3本定義します。
     const branches = [
-      // 左下から右上へ大きく伸びる枝
-      { startX: -100, startY: 850, endX: 1600, endY: 100, curveHeight: 300, scale: 1 },
-      // 右下から左上へ交差する枝
-      { startX: 1500, startY: 700, endX: 100, endY: -100, curveHeight: -250, scale: 0.7 },
-      // 下部を這うような短い枝
-      { startX: -200, startY: 600, endX: 1000, endY: 900, curveHeight: -150, scale: 0.5 },
+      // 左下から左上へ（画面左端を縁取る）
+      { startX: -100, startY: 1000, endX: 200, endY: -100, curveHeight: 300, scale: 1 },
+      // 右下から右上へ（画面右端を縁取る）
+      { startX: 1600, startY: 1000, endX: 1200, endY: -100, curveHeight: -300, scale: 0.8 },
+      // 右上の角から少し垂れ下がる枝
+      { startX: 1600, startY: -100, endX: 1000, endY: 300, curveHeight: -150, scale: 0.6 },
+      // 左下の角から少し伸びる短い枝
+      { startX: -200, startY: 900, endX: 300, endY: 1000, curveHeight: 150, scale: 0.5 },
     ];
 
     branches.forEach((b, bIdx) => {
@@ -75,7 +77,7 @@ export default function ForestLineArt() {
   }, []);
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden mix-blend-screen opacity-[0.25]">
+    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden mix-blend-screen opacity-[0.12]">
       <svg
         width="100%"
         height="100%"
