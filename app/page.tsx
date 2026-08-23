@@ -397,37 +397,41 @@ export default function HomePage() {
                   50% { transform: translateY(-4px) rotate(2deg); }
                 }
               `}</style>
-            </span>
-            <button
-              type="button"
-              onClick={() => setLocale(locale === "ja" ? "en" : "ja")}
-              aria-label="switch language"
-              className="ml-2 font-pixel text-[10px] px-3 py-1.5 rounded-full border border-white/20 hover:border-white/60 transition-all hover:scale-105 animate-[floatBalloon_3.5s_ease-in-out_infinite]"
-              style={{
-                color: "#fff",
-                background: "linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.02))",
-                boxShadow: "0 4px 12px rgba(255,255,255,0.1), inset 0 2px 4px rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.5)"
-              }}
-            >
-              🌐 {t(locale, "lang.toggle")}
-            </button>
           </div>
         </div>
       </nav>
 
       {/* Hero（縦スクロール型：看板→カード→作者の声） */}
       <section className="flex-1 flex flex-col items-center justify-start px-6 pt-10 pb-16 text-center">
-        <h1
-          className="text-[clamp(1.2rem,7vw,3rem)] sm:text-6xl md:text-7xl font-pixel tracking-normal sm:tracking-wider mb-2 animate-float-slow"
-          style={{
-            color: "#fbbf24",
-            textShadow: "6px 6px 0px #1e1208, 12px 12px 0px rgba(0,0,0,0.25)",
-            imageRendering: "pixelated",
-          }}
-        >
-          CUBIC
-          <span style={{ color: "#22d3ee", textShadow: "6px 6px 0px #0b2d3a, 12px 12px 0px rgba(0,0,0,0.25)" }}>ENGINE</span>
-        </h1>
+        <div className="relative inline-block mb-2">
+          <h1
+            className="text-[clamp(1.2rem,7vw,3rem)] sm:text-6xl md:text-7xl font-pixel tracking-normal sm:tracking-wider animate-float-slow"
+            style={{
+              color: "#fbbf24",
+              textShadow: "6px 6px 0px #1e1208, 12px 12px 0px rgba(0,0,0,0.25)",
+              imageRendering: "pixelated",
+            }}
+          >
+            CUBIC
+            <span style={{ color: "#22d3ee", textShadow: "6px 6px 0px #0b2d3a, 12px 12px 0px rgba(0,0,0,0.25)" }}>ENGINE</span>
+          </h1>
+          <div className="absolute -right-6 sm:-right-12 bottom-1/2 translate-y-[30%] sm:translate-y-1/2">
+            <button
+              type="button"
+              onClick={() => setLocale(locale === "ja" ? "en" : "ja")}
+              aria-label="switch language"
+              className="font-pixel text-[8px] sm:text-[10px] px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full border border-white/20 hover:border-white/60 transition-all hover:scale-105 animate-[floatBalloon_3.5s_ease-in-out_infinite]"
+              style={{
+                color: "#fff",
+                background: "linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.02))",
+                boxShadow: "0 4px 12px rgba(255,255,255,0.1), inset 0 2px 4px rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.5)",
+                textShadow: "none"
+              }}
+            >
+              🌐 {t(locale, "lang.toggle")}
+            </button>
+          </div>
+        </div>
 
         <p
           className="text-lg sm:text-2xl md:text-3xl font-bold text-foreground mb-1.5 tracking-wider font-sans"
