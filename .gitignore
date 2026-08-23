@@ -67,3 +67,9 @@ repro_dev.log
 # ⚠️ ここを追跡すると Gradle のキャッシュごと GitHub に入る
 generic_engine/
 extractMdk.ts
+
+# Java エンジンの検証で出る一時ファイル
+hs_err_pid*.log
+test-mod-out/
+test-mod.zip
+testExport.js
