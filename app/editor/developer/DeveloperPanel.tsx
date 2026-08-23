@@ -38,6 +38,19 @@ export default function DeveloperPanel() {
   //    Java 側の設計図に items を足せたら、この分岐を外す。
   const isJava = useEditorStore(s => s.targetPlatform) === "java";
 
+  /* Java版の作り方は2通りある。要求されるものが違うので、先に選んでもらう。
+   *   ふつう   … 前提MODなし。エンジン(base-mod.jar)だけで完結する。見た目はバニラのモブ。
+   *   前提mod  … GeckoLib を入れてもらう代わりに、作った形とアニメーションがそのまま出る。
+   *
+   * ⚠️ 前提mod は**まだ塞いである**。同梱エンジンに GeckoLib が入っていないため
+   *    （2026-08-24、.jar の全クラスを javap で見て該当ゼロを確認）。
+   *    ここを開けるのは、エンジン側が GeckoLib で描けるようになってから。
+   *    先に開けると「選べるのに何も変わらない」＝このプロジェクトで一番高くつく形になる。
+   *    開けるときは、この定数を false にして、exporter に geo/animation の
+   *    書き出しと mods.toml の GeckoLib 依存を足す（両方同時に）。 */
+  const PREREQ_LOCKED = true;
+  const [modMode, setModMode] = useState<"normal" | "prereq">("normal");
+
   // 取り込んだ直後に、下に出たモブの設定まで送る。
   // 取り込み画面は縦に大きいので、放っておくと結果が画面外のままになり
   // 「取り込めたのに何も起きない」ように見える
@@ -74,6 +87,57 @@ export default function DeveloperPanel() {
             : "自分で作った3Dモデルを取り込んで、マイクラで動くモブにします。"}
         </p>
       </div>
+
+      {/* ── Java版だけ：前提MODを使うかどうか ── */}
+      {isJava && (
+        <div className="px-5 pt-3 shrink-0">
+          <div className="text-[10px] font-bold text-muted/50 mb-1.5">どう作る？</div>
+          <div className="flex gap-1">
+            {([["normal", "🍃 ふつう"], ["prereq", "🧩 前提mod"]] as const).map(([k, label]) => {
+              const locked = k === "prereq" && PREREQ_LOCKED;
+              const on = modMode === k;
+              return (
+                <button
+                  key={k}
+                  onClick={() => { if (!locked) setModMode(k); }}
+                  disabled={locked}
+                  title={locked ? "エンジンが GeckoLib に対応したら使えるようになります" : undefined}
+                  className="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+                  style={
+                    locked
+                      ? { background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.25)", cursor: "not-allowed" }
+                      : on
+                        ? { background: "rgba(52,211,153,0.20)", color: "#a7f3d0" }
+                        : { background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.55)" }
+                  }
+                >
+                  {locked ? "🔒 " + label : label}
+                </button>
+              );
+            })}
+          </div>
+          {/* 2つの違いを、遊ぶ人が何を用意するかで書く。
+              「GeckoLib対応」とだけ書いても、何が変わるのか伝わらない */}
+          <div className="mt-2 grid grid-cols-2 gap-2 text-[10.5px] leading-relaxed">
+            <div className="rounded-lg p-2.5" style={{ background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.25)" }}>
+              <div className="font-bold text-emerald-200">🍃 ふつう</div>
+              <div className="text-muted/70 mt-0.5">
+                遊ぶ人は <b>Forge だけ</b>。<br />
+                見た目はバニラのモブ。<br />
+                強さ・名前・落とすものは反映。
+              </div>
+            </div>
+            <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
+              <div className="font-bold text-muted/60">🧩 前提mod {PREREQ_LOCKED && <span className="text-[9px]">（準備中）</span>}</div>
+              <div className="text-muted/50 mt-0.5">
+                遊ぶ人は <b>Forge ＋ GeckoLib</b>。<br />
+                <b>作った形とアニメがそのまま出る。</b><br />
+                {PREREQ_LOCKED ? "エンジン側の対応待ちです。" : "入れてもらう手間が増えます。"}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-1 px-5 pt-3 shrink-0">
         {([["mob", "🧟 モブ"], ["item", "🍎 アイテム"]] as const).map(([k, label]) => {
@@ -128,10 +192,11 @@ export default function DeveloperPanel() {
             className="mx-5 mt-3 rounded-lg p-3 text-[11px] leading-relaxed"
             style={{ background: "rgba(250,204,21,0.10)", border: "1px solid rgba(250,204,21,0.3)" }}
           >
-            <b>Java版では、取り込んだ形は出ません。</b>
+            <b>いまは「🍃 ふつう」なので、取り込んだ形は出ません。</b>
             <span className="block text-muted/70 mt-0.5">
               見た目はバニラのモブ（おとなしい＝村人／襲う＝ゾンビ）になります。
               強さ・名前・落とすものは設定どおりに反映されます。
+              形をそのまま出すには「🧩 前提mod」が要りますが、まだ準備中です。
             </span>
           </div>
         )}
