@@ -356,9 +356,17 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
           <DraggableLogo />
           <div className="flex items-center gap-3">
-            <span className="font-pixel text-[8px] sm:text-[10px] opacity-0 animate-[cyberSlideUp_0.8s_cubic-bezier(0.1,0.9,0.2,1)_forwards]" style={{ color: "#f0a818", animationDelay: "0.2s" }}>
-              {t(locale, "nav.edition")}
+            <span className="opacity-0 animate-[cyberSlideUp_0.8s_cubic-bezier(0.1,0.9,0.2,1)_forwards]" style={{ animationDelay: "0.2s" }}>
+              <div className="inline-block font-pixel text-[8px] sm:text-[10px] animate-[inchworm_1.5s_ease-in-out_infinite] origin-bottom" style={{ color: "#f0a818" }}>
+                {t(locale, "nav.edition")}
+              </div>
               <style>{`
+                @keyframes inchworm {
+                  0%, 100% { transform: scaleX(1) translateY(0); }
+                  25% { transform: scaleX(0.85) scaleY(1.1) translateY(-2px); }
+                  50% { transform: scaleX(1.1) scaleY(0.95) translateY(0); }
+                  75% { transform: scaleX(0.95) scaleY(1.02) translateY(-1px); }
+                }
                 @keyframes cyberSlideUp {
                   0% { transform: translateY(15px) scale(0.95); opacity: 0; filter: blur(4px) hue-rotate(-30deg); text-shadow: 0 0 10px #f0a818; }
                   50% { transform: translateY(-2px) scale(1.02); opacity: 1; filter: blur(0px) hue-rotate(15deg); text-shadow: 0 0 5px #f0a818; }
