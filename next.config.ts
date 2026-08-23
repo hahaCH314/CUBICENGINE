@@ -61,6 +61,16 @@ const nextConfig: NextConfig = {
           { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
         ],
       },
+      {
+        // ⚠️ Java版エンジン。**ファイル名が変わらないのに中身が変わる**唯一のファイル。
+        //    差し替えたのに古いものが配られると、TS 側の SPEC_VERSION とズレて
+        //    「全ユーザーが参加のたびに警告を見て、モブが無視される」状態になる。
+        //    no-cache＝毎回サーバーに確認する（変わっていなければ 304 なので軽い）。
+        source: "/base-mod.jar",
+        headers: [
+          { key: "Cache-Control", value: "no-cache, must-revalidate" },
+        ],
+      },
     ];
   },
   }),

@@ -14,7 +14,7 @@
  *      画面に出すこと。「置いたのに動かない」を無言にしない。
  */
 
-import type { CBlock } from "../../app/editor/_types";
+import type { CBlock, Sticker } from "../../app/editor/_types";
 import type { VoxelBlock, VoxelItem } from "../../app/editor/store";
 import { normalizeAggression, type MobIR } from "../devtab/ir";
 import {
@@ -76,9 +76,22 @@ function toTrigger(b: CBlock): CETrigger | null {
   }
 }
 
-/** 条件カード → CECondition。対応外なら null */
-function toCondition(b: CBlock | undefined, all: CBlock[]): CECondition | null {
+/**
+ * 条件カード → CECondition。対応外なら null。
+ *
+ * ⚠️ かつ/または/〜じゃない は中に条件をぶら下げるので、**輪のように繋がれると
+ *    自分を呼び続けて落ちる**。動作側の走査と同じく、たどった id を覚えて止める。
+ *    利用者が輪を作ることは実際に起こる（落ちると ZIP フォールバックに落ちて、
+ *    「なぜか .jar にならない」だけが残り、原因が分からなくなる）。
+ */
+function toCondition(
+  b: CBlock | undefined,
+  all: CBlock[],
+  seen: ReadonlySet<string> = new Set(),
+): CECondition | null {
   if (!b) return null;
+  if (seen.has(b.id)) return null;   // 一周した。ここで打ち切る
+  const inner = new Set(seen).add(b.id);
   switch (b.type) {
     case "co_tag":    return { type: "hasTag", tag: f(b, "tag", "vip") };
     case "co_item":   return { type: "hasItem", item: f(b, "item", "minecraft:diamond") };
@@ -87,21 +100,39 @@ function toCondition(b: CBlock | undefined, all: CBlock[]): CECondition | null {
     case "co_night":  return { type: "isNight" };
     case "co_rain":   return { type: "isRaining" };
     case "co_and": {
-      const xs = [toCondition(byId(all, b.innerId), all), toCondition(byId(all, b.nextId), all)]
+      const xs = [toCondition(byId(all, b.innerId), all, inner), toCondition(byId(all, b.nextId), all, inner)]
         .filter(Boolean) as CECondition[];
       return xs.length ? { type: "and", all: xs } : null;
     }
     case "co_or": {
-      const xs = [toCondition(byId(all, b.innerId), all), toCondition(byId(all, b.nextId), all)]
+      const xs = [toCondition(byId(all, b.innerId), all, inner), toCondition(byId(all, b.nextId), all, inner)]
         .filter(Boolean) as CECondition[];
       return xs.length ? { type: "or", any: xs } : null;
     }
     case "co_not": {
-      const inner = toCondition(byId(all, b.innerId), all);
-      return inner ? { type: "not", of: inner } : null;
+      const of = toCondition(byId(all, b.innerId), all, inner);
+      return of ? { type: "not", of } : null;
     }
     default: return null;
   }
+}
+
+/**
+ * 条件シール1枚 → CECondition。めくってあれば「〜じゃないとき」。
+ *
+ * シールは条件カードと中身が同じなので、仮のカードを作って toCondition に通す
+ * （統合版 lib/codegen.ts の stickerExpr と同じ考え方。条件の種類が増えても
+ *  ここは直さなくてよい）。
+ */
+function stickerToCondition(s: Sticker, all: CBlock[]): CECondition | null {
+  const fake: CBlock = {
+    id: "__sticker__", type: s.type, emoji: "", label: "", sublabel: "",
+    category: "ifelse", fields: s.fields ?? [],
+    x: 0, y: 0, nextId: null, innerId: null, thenId: null, elseId: null,
+  };
+  const c = toCondition(fake, all);
+  if (!c) return null;
+  return s.neg ? { type: "not", of: c } : c;
 }
 
 /** 動作カード → CEAction。対応外なら null */
@@ -187,18 +218,61 @@ function uniqueId(base: string, used: Set<string>): string {
   return id;
 }
 
-/** モデルタブのブロック → 設計図。registered=ON のものだけ出す */
-export function toCEBlocks(blocks: readonly VoxelBlock[]): CEBlock[] {
+/**
+ * モデルタブのブロック → 設計図＋元のブロックの対。registered=ON のものだけ。
+ *
+ * ⚠️ **アセット（モデル・テクスチャ・lang）は必ずここが決めた id で書くこと。**
+ *    exporter 側で名前から作り直すと、`uniqueId` が付ける連番（block / block_2）が
+ *    再現できない。日本語だけの名前は英数字が全部落ちて同じ id になるので、
+ *    2個目以降が必ずズレる。ズレた分は**紫と黒の四角**になり、名前も
+ *    翻訳キーのまま出る（マイクラは何も言わない）。
+ */
+export function pairCEBlocks(blocks: readonly VoxelBlock[]): { ce: CEBlock; src: VoxelBlock }[] {
   const used = new Set<string>();
   return blocks
     .filter(b => b.registered)
     .map(b => ({
-      id: uniqueId(toMcId(b.name, "block"), used),
-      displayName: oneLine(b.displayName || b.name || "ブロック"),
-      hardness: Number.isFinite(b.hardness) ? Math.max(0, b.hardness as number) : 1.5,
-      // ⚠️ 0〜15 はマイクラの上限。16以上を書くと登録に失敗する
-      lightLevel: Math.min(15, Math.max(0, Math.round(b.lightLevel ?? 0))),
+      src: b,
+      ce: {
+        id: uniqueId(toMcId(b.name, "block"), used),
+        displayName: oneLine(b.displayName || b.name || "ブロック"),
+        hardness: Number.isFinite(b.hardness) ? Math.max(0, b.hardness as number) : 1.5,
+        // ⚠️ 0〜15 はマイクラの上限。16以上を書くと登録に失敗する
+        lightLevel: Math.min(15, Math.max(0, Math.round(b.lightLevel ?? 0))),
+      },
     }));
+}
+
+/** モデルタブのブロック → 設計図。registered=ON のものだけ出す */
+export function toCEBlocks(blocks: readonly VoxelBlock[]): CEBlock[] {
+  return pairCEBlocks(blocks).map(p => p.ce);
+}
+
+export function pairCEMobs(mobs: readonly MobIR[]): { ce: CEMob; src: MobIR }[] {
+  const usedMobIds = new Set<string>();
+  return mobs.map(m => {
+    const b = m.behavior;
+    // 性格から土台を選ぶ。おとなしい＝村人、襲う＝ゾンビ。
+    // 見た目が挙動と食い違うと「なぜ襲ってくるのか」が分からなくなる
+    const aggr = normalizeAggression(b.aggression);
+    const base = aggr === "peaceful" ? "minecraft:villager" : "minecraft:zombie";
+    return {
+      src: m,
+      ce: {
+        id: uniqueId(toMcId(m.id, "mob"), usedMobIds),
+        displayName: oneLine(m.displayName || m.id || "モブ"),
+        base,
+        health: Math.max(1, Math.round(b.health ?? 20)),
+        attackDamage: Math.max(0, Math.round(b.attackDamage ?? 0)),
+        movementSpeed: Math.max(0, b.movementSpeed ?? 0.25),
+        drops: (b.drops ?? []).map(d => ({
+          item: d.item,
+          min: Math.max(0, Math.round(d.min ?? 1)),
+          max: Math.max(0, Math.round(d.max ?? 1)),
+        })),
+      },
+    };
+  });
 }
 
 /**
@@ -209,40 +283,128 @@ export function toCEBlocks(blocks: readonly VoxelBlock[]): CEBlock[] {
  *    強さと名前だけを持たせる。形をそのまま出したい人は統合版を使う。
  */
 export function toCEMobs(mobs: readonly MobIR[]): CEMob[] {
-  const usedMobIds = new Set<string>();
-  return mobs.map(m => {
-    const b = m.behavior;
-    // 性格から土台を選ぶ。おとなしい＝村人、襲う＝ゾンビ。
-    // 見た目が挙動と食い違うと「なぜ襲ってくるのか」が分からなくなる
-    const aggr = normalizeAggression(b.aggression);
-    const base = aggr === "peaceful" ? "minecraft:villager" : "minecraft:zombie";
-    return {
-      id: uniqueId(toMcId(m.id, "mob"), usedMobIds),
-      displayName: oneLine(m.displayName || m.id || "モブ"),
-      base,
-      health: Math.max(1, Math.round(b.health ?? 20)),
-      attackDamage: Math.max(0, Math.round(b.attackDamage ?? 0)),
-      movementSpeed: Math.max(0, b.movementSpeed ?? 0.25),
-      drops: (b.drops ?? []).map(d => ({
-        item: d.item,
-        min: Math.max(0, Math.round(d.min ?? 1)),
-        max: Math.max(0, Math.round(d.max ?? 1)),
-      })),
-    };
-  });
+  return pairCEMobs(mobs).map(p => p.ce);
 }
 
-/** モデルタブのアイテム → 設計図 */
-export function toCEItems(items: readonly VoxelItem[]): CEItem[] {
+/**
+ * モデルタブのアイテム → 設計図＋元のアイテムの対。
+ * ⚠️ ブロックと同じ理由で、アセットは必ずここが決めた id で書くこと。
+ */
+export function pairCEItems(items: readonly VoxelItem[]): { ce: CEItem; src: VoxelItem }[] {
   const used = new Set<string>();
   return items
     .filter(i => i.registered)
     .map(i => ({
-      id: uniqueId(toMcId(i.name, "item"), used),
-      displayName: oneLine(i.displayName || i.name || "アイテム"),
-      // ⚠️ 1〜64 はマイクラの上限。65以上はアイテムごと読み込まれない
-      maxStack: 64,
+      src: i,
+      ce: {
+        id: uniqueId(toMcId(i.name, "item"), used),
+        displayName: oneLine(i.displayName || i.name || "アイテム"),
+        // ⚠️ 1〜64 はマイクラの上限。65以上はアイテムごと読み込まれない
+        maxStack: 64,
+      },
     }));
+}
+
+/** モデルタブのアイテム → 設計図 */
+export function toCEItems(items: readonly VoxelItem[]): CEItem[] {
+  return pairCEItems(items).map(p => p.ce);
+}
+
+/**
+ * 積み木のつながりを「ルールの並び」に変換する道具一式。
+ *
+ * ■ なぜルールを分けるのか
+ *   設計図の条件は **ルール1つに丸ごと掛かる**（エンジンは rule ごとに
+ *   conditions を全部 AND で見てから actions を回す。base-mod.jar の
+ *   onTrigger を javap で実測して確認、2026-08-23）。
+ *   だから「もしも」の前後で条件の効く範囲が変わるものを1ルールに詰めると、
+ *   **「もしも」より前に置いた動作まで条件で止まる**。
+ *   条件が変わるたびにルールを切り、同じきっかけのルールを何本も出す。
+ *   エンジンは一致するルールを**全部**回す（途中で抜けない）ので、
+ *   並べた順にそのまま実行される。
+ *
+ * ■ ちがうなら（else）
+ *   エンジンは「〜じゃないとき(not)」を持っているので、
+ *   else 側は条件を反転したルールとして出せる。エンジンは触らなくてよい。
+ */
+interface Walk {
+  trigger: CETrigger;
+  blocks: CBlock[];
+  out: CERule[];
+  warnings: string[];
+}
+
+/**
+ * カードを1枚ずつたどってルールに積む。
+ *
+ * @param startId たどり始めるカード
+ * @param base    ここまでに掛かっている条件（「もしも」の中なら増えている）
+ * @param seen    たどったカード。**枝ごとに複製する**。
+ *                共有すると、そうなら側で通った id のせいで
+ *                ちがうなら側が黙って空になる。
+ */
+function walkChain(startId: string | null | undefined, w: Walk, base: CECondition[], seen: Set<string>): void {
+  let pending: CEAction[] = [];
+  /** 溜めた動作を1ルールとして確定する。空なら何もしない */
+  const flush = () => {
+    if (pending.length === 0) return;
+    w.out.push({ trigger: w.trigger, conditions: [...base], actions: pending });
+    pending = [];
+  };
+
+  let cur = byId(w.blocks, startId);
+  while (cur && !seen.has(cur.id)) {
+    seen.add(cur.id);
+    const b = cur;
+    const name = b.label || b.type;
+    const action = toAction(b, w.blocks);
+
+    if (action) {
+      // 条件シールは**貼られたその1枚にだけ**効く（統合版と同じ意味）。
+      // 条件はルール単位なので、シール付きのカードは単独のルールにする。
+      const stickers = b.stickers ?? [];
+      const extra: CECondition[] = [];
+      let broken = false;
+      for (const s of stickers) {
+        const c = stickerToCondition(s, w.blocks);
+        if (c) extra.push(c);
+        else broken = true;
+      }
+      if (broken) {
+        // 効かない条件を黙って落とすと「条件を無視して必ず動く」になる。
+        // それは利用者の意図と正反対なので、動作ごと出さずに必ず伝える。
+        w.warnings.push(`「${name}」に貼った条件シールは Java版ではまだ使えません（このカードは出していません）`);
+      } else if (extra.length > 0) {
+        flush();
+        w.out.push({ trigger: w.trigger, conditions: [...base, ...extra], actions: [action] });
+      } else {
+        pending.push(action);
+      }
+    } else if (b.type === "co_if") {
+      const cond = toCondition(byId(w.blocks, b.innerId), w.blocks);
+      flush();
+      if (!cond) {
+        // 条件が読めないまま中身を出すと、**条件を無視して必ず動く**ものになる。
+        // 「キックする」などが無条件で走ると事故になるので、出さずに伝える。
+        w.warnings.push(
+          b.innerId
+            ? `「もしも」の条件は Java版ではまだ使えません（そうなら／ちがうなら の中身は出していません）`
+            : `「もしも」の穴が空のままです（そうなら／ちがうなら の中身は出していません）`,
+        );
+      } else {
+        // そうなら：条件を足して、その枝を**最後まで**たどる
+        walkChain(b.thenId, w, [...base, cond], new Set(seen));
+        // ちがうなら：条件を反転して、その枝を最後まで
+        walkChain(b.elseId, w, [...base, { type: "not", of: cond }], new Set(seen));
+      }
+      // 「もしも」を抜けた先は、また元の条件に戻る
+    } else if (!b.type.startsWith("va_") && !b.type.startsWith("co_")) {
+      w.warnings.push(`「${name}」は Java版ではまだ動きません`);
+    }
+
+    cur = byId(w.blocks, b.nextId);
+  }
+  flush();
 }
 
 export interface ConvertResult {
@@ -271,42 +433,22 @@ export function toCubicData(
   for (const b of blocks) {
     const trigger = toTrigger(b);
     if (!trigger) continue;
-
-    const actions: CEAction[] = [];
-    const conditions: CECondition[] = [];
-    const seen = new Set<string>([b.id]);
-
-    let cur = byId(blocks, b.nextId);
-    while (cur && !seen.has(cur.id)) {
-      seen.add(cur.id);
-      const a = toAction(cur, blocks);
-      if (a) {
-        actions.push(a);
-      } else if (cur.type === "co_if") {
-        // もしも：条件を集め、then 側の動作を続けて拾う
-        const c = toCondition(byId(blocks, cur.innerId), blocks);
-        if (c) conditions.push(c);
-        const thenB = byId(blocks, cur.thenId);
-        if (thenB) {
-          const ta = toAction(thenB, blocks);
-          if (ta) actions.push(ta);
-        }
-      } else if (!cur.type.startsWith("va_") && !cur.type.startsWith("co_")) {
-        warnings.push(`「${cur.label || cur.type}」は Java版ではまだ動きません`);
-      }
-      cur = byId(blocks, cur.nextId);
-    }
-
-    if (actions.length > 0) rules.push({ trigger, conditions, actions });
+    // きっかけカード自身を seen に入れて始める（輪になっていても止まる）
+    walkChain(b.nextId, { trigger, blocks, out: rules, warnings }, [], new Set<string>([b.id]));
   }
 
-  // ⚠️ 同梱エンジンが spec 1 のあいだ、mobs は読まれず**黙って消える**。
-  //    設計図には出しておく（エンジンが対応したら即動く）が、
-  //    作った人には必ず伝える。無言で消えるのがこのプロジェクト最大の落とし穴。
-  //    エンジンが mobs に対応したら、この警告ごと消すこと。
-  if (SPEC_VERSION < 2 && devMobs.length > 0) {
+  // モブは spec 2 のエンジンで出るようになった（2026-08-23）。
+  // ⚠️ ただし**作った形は写らない**。Forge のエンティティモデルは Java のコードで
+  //    書くもので、JSON から作れないため、バニラのモブを土台にして
+  //    強さと名前だけを載せている（pairCEMobs 参照）。
+  //    作った子は自分が描いた姿が出ると思っているので、ここを黙っていると
+  //    「ちゃんと作ったのに違うものが出た」になる。必ず先に伝える。
+  if (devMobs.length > 0) {
     warnings.push(
-      `モブ${devMobs.length}体は Java版ではまだ出ません（統合版では動きます）`,
+      `モブ${devMobs.length}体は Java版では姿が変わります（おとなしい子は村人、襲う子はゾンビの姿になります。名前・強さ・落とすものはそのままです）`,
+    );
+    warnings.push(
+      `モブを出すときは、クリエイティブの持ち物にある「（モブの名前） スポーンエッグ」を使ってください`,
     );
   }
 

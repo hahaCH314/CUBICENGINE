@@ -2426,17 +2426,15 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
    *    スマホ(高さ839)では y=880 に描画され **画面のすぐ外**に消えていた（実測）。
    *    「開いたのに何も無い」に見えるのが初見の一番の壁なので、実寸から計算して寄せる。
    * 一度だけ動かす。以降は利用者の視点を勝手に触らない。 */
-  const didFocusRef = useRef(false);
-  useEffect(() => {
-    if (didFocusRef.current) return;
-    if (blocks.length === 0) return;
+  /** 渡したカード群が画面の中央に来るように寄せる。呼んだときだけ動く。 */
+  const focusOnBlocks = useCallback((bs: CBlock[]) => {
+    if (bs.length === 0) return;
     const el = containerRef.current;
     if (!el) return;
     const w = el.clientWidth, h = el.clientHeight;
     if (w === 0 || h === 0) return;   // まだ描画されていない
-    didFocusRef.current = true;
     const z = getDefaultZoom();
-    const xs = blocks.map(b => b.x), ys = blocks.map(b => b.y);
+    const xs = bs.map(b => b.x), ys = bs.map(b => b.y);
     const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
     const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
     setZoom(z);
@@ -2445,7 +2443,25 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
     //    「カード」ボタンの裏に隠れるので、その分だけ上へ寄せる。
     const BOTTOM_UI = 260;   // 実測: 190だとカード下端が20px重なった。余白込みで260
     setPan({ x: w / 2 - cx * z, y: (h - BOTTOM_UI) / 2 - cy * z });
-  }, [blocks, getDefaultZoom]);
+  }, [getDefaultZoom]);
+
+  const didFocusRef = useRef(false);
+  /* 開いた時点で盤面が空だったか。
+   * ⚠️ 空で開いたときは「起動時に寄せる」対象が無い。そのまま待たせると、
+   *    利用者が**最初の1枚を置いた瞬間**にこれが走り、置いた直後にズームと位置が
+   *    飛ぶ（「触ったら画面がどこかへ行った」に見える）。空の盤面の見え方は
+   *    下の resetPanZoom がすでに決めているので、ここは何もしないで終わらせる。
+   *    見本・作品・お手本を丸ごと読み込む所では focusOnBlocks を直接呼ぶ。 */
+  const startedEmptyRef = useRef(blocks.length === 0);
+  useEffect(() => {
+    if (didFocusRef.current) return;
+    if (startedEmptyRef.current) { didFocusRef.current = true; return; }
+    if (blocks.length === 0) return;
+    const el = containerRef.current;
+    if (!el || el.clientWidth === 0 || el.clientHeight === 0) return;   // まだ描画されていない
+    didFocusRef.current = true;
+    focusOnBlocks(blocks);
+  }, [blocks, focusOnBlocks]);
   // 📖 はじめての人向けチュートリアル。初回だけ自動で開く。
   // 空の盤面から始めるには「きっかけ＋すること」「繋げないと動かない」という前提が要り、
   // それはアドオンを作ったことがある人の常識。初見の人は開いた瞬間に詰むので、
@@ -2485,7 +2501,10 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
       // 作りかけを黙って消さない
       if (live.current.blocks.length &&
         !window.confirm(`いま作っているカードは消えます。${who ? `${who}の` : ""}作品をひらく？`)) return;
-      setBlocks(fromWire(work));
+      const opened = fromWire(work);
+      setBlocks(opened);
+      // 盤面を丸ごと入れ替えたので、視点も持ってきた作品に合わせる
+      focusOnBlocks(opened);
       setSelected(null);
       setRemixSrc(who);
       try { localStorage.setItem(REMIX_KEY, who); } catch { }
@@ -3959,7 +3978,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
           {showProjects && (
             <ProjectPanel
               blocks={blocks}
-              onLoad={b => { setBlocks(migrateBlocks(b)); }}
+              onLoad={b => { const m = migrateBlocks(b); setBlocks(m); focusOnBlocks(m); }}
               onClose={() => setShowProjects(false)}
             />
           )}
@@ -3968,6 +3987,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               onSelect={b => { setBlocks(prev => [...prev, ...b]); }}
               onReplace={(b, name) => {
                 setBlocks(b);
+                focusOnBlocks(b);
                 setSelected(null);
                 playSuccessSound();
                 showToast(`「${name}」を読み込みました！🎉`, "success");

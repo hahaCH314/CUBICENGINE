@@ -883,7 +883,7 @@ export default function HomePage() {
               )}
             </div>
 
-            <div className="flex flex-col items-center gap-1.5">
+            <div className="flex flex-col items-center gap-1.5 my-auto">
               {/* 下部の署名「なっとうサイダー」は撤去（上部「これを作ってる人」に名前があり重複のため） */}
               <span className="flex items-center gap-1.5 text-[10px] font-sans">
                 <span className="tracking-wide text-white">Special Thanks</span>

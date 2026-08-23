@@ -62,7 +62,7 @@ const FAQ = [
   },
   {
     q: "スマホだけでも作れますか？",
-    a: "統合版のアドオンなら、スマホのブラウザだけで作れます。Java版のMODは、作るときにパソコン版のアプリが必要です。",
+    a: "作るのは、どちらもスマホのブラウザだけでできます。Java版のMOD（.jar）も、その場でダウンロードできます。ただし、できた .jar で遊べるのはパソコンのマイクラ（Java版）だけです。スマホのマイクラは統合版なので、.mcaddon のほうを使ってください。",
   },
   {
     q: "作ったデータはどこに保存されますか？",
@@ -82,7 +82,7 @@ export default function GuidePage() {
       {
         "@type": "HowTo",
         name: "マイクラのアドオンの作り方",
-        description: "コードを書かずにマインクラフトのアドオン（.mcaddon）を作る手順。",
+        description: "コードを書かずにマインクラフトのアドオン（.mcaddon）とMOD（.jar）を作る手順。",
         totalTime: "PT3M",
         estimatedCost: { "@type": "MonetaryAmount", currency: "JPY", value: "0" },
         step: STEPS.map((s, i) => ({
@@ -150,11 +150,16 @@ export default function GuidePage() {
         </p>
 
         <H2>用意するもの</H2>
-        <ul className="text-sm leading-relaxed text-muted list-disc pl-5 space-y-1.5 mb-8">
+        <ul className="text-sm leading-relaxed text-muted list-disc pl-5 space-y-1.5 mb-2">
           <li>マインクラフト（統合版またはJava版）</li>
           <li>ブラウザが動く端末（スマホ・タブレット・パソコン）</li>
-          <li>Java版のMODを作る場合は、パソコンと <strong className="text-foreground">JDK 17</strong></li>
+          <li>Java版のMODで遊ぶ場合は、パソコンと <strong className="text-foreground">Forge 1.20.1</strong></li>
         </ul>
+        {/* 「JDKが要る」と思われると、作れる人がここで帰ってしまう。必ず打ち消す */}
+        <p className="text-xs text-muted/70 mb-8">
+          ※ 作るのに開発ソフトの用意は要りません。JDK も Gradle も不要で、ボタンを押すとその場で
+          <code className="font-mono"> .jar </code>ができます。
+        </p>
 
         <H2>作り方（4ステップ）</H2>
         <ol className="space-y-4 mb-8">
@@ -180,10 +185,17 @@ export default function GuidePage() {
           スマホなら共有メニューから「Minecraft」を選ぶと、マイクラが自動で起動して取りこまれます。
           あとはワールド設定の「ビヘイビアーパック」でONにすれば遊べます。
         </p>
-        <p className="text-sm leading-relaxed text-muted mb-8">
-          <strong className="text-foreground">Java版（.jar）</strong>は、Forge を入れたマイクラの
-          <code className="font-mono"> mods </code>フォルダに入れます。
+        <p className="text-sm leading-relaxed text-muted mb-2">
+          <strong className="text-foreground">Java版（.jar）</strong>は、
+          <strong className="text-foreground">Forge 1.20.1</strong> を入れたマイクラの
+          <code className="font-mono"> mods </code>フォルダに、ファイルのままコピーします
+          （開いたり展開したりしないでください）。
         </p>
+        <ul className="text-sm leading-relaxed text-muted list-disc pl-5 space-y-1.5 mb-8">
+          <li>Windows … <code className="font-mono">%appdata%\.minecraft\mods</code></li>
+          <li>Mac … <code className="font-mono">~/Library/Application Support/minecraft/mods</code></li>
+          <li>そのあとランチャーで遊び方を「forge」にして起動します。</li>
+        </ul>
 
         <H2>作ったものを友達に見せる</H2>
         <p className="text-sm leading-relaxed text-muted mb-8">

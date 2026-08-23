@@ -964,24 +964,29 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
   const modId = ENGINE_MOD_ID;
 
   try {
-    const res = await fetch("/base-mod.jar");
+    // ⚠️ cache: "no-cache" は必須。エンジンはファイル名が変わらないので、
+    //    黙っていると古いものが返る。TS と .jar の spec がズレると
+    //    「全ユーザーが参加のたびに警告を見る」状態になる（実際に起きた）。
+    //    no-store ではなく no-cache＝毎回サーバーに確認し、
+    //    変わっていなければ 304 で済むので通信量は増えない。
+    //    Service Worker 側にも同じ趣旨の除外がある（public/sw.js の ALWAYS_FRESH）。
+    const res = await fetch("/base-mod.jar", { cache: "no-cache" });
     if (!res.ok) throw new Error("エンジン(base-mod.jar)を読み込めませんでした");
     await zip.loadAsync(await res.arrayBuffer());
 
     // 設計図を作る。ブロック・アイテムもここで一緒に変換する
     const logicBlocks = parseLogicBlocks(state.logicGraphJson);
-    const { toCubicData } = await import("../../lib/javaEngine/toCubicData");
+    const { toCubicData, pairCEBlocks, pairCEItems, pairCEMobs } = await import("../../lib/javaEngine/toCubicData");
+    // 設計図に載る id と、その元になったモデルを対で持っておく。
+    // 下のアセット生成はこの id を使う（名前から作り直すとズレる）。
+    const blockPairs = pairCEBlocks(state.blocks ?? []);
+    const itemPairs = pairCEItems(state.items ?? []);
+    const mobPairs = pairCEMobs(state.devMobs ?? []);
     const { data: cubicData, warnings } = toCubicData(
       logicBlocks,
       state.projectName,
       state.blocks ?? [],
-      // ⚠️ アイテムは今は渡さない（空配列を固定で渡す）。
-      //    エンジンは items を読んで登録するが、下のアセット生成ループは
-      //    state.blocks しか回っていないので、モデル・テクスチャ・lang が
-      //    1つも入らない。そのまま登録すると紫と黒の四角が出て、
-      //    名前も翻訳キーのまま表示される。
-      //    アセット生成をアイテムにも広げてから state.items に戻すこと。
-      [],
+      state.items ?? [],
       state.devMobs ?? [],
     );
 
@@ -989,9 +994,9 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
     //    ここで必ず利用者に伝える。console だけにすると原因を掴む手段がなくなる。
     if (warnings.length > 0) {
       alert(
-        "⚠️ Java版ではまだ動かないカードがありました\n\n" +
+        "⚠️ Java版に出す前に、知っておいてほしいことがあります\n\n" +
         warnings.map(w => "・" + w).join("\n") +
-        "\n\nそれ以外は書き出されています。",
+        "\n\nこれ以外はぜんぶ書き出されています。",
       );
     }
 
@@ -1031,23 +1036,57 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
       `    side="BOTH"`,
     ].join("\n"));
 
-    // ブロックモデルとテクスチャの追加
+    // ブロック・アイテムのモデルとテクスチャの追加
+    //
+    // ⚠️ **id は設計図(cubic_data.json)が決めたものをそのまま使う。**
+    //    ここで名前から作り直すと、同じ id にならないものが必ず出る
+    //    （日本語だけの名前は英数字が全部落ちるので、2個目から連番が付く）。
+    //    ズレたぶんは紫と黒の四角になり、名前も翻訳キーのまま出る。
+    //    マイクラは何も言わないので、気づけるのは遊んだ人だけになる。
     const langEntries: Record<string, string> = {};
-    for (const block of state.blocks) {
-      const bn = sanitizeBlockName(block.name);
+    for (const { ce, src } of blockPairs) {
+      const bn = ce.id;
       zip.file(`assets/${modId}/blockstates/${bn}.json`, JSON.stringify({ variants: { "": { model: `${modId}:block/${bn}` } } }, null, 2));
       zip.file(`assets/${modId}/models/block/${bn}.json`, JSON.stringify({ parent: "block/cube_all", textures: { all: `${modId}:block/${bn}` } }, null, 2));
       zip.file(`assets/${modId}/models/item/${bn}.json`, JSON.stringify({ parent: `${modId}:block/${bn}` }, null, 2));
-      
-      const tex = await createColoredTexture(block.faces.top.color);
+
+      const tex = await createColoredTexture(src.faces.top.color);
       zip.file(`assets/${modId}/textures/block/${bn}.png`, tex);
-      
+
       // ⚠️ 表示名は displayName を使うこと。id を英語化しただけだと
       //    「魔法の石」と名付けても Magicstone と表示され、名前が捨てられる。
       //    日本語のままゲーム内に出したいので ja_jp にも同じ値を入れる。
-      const disp = (block.registered && block.displayName) ? block.displayName : block.name;
-      langEntries[`block.${modId}.${bn}`] = disp.split(String.fromCharCode(10)).join(" ");
+      langEntries[`block.${modId}.${bn}`] = ce.displayName;
     }
+    // アイテム。ブロックと違い blockstates は要らず、モデルは平らな絵になる。
+    // ⚠️ ここを飛ばして items だけ設計図に書くと、エンジンは登録するのに
+    //    絵も名前も無い＝紫黒の四角が持ち物に並ぶ。必ず対で出すこと。
+    for (const { ce, src } of itemPairs) {
+      const inm = ce.id;
+      zip.file(
+        `assets/${modId}/models/item/${inm}.json`,
+        JSON.stringify({ parent: "item/generated", textures: { layer0: `${modId}:item/${inm}` } }, null, 2),
+      );
+      const tex = await createColoredTexture(src.faces.top.color);
+      zip.file(`assets/${modId}/textures/item/${inm}.png`, tex);
+      langEntries[`item.${modId}.${inm}`] = ce.displayName;
+    }
+    
+    // モブのスポーンエッグ
+    for (const { ce, src } of mobPairs) {
+      const inm = `${ce.id}_spawn_egg`;
+      zip.file(
+        `assets/${modId}/models/item/${inm}.json`,
+        JSON.stringify({ parent: "item/generated", textures: { layer0: `${modId}:item/${inm}` } }, null, 2),
+      );
+      // SpawnEgg 用の画像を生成する (ここでは baseColor を使う)
+      const color = src.behavior?.spawnEgg?.baseColor || "#ffffff";
+      const tex = await createColoredTexture(color);
+      zip.file(`assets/${modId}/textures/item/${inm}.png`, tex);
+      // "モブ名 スポーンエッグ" などの名前にする
+      langEntries[`item.${modId}.${inm}`] = `${ce.displayName} スポーンエッグ`;
+    }
+
     zip.file(`assets/${modId}/lang/en_us.json`, JSON.stringify(langEntries, null, 2));
     // 日本語環境でも同じ名前が出るようにする。en_us だけだと
     // 日本語設定のマイクラでは翻訳キーがそのまま表示される

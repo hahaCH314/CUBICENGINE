@@ -8,7 +8,20 @@
 // キャッシュ名を上げると activate で旧キャッシュ(古いHTML)を一掃する。
 // ⚠️ 新しいビルドを配るたびに必ずこの版番号を上げる（activate で旧キャッシュを一掃するトリガー）。
 // v4: fetch ハンドラが undefined を返しうるバグを直したので、旧キャッシュを一掃する
-const CACHE_NAME = 'cubicengine-v4'
+// v5: /base-mod.jar を network-first に変えたので、焼き付いた古いエンジンを一掃する
+const CACHE_NAME = 'cubicengine-v5'
+
+// ⚠️ **名前が変わらないのに中身が変わるもの。** ここは network-first にする。
+//    下の stale-while-revalidate は「ビルドごとにファイル名が変わる」前提なので、
+//    名前が固定のものを入れると**古い中身を返し続ける**。
+//
+//    実際に踏んだ事故（2026-08-23）:
+//    Java版エンジン(base-mod.jar)を差し替えても、一度サイトを開いた人には
+//    キャッシュの古いエンジンが即返り、その回の書き出しに使われていた。
+//    TS 側が spec 2、渡されるエンジンが spec 1 になるため、
+//    **全ユーザーがワールド参加のたびに警告を見て、モブが無視される**状態になる。
+//    マイクラもブラウザも何も言わないので、気づく手段が無い。
+const ALWAYS_FRESH = ['/base-mod.jar']
 // 実在するものだけ。存在しないURL(例: 削除した /icon.svg)を入れると addAll が丸ごと reject し、
 // install 自体が失敗 → 新SWが有効化されず旧キャッシュが永久に残る（特にiOSで顕著だった事故）。
 const STATIC_ASSETS = [
@@ -108,6 +121,23 @@ self.addEventListener('fetch', (event) => {
           const root = await caches.match('/')
           if (root) return root
           return offlineResponse(true)
+        }
+      })()
+    )
+    return
+  }
+
+  // ── 名前が固定で中身が変わるものは network-first ──
+  // 必ず取りに行く。落ちたときだけキャッシュ（＝オフラインの盾は残す）。
+  if (ALWAYS_FRESH.includes(url.pathname)) {
+    event.respondWith(
+      (async () => {
+        try {
+          return putIfOk(event.request, await fetch(event.request))
+        } catch {
+          const cached = await caches.match(event.request)
+          if (cached) return cached
+          return offlineResponse(false)
         }
       })()
     )

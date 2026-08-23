@@ -16,6 +16,7 @@
 import { useState } from "react";
 import * as LucideIcons from "lucide-react";
 import HowToInstallModal from "./HowToInstallModal";
+import { useEditorStore } from "./store";
 
 interface Props {
   onClose: () => void;
@@ -24,9 +25,15 @@ interface Props {
 export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
   const [step, setStep] = useState<number>(0);
   const [showInstallGuide, setShowInstallGuide] = useState<boolean>(false);
+  // ⚠️ 出るファイルも入れ方も版でまったく違う。作っている版のほうを見せる。
+  //    「.mcaddon をダブルクリック」しか書いていないと、Java版の人は
+  //    せっかく .jar が作れても mods フォルダに辿り着けない。
+  const isJava = useEditorStore((s) => s.targetPlatform) === "java";
+  const projectName = useEditorStore((s) => s.projectName);
+  const fileExt = isJava ? ".jar" : ".mcaddon";
 
   const steps = [
-    { title: "これはなにができる道具？", subtitle: "〜 魔法のアドオンづくり 〜" },
+    { title: "これはなにができる道具？", subtitle: isJava ? "〜 魔法のMODづくり 〜" : "〜 魔法のアドオンづくり 〜" },
     { title: "ステップ1：『きっかけ』をえらぶ", subtitle: "〜 すべてはここから始まる 〜" },
     { title: "ステップ2：『すること』をピタッ！と重ねる", subtitle: "〜 超重要！繋がらないと動かない 〜" },
     { title: "完成したらマイクラの世界へ！", subtitle: "〜 夢の世界で遊びつくそう 〜" },
@@ -45,7 +52,7 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
       fontFamily: '"Inter", "Hiragino Sans", "Meiryo", system-ui, sans-serif'
     }}>
       {/* ── 詳しい入れ方ガイド（連携） ── */}
-      <HowToInstallModal isOpen={showInstallGuide} onClose={() => setShowInstallGuide(false)} />
+      <HowToInstallModal isOpen={showInstallGuide} onClose={() => setShowInstallGuide(false)} projectName={projectName} />
 
       <div style={{
         position: "relative",
@@ -129,20 +136,27 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
                 <Builder />
                 <div style={{ fontSize: 24, fontWeight: 900, color: "#d97706" }}>➜ 🎁</div>
                 <div style={{
-                  padding: "12px 18px", borderRadius: 16, background: "#ecfdf5", border: "3px solid #10b981",
-                  boxShadow: "0 4px 10px rgba(16, 185, 129, 0.15)", textAlign: "left"
+                  padding: "12px 18px", borderRadius: 16,
+                  background: isJava ? "#fff7ed" : "#ecfdf5",
+                  border: `3px solid ${isJava ? "#f97316" : "#10b981"}`,
+                  boxShadow: `0 4px 10px ${isJava ? "rgba(249, 115, 22, 0.15)" : "rgba(16, 185, 129, 0.15)"}`,
+                  textAlign: "left"
                 }}>
-                  <div style={{ fontSize: 13, fontWeight: 900, color: "#047857" }}>マイクラの拡張パック</div>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: "#065f46", fontFamily: "monospace" }}>✨ .mcaddon</div>
+                  <div style={{ fontSize: 13, fontWeight: 900, color: isJava ? "#c2410c" : "#047857" }}>
+                    {isJava ? "マイクラの拡張MOD" : "マイクラの拡張パック"}
+                  </div>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: isJava ? "#7c2d12" : "#065f46", fontFamily: "monospace" }}>✨ {fileExt}</div>
                 </div>
               </div>
               <div style={{ background: "#fffbeb", border: "2px solid #fef08a", borderRadius: 16, padding: "16px 20px", textAlign: "left" }}>
                 <p style={{ fontSize: 15, fontWeight: 800, color: "#78350f", margin: 0, lineHeight: 1.6 }}>
-                  ここはマイクラの世界に新しい遊び方やルールを追加する魔法のパワーアップパック（＝<b>「アドオン」</b>）を、
+                  ここはマイクラの世界に新しい遊び方やルールを追加する魔法のパワーアップパック（＝
+                  <b>{isJava ? "「MOD」" : "「アドオン」"}</b>）を、
                   <b>プログラミングのコードを１行も書かずに作れる場所</b>だよ！
                 </p>
                 <p style={{ fontSize: 14, fontWeight: 700, color: "#92400e", margin: "10px 0 0 0", lineHeight: 1.6 }}>
-                  作ったカードの組み合わせが <span style={{ background: "#fef08a", padding: "2px 6px", borderRadius: 6, fontWeight: 900 }}>.mcaddon</span> （エムシー・アドオン）というファイルになり、
+                  作ったカードの組み合わせが <span style={{ background: "#fef08a", padding: "2px 6px", borderRadius: 6, fontWeight: 900 }}>{fileExt}</span>
+                  {isJava ? "（ジャー）" : " （エムシー・アドオン）"}というファイルになり、
                   君のいつものマイクラに読み込むだけで本当に動き出すんだ！
                 </p>
               </div>
@@ -161,28 +175,46 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
                   どちらも <b>マイクラを作りかえるもの</b> だよ。名前がちがうのは、
                   <b>遊んでいるマイクラの種類</b> がちがうから。
                 </p>
+                {/* いま作っている版のほうを濃く出す。作り方は同じでも
+                    「できるファイル・入れ方・必要なもの」は全部ちがうので、
+                    ここで自分の版がどれかを掴めないと最後の一歩で詰まる。 */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <div style={{ background: "#ecfdf5", border: "2px solid #6ee7b7", borderRadius: 12, padding: "10px 12px" }}>
+                  <div style={{
+                    background: "#ecfdf5", borderRadius: 12, padding: "10px 12px",
+                    border: `2px solid ${!isJava ? "#10b981" : "#d1fae5"}`,
+                    opacity: !isJava ? 1 : 0.65,
+                  }}>
                     <div style={{ fontSize: 13, fontWeight: 900, color: "#047857" }}>
                       🟢 アドオン <span style={{ fontSize: 11, color: "#059669" }}>＝ 統合版（スマホ・Switch・PC）</span>
+                      {!isJava && <span style={{ fontSize: 10, marginLeft: 6, background: "#10b981", color: "#fff", padding: "1px 6px", borderRadius: 999 }}>いまこっち</span>}
                     </div>
                     <div style={{ fontSize: 12.5, fontWeight: 700, color: "#065f46", marginTop: 3, lineHeight: 1.55 }}>
                       ふだんスマホやSwitchで遊んでいるならこっち。
-                      できるファイルは <b style={{ fontFamily: "monospace" }}>.mcaddon</b>。
+                      <br />できるファイル … <b style={{ fontFamily: "monospace" }}>.mcaddon</b>
+                      <br />入れ方 … <b>ファイルを開くだけ</b>
+                      <br />必要なもの … <b>なし</b>
                     </div>
                   </div>
-                  <div style={{ background: "#fff7ed", border: "2px solid #fdba74", borderRadius: 12, padding: "10px 12px" }}>
+                  <div style={{
+                    background: "#fff7ed", borderRadius: 12, padding: "10px 12px",
+                    border: `2px solid ${isJava ? "#f97316" : "#fed7aa"}`,
+                    opacity: isJava ? 1 : 0.65,
+                  }}>
                     <div style={{ fontSize: 13, fontWeight: 900, color: "#c2410c" }}>
                       🟠 MOD <span style={{ fontSize: 11, color: "#ea580c" }}>＝ Java版（パソコン）</span>
+                      {isJava && <span style={{ fontSize: 10, marginLeft: 6, background: "#f97316", color: "#fff", padding: "1px 6px", borderRadius: 999 }}>いまこっち</span>}
                     </div>
                     <div style={{ fontSize: 12.5, fontWeight: 700, color: "#7c2d12", marginTop: 3, lineHeight: 1.55 }}>
                       パソコンのJava版で遊んでいるならこっち。
-                      できるファイルは <b style={{ fontFamily: "monospace" }}>.jar</b>。
+                      <br />できるファイル … <b style={{ fontFamily: "monospace" }}>.jar</b>
+                      <br />入れ方 … <b>mods フォルダに置く</b>
+                      <br />必要なもの … <b>Forge 1.20.1</b>
                     </div>
                   </div>
                 </div>
                 <p style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", margin: "10px 0 0 0", lineHeight: 1.55 }}>
-                  どっちか分からなくても大丈夫。作り方はまったく同じだよ！
+                  どっちか分からなくても大丈夫。<b>カードの作り方はまったく同じ</b>だよ！
+                  ちがうのは最後の「マイクラへの入れ方」だけ。
                 </p>
               </div>
             </div>
@@ -265,7 +297,7 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
                   color: "#ffffff", fontWeight: 900, fontSize: 18, boxShadow: "0 4px 12px rgba(34, 197, 94, 0.3)",
                   border: "3px solid #052e16", animation: "to-pulse 1.5s ease-in-out infinite"
                 }}>
-                  🎉 アドオン完成！
+                  🎉 {isJava ? "MOD" : "アドオン"}完成！
                 </div>
                 <div style={{ fontSize: 24, color: "#334155" }}>➜</div>
                 <div style={{
@@ -277,13 +309,27 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
               </div>
 
               <div style={{ background: "#ffffff", border: "2px solid #e2e8f0", borderRadius: 16, padding: "16px", width: "100%" }}>
-                <p style={{ fontSize: 14, fontWeight: 800, color: "#334155", margin: 0, lineHeight: 1.7 }}>
-                  1. カードを正しくつないだら、右下の明るい緑の <b>『アドオン完成！🎉』</b> ボタンを押します。
-                  <br />
-                  2. 画面の指示にしたがって <b>「.mcaddon」</b> をダウンロード！
-                  <br />
-                  3. ダブルクリックで開いて、いつものマイクラで遊び込もう！
-                </p>
+                {isJava ? (
+                  <p style={{ fontSize: 14, fontWeight: 800, color: "#334155", margin: 0, lineHeight: 1.7 }}>
+                    1. カードを正しくつないだら、右下の明るい緑の <b>『MOD完成！🎉』</b> ボタンを押します。
+                    <br />
+                    2. <b>「.jar」</b> ファイルがダウンロードされます（待ち時間なし・インストール不要）。
+                    <br />
+                    3. それを <b>mods フォルダ</b> に置いて、ランチャーを <b>「forge」</b> にして起動！
+                    <br />
+                    <span style={{ color: "#c2410c" }}>
+                      ⚠️ Java版は <b>パソコンだけ</b>。<b>Forge 1.20.1</b> が要ります。下のボタンに全部書いてあるよ。
+                    </span>
+                  </p>
+                ) : (
+                  <p style={{ fontSize: 14, fontWeight: 800, color: "#334155", margin: 0, lineHeight: 1.7 }}>
+                    1. カードを正しくつないだら、右下の明るい緑の <b>『アドオン完成！🎉』</b> ボタンを押します。
+                    <br />
+                    2. 画面の指示にしたがって <b>「.mcaddon」</b> をダウンロード！
+                    <br />
+                    3. ダブルクリックで開いて、いつものマイクラで遊び込もう！
+                  </p>
+                )}
                 <div style={{ textAlign: "center", marginTop: 14 }}>
                   <button
                     onClick={() => setShowInstallGuide(true)}
@@ -293,7 +339,11 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
                       boxShadow: "0 2px 6px rgba(16, 185, 129, 0.3)", display: "inline-flex", alignItems: "center", gap: 6
                     }}
                   >
-                    <span>🎮 詳しい「マイクラへの入れ方ガイド（スマホ/PC/Switch対応）」を見る</span>
+                    <span>
+                      {isJava
+                        ? "🎮 詳しい「Java版への入れ方ガイド（mods フォルダ）」を見る"
+                        : "🎮 詳しい「マイクラへの入れ方ガイド（スマホ/PC/Switch対応）」を見る"}
+                    </span>
                   </button>
                 </div>
               </div>
