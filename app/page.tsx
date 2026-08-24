@@ -7,6 +7,7 @@ import { t } from "../lib/i18n";
 import { Gem, Sparkles } from "lucide-react";
 import TutorialOverlay from "./editor/TutorialOverlay";
 import DraggableLogo from "./DraggableLogo";
+import SnapCards from "./SnapCards";
 import CubeParticles from "./CubeParticles";
 import ForestLineArt from "./ForestLineArt";
 
@@ -421,13 +422,6 @@ export default function HomePage() {
                   25% { left: 100%; opacity: 0; }
                   100% { left: 100%; opacity: 0; }
                 }
-                @keyframes lapAround {
-                  0% { transform: translateX(0) translateY(0) rotate(0deg); }
-                  25% { transform: translateX(calc(100vw - 100px)) translateY(0) rotate(1080deg); }
-                  50% { transform: translateX(calc(100vw - 100px)) translateY(calc(100vh - 100px)) rotate(2160deg); }
-                  75% { transform: translateX(0) translateY(calc(100vh - 100px)) rotate(3240deg); }
-                  100% { transform: translateX(0) translateY(0) rotate(4320deg); }
-                }
                 @keyframes floatBalloon {
                   0%, 100% { transform: translateY(0px) rotate(0deg); }
                   50% { transform: translateY(-4px) rotate(2deg); }
@@ -488,7 +482,7 @@ export default function HomePage() {
               type="button"
               onClick={() => setLocale(locale === "ja" ? "en" : "ja")}
               aria-label="switch language"
-              className="font-pixel text-[8px] sm:text-[10px] px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full border border-white/20 hover:border-white/60 transition-all hover:scale-105 animate-[floatBalloon_3.5s_ease-in-out_infinite]"
+              className="font-pixel text-[10px] sm:text-[13px] px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/20 hover:border-white/60 transition-all hover:scale-105 animate-[floatBalloon_3.5s_ease-in-out_infinite]"
               style={{
                 color: "#fff",
                 background: "linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.02))",
@@ -665,6 +659,15 @@ export default function HomePage() {
               )}
             </div>
           </div>
+        </div>
+
+        {/* さわって分かる「重ねると動く」。
+            ⚠️ **上のカード（作りはじめる導線）より下に置くこと。**
+               この製品の一番大事な仕組みを1回さわってもらうのが目的で、
+               先に置いて本題を押し下げると本末転倒になる。
+               素通りできる位置に置いて、触った人にだけ返す。 */}
+        <div className="w-full mt-10 mb-2">
+          <SnapCards locale={locale} />
         </div>
 
         {/* ★Java版(GROVE)デスクトップ版のダウンロード。
