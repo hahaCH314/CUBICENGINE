@@ -431,6 +431,19 @@ export default function HomePage() {
                   0%, 100% { transform: translateY(0px) rotate(0deg); }
                   50% { transform: translateY(-4px) rotate(2deg); }
                 }
+                /* 風船。糸で吊られているように、浮きながら左右へ傾く。
+                   上下と傾きの周期をずらすと"漂う"感じになる */
+                @keyframes balloonSway {
+                  0%, 100% { transform: translateY(0) rotate(-5deg); }
+                  25%      { transform: translateY(-7px) rotate(2deg); }
+                  50%      { transform: translateY(-3px) rotate(6deg); }
+                  75%      { transform: translateY(-9px) rotate(-1deg); }
+                }
+                /* 糸は風船より少し遅れて振れる */
+                @keyframes balloonString {
+                  0%, 100% { transform: rotate(4deg); }
+                  50%      { transform: rotate(-6deg); }
+                }
                 .btn-squishy-sprout {
                   border-radius: 26px;
                   background: linear-gradient(135deg, #4ade80, #16a34a);
@@ -492,18 +505,63 @@ export default function HomePage() {
             <span style={{ color: "#22d3ee", textShadow: "6px 6px 0px #0b2d3a, 12px 12px 0px rgba(0,0,0,0.25)" }}>ENGINE</span>
           </h1>
           <div className="absolute -right-6 sm:-right-12 bottom-1/2 translate-y-[30%] sm:translate-y-1/2">
+            {/* 言語切り替え。ただのボタンではなく**風船**にする。
+                ・丸みは border-radius を縦横で別々に指定して卵形にする
+                ・下に結び目と糸を垂らす（これが無いと「丸いボタン」にしか見えない）
+                ・浮遊に加えて左右へわずかに傾ける。糸で吊られている感じが出る
+                ⚠️ 糸と結び目は pointer-events-none。押せる場所は風船だけにする */}
             <button
               type="button"
               onClick={() => setLocale(locale === "ja" ? "en" : "ja")}
               aria-label="switch language"
-              className="font-pixel text-[10px] sm:text-[13px] px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/20 hover:border-white/60 transition-all hover:scale-105 animate-[floatBalloon_3.5s_ease-in-out_infinite]"
+              className="relative font-pixel text-[10px] sm:text-[13px] transition-transform hover:scale-110 active:scale-95 animate-[balloonSway_4.2s_ease-in-out_infinite]"
               style={{
+                width: 58,
+                height: 68,
+                // 上はまるく、下はすぼまる。風船の輪郭
+                borderRadius: "50% 50% 46% 46% / 56% 56% 44% 44%",
                 color: "#fff",
-                background: "linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.02))",
-                boxShadow: "0 4px 12px rgba(255,255,255,0.1), inset 0 2px 4px rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.5)",
-                textShadow: "none"
+                background:
+                  "radial-gradient(circle at 32% 26%, rgba(255,255,255,0.55), rgba(255,255,255,0.12) 38%, rgba(56,189,248,0.30) 62%, rgba(14,165,233,0.35) 100%)",
+                border: "1px solid rgba(255,255,255,0.35)",
+                boxShadow:
+                  "0 8px 22px rgba(0,0,0,0.45), inset 0 6px 12px rgba(255,255,255,0.35), inset 0 -10px 16px rgba(0,0,0,0.35)",
+                textShadow: "0 1px 2px rgba(0,0,0,0.5)",
               }}
             >
+              {/* 光の玉。ガラスっぽさはこれが一番効く */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute"
+                style={{
+                  left: 12, top: 10, width: 16, height: 11,
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,0.85)",
+                  filter: "blur(2px)",
+                  transform: "rotate(-18deg)",
+                }}
+              />
+              {/* 結び目 */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute left-1/2"
+                style={{
+                  bottom: -6, marginLeft: -5,
+                  width: 0, height: 0,
+                  borderLeft: "5px solid transparent",
+                  borderRight: "5px solid transparent",
+                  borderTop: "8px solid rgba(125,211,252,0.85)",
+                }}
+              />
+              {/* 糸。ゆらゆらさせる */}
+              <svg
+                aria-hidden
+                className="pointer-events-none absolute left-1/2 animate-[balloonString_4.2s_ease-in-out_infinite]"
+                style={{ bottom: -34, marginLeft: -9, overflow: "visible" }}
+                width="18" height="30" viewBox="0 0 18 30" fill="none"
+              >
+                <path d="M9 0 C 3 8, 15 15, 8 22 C 4 26, 10 28, 9 30" stroke="rgba(255,255,255,0.45)" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
               🌐 {t(locale, "lang.toggle")}
             </button>
           </div>
