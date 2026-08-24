@@ -7,6 +7,7 @@ import { t } from "../lib/i18n";
 import { Gem, Sparkles } from "lucide-react";
 import TutorialOverlay from "./editor/TutorialOverlay";
 import DraggableLogo from "./DraggableLogo";
+import LaserBlast from "./LaserBlast";
 import CubeParticles from "./CubeParticles";
 import ForestLineArt from "./ForestLineArt";
 
@@ -351,6 +352,8 @@ export default function HomePage() {
   const setLocale = useEditorStore((s) => s.setLocale);
   // 作り方ガイド（エディタと同じ TutorialOverlay を使い回す）
   const [showGuide, setShowGuide] = useState(false);
+  /** Java版をダウンロードした瞬間のお祝い。押した座標から光る */
+  const [blast, setBlast] = useState<{ x: number; y: number } | null>(null);
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden" style={{ 
       backgroundColor: "#0d1410",
@@ -474,7 +477,7 @@ export default function HomePage() {
                  タイトルと同じ箱に入れて、隣であることを保つ。
               ⚠️ スマホでは出さない。タイトルが小さくなるので、170pxのキューブが
                  隣に並ぶと文字を押しつぶす。 */}
-          <div className="hidden sm:block absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[92px] z-10">
+          <div className="hidden sm:block absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[130px] z-10">
             <DraggableLogo />
           </div>
           <h1
@@ -688,6 +691,8 @@ export default function HomePage() {
             <a
               href={DOWNLOADS.grove.win}
               download
+              // 押した場所から光が出る。ダウンロードは止めない（落ちながら上で光る）
+              onClick={(e) => setBlast({ x: e.clientX, y: e.clientY })}
               className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl font-bold text-[15px] transition-all hover:scale-[1.04] active:scale-95"
               style={{
                 background: "linear-gradient(135deg,#7dd3fc,#0ea5e9)",
@@ -1057,6 +1062,8 @@ export default function HomePage() {
 
       {/* 作り方ガイド（エディタと同じものを使い回す＝説明が2箇所に分かれない） */}
       {showGuide && <TutorialOverlay onClose={() => setShowGuide(false)} />}
+      {/* 宝箱を開けた瞬間のやつ。pointer-events:none なので何も邪魔しない */}
+      <LaserBlast origin={blast} onDone={() => setBlast(null)} />
     </div>
   );
 }
