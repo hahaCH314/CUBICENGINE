@@ -981,13 +981,24 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
     // 下のアセット生成はこの id を使う（名前から作り直すとズレる）。
     const blockPairs = pairCEBlocks(state.blocks ?? []);
     const itemPairs = pairCEItems(state.items ?? []);
-    const mobPairs = pairCEMobs(state.devMobs ?? []);
+    // 🧩 前提modモード＝GeckoLib で作った形をそのまま描く。
+    // ⚠️ ここが true のとき、下の3つは**必ず同時に**成立させること。
+    //      ① 設計図の各モブに render:"geo"
+    //      ② geo / animations / textures の同梱
+    //      ③ mods.toml に geckolib の依存
+    //    1つでも欠けると、MODは起動するのにモブが出ないか、
+    //    GeckoLib が無くて起動しない。マイクラは理由を言わない。
+    //    モブが1体も無いなら前提MODを要求する意味が無いので落とす
+    //    （遊ぶ人に無駄な準備をさせない）。
+    const useGeo = state.javaModMode === "prereq" && (state.devMobs?.length ?? 0) > 0;
+    const mobPairs = pairCEMobs(state.devMobs ?? [], useGeo);
     const { data: cubicData, warnings } = toCubicData(
       logicBlocks,
       state.projectName,
       state.blocks ?? [],
       state.items ?? [],
       state.devMobs ?? [],
+      useGeo,
     );
 
     // ⚠️ 変換できなかったカードは黙って消える。マイクラも何も言わないので、
@@ -1042,6 +1053,24 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
       `    versionRange="[1.20.1,1.21)"`,
       `    ordering="NONE"`,
       `    side="BOTH"`,
+      // ⚠️ GeckoLib は**前提modモードのときだけ**要求する。
+      //    同梱エンジンの mods.toml は常に mandatory で書いてあるが、
+      //    ここで上書きするので、ふつうモードの人に前提MODを強いずに済む。
+      //    エンジンの registerRenderers は ENTITIES が空なら中身を実行しないため、
+      //    geo モブが1体も無ければ GeckoLib のクラスは読み込まれない（javap で実測）。
+      //    ⚠️ 逆に、render:"geo" を出したのにこの依存を書き忘れると、
+      //       GeckoLib を入れていない人のマイクラが**起動時に落ちる**。
+      ...(useGeo
+        ? [
+            ``,
+            `[[dependencies.${modId}]]`,
+            `    modId="geckolib"`,
+            `    mandatory=true`,
+            `    versionRange="[4.8.4,)"`,
+            `    ordering="NONE"`,
+            `    side="BOTH"`,
+          ]
+        : []),
     ].join("\n"));
 
     // ブロック・アイテムのモデルとテクスチャの追加
@@ -1093,6 +1122,62 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
       zip.file(`assets/${modId}/textures/item/${inm}.png`, tex);
       // "モブ名 スポーンエッグ" などの名前にする
       langEntries[`item.${modId}.${inm}`] = `${ce.displayName} スポーンエッグ`;
+      // エンティティ自体の名前。geo モードでは体力バーなどに出る
+      langEntries[`entity.${modId}.${ce.id}`] = ce.displayName;
+    }
+
+    // 🧩 前提modモード：GeckoLib が読む3点を同梱する。
+    //
+    // ⚠️ **新しく作るのではなく、統合版に出しているものをそのまま入れる。**
+    //    lib/devtab/toBedrock.ts が出す geo は format_version 1.12.0、
+    //    animation は 1.8.0 で、GeckoLib が読むのはまさにこの Bedrock 形式。
+    //    ここで別の作り方をすると、統合版と Java版で形が食い違う元になる。
+    //
+    // ⚠️ パスはエンジンが決めている（CubicGeoModel を javap で実測）。
+    //    geo/<id>.geo.json / animations/<id>.animation.json /
+    //    textures/entity/<id>.png のどれか1つでも欠けると、
+    //    モブは登録されるのに描けない。マイクラは何も言わない。
+    if (useGeo) {
+      const { mobToBedrock } = await import("../../lib/devtab/toBedrock");
+      for (const { ce, src } of mobPairs) {
+        const out = mobToBedrock(src);
+        const files = [...(out.bp ?? []), ...(out.rp ?? [])];
+        const geo = files.find(f => f.path.endsWith(".geo.json"));
+        const anim = files.find(f => f.path.endsWith(".animation.json"));
+        // ⚠️ **中の名前も ce.id に揃える。**
+        //    統合版向けの出力は MobIR.id で識別子を作っている。日本語だけの名前だと
+        //    ファイル名（ce.id＝英数字に潰した値）と中身（"geometry.ドラゴン" 等）が
+        //    食い違い、パスは合っているのに中で解決できない状態になる。
+        //    今日ここで4回やられている形なので、書き込む直前に必ず揃える。
+        if (geo?.text) {
+          const g = JSON.parse(geo.text) as { "minecraft:geometry"?: { description?: { identifier?: string } }[] };
+          const desc = g["minecraft:geometry"]?.[0]?.description;
+          if (desc) desc.identifier = `geometry.${ce.id}`;
+          zip.file(`assets/${modId}/geo/${ce.id}.geo.json`, JSON.stringify(g, null, 2));
+        }
+        if (anim?.text) {
+          const a = JSON.parse(anim.text) as { animations?: Record<string, unknown> };
+          const renamed: Record<string, unknown> = {};
+          for (const [key, body] of Object.entries(a.animations ?? {})) {
+            // "animation.<もとのid>.<動きの名前>" の真ん中だけ差し替える
+            const short = key.split(".").pop() ?? key;
+            renamed[`animation.${ce.id}.${short}`] = body;
+          }
+          a.animations = renamed;
+          zip.file(`assets/${modId}/animations/${ce.id}.animation.json`, JSON.stringify(a, null, 2));
+        }
+
+        // テクスチャは取り込んだ画像そのもの。data URL から戻す。
+        // 無ければ紫黒になるので、そのときは色の四角で埋める（何も出ないよりまし）
+        const dataUrl = src.textures?.[0]?.dataUrl ?? "";
+        const b64 = dataUrl.includes(",") ? dataUrl.slice(dataUrl.indexOf(",") + 1) : "";
+        if (b64) {
+          zip.file(`assets/${modId}/textures/entity/${ce.id}.png`, b64, { base64: true });
+        } else {
+          const fallback = await createColoredTexture(src.behavior?.spawnEgg?.baseColor || "#ffffff");
+          zip.file(`assets/${modId}/textures/entity/${ce.id}.png`, fallback);
+        }
+      }
     }
 
     zip.file(`assets/${modId}/lang/en_us.json`, JSON.stringify(langEntries, null, 2));

@@ -42,14 +42,16 @@ export default function DeveloperPanel() {
    *   ふつう   … 前提MODなし。エンジン(base-mod.jar)だけで完結する。見た目はバニラのモブ。
    *   前提mod  … GeckoLib を入れてもらう代わりに、作った形とアニメーションがそのまま出る。
    *
-   * ⚠️ 前提mod は**まだ塞いである**。同梱エンジンに GeckoLib が入っていないため
-   *    （2026-08-24、.jar の全クラスを javap で見て該当ゼロを確認）。
-   *    ここを開けるのは、エンジン側が GeckoLib で描けるようになってから。
-   *    先に開けると「選べるのに何も変わらない」＝このプロジェクトで一番高くつく形になる。
-   *    開けるときは、この定数を false にして、exporter に geo/animation の
-   *    書き出しと mods.toml の GeckoLib 依存を足す（両方同時に）。 */
-  const PREREQ_LOCKED = true;
-  const [modMode, setModMode] = useState<"normal" | "prereq">("normal");
+   * 2026-08-24、エンジンが GeckoLib に対応した（spec 3）ので開けた。
+   * 実測: DynamicRegistry が render=="geo" で ENTITIES に登録し、
+   *       CubicGeoModel が geo/animations/textures を読む。
+   *
+   * ⚠️ 状態は store に置く。exporter がこれを見て
+   *    「設計図の render」「アセットの同梱」「mods.toml の GeckoLib 依存」を
+   *    まとめて切り替える。**画面の見た目だけ変えて出力が変わらない**のが
+   *    このプロジェクトで一番高くつく形なので、持ち場所を分けない。 */
+  const modMode = useEditorStore(s => s.javaModMode);
+  const setModMode = useEditorStore(s => s.setJavaModMode);
 
   // 取り込んだ直後に、下に出たモブの設定まで送る。
   // 取り込み画面は縦に大きいので、放っておくと結果が画面外のままになり
@@ -94,24 +96,19 @@ export default function DeveloperPanel() {
           <div className="text-[10px] font-bold text-muted/50 mb-1.5">どう作る？</div>
           <div className="flex gap-1">
             {([["normal", "🍃 ふつう"], ["prereq", "🧩 前提mod"]] as const).map(([k, label]) => {
-              const locked = k === "prereq" && PREREQ_LOCKED;
               const on = modMode === k;
               return (
                 <button
                   key={k}
-                  onClick={() => { if (!locked) setModMode(k); }}
-                  disabled={locked}
-                  title={locked ? "エンジンが GeckoLib に対応したら使えるようになります" : undefined}
+                  onClick={() => setModMode(k)}
                   className="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
                   style={
-                    locked
-                      ? { background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.25)", cursor: "not-allowed" }
-                      : on
-                        ? { background: "rgba(52,211,153,0.20)", color: "#a7f3d0" }
-                        : { background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.55)" }
+                    on
+                      ? { background: "rgba(52,211,153,0.20)", color: "#a7f3d0" }
+                      : { background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.55)" }
                   }
                 >
-                  {locked ? "🔒 " + label : label}
+                  {label}
                 </button>
               );
             })}
@@ -119,7 +116,12 @@ export default function DeveloperPanel() {
           {/* 2つの違いを、遊ぶ人が何を用意するかで書く。
               「GeckoLib対応」とだけ書いても、何が変わるのか伝わらない */}
           <div className="mt-2 grid grid-cols-2 gap-2 text-[10.5px] leading-relaxed">
-            <div className="rounded-lg p-2.5" style={{ background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.25)" }}>
+            <div
+              className="rounded-lg p-2.5"
+              style={modMode === "normal"
+                ? { background: "rgba(52,211,153,0.10)", border: "1px solid rgba(52,211,153,0.35)" }
+                : { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", opacity: 0.6 }}
+            >
               <div className="font-bold text-emerald-200">🍃 ふつう</div>
               <div className="text-muted/70 mt-0.5">
                 遊ぶ人は <b>Forge だけ</b>。<br />
@@ -127,15 +129,34 @@ export default function DeveloperPanel() {
                 強さ・名前・落とすものは反映。
               </div>
             </div>
-            <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)" }}>
-              <div className="font-bold text-muted/60">🧩 前提mod {PREREQ_LOCKED && <span className="text-[9px]">（準備中）</span>}</div>
-              <div className="text-muted/50 mt-0.5">
+            <div
+              className="rounded-lg p-2.5"
+              style={modMode === "prereq"
+                ? { background: "rgba(52,211,153,0.10)", border: "1px solid rgba(52,211,153,0.35)" }
+                : { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", opacity: 0.6 }}
+            >
+              <div className="font-bold text-emerald-200">🧩 前提mod</div>
+              <div className="text-muted/70 mt-0.5">
                 遊ぶ人は <b>Forge ＋ GeckoLib</b>。<br />
                 <b>作った形とアニメがそのまま出る。</b><br />
-                {PREREQ_LOCKED ? "エンジン側の対応待ちです。" : "入れてもらう手間が増えます。"}
+                入れてもらう手間が増えます。
               </div>
             </div>
           </div>
+          {/* ⚠️ 前提MODは**遊ぶ側**に手間を増やす選択。作った本人がそれを
+              分かっていないまま配ると、相手は「起動しない」としか言えない。 */}
+          {modMode === "prereq" && (
+            <div
+              className="mt-2 rounded-lg p-2.5 text-[10.5px] leading-relaxed"
+              style={{ background: "rgba(250,204,21,0.10)", border: "1px solid rgba(250,204,21,0.3)" }}
+            >
+              <b>遊ぶ人は GeckoLib を入れる必要があります。</b>
+              <span className="block text-muted/70 mt-0.5">
+                入れていない人は、マイクラが起動しません。作品を渡すときは
+                「GeckoLib も入れてね」と一緒に伝えてください。
+              </span>
+            </div>
+          )}
         </div>
       )}
 
@@ -187,7 +208,7 @@ export default function DeveloperPanel() {
         {/* ⚠️ Java版では取り込んだ形は反映されない（見た目はバニラのモブになる）。
             ModelImport はモブを作る入口も兼ねているので残すが、
             黙っていると「取り込んだのに違う見た目で出た」と思われるので先に伝える */}
-        {isJava && (
+        {isJava && modMode === "normal" && (
           <div
             className="mx-5 mt-3 rounded-lg p-3 text-[11px] leading-relaxed"
             style={{ background: "rgba(250,204,21,0.10)", border: "1px solid rgba(250,204,21,0.3)" }}
@@ -196,7 +217,7 @@ export default function DeveloperPanel() {
             <span className="block text-muted/70 mt-0.5">
               見た目はバニラのモブ（おとなしい＝村人／襲う＝ゾンビ）になります。
               強さ・名前・落とすものは設定どおりに反映されます。
-              形をそのまま出すには「🧩 前提mod」が要りますが、まだ準備中です。
+              形をそのまま出したいときは「🧩 前提mod」を選んでください。
             </span>
           </div>
         )}

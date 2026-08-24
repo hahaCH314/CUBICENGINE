@@ -248,7 +248,16 @@ export function toCEBlocks(blocks: readonly VoxelBlock[]): CEBlock[] {
   return pairCEBlocks(blocks).map(p => p.ce);
 }
 
-export function pairCEMobs(mobs: readonly MobIR[]): { ce: CEMob; src: MobIR }[] {
+export function pairCEMobs(
+  mobs: readonly MobIR[],
+  /**
+   * GeckoLib で作った形をそのまま描くか（＝前提modモード）。
+   * ⚠️ true にするなら、exporter が geo/animation/texture を同梱し、
+   *    mods.toml に geckolib の依存を書くこと。**3つで1組**。
+   *    片方だけだと、モブが出ないか、GeckoLib が無くて起動しない。
+   */
+  useGeo = false,
+): { ce: CEMob; src: MobIR }[] {
   const usedMobIds = new Set<string>();
   return mobs.map(m => {
     const b = m.behavior;
@@ -270,6 +279,9 @@ export function pairCEMobs(mobs: readonly MobIR[]): { ce: CEMob; src: MobIR }[] 
           min: Math.max(0, Math.round(d.min ?? 1)),
           max: Math.max(0, Math.round(d.max ?? 1)),
         })),
+        // 付けないときは**キーごと出さない**。エンジンは has("render") で見るので、
+        // "" や null を入れると「あるのに geo ではない」判定に落ちて分かりにくい
+        ...(useGeo ? { render: "geo" as const } : {}),
       },
     };
   });
@@ -278,12 +290,13 @@ export function pairCEMobs(mobs: readonly MobIR[]): { ce: CEMob; src: MobIR }[] 
 /**
  * デベロッパータブのモブ → 設計図。
  *
- * ⚠️ 3Dモデルは写せない。Forge のエンティティモデルは Java のコードで書くもので、
- *    JSON から動的に作れないため。土台にするバニラのモブを性格から選び、
- *    強さと名前だけを持たせる。形をそのまま出したい人は統合版を使う。
+ * ⚠️ 既定（ふつうモード）では**3Dモデルは写せない**。土台にするバニラのモブを
+ *    性格から選び、強さと名前だけを持たせる。
+ *    `useGeo` を立てると GeckoLib で作った形とアニメをそのまま描く（前提modモード）が、
+ *    そのときは**アセットの同梱と mods.toml の依存が必ず要る**。
  */
-export function toCEMobs(mobs: readonly MobIR[]): CEMob[] {
-  return pairCEMobs(mobs).map(p => p.ce);
+export function toCEMobs(mobs: readonly MobIR[], useGeo = false): CEMob[] {
+  return pairCEMobs(mobs, useGeo).map(p => p.ce);
 }
 
 /**
@@ -426,6 +439,8 @@ export function toCubicData(
   voxelBlocks: readonly VoxelBlock[] = [],
   voxelItems: readonly VoxelItem[] = [],
   devMobs: readonly MobIR[] = [],
+  /** 前提modモード（GeckoLib で作った形をそのまま描く）か */
+  useGeo = false,
 ): ConvertResult {
   const warnings: string[] = [];
   const rules: CERule[] = [];
@@ -443,10 +458,25 @@ export function toCubicData(
   //    強さと名前だけを載せている（pairCEMobs 参照）。
   //    作った子は自分が描いた姿が出ると思っているので、ここを黙っていると
   //    「ちゃんと作ったのに違うものが出た」になる。必ず先に伝える。
-  if (devMobs.length > 0) {
+  if (devMobs.length > 0 && !useGeo) {
     warnings.push(
       `モブ${devMobs.length}体は Java版では姿が変わります（おとなしい子は村人、襲う子はゾンビの姿になります。名前・強さ・落とすものはそのままです）`,
     );
+  }
+  if (devMobs.length > 0 && useGeo) {
+    // 前提modモードは**遊ぶ側に手間が増える**。作った本人が知らないまま
+    // 配ると、相手は「MODが起動しない」としか言えなくなる。必ず伝える。
+    warnings.push(
+      `この .jar を遊ぶには GeckoLib（前提MOD）が要ります。持っていない人はマイクラが起動しません`,
+    );
+    const noAnim = devMobs.filter(m => (m.animations ?? []).length === 0).length;
+    if (noAnim > 0) {
+      warnings.push(
+        `モブ${noAnim}体は動きが1つも入っていないので、その場で止まったままになります`,
+      );
+    }
+  }
+  if (devMobs.length > 0) {
     warnings.push(
       `モブを出すときは、クリエイティブの持ち物にある「（モブの名前） スポーンエッグ」を使ってください`,
     );
@@ -458,7 +488,7 @@ export function toCubicData(
       projectName,
       blocks: toCEBlocks(voxelBlocks),
       items: toCEItems(voxelItems),
-      mobs: toCEMobs(devMobs),
+      mobs: toCEMobs(devMobs, useGeo),
       rules,
     },
     warnings: [...new Set(warnings)],

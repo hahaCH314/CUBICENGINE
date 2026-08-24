@@ -103,6 +103,17 @@ export interface EditorState {
   projectName: string;
   projectDescription: string;
   targetPlatform: "bedrock" | "java";
+  /**
+   * Java版のモブの出し方。
+   *   normal … 前提MODなし。バニラのモブを土台にする（遊ぶ人は Forge だけ）
+   *   prereq … GeckoLib を前提に、作った形とアニメをそのまま出す
+   *
+   * ⚠️ exporter がここを見て、設計図の `render` と同梱アセット、
+   *    mods.toml の GeckoLib 依存を切り替える。**3つは必ず同時に変わること。**
+   *    片方だけになると、MODは起動するのにモブが出ない／
+   *    GeckoLib が無くて起動しない、のどちらかになる。
+   */
+  javaModMode: "normal" | "prereq";
   exportFormat: "mcaddon" | "mcpack" | "zip";
   /** メインのEXPORTボタンを押して解錠したか（設定画面の出力ゲート用） */
   exportArmed: boolean;
@@ -146,6 +157,7 @@ export interface EditorState {
   setProjectName: (n: string) => void;
   setProjectDescription: (d: string) => void;
   setTargetPlatform: (p: "bedrock" | "java") => void;
+  setJavaModMode: (m: "normal" | "prereq") => void;
   setExportFormat: (f: "mcaddon" | "mcpack" | "zip") => void;
   setExportArmed: (v: boolean) => void;
   setCompress: (v: boolean) => void;
@@ -224,6 +236,8 @@ export const useEditorStore = create<EditorState>((set) => ({
   projectName: "My Awesome Mod",
   projectDescription: "An amazing Minecraft mod",
   targetPlatform: "bedrock",
+  // 既定は「ふつう」。前提MODを要求するのは、利用者が選んだときだけにする
+  javaModMode: "normal",
   exportFormat: "mcaddon",
   exportArmed: false,
   compress: true,
@@ -318,6 +332,7 @@ export const useEditorStore = create<EditorState>((set) => ({
   setProjectName:       (n)  => set({ projectName: n }),
   setProjectDescription:(d)  => set({ projectDescription: d }),
   setTargetPlatform:    (p)  => set({ targetPlatform: p }),
+  setJavaModMode:       (m)  => set({ javaModMode: m }),
   setExportFormat:      (f)  => set({ exportFormat: f }),
   setExportArmed:       (v)  => set({ exportArmed: v }),
   setCompress:          (v)  => set({ compress: v }),

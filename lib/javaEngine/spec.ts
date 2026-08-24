@@ -32,7 +32,17 @@
  *    しかも mobs は無視される**状態になっていた（javap で実測して発覚）。
  *    いったん 1 に戻したあと、エンジン側の mobs 対応が入ってから 2 にした。
  *
- *    2026-08-23 時点で 2。同梱エンジンも 2 を期待している（実測で確認済み）:
+ *    2026-08-24 時点で 3。同梱エンジンも 3 を期待している（実測で確認済み）:
+ *      - ModEventHandler の spec 比較が iconst_3
+ *      - DynamicRegistry が "render" を読み、"geo" と一致したら ENTITIES に登録する
+ *      - CubicGeoModel が geo/<id>.geo.json / animations/<id>.animation.json /
+ *        textures/entity/<id>.png を読む
+ *      - 同梱 mods.toml は geckolib [4.8.4,) を mandatory で要求している。
+ *        ただし exporter が mods.toml を書き直すので **geo を使うときだけ**足す。
+ *        registerRenderers は ENTITIES が空なら中身を一度も実行しないので、
+ *        geo モブが無ければ GeckoLib は読み込まれない（実測）。
+ *
+ *    ※ 2 だったころの目印（参考）:
  *      - DynamicRegistry に "String mobs" と "_spawn_egg" がある
  *      - ModEventHandler の spec 比較が iconst_2
  *
@@ -42,7 +52,7 @@
  *      3) javap で、増やしたキーと spec の比較値の**両方**を確認
  *      4) そのうえで、ここを上げる
  */
-export const SPEC_VERSION = 2;
+export const SPEC_VERSION = 3;
 
 /** MOD の識別子。base-mod.jar の mods.toml と必ず一致させること */
 // ⚠️ この値は base-mod.jar の .class に焼かれている 30文字のプレースホルダ。
@@ -151,6 +161,23 @@ export interface CEMob {
   movementSpeed: number;
   /** 倒したときに落とすもの。空なら何も落とさない */
   drops: { item: string; min: number; max: number }[];
+  /**
+   * 描き方。spec 3 から。
+   *
+   * - 省略 … `base` のバニラのモブを出す（前提MODなし）
+   * - `"geo"` … **GeckoLib で、作った形とアニメーションをそのまま描く**
+   *
+   * ⚠️ `"geo"` を付けるなら、必ず次の3つを同時に satisfy すること。
+   *      1) `assets/<modId>/geo/<id>.geo.json`
+   *      2) `assets/<modId>/animations/<id>.animation.json`
+   *      3) `assets/<modId>/textures/entity/<id>.png`
+   *    さらに mods.toml に geckolib の依存が要る。
+   *    どれか1つでも欠けると、MODは起動するのにモブが出ない、
+   *    または GeckoLib が無くて起動しない。マイクラは理由を言わない。
+   *    （エンジン側の実測: DynamicRegistry が render=="geo" で
+   *      ENTITIES に登録し、CubicGeoModel が上の3パスを読む）
+   */
+  render?: "geo";
 }
 
 /** 設計図ぜんぶ。これが cubic_data.json になる */
