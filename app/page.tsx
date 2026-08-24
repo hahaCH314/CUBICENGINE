@@ -7,7 +7,6 @@ import { t } from "../lib/i18n";
 import { Gem, Sparkles } from "lucide-react";
 import TutorialOverlay from "./editor/TutorialOverlay";
 import DraggableLogo from "./DraggableLogo";
-import SnapCards from "./SnapCards";
 import CubeParticles from "./CubeParticles";
 import ForestLineArt from "./ForestLineArt";
 
@@ -366,7 +365,10 @@ export default function HomePage() {
       {/* Navigation（ログイン/新規登録は撤去・ローカル版） */}
       <nav className="shrink-0 h-14 z-50">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
-          <DraggableLogo />
+          {/* ロゴはタイトルの「C」の横へ移した（下の Hero を見る）。
+              ⚠️ ここを空のままにすると justify-between の相手が居なくなり、
+                 右側の歩く文字が左へ寄ってしまう。場所だけ残す */}
+          <div aria-hidden />
           <div className="flex items-center gap-3">
             <span className="opacity-0 animate-[cyberSlideUp_0.8s_cubic-bezier(0.1,0.9,0.2,1)_forwards]" style={{ animationDelay: "0.2s" }}>
               <div className="animate-[walkLeft_60s_linear_infinite]">
@@ -466,6 +468,15 @@ export default function HomePage() {
       {/* Hero（縦スクロール型：看板→カード→作者の声） */}
       <section className="flex-1 flex flex-col items-center justify-start px-6 pt-10 pb-16 text-center">
         <div className="relative inline-block mb-2">
+          {/* キューブはタイトルの「C」の横。
+              ⚠️ タイトルは中央そろえ、ナビは左端そろえなので、ナビに置いたままだと
+                 画面幅が変わるたびに「C の横」から離れていく。
+                 タイトルと同じ箱に入れて、隣であることを保つ。
+              ⚠️ スマホでは出さない。タイトルが小さくなるので、170pxのキューブが
+                 隣に並ぶと文字を押しつぶす。 */}
+          <div className="hidden sm:block absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[92px] z-10">
+            <DraggableLogo />
+          </div>
           <h1
             className="text-[clamp(1.2rem,7vw,3rem)] sm:text-6xl md:text-7xl font-pixel tracking-normal sm:tracking-wider animate-float-slow"
             style={{
@@ -659,15 +670,6 @@ export default function HomePage() {
               )}
             </div>
           </div>
-        </div>
-
-        {/* さわって分かる「重ねると動く」。
-            ⚠️ **上のカード（作りはじめる導線）より下に置くこと。**
-               この製品の一番大事な仕組みを1回さわってもらうのが目的で、
-               先に置いて本題を押し下げると本末転倒になる。
-               素通りできる位置に置いて、触った人にだけ返す。 */}
-        <div className="w-full mt-10 mb-2">
-          <SnapCards locale={locale} />
         </div>
 
         {/* ★Java版(GROVE)デスクトップ版のダウンロード。

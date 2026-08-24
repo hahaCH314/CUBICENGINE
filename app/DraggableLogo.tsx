@@ -13,6 +13,20 @@ import { useState, useRef, useEffect } from "react";
  */
 const LOGO_SIZE = 170;
 
+/**
+ * 定位置の見え方。ナビの枠からどれだけずらして、どれだけ傾けるか。
+ *
+ * ⚠️ 以前は lapAround（300秒で画面を一周しながら回る）の**途中の姿**が
+ *    たまたま良く見えていただけで、狙って置いた位置ではなかった。
+ *    自走をやめたら真上・真四角に戻って「位置が違う」ことになった。
+ *    だから、その見え方をここで**固定値として**持つ。
+ *
+ * ⚠️ 投げたあとの帰り先もこの値を使う。ここだけ直せば両方ズレない。
+ *    見た目を動かしたくなったら、この3つだけ触ること。
+ */
+const HOME_OFFSET = { x: 0, y: 0 };
+const HOME_ROTATE = -45;
+
 export default function DraggableLogo() {
   const [mode, setMode] = useState<"css" | "physics">("css");
   const [pos, setPos] = useState({ x: 0, y: 0 });
@@ -58,8 +72,8 @@ export default function DraggableLogo() {
     flash();
     if (rect) {
       const target = {
-        x: rect.left + rect.width / 2 - LOGO_SIZE / 2,
-        y: rect.top + rect.height / 2 - LOGO_SIZE / 2,
+        x: rect.left + rect.width / 2 - LOGO_SIZE / 2 + HOME_OFFSET.x,
+        y: rect.top + rect.height / 2 - LOGO_SIZE / 2 + HOME_OFFSET.y,
       };
       posRef.current = target;
       setPos(target);
@@ -222,7 +236,10 @@ export default function DraggableLogo() {
       //    触ると光って定位置へ帰るようになったので、**触っていないのに動いている**と
       //    「自分がやったこと」と「勝手に起きること」の区別が付かなくなる。
       //    定位置は帰る先でもあるので、動かないほうが帰り着いた感じも出る。
-      className="flex items-center group relative w-14 h-full justify-center mix-blend-screen opacity-95"
+      // ⚠️ 高さは h-full にしない。ナビ(h-14)の中に居たころの名残で、
+      //    別の場所に置くと高さ0になり、キューブが上端に寄ってしまう。
+      //    自分で大きさを持たせて、どこに置いても同じ見え方にする。
+      className="flex items-center group relative w-14 h-14 justify-center mix-blend-screen opacity-95"
     >
       <div
         ref={logoRef}
@@ -243,8 +260,9 @@ export default function DraggableLogo() {
                 left: pos.x,
                 top: pos.y,
                 // ドラッグ中は回転しないが、投げた後は速度に応じて回るようにする
-                // 帰っている間は回さない。ぐるぐる回りながら吸い込まれると酔う
-                transform: returning ? "none" : `rotate(${pos.x}deg)`,
+                // 帰っている間は回さない。ぐるぐる回りながら吸い込まれると酔う。
+                // 帰り着いたときの角度は定位置と揃える（着いた瞬間にカクッと回らないように）
+                transform: returning ? `rotate(${HOME_ROTATE}deg)` : `rotate(${pos.x}deg)`,
                 zIndex: 9999,
                 touchAction: "none",
                 // 帰り道だけ transition を掛ける。物理中に掛けると動きが遅れる
@@ -261,8 +279,11 @@ export default function DraggableLogo() {
             : {
                 width: LOGO_SIZE,
                 height: LOGO_SIZE,
-                // css モードの位置合わせは className の -translate が持っている。
-                // ここで transform を書くと打ち消してしまうので書かない
+                // ⚠️ ずらしは left/top でやる。ここで transform を書くと
+                //    className の -translate（中央合わせ）と hover:scale-110 を
+                //    まるごと打ち消してしまう。傾きは中の img に掛ける。
+                left: `calc(50% + ${HOME_OFFSET.x}px)`,
+                top: `calc(50% + ${HOME_OFFSET.y}px)`,
               }
         }
       >
@@ -270,6 +291,9 @@ export default function DraggableLogo() {
           src="/studio-logo.jpg"
           alt="CUBICENGINEstudio"
           className="w-full h-full object-contain pointer-events-none"
+          // 定位置のときだけ傾ける。物理モードの回転は外側の div が持っているので、
+          // ここでも回すと二重に掛かってしまう
+          style={mode === "css" ? { transform: `rotate(${HOME_ROTATE}deg)` } : undefined}
         />
       </div>
     </a>
