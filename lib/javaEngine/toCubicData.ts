@@ -469,10 +469,26 @@ export function toCubicData(
     warnings.push(
       `この .jar を遊ぶには GeckoLib（前提MOD）が要ります。持っていない人はマイクラが起動しません`,
     );
-    const noAnim = devMobs.filter(m => (m.animations ?? []).length === 0).length;
-    if (noAnim > 0) {
+    // ⚠️ エンジンが再生するのは "walk" と "idle" の2つだけ（実測: CubicGeoEntity が
+    //    animation.<id>.walk / animation.<id>.idle を組み立てている）。
+    //    Blockbench では動きに好きな名前を付けられるので、"aruku" のような名前だと
+    //    **書き出しは成功するのに、ゲームでは棒立ち**になる。
+    //    マイクラもブラウザも何も言わないので、ここで必ず伝える。
+    const PLAYABLE = ["walk", "idle"];
+    const noAnim = devMobs.filter(m => (m.animations ?? []).length === 0);
+    const wrongName = devMobs.filter(
+      m => (m.animations ?? []).length > 0 &&
+        !(m.animations ?? []).some(a => PLAYABLE.includes(a.name)),
+    );
+    if (noAnim.length > 0) {
       warnings.push(
-        `モブ${noAnim}体は動きが1つも入っていないので、その場で止まったままになります`,
+        `モブ${noAnim.length}体は動きが1つも入っていないので、その場で止まったままになります`,
+      );
+    }
+    if (wrongName.length > 0) {
+      warnings.push(
+        `${wrongName.map(m => `「${m.displayName || m.id}」`).join("・")}の動きは再生されません。` +
+        `Java版で動かせる名前は walk と idle だけです（Blockbench で名前を変えてください）`,
       );
     }
   }

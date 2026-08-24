@@ -155,6 +155,11 @@ export default function DeveloperPanel() {
                 入れていない人は、マイクラが起動しません。作品を渡すときは
                 「GeckoLib も入れてね」と一緒に伝えてください。
               </span>
+              {/* 先に言わないと、動きを作り込んでから「再生されない」と分かることになる */}
+              <span className="block text-muted/70 mt-1.5">
+                <b>動きの名前は <code>walk</code> と <code>idle</code> だけ</b>が再生されます。
+                Blockbench で別の名前を付けていると、書き出せてもゲームでは棒立ちになります。
+              </span>
             </div>
           )}
         </div>
