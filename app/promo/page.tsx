@@ -8,6 +8,7 @@
    ══════════════════════════════════════════════════════════ */
 
 import { useEffect, useState } from "react";
+import { IS_STORE_BUILD } from "../../lib/build";
 
 type Scene = { id: string; start: number; caption: string };
 const SCENES: Scene[] = [
@@ -39,6 +40,12 @@ export default function PromoPage() {
   const idx = SCENES.reduce((acc, s, i) => (t >= s.start ? i : acc), 0);
   const scene = SCENES[idx];
   const key = `${scene.id}-${loop}`;
+
+  // ⚠️ アプリ版(App Store / Google Play)では中身を出力しない（IS_STORE_BUILD）。
+  //    ここは宣伝動画を録画するための開発者用の画面で、アプリのどこからもリンクしていない。
+  //    アプリにはURL欄が無いので利用者は開けない＝「同梱されているが到達できない画面」になり、
+  //    5.6（隠し機能）の指摘材料になる。フックの後ろで返すこと（フックは必ず毎回呼ぶ）。
+  if (IS_STORE_BUILD) return null;
 
   return (
     <div style={{

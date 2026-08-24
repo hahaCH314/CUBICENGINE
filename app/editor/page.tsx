@@ -6,15 +6,23 @@ import dynamic from "next/dynamic";
 import { useEditorStore } from "./store";
 import { exportProject, buildJavaFileList } from "./exporter";
 import { McButton } from "../_mc";
+import { IS_STORE_BUILD } from "../../lib/build";
 
 // Electron 環境でのチャンクロード失敗を防ぐため静的インポートに変更
 import LogicPanel  from "./LogicPanel";
 import GrapePanel  from "./GrapePanel";
-import LaunchPanel from "./LaunchPanel";
+// ⚠️ LaunchPanel（Minecraft検出 → .jar導入 → ランチャー起動）の import は外した。
+//    tabConfig に "launcher" が無く setActiveTab("launcher") もどこにも無いため、
+//    **どのビルドからも開けないタブ**だった（Electron側もタブ指定はしていない）。
+//    それでも静的importのせいでモジュールごとバンドルに入り、アプリ版のJSに
+//    .minecraft / gradlew / ランチャー起動のコードが残っていた。
+//    「到達できないのに同梱されている機能」は App Store 5.6 の指摘材料になるので外す。
+//    ファイル自体は app/editor/LaunchPanel.tsx に残してある。デスクトップ版で使うときは
+//    tabConfig にタブを足して、ここで import し直すこと。
 const ModelPanel   = dynamic(() => import("./ModelPanel"),   { ssr: false });  // Three.js は SSR 不可のため dynamic 維持
 
 /* ─── Types ─── */
-type Tab = "logic" | "model" | "developer" | "settings" | "launcher";
+type Tab = "logic" | "model" | "developer" | "settings";
 type MenuKey = "file" | "edit" | "view";
 
 interface MenuItem {
@@ -307,7 +315,12 @@ export default function EditorPage() {
     const hasElectronApi = !!(window as any).electronAPI?.isElectron;
     setIsElectron(hasElectronApi);
 
-    const mode = new URLSearchParams(window.location.search).get("mode");
+    // ⚠️ アプリ版(App Store / Google Play)では ?mode を一切見ない（IS_STORE_BUILD）。
+    //    「URLパラメータを付けると別のエディタに切り替わる」＝条件次第で現れる機能そのもので、
+    //    App Store 5.6（隠し機能）で指摘される形。アプリには常に統合版(bedrock)だけを出す。
+    const mode = IS_STORE_BUILD
+      ? null
+      : new URLSearchParams(window.location.search).get("mode");
     // GROVE(Java)解禁(2026-07-02)。?mode=grape で web GROVE エディタを開けるようにした。
     // プラットフォームもモード連動：grape=java / それ以外(tsumiki・無指定)=bedrock。
     // （SettingsPanel側の「常にbedrockへ戻す」旧処理はこれに一本化して撤去）
@@ -479,7 +492,13 @@ export default function EditorPage() {
       {/* 作り方はスタート画面で選択済み（?mode）。editor内の切替トグルは撤去。 */}
       <div className="flex-1 overflow-hidden relative" style={{ display: activeTab === "logic" ? "block" : "none" }}>
         <div style={{ position: "absolute", inset: 0, display: logicView === "tsumiki" ? "block" : "none" }}><LogicPanel onExportReady={() => setActiveTab("settings")} /></div>
-        <div style={{ position: "absolute", inset: 0, display: logicView === "grape" ? "block" : "none" }}><GrapePanel /></div>
+        {/* ⚠️ GROVE(Java)のエディタ。アプリ版では **DOMに置かない**（IS_STORE_BUILD）。
+            開く手段は下の ?mode=grape だけで、アプリにはURL欄が無いので永久に表示されない。
+            それでも display:none で置いておくと「隠された画面」がHTMLに残ることになり、
+            5.6 の指摘をなぞってしまう。Java版MODはそもそも iOS/Android では作れない。 */}
+        {!IS_STORE_BUILD && (
+          <div style={{ position: "absolute", inset: 0, display: logicView === "grape" ? "block" : "none" }}><GrapePanel /></div>
+        )}
       </div>
       <div className="flex-1 overflow-hidden relative" style={{ display: activeTab === "model" ? "block" : "none" }}>
         <ModelPanel />
@@ -495,12 +514,8 @@ export default function EditorPage() {
       <div className="flex-1 overflow-hidden relative" style={{ display: activeTab === "settings" ? "block" : "none" }}>
         <SettingsPanel />
       </div>
-      {/* ランチャーはタブ選択時のみマウント（エディターページへの干渉を防ぐ） */}
-      {activeTab === "launcher" && (
-        <div className="flex-1 overflow-hidden" style={{ display: "flex", flexDirection: "column" }}>
-          <LaunchPanel />
-        </div>
-      )}
+      {/* ランチャータブ（LaunchPanel）の描画はここにあったが、開く手段が無いまま
+          バンドルにだけ残っていたので撤去した。理由と復活のさせ方は冒頭の import 側に書いてある。 */}
 
       {/* ─ Status Bar ─ */}
       <div className="hidden sm:block">

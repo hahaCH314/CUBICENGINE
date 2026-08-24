@@ -1,5 +1,17 @@
 "use client";
 
+/* ⚠️ このパネルは現在どこからも開けない（2026-08-25 に app/editor/page.tsx の import を外した）。
+   中身は Minecraft を検出 → .jar をビルドして mods へ導入 → ランチャーを起動する
+   **Electron(デスクトップ版)専用**の機能。もともと tabConfig にタブが無く到達不能だったが、
+   静的importのせいでアプリ版(App Store / Google Play)のJSにまで同梱されていた。
+   「開けないのに入っている機能」は App Store ガイドライン 5.6 の指摘材料になるため外した。
+
+   デスクトップ版で使うときは、app/editor/page.tsx で
+     ・Tab 型に "launcher" を戻す
+     ・tabConfig にタブを足す（＝実際に開ける導線を作る）
+     ・この LaunchPanel を import して描画する
+   の3つをまとめて行うこと。導線を作らずに import だけ戻すと同じ状態に戻る。 */
+
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useEditorStore } from "./store";
 import { buildJavaFileList } from "./exporter";

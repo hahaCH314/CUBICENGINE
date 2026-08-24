@@ -1,13 +1,24 @@
 import type { Metadata } from "next";
+import { IS_STORE_BUILD } from "../../lib/build";
 
-export const metadata: Metadata = {
-  title: "メンテナンス中",
-  robots: { index: false, follow: false },
-};
+// アプリ版では本文を出さないので、タイトルも「メンテナンス中」にしない。
+// <title> だけ残ると、バイナリを検索したときに実体の無い画面があるように見える。
+export const metadata: Metadata = IS_STORE_BUILD
+  ? { title: "CUBICENGINE", robots: { index: false, follow: false } }
+  : {
+      title: "メンテナンス中",
+      robots: { index: false, follow: false },
+    };
 
 // メンテナンス画面。proxy.ts が MAINTENANCE_MODE=true の間、全ページをここへ振り替える。
 // 外部画像なし＝プライバシー/軽量方針を維持（CSSのみ）。
 export default function MaintenancePage() {
+  // ⚠️ アプリ版(App Store / Google Play)では中身を出力しない（IS_STORE_BUILD）。
+  //    振り替えを行う proxy.ts はサーバー側の仕組みで、端末内で完結するアプリ版には
+  //    そもそも効かない。にもかかわらず「メンテナンス中」の画面が同梱されていると、
+  //    **外部から表示を差し替えられるアプリ**に見える（5.6 の疑いを補強してしまう）。
+  if (IS_STORE_BUILD) return null;
+
   return (
     <main
       style={{

@@ -221,6 +221,14 @@ function EnLines({ text }: { text: string }) {
 }
 
 // ⬇ デスクトップ版のDL先。ビルド&ホスト後にURLを差し替える(BUILD_EXE_PLAN.md)。
+// ⚠️ lib/build.ts の IS_STORE_BUILD をそのまま import すると、値は正しく true になるが
+//    **バンドラがモジュール跨ぎの定数畳み込みをしてくれず、消したはずのJSXが
+//    死んだ分岐としてJSチャンクに残る**（＝ko-fi や .exe のURL文字列がアプリのバイナリに
+//    残り、strings で拾える）。5.6 で不正を疑われている状況では、それ自体が material になる。
+//    このファイルだけは process.env を直に書いて、同一モジュール内で `!1 && (...)` まで
+//    畳み込ませ、分岐ごと消えるようにする。意味は lib/build.ts の IS_STORE_BUILD と同じ。
+const IS_STORE_BUILD = process.env.NEXT_PUBLIC_MMC_STORE === "1";
+
 const DOWNLOADS = {
   sprout: {
     win: "https://github.com/hahaCH314/CUBICENGINE/releases/latest/download/SPROUT_editor.exe",
@@ -475,12 +483,18 @@ export default function HomePage() {
           </div>
 
           {/* GROVE Card */}
-          {/* ⚠️ スマホでは出さない（hidden md:flex）。
-              Java版は「準備中」の告知しか出せない状態で、スマホでは縦に積まれるため
-              統合版カードの真下に居座り、本題（さっそく作る）の後ろに
-              まだ使えないものを読ませることになる。
-              スマホから来た人は統合版(.mcaddon)の利用者なので、Java版は
-              そもそも関係がない。パソコンでは横に並ぶので今までどおり出す。 */}
+          {/* ⚠️ アプリ版(App Store / Google Play)では **出力しない**（IS_STORE_BUILD）。
+              このカードの中身は「パソコン版(.exe/.dmg)のDL」と「?mode=grape のJavaエディタ」で、
+              どちらも iOS/Android では使えないうえ、App Store 外のソフト配布に当たる。
+
+              ⚠️ かつては `hidden md:flex` で「スマホには出さない」ことにしていたが、
+                 md = 768px なので **iPhone を横向きにすると出てきていた**（iPhone 15 = 844pt）。
+                 HTMLには残っているので、審査からは「条件を満たすと現れる隠し機能」に見える。
+                 これが 2026-08-22 の App Store ガイドライン 5.6 リジェクトの主因。
+                 → CSSで隠すのではなく、条件レンダリングでDOMごと消すこと。詳細は lib/build.ts。
+
+              Web版では従来どおり出す（スマホ幅では引き続き隠す＝リンク先がPC専用のため）。 */}
+          {!IS_STORE_BUILD && (
           <div
             style={{
               maxWidth: "320px",
@@ -576,6 +590,7 @@ export default function HomePage() {
               )}
             </div>
           </div>
+          )}
         </div>
 
         {/* ★Java版(GROVE)デスクトップ版のダウンロード。
@@ -583,13 +598,17 @@ export default function HomePage() {
             そこだけはデスクトップ版が必要になるので、トップから直接落とせるようにする。
             ※フラグは版ごとに分けている。統合版の .exe はまだ公開していないので、
               共通フラグにすると存在しないファイルへのリンクが出て404になる。 */}
-        {/* ⚠️ スマホでは出さない（hidden md:flex）。
-            Java版のMODはパソコンでしか作れないので、スマホの人には
-            **押せてしまうこと自体が害**になる。171MBのWindows用インストーラを
-            落とさせても、その端末では絶対に使えない。
-            上の Java版カードは既に隠してあるが、この配布セクションは別物なので
-            片方だけ隠しても意味がない（実際にスマホから見えていた）。 */}
-        {GROVE_EXE_READY && (
+        {/* ⚠️ アプリ版(App Store / Google Play)では **出力しない**（IS_STORE_BUILD）。
+            App Store 外のソフト(Windows用インストーラ)を配る導線そのものなので、
+            アプリに入っていること自体が審査上のリスクになる。
+
+            ⚠️ Web版では従来どおり `hidden md:flex` でスマホには出さない。
+               Java版のMODはパソコンでしか作れないので、スマホの人には
+               **押せてしまうこと自体が害**になる（171MBのインストーラを落としても使えない）。
+               ただし CSS で隠すのは「見えない」だけでHTMLには残る。
+               アプリ版で同じ手を使ったのが 5.6 リジェクトの主因なので、
+               アプリ版は必ず条件レンダリング側で消すこと。詳細は lib/build.ts。 */}
+        {GROVE_EXE_READY && !IS_STORE_BUILD && (
           <div className="hidden md:flex w-full flex-col items-center gap-2 mt-10 mb-2 px-4">
             <a
               href={DOWNLOADS.grove.win}
@@ -778,6 +797,11 @@ export default function HomePage() {
             </div>
 
             {/* 寄付ボタン */}
+            {/* ⚠️ アプリ版(App Store / Google Play)では **出力しない**（IS_STORE_BUILD）。
+                アプリ内から外部の決済ページ(Ko-fi)へ誘導することになり、
+                App Store のガイドライン 3.1.1 に触れる。5.6 の指摘とあわせて塞ぐ。
+                応援してくれる人へのお願いは、アプリ内では行わない方針。詳細は lib/build.ts。 */}
+            {!IS_STORE_BUILD && (
             <div className="mt-auto pt-4 border-t border-white/5">
               <a
                 href="https://ko-fi.com/ihafam"
@@ -795,6 +819,7 @@ export default function HomePage() {
                 {t(locale, "support.note")}
               </p>
             </div>
+            )}
           </div>
 
           {/* 右カード：作者紹介（コンパクトに写真＋自己紹介） */}

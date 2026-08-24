@@ -20,11 +20,12 @@
     "build:all:win": "npm run build:sprout:win && npm run build:grove:win",
     "build:all:mac": "npm run build:sprout:mac && npm run build:grove:mac",
     "build:all": "npm run build:all:win && npm run build:all:mac",
-    "android:build": "cross-env MMC_TARGET=android next build && cap sync android",
+    "verify:store": "node scripts/verify-store-build.mjs",
+    "android:build": "cross-env MMC_TARGET=android NEXT_PUBLIC_MMC_STORE=1 next build && npm run verify:store && cap sync android",
     "android:apk": "npm run android:build && cd android && gradlew.bat assembleDebug",
     "android:aab": "npm run android:build && cd android && gradlew.bat bundleRelease",
     "android:open": "cap open android",
-    "ios:build": "cross-env MMC_TARGET=android next build && cap sync ios",
+    "ios:build": "cross-env MMC_TARGET=android NEXT_PUBLIC_MMC_STORE=1 next build && npm run verify:store && cap sync ios",
     "ios:open": "cap open ios"
   },
   "dependencies": {
