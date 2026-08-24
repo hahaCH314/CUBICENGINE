@@ -4,7 +4,7 @@ CUBICENGINE は以下のオープンソースソフトウェアを利用して�
 
 This product (**CUBICENGINE**) includes the third-party open-source software listed below. Each component remains the property of its respective owners and is distributed under its own license.
 
-> このファイルは `node scripts/gen-notices.mjs` で自動生成されています（最終生成: 2026-08-23）。
+> このファイルは `node scripts/gen-notices.mjs` で自動生成されています（最終生成: 2026-08-24）。
 > 本番依存(dependencies)のみを対象。実際の配布物にはこれらの推移的依存も含まれ、いずれも各OSSライセンスに従います。
 
 ## 一覧 / Summary
