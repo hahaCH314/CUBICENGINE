@@ -14,6 +14,7 @@ import { CAT, CAT_WORKSHOP } from "../../data/categories";
 import { TEMPLATES, CALC_SUBTABS, getCalcSubCat } from "../../data/templates";
 import { PRESET_TEMPLATES, type PresetTemplate } from "../../lib/presetTemplates";
 import { isCapacitor } from "../../lib/platform";
+import { playThemeSong } from "../../lib/themeSong";
 import { saveViaCapacitor } from "./exporter";
 import HowToInstallModal from "./HowToInstallModal";
 import TutorialOverlay from "./TutorialOverlay";
@@ -4466,7 +4467,10 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               {!isMobile && (
                 <button disabled={!isLogicValid}
                   onClick={() => {
+                    // ⚠️ playThemeSong() は必ずこの中（押した瞬間）で呼ぶこと。
+                    //    await のあとに回すと iOS が「操作の中」と認めず無音になる。
                     playSuccessSound();
+                    playThemeSong();
                     setTriggerConfetti(true);
                     setShowInstallGuide(true);
                     const lines = (genCode || "// まず きっかけ カードを置いて繋げよう").split("\n");
@@ -4498,6 +4502,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               <button disabled={!isLogicValid}
                 onClick={() => {
                   playSuccessSound();
+                  playThemeSong(); // ⚠️ 押した瞬間に呼ぶ（iOSの自動再生ブロック回避）
                   const lines = (genCode || "// まず きっかけ カードを置いて繋げよう").split("\n");
                   setReveal(lines);
                   setExportArmed(true);
@@ -5285,6 +5290,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               disabled={!isLogicValid}
               onClick={() => {
                 playSuccessSound();
+                playThemeSong(); // ⚠️ 押した瞬間に呼ぶ（iOSの自動再生ブロック回避）
                 const lines = (genCode || "// まず きっかけ カードを置いて繋げよう").split("\n");
                 setReveal(lines);          // ← お祝い演出(実際のコードを見る瞬間)は必ず通す
                 setExportArmed(true);      // ← このボタンを押して初めて設定画面の書き出しを解錠

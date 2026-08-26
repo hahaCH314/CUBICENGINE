@@ -7,6 +7,7 @@ import { useEditorStore } from "./store";
 import { exportProject, buildJavaFileList } from "./exporter";
 import { McButton } from "../_mc";
 import { IS_STORE_BUILD } from "../../lib/build";
+import ThemeSongControl from "./ThemeSongControl";
 
 // Electron 環境でのチャンクロード失敗を防ぐため静的インポートに変更
 import LogicPanel  from "./LogicPanel";
@@ -516,6 +517,9 @@ export default function EditorPage() {
       </div>
       {/* ランチャータブ（LaunchPanel）の描画はここにあったが、開く手段が無いまま
           バンドルにだけ残っていたので撤去した。理由と復活のさせ方は冒頭の import 側に書いてある。 */}
+
+      {/* テーマ曲が鳴っている間だけ出る「とめる」ボタン。完成の演出より上に重なる */}
+      <ThemeSongControl />
 
       {/* ─ Status Bar ─ */}
       <div className="hidden sm:block">
