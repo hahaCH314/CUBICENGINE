@@ -195,6 +195,11 @@ export default function GuidePage() {
           <li>Windows … <code className="font-mono">%appdata%\.minecraft\mods</code></li>
           <li>Mac … <code className="font-mono">~/Library/Application Support/minecraft/mods</code></li>
           <li>そのあとランチャーで遊び方を「forge」にして起動します。</li>
+          <li>
+            <strong className="text-foreground">ファイル名は日本語に変えないでください。</strong>
+            「まほうのMOD.jar」のようにすると、マイクラが起動しなくなります
+            （Forge がファイル名から内部の名前を作るためです）。変えるなら英語と数字だけで。
+          </li>
         </ul>
 
         <H2>作ったものを友達に見せる</H2>

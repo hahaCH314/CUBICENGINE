@@ -231,6 +231,16 @@ export default function HowToInstallModal({ isOpen, onClose, projectName = "my_a
                   <span className="block mt-1 text-orange-300/90">
                     ⚠️ 開いたり、展開（解凍）したりしないこと。ファイルのまま置きます。
                   </span>
+                  {/* ⚠️ 実際に踏んだ落とし穴（2026-08-30）。Forge は .jar のファイル名から
+                      Java のモジュール名を作るので、日本語が入っていると名前が空になり
+                      「Invalid module name」で**MOD読み込みより前に落ちる**。
+                      出るのは意味不明な英語のエラーだけで、利用者には
+                      「MODを入れたらマイクラが壊れた」としか見えない。 */}
+                  <span className="block mt-1 text-orange-300/90">
+                    ⚠️ <b className="text-yellow-300">名前を日本語に変えないでください。</b>
+                    「まほうのMOD.jar」のようにすると、マイクラが起動しなくなります。
+                    変えたいときは英語と数字だけで。
+                  </span>
                 </Step>
                 <Step n={4} title="Forge で起動する！" java>
                   マイクラのランチャーで、遊び方（プロファイル）を
