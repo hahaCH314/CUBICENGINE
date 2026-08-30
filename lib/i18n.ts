@@ -21,7 +21,7 @@ export const DICT: Record<string, Entry> = {
   // ── ランディング（app/page.tsx）──
   "nav.edition":      { ja: "LOCAL EDITION", en: "LOCAL EDITION" },
   "hero.sub":         { ja: "MINECRAFT アドオン MOD", en: "MINECRAFT Add-on & Mod" },
-  "hero.tagline":     { ja: "新しいビジュアルプログラミング言語で作ろう！！", en: "Let's build with a new visual programming language!!" },
+  "hero.tagline":     { ja: "コードを書かずに、あなたのマイクラを創ろう。", en: "Create your own Minecraft — no code required." },
   "hero.desc1":       { ja: "作るって、こんなに楽しい。", en: "Making things is this much fun." },
   "hero.desc2":       { ja: "君のアイデアを、マイクラに。", en: "Bring your idea into Minecraft." },
   // ── 作者の声（トップの心臓・[[founder_origin_natto_cider]]）本人の言葉。飾らずそのまま ──
