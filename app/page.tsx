@@ -21,7 +21,7 @@ function W({ children }: { children: React.ReactNode }) {
 // 紹介動画。ブロッカー等でYouTube埋め込みが出ない時でも"空箱"にならないよう、
 // まずブランドの表紙を出し、クリックで初めてiframeを読み込む（プライバシー/表示速度も◎）。
 // うまく出ない環境向けに「YouTubeで見る」外部リンクも添える。
-const INTRO_VIDEO_ID = "qk6wVNlZtoo";
+const INTRO_VIDEO_ID = "6Hou_YDQPm4";
 function IntroVideo() {
   // 表紙は「自己ホストの動画非依存カバー」＝CSSのみで組み、外部画像を持たない。
   //  ・表示時の第三者通信ゼロ（プライバシーポリシーと整合）
