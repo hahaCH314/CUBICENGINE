@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { DEFAULT_LOCALE, type Locale } from "../../lib/i18n";
 import type { MobIR } from "../../lib/devtab/ir";
 import type { ItemIR } from "../../lib/devtab/itemIr";
+import { DEFAULT_JAVA_TARGET, type JavaTargetId } from "../../lib/javaEngine/targets";
 
 /** ロケール初期値: localStorage(mmc_locale) があれば復元、無ければ既定(ja) */
 function initLocale(): Locale {
@@ -114,6 +115,12 @@ export interface EditorState {
    *    GeckoLib が無くて起動しない、のどちらかになる。
    */
   javaModMode: "normal" | "prereq";
+  /**
+   * Java版の出し先（どのローダー・どのマイクラ向けに書き出すか）。
+   * 実際の値は lib/javaEngine/targets.ts の表が持つ。ここは選んだ id だけ。
+   * ⚠️ 表に無い／まだ遊べない id が入っていても、getJavaTarget が既定へ落とす。
+   */
+  javaTarget: JavaTargetId;
   exportFormat: "mcaddon" | "mcpack" | "zip";
   /** メインのEXPORTボタンを押して解錠したか（設定画面の出力ゲート用） */
   exportArmed: boolean;
@@ -158,6 +165,7 @@ export interface EditorState {
   setProjectDescription: (d: string) => void;
   setTargetPlatform: (p: "bedrock" | "java") => void;
   setJavaModMode: (m: "normal" | "prereq") => void;
+  setJavaTarget: (t: JavaTargetId) => void;
   setExportFormat: (f: "mcaddon" | "mcpack" | "zip") => void;
   setExportArmed: (v: boolean) => void;
   setCompress: (v: boolean) => void;
@@ -238,6 +246,7 @@ export const useEditorStore = create<EditorState>((set) => ({
   targetPlatform: "bedrock",
   // 既定は「ふつう」。前提MODを要求するのは、利用者が選んだときだけにする
   javaModMode: "normal",
+  javaTarget: DEFAULT_JAVA_TARGET,
   exportFormat: "mcaddon",
   exportArmed: false,
   compress: true,
@@ -333,6 +342,7 @@ export const useEditorStore = create<EditorState>((set) => ({
   setProjectDescription:(d)  => set({ projectDescription: d }),
   setTargetPlatform:    (p)  => set({ targetPlatform: p }),
   setJavaModMode:       (m)  => set({ javaModMode: m }),
+  setJavaTarget:        (t)  => set({ javaTarget: t }),
   setExportFormat:      (f)  => set({ exportFormat: f }),
   setExportArmed:       (v)  => set({ exportArmed: v }),
   setCompress:          (v)  => set({ compress: v }),

@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useEditorStore } from "./store";
+import { JAVA_TARGET_LIST, getJavaTarget } from "../../lib/javaEngine/targets";
 import { exportProject, buildJavaFileList } from "./exporter";
 
 /* ═══════════════════════════════════════════
@@ -315,6 +316,8 @@ export default function SettingsPanel() {
   const projectDescription = useEditorStore((s) => s.projectDescription);
   const setProjectDescription = useEditorStore((s) => s.setProjectDescription);
   const targetPlatform = useEditorStore((s) => s.targetPlatform);
+  const javaTarget = useEditorStore((s) => s.javaTarget);
+  const setJavaTarget = useEditorStore((s) => s.setJavaTarget);
   const exportFormat = useEditorStore((s) => s.exportFormat);
   const setExportFormat = useEditorStore((s) => s.setExportFormat);
   const compress = useEditorStore((s) => s.compress);
@@ -462,6 +465,51 @@ export default function SettingsPanel() {
                 {targetPlatform === "java" ? "🟪 Java（MOD）" : "🟢 Bedrock（統合版）"}
               </div>
             </Row>
+            {/* ── Java版だけ：どのローダー・どのバージョン向けに出すか ──
+                ⚠️ Forge 用の .jar を NeoForge に入れても、マイクラは理由を言わずに
+                   何も起きない。作った本人が「どっちで遊ぶか」を先に選べないと、
+                   その後の全部が無駄になる（実際に半日溶かした）。
+                ⚠️ エンジンがまだ無い出し先は**押せなくする**。押せて壊れた .jar が
+                   出るのが、このプロジェクトで一番高くつく形。 */}
+            {targetPlatform === "java" && (
+              <div className="mt-2">
+                <div className="text-[11px] font-bold mb-1.5">どっちのマイクラで遊びますか？</div>
+                <div className="flex gap-2">
+                  {JAVA_TARGET_LIST.map((tg) => {
+                    const on = javaTarget === tg.id;
+                    const locked = !tg.ready;
+                    return (
+                      <button
+                        key={tg.id}
+                        onClick={() => { if (!locked) setJavaTarget(tg.id); }}
+                        disabled={locked}
+                        title={locked ? tg.notReadyReason : `遊ぶ人は ${tg.requires} が必要です`}
+                        className="flex-1 px-2 py-2 rounded-lg text-[11px] text-left transition-colors"
+                        style={{
+                          background: locked
+                            ? "rgba(255,255,255,0.02)"
+                            : on ? "rgba(60,208,112,0.15)" : "rgba(255,255,255,0.03)",
+                          border: `1px solid ${locked ? "rgba(255,255,255,0.06)" : on ? "rgba(60,208,112,0.5)" : "rgba(255,255,255,0.1)"}`,
+                          color: locked ? "rgba(255,255,255,0.3)" : undefined,
+                          cursor: locked ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        <div className="font-bold">{locked ? "🔒 " : ""}{tg.label}</div>
+                        <div className="opacity-60 mt-0.5">
+                          {locked ? tg.notReadyReason : tg.hint}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                {/* 遊ぶ人が何を入れるかを、選んだあとにも出しておく。
+                    作った .jar を人に渡すとき、これを伝えないと相手が動かせない */}
+                <div className="text-[10px] text-muted/60 mt-1.5 leading-relaxed">
+                  遊ぶ人は <b>{getJavaTarget(javaTarget).requires}</b> が必要です。
+                  書き出すファイル名にも入るので、渡すときに間違えません。
+                </div>
+              </div>
+            )}
             {targetPlatform === "bedrock" && (
               <>
                 <Row label="MCバージョン">
