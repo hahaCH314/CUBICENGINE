@@ -272,18 +272,33 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
 
                 {/* OK例 */}
                 <div style={{ background: "#ecfdf5", border: "2px solid #10b981", borderRadius: 14, padding: 12, textAlign: "center", boxShadow: "0 4px 12px rgba(16, 185, 129, 0.15)" }}>
-                  <div style={{ fontSize: 13, fontWeight: 900, color: "#047857", marginBottom: 8 }}>⭕ 上にピタッ！と重ねて接続！</div>
+                  {/* ⚠️ この図が「正解」。文章とズレていたので、図のほうに合わせて
+                      「きっかけが上」だと言い切る形にした（2026-08-31） */}
+                  <div style={{ fontSize: 13, fontWeight: 900, color: "#047857", marginBottom: 8 }}>⭕ きっかけが上・ことが下</div>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
+                    <div style={{ fontSize: 10, fontWeight: 900, color: "#047857", marginBottom: 2 }}>▼ きっかけ（黄）を上に</div>
                     <MiniCard emoji="⚡" label="叩いたとき" color="#facc15" border="#d97706" />
                     <div style={{ margin: "-4px 0", zIndex: 2, fontSize: 16, color: "#10b981", fontWeight: 900 }}>🔗 接続完了！</div>
                     <MiniCard emoji="✨" label="ダイヤ獲得" color="#38bdf8" border="#0284c7" />
+                    <div style={{ fontSize: 10, fontWeight: 900, color: "#047857", marginTop: 2 }}>▲ こと（青）を下に</div>
                   </div>
                 </div>
               </div>
 
               <p style={{ fontSize: 13.5, fontWeight: 800, color: "#334155", margin: 0, textAlign: "center" }}>
-                💡 <b>『こと（青カード）』</b> を持って、<b>『きっかけ（黄カード）』の上にピッタリ重ねよう！</b>
-                <br />上下がくっついて繋がることで、初めて魔法のアドオンが発動します！
+                {/* ⚠️ ここの言い回しで実際に事故が起きた（2026-08-31）。
+                    「黄カードの上に重ねる」と書いてあったので、青を上・黄を下に置いた人が居た。
+                    この仕組みは nextId＝**下**につながるカードを実行するので、
+                    その並びだと きっかけ の下に何も無い＝**何も起きない抜け殻**になる。
+                    しかも書き出しは成功してしまうので、誰も間違いに気づけない。
+                    「上下」ではなく「どっちが先か」で書くこと。 */}
+                💡 <b>『きっかけ（黄カード）』が いちばん上。</b>
+                その <b>すぐ下に『こと（青カード）』をピッタリくっつけます。</b>
+                <br />
+                <span style={{ color: "#b91c1c" }}>
+                  ⚠️ 逆さま（青が上・黄が下）にすると、くっついていても何も起きません。
+                </span>
+                <br />上から下へ、順番に実行されます！
               </p>
             </div>
           )}

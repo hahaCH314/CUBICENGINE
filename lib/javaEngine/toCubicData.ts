@@ -345,6 +345,8 @@ interface Walk {
   blocks: CBlock[];
   out: CERule[];
   warnings: string[];
+  /** きっかけから辿り着けたカード。**取り残しを見つけるために使う** */
+  touched: Set<string>;
 }
 
 /**
@@ -368,6 +370,7 @@ function walkChain(startId: string | null | undefined, w: Walk, base: CEConditio
   let cur = byId(w.blocks, startId);
   while (cur && !seen.has(cur.id)) {
     seen.add(cur.id);
+    w.touched.add(cur.id);
     const b = cur;
     const name = b.label || b.type;
     const action = toAction(b, w.blocks);
@@ -445,11 +448,39 @@ export function toCubicData(
   const warnings: string[] = [];
   const rules: CERule[] = [];
 
+  // きっかけから辿り着けたカードを覚えておく。取り残しを見つけるために使う
+  const touched = new Set<string>();
+  let triggerCount = 0;
   for (const b of blocks) {
     const trigger = toTrigger(b);
     if (!trigger) continue;
+    triggerCount++;
+    touched.add(b.id);
     // きっかけカード自身を seen に入れて始める（輪になっていても止まる）
-    walkChain(b.nextId, { trigger, blocks, out: rules, warnings }, [], new Set<string>([b.id]));
+    walkChain(b.nextId, { trigger, blocks, out: rules, warnings, touched }, [], new Set<string>([b.id]));
+  }
+
+  /* ⚠️ **置いてあるのに、どのきっかけからも辿り着けないカード**を必ず伝える。
+   *
+   *    2026-08-31、実際に起きた:
+   *    チュートリアルに「青カードを黄カードの**上**に重ねよう」と書いてあったので、
+   *    青を上・黄を下に置いた。この仕組みは nextId＝**下**へ繋がるので、
+   *    一番下のきっかけの下には何も無く、**何も起きない**。
+   *    それでも書き出しは成功するため、誰も間違いに気づけなかった。
+   *    文章は直したが、**間違えた人が気づける手段**も要る。 */
+  const orphans = blocks.filter(b => !touched.has(b.id) && toAction(b, blocks) !== null);
+  if (orphans.length > 0) {
+    warnings.push(
+      `${orphans.map(b => `「${b.label || b.type}」`).join("・")}は、どの「きっかけ」にも繋がっていないので動きません`,
+    );
+    warnings.push(
+      `カードは「きっかけ（黄）」が上、「こと（青）」が下です。逆さまだと、くっついていても動きません`,
+    );
+  }
+  if (triggerCount > 0 && rules.length === 0) {
+    warnings.push(
+      `「きっかけ」はありますが、その下に動くカードが1枚もありません（このままだと何も起きません）`,
+    );
   }
 
   // モブは spec 2 のエンジンで出るようになった（2026-08-23）。

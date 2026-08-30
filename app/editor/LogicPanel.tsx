@@ -2199,7 +2199,22 @@ function FieldSlot({ label, fieldId, value, options, onChange }: {
   // 自作分があるならスロットとして選べるようにする
   const merged = mine.length > 0 ? [...mine, ...(options ?? []).filter(o => !mine.includes(o))] : options;
 
-  const hasOpts = !!merged && merged.length > 0;
+  /* ⚠️ 候補（options）が付いている欄は、これまで**スロットだけ**だった。
+   *    つまり「メッセージ送信」や「タイトル表示」に、決まった6つの文からしか
+   *    選べず、**自分の言葉を書けなかった**（2026-08-31 に指摘されて発覚）。
+   *    書き出した .mcaddon に "こんにちは！" が入っていたのは、
+   *    それを選んだからではなく、**それしか選べなかった**から。
+   *
+   *    スロットは回して楽しい仕掛けなので残す。そのうえで、
+   *    文章を入れる欄では鉛筆ボタンから自由に打てるようにする。
+   * ⚠️ ここに足す id は「自由な文章が入る欄」だけにすること。
+   *    ブロック名やアイテム名(minecraft:stone 等)まで自由入力にすると、
+   *    打ち間違いがそのまま**動かない原因**になり、マイクラは何も言わない。 */
+  const FREE_TEXT_FIELDS = ["msg", "title", "sub", "tag", "obj", "cmd", "pat", "name"];
+  const canType = !fieldId || FREE_TEXT_FIELDS.includes(fieldId);
+  const [typing, setTyping] = useState(false);
+
+  const hasOpts = !!merged && merged.length > 0 && !typing;
   const idx = hasOpts ? Math.max(0, merged!.indexOf(value)) : 0;
   const go = (d: number) => {
     if (!hasOpts) return;
@@ -2234,18 +2249,43 @@ function FieldSlot({ label, fieldId, value, options, onChange }: {
             <span style={{ position: "absolute", right: 3, color: "#94a3b8", fontSize: 10 }}>◀</span>
           </div>
           <button onClick={() => go(1)} style={fsArrow}>▶</button>
+          {/* 自分で書くための入口。候補を回すだけでは自分の言葉を入れられない */}
+          {canType && (
+            <button
+              onClick={() => setTyping(true)}
+              title="じぶんで書く"
+              style={{ ...fsArrow, width: 34 }}
+            >
+              ✏️
+            </button>
+          )}
         </div>
       ) : (
-        <input
-          value={value}
-          onChange={e => onChange(e.target.value)}
-          style={{
-            height: 34, boxSizing: "border-box", width: "100%", padding: "0 10px",
-            background: "#ffffff", color: "#334155",
-            border: "2px solid #cbd5e1", borderRadius: 8, outline: "none",
-            fontWeight: 900, fontSize: 12, textAlign: "center",
-            boxShadow: "inset 0 1px 3px rgba(0,0,0,0.06)",
-          }} />
+        <div style={{ display: "flex", alignItems: "stretch", gap: 4, height: 34 }}>
+          <input
+            value={value}
+            onChange={e => onChange(e.target.value)}
+            placeholder="ここに書く"
+            autoFocus={typing}
+            style={{
+              height: 34, boxSizing: "border-box", flex: 1, minWidth: 0, padding: "0 10px",
+              background: "#ffffff", color: "#334155",
+              border: "2px solid #cbd5e1", borderRadius: 8, outline: "none",
+              fontWeight: 900, fontSize: 12, textAlign: "center",
+              boxShadow: "inset 0 1px 3px rgba(0,0,0,0.06)",
+            }} />
+          {/* 候補があるカードなら、スロットにも戻れるようにする。
+              戻れないと「せっかくの候補が二度と出てこない」ことになる */}
+          {typing && !!merged && merged.length > 0 && (
+            <button
+              onClick={() => setTyping(false)}
+              title="候補から選ぶ"
+              style={{ ...fsArrow, width: 34 }}
+            >
+              ☰
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
