@@ -15,8 +15,11 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { buildPreviewGroup, fitDistance } from "../../../lib/devtab/toThree";
 import type { MobIR } from "../../../lib/devtab/ir";
+import { t } from "@/lib/i18n";
+import { useEditorStore } from "@/app/editor/store";
 
 export default function MobPreview({ ir }: { ir: MobIR }) {
+    const locale = useEditorStore((s) => s.locale);
   const hostRef = useRef<HTMLDivElement>(null);
   const [spin, setSpin] = useState(true);
   // 自動回転の ON/OFF を毎回のフレームで読むための箱。
@@ -40,7 +43,7 @@ export default function MobPreview({ ir }: { ir: MobIR }) {
       renderer = new THREE.WebGLRenderer({ antialias: true });
     } catch {
       // WebGL が使えない環境（古い端末・GPU無効）。落とさずに諦める
-      host.textContent = "この端末では3D表示ができません";
+      host.textContent = t(locale, "editor_8ec8c3");
       return;
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -105,11 +108,10 @@ export default function MobPreview({ ir }: { ir: MobIR }) {
         className="absolute top-2 right-2 text-[10px] px-2 py-1 rounded"
         style={{ background: "rgba(0,0,0,0.55)", color: "rgba(255,255,255,0.8)" }}
       >
-        {spin ? "⏸ 回転をとめる" : "▶ 回転させる"}
+        {spin ? t(locale, "editor_b1adbd") : t(locale, "editor_5d020e")}
       </button>
       <p className="text-[10px] text-muted/50 mt-1">
-        ドラッグで回す／ホイールで拡大。ここでの見え方が、そのままマイクラでの見え方です。
-      </p>
+        {t(locale, "editor_71588a")}</p>
     </div>
   );
 }

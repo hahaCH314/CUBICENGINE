@@ -24,6 +24,8 @@ import ConfettiEffect from "../_mc/ConfettiEffect";
 import { ITEM_NAMES } from "../../data/itemNames";
 import { blockH, getStackHeight, getDepth, getPos, getFamily, detach, attach, dist, findSnap } from "../../lib/blockGraph";
 import { escStr, escId, gf, sanitizeVarName, genChain, genBlock, genExpr, genCond, genTrigger, buildCode } from "../../lib/codegen";
+import { t } from "@/lib/i18n";
+
 let _uid = 6000;
 const uid = () => `b${Date.now().toString(36)}${Math.random().toString(36).substring(2, 6)}`;
 
@@ -36,14 +38,14 @@ const SLOT_ACCEPT: Record<string, Category[]> = {
   else: ["action", "ifelse", "loop", "ui", "variable"],  // ちがうなら：動作
 };
 const SLOT_BADGE: Record<string, { icon: string; label: string; color: string }> = {
-  inner: { icon: "💎", label: "値・条件", color: "#9b59b6" },
-  then: { icon: "⚡", label: "動作", color: "#2ecc71" },
-  else: { icon: "⚡", label: "動作", color: "#ff7f50" },
+  inner: { icon: "💎", label: t(useEditorStore.getState().locale, "editor_766eaf"), color: "#9b59b6" },
+  then: { icon: "⚡", label: t(useEditorStore.getState().locale, "editor_cdb6ce"), color: "#2ecc71" },
+  else: { icon: "⚡", label: t(useEditorStore.getState().locale, "editor_cdb6ce"), color: "#ff7f50" },
 };
 const SLOT_HEAD: Record<string, { glyph: string; jp: string }> = {
-  inner: { glyph: "⬦", jp: "もしも" },
-  then: { glyph: "✓", jp: "そうなら" },
-  else: { glyph: "✗", jp: "ちがうなら" },
+  inner: { glyph: "⬦", jp: t(useEditorStore.getState().locale, "editor_d023e0") },
+  then: { glyph: "✓", jp: t(useEditorStore.getState().locale, "editor_47336f") },
+  else: { glyph: "✗", jp: t(useEditorStore.getState().locale, "editor_545035") },
 };
 
 /* ══════════════════════════════════════════════════════════
@@ -75,21 +77,21 @@ const STICKER_TYPES = [
 ];
 
 const FRIENDLY_GROUPS: FriendlyGroup[] = [
-  { key: "when", label: "きっかけ", sub: "〜したとき",   icon: "Zap",      cats: ["trigger"],                                     bg: "#facc15", top: "#fef9c3", side: "#ca8a04", text: "#451a03" },
-  { key: "do",   label: "すること", sub: "〜する",       icon: "Wand2",    cats: ["action", "ui"],                                bg: "#38bdf8", top: "#e0f2fe", side: "#0284c7", text: "#0c4a6e" },
-  { key: "more", label: "もっと",   sub: "上級・そのほか", icon: "Sparkles", cats: ["ifelse", "loop", "value", "calc", "variable"], bg: "#a855f7", top: "#f3e8ff", side: "#9333ea", text: "#4c1d95" },
+  { key: "when", label: t(useEditorStore.getState().locale, "editor_dc7aac"), sub: t(useEditorStore.getState().locale, "editor_73ce3a"),   icon: "Zap",      cats: ["trigger"],                                     bg: "#facc15", top: "#fef9c3", side: "#ca8a04", text: "#451a03" },
+  { key: "do",   label: t(useEditorStore.getState().locale, "editor_5b87f2"), sub: t(useEditorStore.getState().locale, "editor_ccbc57"),       icon: "Wand2",    cats: ["action", "ui"],                                bg: "#38bdf8", top: "#e0f2fe", side: "#0284c7", text: "#0c4a6e" },
+  { key: "more", label: t(useEditorStore.getState().locale, "editor_7a740e"),   sub: t(useEditorStore.getState().locale, "editor_117964"), icon: "Sparkles", cats: ["ifelse", "loop", "value", "calc", "variable"], bg: "#a855f7", top: "#f3e8ff", side: "#9333ea", text: "#4c1d95" },
 ];
 
 /* 下部キーボード：カテゴリを8つに直割り（カードを“打つ”ための入力キー） */
 const KEYBOARD_CATS: { cat: Category; label: string; icon: string }[] = [
-  { cat: "trigger",  label: "きっかけ",   icon: "Zap" },
-  { cat: "action",   label: "すること",   icon: "Wand2" },
-  { cat: "ui",       label: "みため",     icon: "LayoutGrid" },
-  { cat: "ifelse",   label: "もしも",     icon: "Split" },
-  { cat: "loop",     label: "くりかえし", icon: "Repeat" },
-  { cat: "value",    label: "あたい",     icon: "Hash" },
-  { cat: "calc",     label: "けいさん",   icon: "Plus" },
-  { cat: "variable", label: "へんすう",   icon: "Package" },
+  { cat: "trigger",  label: t(useEditorStore.getState().locale, "editor_dc7aac"),   icon: "Zap" },
+  { cat: "action",   label: t(useEditorStore.getState().locale, "editor_5b87f2"),   icon: "Wand2" },
+  { cat: "ui",       label: t(useEditorStore.getState().locale, "editor_3f8946"),     icon: "LayoutGrid" },
+  { cat: "ifelse",   label: t(useEditorStore.getState().locale, "editor_d023e0"),     icon: "Split" },
+  { cat: "loop",     label: t(useEditorStore.getState().locale, "editor_fab78e"), icon: "Repeat" },
+  { cat: "value",    label: t(useEditorStore.getState().locale, "editor_5dda34"),     icon: "Hash" },
+  { cat: "calc",     label: t(useEditorStore.getState().locale, "editor_9206bf"),   icon: "Plus" },
+  { cat: "variable", label: t(useEditorStore.getState().locale, "editor_a72736"),   icon: "Package" },
 ];
 
 /* 条件分岐は「もしも」カテゴリでキーボード上から条件を選ぶ＝タップでその条件入りco_ifが出る */
@@ -134,7 +136,7 @@ function makeInitial(): CBlock[] {
   try {
     const trigger = spawnBlock(T("ev_join"), 100, 600);
     let action = spawnBlock(T("ac_msg"), 100, 600 - BH - GAP);
-    action = sf(sf(action, "msg", "はじめてのアドオン！🎉"), "target", "@a");
+    action = sf(sf(action, "msg", t(useEditorStore.getState().locale, "editor_0bc0f5")), "target", "@a");
     trigger.nextId = action.id;
     return mkPreset([trigger, action]);
   } catch {
@@ -174,24 +176,26 @@ interface PresetProject {
 
 const PRESET_PROJECTS: PresetProject[] = [
   {
-    name: "ウェルカムMod", emoji: "UserPlus", desc: "参加時に歓迎メッセージを送信",
+    name: t(useEditorStore.getState().locale, "editor_841c91"), emoji: "UserPlus", desc: t(useEditorStore.getState().locale, "editor_893e69"),
     create: () => {
+        const locale = useEditorStore((s) => s.locale);
       const a = spawnBlock(T("ev_join"), 100, 600);
       let b = spawnBlock(T("ac_msg"), 100, 600 - BH - GAP);
-      b = sf(sf(b, "msg", "ようこそ！🎉 Modが動いています！"), "target", "@a");
+      b = sf(sf(b, "msg", t(locale, "editor_224b39")), "target", "@a");
       a.nextId = b.id;
       return mkPreset([a, b]);
     },
   },
   {
-    name: "HP危険警告", emoji: "HeartPulse", desc: "HP10以下で赤いメッセージを表示",
+    name: t(useEditorStore.getState().locale, "editor_9d3439"), emoji: "HeartPulse", desc: t(useEditorStore.getState().locale, "editor_8455ff"),
     create: () => {
+        const locale = useEditorStore((s) => s.locale);
       const a = spawnBlock(T("ev_hurt"), 80, 600);
       const donut = spawnBlock(T("co_if"), 300, 600 - BH - GAP);
       const cond = spawnBlock(T("co_hp"), 80, 600 - BH - GAP);
       cond.fields = cond.fields.map(f => f.id === "threshold" ? { ...f, value: "10" } : f);
       let msg = spawnBlock(T("ac_msg"), 600, 600 - BH * 2 - GAP * 2);
-      msg = sf(sf(msg, "msg", "§c§l⚠️ HPが残り少ない！回復して！"), "target", "@s");
+      msg = sf(sf(msg, "msg", t(locale, "editor_a4486c")), "target", "@s");
       a.nextId = donut.id;
       donut.innerId = cond.id;
       donut.thenId = msg.id;
@@ -369,6 +373,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
   rollRot?: number;
   rollDur?: number;
 }) {
+    const locale = useEditorStore((s) => s.locale);
   const cat = pal[b.category];
   const cardIdx = CARD_INDEX[b.category] || "●";
   const hl = snapSlot !== null;
@@ -450,7 +455,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
         <span style={{
           fontSize: 8.5, fontWeight: 900, color: badge.color, lineHeight: 1,
           whiteSpace: "nowrap", textShadow: "0 1px 2px rgba(255,255,255,0.85)"
-        }}>{isLoop && slotKey === "then" ? "なかみ" : head.jp}</span>
+        }}>{isLoop && slotKey === "then" ? t(locale, "editor_90d94f") : head.jp}</span>
       </div>
     );
   };
@@ -502,21 +507,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
           ※箔のテカリ(一般的な視覚効果)のみ。特定キャラ/デザインは使わない。 */}
       {isKira && (
         <>
-          <style>{`
-            @keyframes holoFlow { from { background-position: 0% 50%; } to { background-position: 300% 50%; } }
-            @keyframes holoSheen { 0% { background-position: 140% 0; } 100% { background-position: -40% 0; } }
-            /* 揃った瞬間の「変身」＝リングがふわっと開く。押した手ごたえを出す */
-            @keyframes kiraAppear {
-              0%   { transform: scale(0.86); opacity: 0; }
-              55%  { transform: scale(1.06); opacity: 1; }
-              100% { transform: scale(1);    opacity: 1; }
-            }
-            @keyframes kiraStarPop {
-              0%   { transform: scale(0) rotate(-30deg); opacity: 0; }
-              60%  { transform: scale(1.35) rotate(8deg); opacity: 1; }
-              100% { transform: scale(1) rotate(0deg);   opacity: 1; }
-            }
-          `}</style>
+          <style>{t(locale, "editor_6f242a")}</style>
           {/* 外周の虹リング */}
           <div style={{
             position: "absolute", left: leftOffset - 4, top: -4, width: cardW + 8, height: cardH + 8,
@@ -581,7 +572,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
                 <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
                   {/* 「スニーク中か」→「スニーク中のとき」。確認の言い方(〜か)のままだと
                       カードに印刷された文として読めないので、語尾だけ整える */}
-                  {(st?.label ?? s.type).replace(/か$/, "")}{s.neg ? "じゃない" : ""}
+                  {(st?.label ?? s.type).replace(/か$/, "")}{s.neg ? t(locale, "editor_d8a16b") : ""}
                 </span>
               </div>
             );
@@ -605,7 +596,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
           pointerEvents: "none",
         }}>
           <div style={{ position: "absolute", left: 9, top: 5, fontSize: 10, fontWeight: 900, color: cat.bg, display: "flex", alignItems: "center", gap: 3 }}>
-            <span>🔁</span><span>くりかえす</span>
+            <span>🔁</span><span>{t(locale, "editor_9e64d8")}</span>
           </div>
           <div style={{ position: "absolute", right: 10, bottom: 5, fontSize: 15, fontWeight: 900, color: cat.bg, transform: "scaleX(-1)" }}>↻</div>
         </div>
@@ -699,10 +690,9 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
               lineHeight: 1.3, width: "94%", wordBreak: "break-word", display: "block",
               zIndex: 2, marginBottom: 2, marginTop: "auto",
             }}>
-              もしも<br />
+              {t(locale, "editor_d023e0")}<br />
               <b style={{ color: cat.bg, fontSize: 10 }}>{b.fields.find(f => f.id === "cond")?.value || "？"}</b><br />
-              なら
-            </span>
+              {t(locale, "editor_11f721")}</span>
           ) : (
             <span style={{
               fontSize: b.label.length > 7 ? 8.5 : 9.5,
@@ -747,7 +737,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
             e.preventDefault();
             onDelete(b.id);
           }}
-          title="削除"
+          title={t(locale, "editor_c6577c")}
           style={{
             position: "absolute",
             top: -12,
@@ -1241,17 +1231,18 @@ function Connector({ x, y, color }: { x: number; y: number; color: string }) {
    ══════════════════════════════════════════════════════════ */
 
 function SnapIndicator({ x, y, color, zoom, slot }: { x: number; y: number; color: string; zoom: number; slot: string }) {
+    const locale = useEditorStore((s) => s.locale);
   const width = BW * zoom;
   const height = BH * zoom;
   const R = 8 * zoom;
 
   const labelMap: Record<string, string> = {
-    next: "▼ ここに置く",
-    then: "▼ そうなら",
-    else: "▶ ちがうなら",
-    inner: "◀ ここに入れる",
+    next: t(locale, "editor_d162b7"),
+    then: t(locale, "editor_28e440"),
+    else: t(locale, "editor_33be20"),
+    inner: t(locale, "editor_fbd2b5"),
   };
-  const label = labelMap[slot] ?? "▼ ここに接続";
+  const label = labelMap[slot] ?? t(locale, "editor_f1f39b");
 
   return (
     <>
@@ -1319,6 +1310,7 @@ function BlockTray({
   searching: boolean;
   activeCategory: Category;
 }) {
+    const locale = useEditorStore((s) => s.locale);
   const [calcSub, setCalcSub] = useState<CalcSubCat>("arith");
   const showSubtabs = activeCategory === "calc" && !searching;
 
@@ -1357,7 +1349,7 @@ function BlockTray({
           size="sm"
           variant="primary"
           disabled={filtered.length === 0}
-          title={filtered.length > 0 ? "ランダムに1個追加" : "該当ブロックなし"}
+          title={filtered.length > 0 ? t(locale, "editor_ca8361") : t(locale, "editor_1fad09")}
           onClick={() => {
             if (filtered.length === 0) return;
             const pick = filtered[Math.floor(Math.random() * filtered.length)];
@@ -1365,12 +1357,11 @@ function BlockTray({
           }}
           style={{ width: "100%" }}
         >
-          🎲 ランダム
-        </McButton>
+          {t(locale, "editor_c8762a")}</McButton>
         <span style={{ fontSize: 9, color: "#c8c4b8", fontWeight: 600, textAlign: "center", lineHeight: 1.1 }}>
           {searching
-            ? <>検索: <strong style={{ color: "#f9a8d4" }}>{filtered.length}</strong> 件</>
-            : <>全 <strong style={{ color: "#f5f0e1" }}>{filtered.length}</strong> 個</>}
+            ? <>{t(locale, "editor_5782f0")}<strong style={{ color: "#f9a8d4" }}>{filtered.length}</strong> {t(locale, "editor_f7edf5")}</>
+            : <>{t(locale, "editor_1e5142")}<strong style={{ color: "#f5f0e1" }}>{filtered.length}</strong> {t(locale, "editor_087637")}</>}
         </span>
       </div>
 
@@ -1517,8 +1508,7 @@ function BlockTray({
           })}
           {visibleTemplates.length === 0 && (
             <div style={{ color: "#9c9890", fontSize: 12, padding: "10px 20px" }}>
-              該当するブロックなし
-            </div>
+              {t(locale, "editor_0fa5f3")}</div>
           )}
         </div>
       </div>
@@ -1537,8 +1527,9 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
   onLoad: (blocks: CBlock[]) => void;
   onClose: () => void;
 }) {
+    const locale = useEditorStore((s) => s.locale);
   const [projects, setProjects] = useState<Omit<SavedProject, "blocks">[]>([]);
-  const [saveName, setSaveName] = useState("マイプロジェクト");
+  const [saveName, setSaveName] = useState(t(locale, "editor_275c00"));
   const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState("");
 
@@ -1558,7 +1549,7 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
     stored[saveName] = project;
     localStorage.setItem("mmc-projects", JSON.stringify(stored));
     setProjects(Object.values(stored).map(p => ({ name: p.name, savedAt: p.savedAt })));
-    flash("💾 保存しました！");
+    flash(t(locale, "editor_1ceeca"));
   };
 
   const load = (name: string) => {
@@ -1587,9 +1578,9 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
     if (isCapacitor()) {
       try {
         await saveViaCapacitor(blob, filename);
-        flash("💾 .cubic で保存しました！");
+        flash(t(locale, "editor_b8a586"));
       } catch {
-        flash("⚠️ 保存できませんでした");
+        flash(t(locale, "editor_3f75ee"));
       }
       return;
     }
@@ -1601,7 +1592,7 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
     //    始まっておらず、先に破棄すると端末が取りに行ったとき中身が消えている
     //    （PCは間に合うのでスマホでだけ起きる）。詳しくは exporter.ts のコメント
     setTimeout(() => URL.revokeObjectURL(url), 60_000);
-    flash("💾 .cubic で保存しました！");
+    flash(t(locale, "editor_b8a586"));
   };
 
   const importJson = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1611,7 +1602,7 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
       try {
         const data = JSON.parse(ev.target?.result as string);
         if (data.blocks) { onLoad(data.blocks); onClose(); }
-      } catch { flash("❌ 読み込みに失敗しました"); }
+      } catch { flash(t(locale, "editor_429ba1")); }
     };
     reader.readAsText(file);
     e.target.value = "";
@@ -1627,12 +1618,12 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
         display: "flex", justifyContent: "space-between", alignItems: "center"
       }}>
         <span className="font-pixel text-[11px]" style={{ color: "var(--accent)", letterSpacing: "0.05em" }}>📁 PROJECTS</span>
-        <button onClick={onClose} className="mc-btn mc-btn--sm">✕ 閉じる</button>
+        <button onClick={onClose} className="mc-btn mc-btn--sm">{t(locale, "editor_3c2e26")}</button>
       </div>
 
       <div style={{ padding: "16px 18px", maxHeight: 440, overflowY: "auto", background: "var(--surface)" }}>
         <div style={{ marginBottom: 16 }}>
-          <div className="font-pixel" style={{ fontSize: 10, color: "var(--foreground)", marginBottom: 8, letterSpacing: "0.05em" }}>💾 現在の作業を保存</div>
+          <div className="font-pixel" style={{ fontSize: 10, color: "var(--foreground)", marginBottom: 8, letterSpacing: "0.05em" }}>{t(locale, "editor_db12a6")}</div>
           <div style={{ display: "flex", gap: 8 }}>
             <input value={saveName} onChange={e => setSaveName(e.target.value)}
               style={{
@@ -1640,15 +1631,15 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
                 borderTopColor: "#1f1e1a", borderLeftColor: "#1f1e1a",
                 background: "#1f1e1a", color: "var(--foreground)", fontSize: 12, outline: "none", fontWeight: 600
               }}
-              placeholder="プロジェクト名" />
-            <button onClick={save} className="mc-btn mc-btn--primary">保存</button>
+              placeholder={t(locale, "editor_951d7c")} />
+            <button onClick={save} className="mc-btn mc-btn--primary">{t(locale, "editor_be5fbb")}</button>
           </div>
           {msg && <div className="font-pixel" style={{ marginTop: 8, fontSize: 10, color: "#6ee7b7" }}>{msg}</div>}
         </div>
 
         {projects.length > 0 && (
           <div style={{ marginBottom: 14 }}>
-            <div className="font-pixel" style={{ fontSize: 10, color: "var(--foreground)", marginBottom: 8, letterSpacing: "0.05em" }}>📂 保存済みプロジェクト</div>
+            <div className="font-pixel" style={{ fontSize: 10, color: "var(--foreground)", marginBottom: 8, letterSpacing: "0.05em" }}>{t(locale, "editor_de1762")}</div>
             {projects.map(p => (
               <div key={p.name} className="mc-bevel-inset" style={{
                 display: "flex", alignItems: "center", gap: 6, padding: "8px 10px",
@@ -1658,8 +1649,8 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
                   <div style={{ fontSize: 12, fontWeight: 700, color: "var(--foreground)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
                   <div style={{ fontSize: 10, color: "var(--muted)" }}>{p.savedAt}</div>
                 </div>
-                <button onClick={() => load(p.name)} className="mc-btn mc-btn--sm mc-btn--info">開く</button>
-                <button onClick={() => del(p.name)} className="mc-btn mc-btn--sm mc-btn--danger">削除</button>
+                <button onClick={() => load(p.name)} className="mc-btn mc-btn--sm mc-btn--info">{t(locale, "editor_26860b")}</button>
+                <button onClick={() => del(p.name)} className="mc-btn mc-btn--sm mc-btn--danger">{t(locale, "editor_c6577c")}</button>
               </div>
             ))}
           </div>
@@ -1667,15 +1658,14 @@ function ProjectPanel({ blocks, onLoad, onClose }: {
 
         <div style={{ borderTop: "2px solid var(--border-color)", paddingTop: 14, display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={exportJson} className="mc-btn mc-btn--warning" style={{ flex: 1 }}>💾 ファイルに保存(.cubic)</button>
-            <button onClick={() => fileRef.current?.click()} className="mc-btn mc-btn--success" style={{ flex: 1 }}>📂 ファイルから開く</button>
+            <button onClick={exportJson} className="mc-btn mc-btn--warning" style={{ flex: 1 }}>{t(locale, "editor_976bcc")}</button>
+            <button onClick={() => fileRef.current?.click()} className="mc-btn mc-btn--success" style={{ flex: 1 }}>{t(locale, "editor_6eb94c")}</button>
             {/* accept を絞ると独自拡張子.cubicがスマホのファイル選択で灰色になり選べない。
                 中身はimportJson側でJSON検証するので、ここは全ファイル選択可にする。 */}
             <input ref={fileRef} type="file" onChange={importJson} style={{ display: "none" }} />
           </div>
           <div className="font-pixel" style={{ fontSize: 9, color: "var(--muted)", textAlign: "center", lineHeight: 1.4, opacity: 0.85 }}>
-            ※Androidで読み込めない時は「Files by Google」以外のファイルアプリを使ってね
-          </div>
+            {t(locale, "editor_f26dc3")}</div>
         </div>
       </div>
     </div>
@@ -1727,6 +1717,7 @@ function TemplateGallery({ onSelect, onReplace, hasBlocks, onClose }: {
   hasBlocks: boolean;
   onClose: () => void;
 }) {
+    const locale = useEditorStore((s) => s.locale);
   return (
     <div
       onClick={onClose}
@@ -1740,8 +1731,8 @@ function TemplateGallery({ onSelect, onReplace, hasBlocks, onClose }: {
           <div className="flex items-center gap-2">
             <span className="text-3xl">⚡</span>
             <div>
-              <h2 className="font-extrabold text-lg sm:text-xl text-amber-400">サンプルからはじめる 🐔⚔️🥩</h2>
-              <p className="text-xs text-slate-300">えらぶだけ。すぐマイクラで動くアドオンが作れるよ！</p>
+              <h2 className="font-extrabold text-lg sm:text-xl text-amber-400">{t(locale, "editor_245095")}</h2>
+              <p className="text-xs text-slate-300">{t(locale, "editor_b723a4")}</p>
             </div>
           </div>
           <button
@@ -1754,8 +1745,8 @@ function TemplateGallery({ onSelect, onReplace, hasBlocks, onClose }: {
 
         {/* ── ① すぐ動くおためし（盤面を入れかえる）── */}
         <div className="flex items-baseline gap-2 mb-1">
-          <span className="font-extrabold text-sm text-amber-300">⚡ 3分でおためしアドオン</span>
-          <span className="text-[11px] text-amber-200/70">今のカードは入れかわるよ</span>
+          <span className="font-extrabold text-sm text-amber-300">{t(locale, "editor_8ca558")}</span>
+          <span className="text-[11px] text-amber-200/70">{t(locale, "editor_106645")}</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
           {PRESET_TEMPLATES.map((tmpl) => (
@@ -1784,16 +1775,15 @@ function TemplateGallery({ onSelect, onReplace, hasBlocks, onClose }: {
                 </p>
               </div>
               <div className="mt-3 text-center py-1.5 rounded-lg bg-amber-500 text-slate-950 font-black text-xs group-hover:bg-amber-400">
-                これで作る！
-              </div>
+                {t(locale, "editor_7aaf2c")}</div>
             </div>
           ))}
         </div>
 
         {/* ── ② 組み立ての見本（今の盤面に足す）── */}
         <div className="flex items-baseline gap-2 mb-1 pt-4 border-t border-slate-700">
-          <span className="font-extrabold text-sm text-cyan-300">🧩 組み立ての見本</span>
-          <span className="text-[11px] text-cyan-200/70">今のカードは残したまま足すよ</span>
+          <span className="font-extrabold text-sm text-cyan-300">{t(locale, "editor_3682fc")}</span>
+          <span className="text-[11px] text-cyan-200/70">{t(locale, "editor_917009")}</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {PRESET_PROJECTS.map((p, i) => {
@@ -1810,8 +1800,7 @@ function TemplateGallery({ onSelect, onReplace, hasBlocks, onClose }: {
                   <p className="text-[11px] text-slate-300 leading-snug">{p.desc}</p>
                 </div>
                 <div className="mt-3 text-center py-1.5 rounded-lg bg-cyan-500 text-slate-950 font-black text-xs group-hover:bg-cyan-400">
-                  これを足す！
-                </div>
+                  {t(locale, "editor_a59e3f")}</div>
               </div>
             );
           })}
@@ -2183,6 +2172,7 @@ function SlotReel<T>({
 function FieldSlot({ label, fieldId, value, options, onChange }: {
   label: string; fieldId?: string; value: string; options?: string[]; onChange: (v: string) => void;
 }) {
+    const locale = useEditorStore((s) => s.locale);
   // デベロッパータブで作ったモブ／アイテムを選べるようにする。
   // ⚠️ ここでやるのが要点。テンプレート(data/templates.ts)の options は静的なので、
   //    作った直後のモブを載せられない。描画のたびに store から取って先頭に足す。
@@ -2229,7 +2219,7 @@ function FieldSlot({ label, fieldId, value, options, onChange }: {
         /* ✏️ 特別な欄：自分の言葉を書くところ。
            見た目も少し変えて「ここは書ける」と分かるようにする */
         <div style={{ display: "flex", alignItems: "stretch", gap: 4, height: 34 }}>
-          {hasOpts && <button onClick={() => go(-1)} style={fsArrow} title="前の候補">◀</button>}
+          {hasOpts && <button onClick={() => go(-1)} style={fsArrow} title={t(locale, "editor_4ac203")}>◀</button>}
           <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
             <span style={{
               position: "absolute", left: 6, top: "50%", transform: "translateY(-50%)",
@@ -2238,8 +2228,8 @@ function FieldSlot({ label, fieldId, value, options, onChange }: {
             <input
               value={value}
               onChange={e => onChange(e.target.value)}
-              placeholder="ここに書く"
-              title="自分の言葉を書けます。◀▶ で見本も選べます"
+              placeholder={t(locale, "editor_840c8e")}
+              title={t(locale, "editor_69995a")}
               style={{
                 height: 34, boxSizing: "border-box", width: "100%", padding: "0 8px 0 22px",
                 background: "#fffdf5", color: "#334155",
@@ -2248,7 +2238,7 @@ function FieldSlot({ label, fieldId, value, options, onChange }: {
                 boxShadow: "inset 0 1px 3px rgba(0,0,0,0.06)",
               }} />
           </div>
-          {hasOpts && <button onClick={() => go(1)} style={fsArrow} title="次の候補">▶</button>}
+          {hasOpts && <button onClick={() => go(1)} style={fsArrow} title={t(locale, "editor_44aea1")}>▶</button>}
         </div>
       ) : hasOpts ? (
         /* ふつうの欄：候補から選ぶだけ。
@@ -2258,7 +2248,7 @@ function FieldSlot({ label, fieldId, value, options, onChange }: {
           <button onClick={() => go(-1)} style={fsArrow}>◀</button>
           <div
             onClick={() => go(1)}
-            title="タップで次の候補へ"
+            title={t(locale, "editor_7a8064")}
             style={{
               flex: 1, position: "relative", display: "flex", alignItems: "center", justifyContent: "center",
               background: "#ffffff",
@@ -2364,6 +2354,7 @@ function FallingWisp() {
 }
 
 export default function LogicPanel({ onExportReady }: { onExportReady?: () => void } = {}) {
+    const locale = useEditorStore((s) => s.locale);
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showMobileConsole, setShowMobileConsole] = useState(false); // ➕カード（下部キーボード）
@@ -2527,7 +2518,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
     if (r) {
       (async () => {
         const w = await decodeWork(decodeURIComponent(r[1]).replace(/^w=/, ""));
-        if (w?.c?.length) setReference({ blocks: fromWire(w), title: (w.n || "みほん").trim(), author: (w.a || "").trim() });
+        if (w?.c?.length) setReference({ blocks: fromWire(w), title: (w.n || t(locale, "editor_2e5c40")).trim(), author: (w.a || "").trim() });
       })();
     }
 
@@ -2537,7 +2528,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
     history.replaceState(null, "", window.location.pathname + window.location.search);
     (async () => {
       const work = await decodeWork(decodeURIComponent(m[1]).replace(/^w=/, ""));
-      if (!work?.c?.length) { showToast("作品をひらけませんでした", "warning"); return; }
+      if (!work?.c?.length) { showToast(t(locale, "editor_1e9548"), "warning"); return; }
       const who = (work.a || work.src || "").trim();
       // 作りかけを黙って消さない
       if (live.current.blocks.length &&
@@ -2550,7 +2541,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
       setRemixSrc(who);
       try { localStorage.setItem(REMIX_KEY, who); } catch { }
       playSuccessSound();
-      showToast(who ? `${who} の作品をひらきました 🔁` : "作品をひらきました 🔁", "success");
+      showToast(who ? `${who} の作品をひらきました 🔁` : t(locale, "editor_bcbfd6"), "success");
     })();
   }, []);
   useEffect(() => {
@@ -2679,7 +2670,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
     if (isLogicValid && !prevValidRef.current) {
       setLogicCompleteAnim(true);
       playSuccessSound();
-      showToast("ロジックが完成しました！マイクラへ出力できます！", "success");
+      showToast(t(locale, "editor_ea436c"), "success");
       setTimeout(() => setLogicCompleteAnim(false), 800);
     }
     prevValidRef.current = isLogicValid;
@@ -2885,7 +2876,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
         } else {
           setShakeAnim(id);
           tone(150, 0.1, "sawtooth", 0.3); 
-          showToast("ここには繋げないよ！", "warning");
+          showToast(t(locale, "editor_19414e"), "warning");
           setTimeout(() => setShakeAnim(null), 300);
           setWireDrag(null);
           return;
@@ -3175,7 +3166,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
         setSelected(null);
         setSnapHint(null);
         playDeleteSound();
-        showToast("カードを すてました（↩戻る でもどせます）", "warning");
+        showToast(t(locale, "editor_3e4971"), "warning");
         return;
       }
 
@@ -3524,143 +3515,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
 
   return (
     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "row", overflow: "hidden", background: "#f0f9ff" }}>
-        <style>{`
-        /* フォントは layout.tsx で next/font 自己ホスト化済み（--font-outfit / --font-nunito）。
-           以前ここにあった fonts.googleapis の @import は実行時に第三者(Google)へ通信し、
-           プライバシーポリシーと矛盾していたため撤去した。 */
-        * {
-          font-family: var(--font-outfit), var(--font-nunito), 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif !important;
-        }
-
-        .slot-btn:hover { filter: brightness(1.08); }
-        .slot-btn:active {
-          transform: translateY(3px);
-          box-shadow: inset 0 2px 3px rgba(0,0,0,0.35), 0 0px 0 rgba(0,0,0,0.3) !important;
-        }
-        .slot-btn--armed:active { transform: none; }
-
-        @keyframes pulse   { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.7;transform:scale(1.15)} }
-        @keyframes swallow { 0%{transform:scale(1)rotate(0deg);opacity:1} 30%{transform:scale(1.15)rotate(6deg);opacity:1} 70%{transform:scale(0.3)rotate(-8deg);opacity:0.6} 100%{transform:scale(0)rotate(0deg);opacity:0} }
-        @keyframes chomp   { 0%{transform:scale(1)} 15%{transform:scale(1.14)} 35%{transform:scale(0.93)} 55%{transform:scale(1.07)} 75%{transform:scale(0.97)} 100%{transform:scale(1)} }
-
-        @keyframes blockSnap {
-          0%  { transform: translateY(-14px) scaleY(0.9); filter: brightness(1.8); }
-          40% { transform: translateY(4px) scaleY(0.93); filter: brightness(1.3); }
-          70% { transform: translateY(-2px) scaleY(1.02); filter: brightness(1.1); }
-          100%{ transform: translateY(0) scaleY(1); filter: brightness(1); }
-        }
-        @keyframes blockAdd {
-          0%   { transform: translateY(-44px); opacity: 0; }
-          30%  { opacity: 1; }
-          100% { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes blockRoll {
-          0%   { transform: translateX(var(--roll-from,0px)) rotate(var(--roll-rot,0deg)); }
-          55%  { transform: translateX(0) rotate(0deg); }
-          70%  { transform: translateX(0) rotate(var(--bounce-rot, 6deg)) scaleY(0.92) scaleX(1.05); }
-          85%  { transform: translateX(0) rotate(calc(var(--bounce-rot, 6deg) * -0.3)) scaleY(1.02) scaleX(0.98); }
-          100% { transform: translateX(0) rotate(0deg) scaleY(1) scaleX(1); }
-        }
-        @keyframes impactRing {
-          0%   { width: 18px; height: 6px; opacity: 0.85; border-width: 4px; }
-          60%  { opacity: 0.5; }
-          100% { width: 180px; height: 30px; opacity: 0; border-width: 1px; }
-        }
-        @keyframes impactFlash {
-          0%   { width: 0; height: 0; opacity: 0.65; }
-          100% { width: 220px; height: 220px; opacity: 0; }
-        }
-        @keyframes confettiBurst {
-          0%   { transform: translate(0,0) rotate(0deg) scale(0.6); opacity: 0; }
-          15%  { opacity: 1; }
-          100% { transform: translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(1); opacity: 0; }
-        }
-        @keyframes blockDelete {
-          0%   { transform: scale(1)    rotate(0deg);  opacity: 1;    filter: brightness(1); }
-          16%  { transform: scale(1.20) rotate(-7deg); opacity: 1;    filter: brightness(1.5); }
-          34%  { transform: scale(0.82) rotate(8deg);  opacity: 0.95; filter: brightness(1.1); }
-          60%  { transform: scale(1.06) rotate(-4deg) translateY(-10px); opacity: 0.65; filter: brightness(0.95); }
-          100% { transform: scale(0)    rotate(40deg)  translateY(28px); opacity: 0;    filter: brightness(0.6); }
-        }
-        @keyframes blockDragHover {
-          0%, 100% { transform: scale(1.06) rotate(-2deg) translateY(-3px); }
-          50%      { transform: scale(1.06) rotate(2deg)  translateY(-5px); }
-        }
-        @keyframes toastSlideDown {
-          0%   { transform: translate(-50%, -22px); opacity: 0; }
-          100% { transform: translate(-50%, 0);     opacity: 1; }
-        }
-        @keyframes slotPulse {
-          0%, 100% { filter: brightness(1.0); }
-          50%      { filter: brightness(1.25); }
-        }
-        @keyframes wireTargetGlow {
-          0%, 100% { filter: drop-shadow(0 0 4px rgba(255,255,255,0.7)) brightness(1.02); }
-          50%      { filter: drop-shadow(0 0 14px rgba(255,255,255,0.95)) brightness(1.15); }
-        }
-        @keyframes connectRipple {
-          0% { transform: scale(0.2); opacity: 1; border-width: 6px; }
-          100% { transform: scale(2.0); opacity: 0; border-width: 1px; }
-        }
-        @keyframes blockPop {
-          0% { transform: scale(1); }
-          30% { transform: scale(1.1); }
-          60% { transform: scale(0.97); }
-          100% { transform: scale(1); }
-        }
-        @keyframes wirePulse {
-          from { stroke-dashoffset: 60; }
-          to { stroke-dashoffset: 0; }
-        }
-        @keyframes particle {
-          0%  {transform:translate(0,0)scale(1);opacity:1}
-          100%{transform:translate(var(--dx),var(--dy))scale(0);opacity:0}
-        }
-        @keyframes snapPulse {
-          0%   { transform: scale(1);    opacity: 1; }
-          100% { transform: scale(1.04); opacity: 0.85; }
-        }
-        @keyframes snapLabelBob {
-          0%   { transform: translateY(0);   }
-          100% { transform: translateY(-3px);}
-        }
-        @keyframes spectrumShift {
-          0%   { background-position: 0% 50%; }
-          100% { background-position: 200% 50%; }
-        }
-        .btn-keycap:hover {
-          transform: translateY(-1px);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.95), inset 0 -2px 3px rgba(0,0,0,0.04), 0 3px 0 #c9c3b0, 0 5px 10px rgba(120,100,60,0.18) !important;
-        }
-        .btn-keycap:active {
-          transform: translateY(2px) !important;
-          box-shadow: inset 0 1px 2px rgba(0,0,0,0.08), 0 0 0 #c9c3b0, 0 1px 2px rgba(120,100,60,0.08) !important;
-        }
-        .btn-card {
-          box-shadow: 0 0 0 2.5px var(--card-color), 0 4px 10px rgba(0,0,0,0.15) !important;
-          transition: transform 0.1s ease, box-shadow 0.1s ease !important;
-        }
-        .btn-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 0 0 2.5px var(--card-color), 0 8px 20px rgba(0,0,0,0.22) !important;
-        }
-        .btn-card:active {
-          transform: translateY(2px);
-          box-shadow: 0 0 0 2.5px var(--card-color), 0 2px 5px rgba(0,0,0,0.15) !important;
-        }
-        .toy-key {
-          transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s ease !important;
-        }
-        .toy-key:hover { filter: brightness(1.05); }
-        .toy-key:active {
-          transform: translateY(4px) !important;
-          box-shadow: 0 1px 0 var(--leg, #cbd5e1), 0 1px 4px rgba(0,0,0,0.15), inset 0 1px 2px rgba(0,0,0,0.1) !important;
-        }
-        @keyframes fsFlip {
-          0% { transform: translateY(-40%); opacity: 0; }
-          100% { transform: translateY(0); opacity: 1; }
-        }
-      `}</style>
+        <style>{t(locale, "editor_a750e9")}</style>
 
         {/* ========================================================
           【左】スロットリール（カテゴリ＆アイテム選択）
@@ -3681,7 +3536,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
           boxShadow: "inset -4px 0 12px rgba(0,0,0,0.03), 4px 0 10px rgba(0,0,0,0.05)"
         }}>
           {/* 検索窓 */}
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 検索…"
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t(locale, "editor_2ea081")}
             style={{
               width: "100%", boxSizing: "border-box", padding: "6px 10px", fontSize: 11,
               background: "#ffffff",
@@ -3696,8 +3551,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
           {/* STEP 1：やさしいカテゴリ（物語順 いつ→どうなる→もっと） */}
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <div style={{ fontSize: 10, fontWeight: 900, color: "#64748b", letterSpacing: "0.08em", paddingLeft: 4 }}>
-              STEP 1: まず えらぶ
-            </div>
+              {t(locale, "editor_3ecc6b")}</div>
             <div style={{ display: "flex", gap: 8 }}>
               {FRIENDLY_GROUPS.map(g => {
                 const TIcon = (LucideIcons as any)[g.icon] || LucideIcons.HelpCircle;
@@ -3744,7 +3598,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
           {/* アイテム選択（スロットなし・ボタンリスト） */}
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <div style={{ fontSize: 10, fontWeight: 900, color: "#64748b", letterSpacing: "0.08em", paddingLeft: 4 }}>
-              STEP 2: {searching ? "けんさく結果" : `${currentGroup.label} をえらぶ`} <span style={{ color: "#94a3b8", fontWeight: 700 }}>（{filtered.length}）</span>
+              STEP 2: {searching ? t(locale, "editor_4d9a9e") : `${currentGroup.label} をえらぶ`} <span style={{ color: "#94a3b8", fontWeight: 700 }}>（{filtered.length}）</span>
             </div>
             <div style={{
               display: "flex", flexDirection: "column", gap: 5,
@@ -3757,8 +3611,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
             }}>
               {filtered.length === 0 && (
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textAlign: "center", padding: "16px 0" }}>
-                  みつからなかった…
-                </div>
+                  {t(locale, "editor_08cc70")}</div>
               )}
               {filtered.map(tmpl => {
                 const c = CAT[tmpl.category];
@@ -3802,8 +3655,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
           {selectedTemplate && selectedTemplate.fields.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
               <div style={{ fontSize: 10, fontWeight: 900, color: "#64748b", letterSpacing: "0.05em", paddingLeft: 4 }}>
-                STEP 3: 中身をセット
-              </div>
+                {t(locale, "editor_77514e")}</div>
               {selectedTemplate.fields.map(f => (
                 <FieldSlot
                   key={f.id}
@@ -3823,7 +3675,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               if (!selectedTemplate) return;
               // 手札トレイは最大2枚。いっぱいなら先にキャンバスへ出してもらう。
               if (tray.length >= 2) {
-                showToast("手札は2枚まで。先にカードをキャンバスへ出してね", "warning");
+                showToast(t(locale, "editor_be228e"), "warning");
                 return;
               }
               // 直接キャンバスへ置かず、まず手札トレイに積む（右パネル下）。
@@ -4064,7 +3916,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                   {/* ❓作り方(TutorialOverlay)＝はじめての人への道案内、
                       こちら＝操作の早見表。同じ「作り方」だと入口が2つあるように見えるので
                       名前で役割を分ける。ショートカット一覧はこちらにしかない情報。 */}
-                  <span style={{ fontSize: 16, fontWeight: 900, letterSpacing: "0.06em", color: "#334155" }}>🛠️ そうさ早見表</span>
+                  <span style={{ fontSize: 16, fontWeight: 900, letterSpacing: "0.06em", color: "#334155" }}>{t(locale, "editor_6605de")}</span>
                   <button onClick={() => setShowHelp(false)} style={{
                     width: 28, height: 28, borderRadius: 8, border: "none",
                     background: "rgba(0,0,0,0.05)", color: "#64748b", cursor: "pointer",
@@ -4073,12 +3925,12 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 </div>
                 <div style={{ padding: "16px 22px 22px" }}>
                   {[
-                    { icon: "🎹", title: "キーをえらぶ", t: <>画面の <b>下のキーボード</b> で、カテゴリ（<b>きっかけ・すること…</b>）をえらぶよ</> },
-                    { icon: "⬇️", title: "キーを押す → カードが出る", t: <>キーを押すと、カードが <b>そのままキャンバスに出る</b>。中身は <b>カードの上で</b> なおせるよ（手札トレイはもう無いよ）</> },
-                    { icon: "🃏", title: "重ねるだけ！", t: <>カードを 別のカードに <b>かさねると ピタッ！</b> と上から順番につながる。<br />これだけでプログラムになるよ ✨</> },
-                    { icon: "❓", title: "「もしも」もかさねる", t: <><b>もしも</b> カードに 動きのカードを <b>かさねる</b> だけで、条件として組みこまれるよ</> },
-                    { icon: "🎉", title: "アドオン完成！", t: <>右下の明るい緑の <b style={{ color: "#16a34a" }}>アドオン完成！🎉</b> キーを押すと、コードができあがる</> },
-                    { icon: "🚀", title: "ダウンロードしてマイクラへ", t: <>上の <b>🚀 マイクラへ</b> タブを開いて <b style={{ color: "#16a34a" }}>⚡ ビルド＆ダウンロード</b>。<br />できた <b>.mcaddon</b> をマイクラに読みこめば完成！</> },
+                    { icon: "🎹", title: t(locale, "editor_ccf01d"), t: <>{t(locale, "editor_8f661b")}<b>{t(locale, "editor_cb727e")}</b> {t(locale, "editor_6d973f")}<b>{t(locale, "editor_1990b8")}</b>{t(locale, "editor_2091ac")}</> },
+                    { icon: "⬇️", title: t(locale, "editor_1b3f74"), t: <>{t(locale, "editor_f39f07")}<b>{t(locale, "editor_7d4af7")}</b>{t(locale, "editor_077475")}<b>{t(locale, "editor_08ca7c")}</b> {t(locale, "editor_26fcee")}</> },
+                    { icon: "🃏", title: t(locale, "editor_5f5b08"), t: <>{t(locale, "editor_a94df2")}<b>{t(locale, "editor_d590e8")}</b> {t(locale, "editor_d431fd")}<br />{t(locale, "editor_cfb7b7")}</> },
+                    { icon: "❓", title: t(locale, "editor_5e6b34"), t: <><b>{t(locale, "editor_d023e0")}</b> {t(locale, "editor_77fea4")}<b>{t(locale, "editor_651c74")}</b> {t(locale, "editor_f4b4d8")}</> },
+                    { icon: "🎉", title: t(locale, "editor_058e2e"), t: <>{t(locale, "editor_4f1fe3")}<b style={{ color: "#16a34a" }}>{t(locale, "editor_a85b20")}</b> {t(locale, "editor_750fea")}</> },
+                    { icon: "🚀", title: t(locale, "editor_3e2709"), t: <>{t(locale, "editor_440e02")}<b>{t(locale, "editor_ec4ba0")}</b> {t(locale, "editor_b33622")}<b style={{ color: "#16a34a" }}>{t(locale, "editor_2f9a6c")}</b>{t(locale, "punct.period")}<br />{t(locale, "editor_620533")}<b>.mcaddon</b> {t(locale, "editor_05133b")}</> },
                   ].map((s, i) => (
                     <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 13, marginBottom: 16 }}>
                       <span style={{
@@ -4100,7 +3952,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                     marginTop: 4, paddingTop: 12, borderTop: "1px dashed rgba(148,163,184,0.4)",
                     fontSize: 11.5, color: "#64748b", fontWeight: 600, lineHeight: 1.8,
                   }}>
-                    🗑 消す = えらんで <b>×</b> / <b>Delete</b>　　📑 コピー = <b>Ctrl+D</b>　　🚫 やめる = <b>Esc</b>
+                    {t(locale, "editor_669ea9")}<b>×</b> / <b>Delete</b>　　{t(locale, "editor_e58cfa")}<b>Ctrl+D</b>　　{t(locale, "editor_82b2d8")}<b>Esc</b>
                   </div>
                   {/* 早見表だけ見つけて「そもそもの作り方」に辿り着けない人が出ないよう、
                       ここからチュートリアルへ行けるようにする（逆側の導線は ❓作り方）。 */}
@@ -4112,8 +3964,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                       fontSize: 12, fontWeight: 900, cursor: "pointer",
                     }}
                   >
-                    📖 はじめての人はこちら（作り方ガイド）
-                  </button>
+                    {t(locale, "editor_912c61")}</button>
                 </div>
               </div>
             </div>
@@ -4139,11 +3990,11 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               <span style={{ fontSize: 12 }}>📦</span>
               <span style={{
                 fontFamily: "monospace", letterSpacing: "0.02em", color: "#0ea5e9"
-              }}>{mounted ? blocks.length : 0}<span style={{ fontSize: 9, marginLeft: 1 }}>個</span></span>
+              }}>{mounted ? blocks.length : 0}<span style={{ fontSize: 9, marginLeft: 1 }}>{t(locale, "editor_087637")}</span></span>
             </div>
 
             {/* ズーム倍率 */}
-            <button onClick={resetPanZoom} title="クリックで 100% + 画面中央に戻る" style={{
+            <button onClick={resetPanZoom} title={t(locale, "editor_e80bb1")} style={{
               background: "rgba(255, 255, 255, 0.85)",
               backdropFilter: "blur(4px)",
               border: "1px solid rgba(0,0,0,0.08)",
@@ -4203,7 +4054,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               rightOffset={isMobile ? 20 : 176}
               onGather={() => {
                 const { blocks: bl, } = live.current;
-                if (!bl.length) { showToast("まだカードがないよ 🃏", "warning"); return; }
+                if (!bl.length) { showToast(t(locale, "editor_7386a7"), "warning"); return; }
                 const rect = containerRef.current?.getBoundingClientRect();
                 if (!rect) return;
                 const z = getDefaultZoom(); // 100%
@@ -4215,7 +4066,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 const availH = kb ? (kb.top - rect.top) : rect.height;
                 setZoom(z);
                 setPan({ x: rect.width / 2 - cx * z, y: availH / 2 - cy * z });
-                playAddSound(); showToast("カードを100%で集めたよ！ 🧲", "success");
+                playAddSound(); showToast(t(locale, "editor_97d47f"), "success");
               }}
             />
           )}
@@ -4242,8 +4093,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer",
                 }}
               >
-                <span style={{ fontSize: 22 }}>➕</span> カード
-              </button>
+                <span style={{ fontSize: 22 }}>➕</span> {t(locale, "editor_c8bf9a")}</button>
               <button
                 onClick={openMobileTools}
                 style={{
@@ -4254,8 +4104,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 6, cursor: "pointer",
                 }}
               >
-                <span style={{ fontSize: 17 }}>🔧</span> ツール
-              </button>
+                <span style={{ fontSize: 17 }}>🔧</span> {t(locale, "editor_3f20fe")}</button>
             </div>
           )}
 
@@ -4306,7 +4155,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {simpleMode ? "🔰 かんたん" : "🎓 ぜんぶ"}
+                    {simpleMode ? t(locale, "editor_0c4c70") : t(locale, "editor_a8a79f")}
                   </button>
                 {KEYBOARD_CATS.map(kc => {
                   const c = CAT[kc.cat];
@@ -4373,7 +4222,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                           fontWeight: 900, fontSize: 11.5, color: c.text, whiteSpace: "nowrap",
                         }}>
                         <span style={{ fontSize: 13 }}>{COND_EMOJI[cond] || "🔀"}</span>
-                        もしも<b style={{ color: c.side }}>{cond}</b>なら<span style={{ marginLeft: 1 }}>✨</span>
+                        {t(locale, "editor_d023e0")}<b style={{ color: c.side }}>{cond}</b>{t(locale, "editor_11f721")}<span style={{ marginLeft: 1 }}>✨</span>
                       </button>
                     );
                   })
@@ -4457,7 +4306,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 fontSize: 10, fontWeight: 900, lineHeight: 1.2, textAlign: "center",
                 color: trashHot ? "#7f1d1d" : "#64748b", whiteSpace: "pre-line",
               }}>
-                {trashHot ? "はなすと\nすてる" : "ここへ"}
+                {trashHot ? t(locale, "editor_419cbf") : t(locale, "editor_c99b08")}
               </span>
             </div>
           )}
@@ -4503,7 +4352,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                   height: 30, flexShrink: 0, borderRadius: 9, border: "2.5px solid #1e293b",
                   background: "#ef4444", color: "#fff", fontSize: 12, fontWeight: 900,
                   cursor: "pointer", boxShadow: "0 3px 0 #991b1b",
-                }}>✕ とじる</button>
+                }}>{t(locale, "editor_f5644f")}</button>
               )}
 
               {/* ボタン本体：縦1列。アイコンとラベルを横に並べ、文字を読める大きさに戻す */}
@@ -4512,22 +4361,22 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 overflowY: "auto", minHeight: 0,
               }}>
                 {[
-                  { emoji: "↩", label: "戻る", on: false, fn: () => undo() },
-                  { emoji: "↪", label: "進む", on: false, fn: () => redo() },
-                  { emoji: "📖", label: "入れ方", on: showInstallGuide, fn: () => setShowInstallGuide(v => !v) },
-                  { emoji: "🎯", label: "ガイド", on: showSnapGuide, fn: () => setShowSnapGuide(v => !v) },
-                  { emoji: "🗑️", label: "クリア", on: false, fn: () => { if (window.confirm("キャンバス上のすべてのカードを消去しますか？")) { setBlocks([]); setSelected(null); playDeleteSound(); showToast("すべてのカードを消去しました", "warning"); } } },
-                  { emoji: "💾", label: "保存", on: showProjects, fn: () => setShowProjects(v => !v) },
-                  { emoji: "🎮", label: "サンプル", on: showTemplates, fn: () => setShowTemplates(v => !v) },
+                  { emoji: "↩", label: t(locale, "editor_4a622f"), on: false, fn: () => undo() },
+                  { emoji: "↪", label: t(locale, "editor_b2b811"), on: false, fn: () => redo() },
+                  { emoji: "📖", label: t(locale, "editor_67d80d"), on: showInstallGuide, fn: () => setShowInstallGuide(v => !v) },
+                  { emoji: "🎯", label: t(locale, "editor_b93138"), on: showSnapGuide, fn: () => setShowSnapGuide(v => !v) },
+                  { emoji: "🗑️", label: t(locale, "editor_deba64"), on: false, fn: () => { if (window.confirm(t(locale, "editor_d17502"))) { setBlocks([]); setSelected(null); playDeleteSound(); showToast(t(locale, "editor_e74a18"), "warning"); } } },
+                  { emoji: "💾", label: t(locale, "editor_be5fbb"), on: showProjects, fn: () => setShowProjects(v => !v) },
+                  { emoji: "🎮", label: t(locale, "editor_dd5b69"), on: showTemplates, fn: () => setShowTemplates(v => !v) },
                   {
-                    emoji: "📣", label: "みせる", on: showShare, fn: () => {
+                    emoji: "📣", label: t(locale, "editor_a25149"), on: showShare, fn: () => {
                       // カードが1枚も無いと、開いた相手の画面で何も動かない
-                      if (!blocks.length) { showToast("まずカードをおいてね 🃏", "warning"); return; }
+                      if (!blocks.length) { showToast(t(locale, "editor_db5816"), "warning"); return; }
                       setShowShare(v => !v);
                     }
                   },
-                  { emoji: "💻", label: "コード", on: showCode, fn: () => setShowCode(v => !v) },
-                  { emoji: "❓", label: "作り方", on: showTutorial, fn: () => setShowTutorial(v => !v) },
+                  { emoji: "💻", label: t(locale, "editor_50ee82"), on: showCode, fn: () => setShowCode(v => !v) },
+                  { emoji: "❓", label: t(locale, "editor_dedf94"), on: showTutorial, fn: () => setShowTutorial(v => !v) },
                 ].map(tk => (
                   <button key={tk.label} className="toy-key" title={tk.label} onClick={tk.fn}
                     style={{
@@ -4552,7 +4401,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                     playSuccessSound();
                     setTriggerConfetti(true);
                     setShowInstallGuide(true);
-                    const lines = (genCode || "// まず きっかけ カードを置いて繋げよう").split("\n");
+                    const lines = (genCode || t(locale, "editor_e06732")).split("\n");
                     setReveal(lines);
                     setExportArmed(true);
                   }}
@@ -4569,8 +4418,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                     fontWeight: 900, fontSize: 13, letterSpacing: "0.03em", lineHeight: 1.25,
                     opacity: isLogicValid ? 1 : 0.85,
                   }}>
-                  アドオン完成！🎉
-                </button>
+                  {t(locale, "editor_a85b20")}</button>
               )}
             </div>
           )}
@@ -4581,7 +4429,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               <button disabled={!isLogicValid}
                 onClick={() => {
                   playSuccessSound();
-                  const lines = (genCode || "// まず きっかけ カードを置いて繋げよう").split("\n");
+                  const lines = (genCode || t(locale, "editor_e06732")).split("\n");
                   setReveal(lines);
                   setExportArmed(true);
                 }}
@@ -4597,12 +4445,10 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                   color: isLogicValid ? "#052e16" : "#64748b", fontWeight: 900, fontSize: 14,
                   letterSpacing: "0.03em", whiteSpace: "nowrap",
                 }}>
-                アドオン完成！🎉
-              </button>
+                {t(locale, "editor_a85b20")}</button>
               {!isLogicValid && (
                 <span className="font-pixel text-[10px] text-[#ef4444] font-bold" style={{ textShadow: "1px 1px 0px white, -1px -1px 0px white, 1px -1px 0px white, -1px 1px 0px white" }}>
-                  (カードをつなごう)
-                </span>
+                  {t(locale, "editor_d7a278")}</span>
               )}
             </div>
           )}
@@ -4651,8 +4497,8 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                   <span style={{ width: 24, height: 24, borderRadius: 7, background: c.bg, border: "2px solid #1e293b", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <EIcon size={14} color="#fff" strokeWidth={2.6} />
                   </span>
-                  <span style={{ fontSize: 12.5, fontWeight: 900, color: "#1e293b" }}>{sb.label} の中身</span>
-                  <button onClick={() => setEditorCollapsed(true)} title="隠す（カードをダブルタップでも隠せます）"
+                  <span style={{ fontSize: 12.5, fontWeight: 900, color: "#1e293b" }}>{sb.label} {t(locale, "editor_55bb3a")}</span>
+                  <button onClick={() => setEditorCollapsed(true)} title={t(locale, "editor_18f530")}
                     style={{ marginLeft: "auto", width: 22, height: 22, borderRadius: 6, border: "1.5px solid #e2e8f0", background: "#f8fafc", color: "#64748b", fontSize: 12, fontWeight: 900, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>✕</button>
                 </div>
                 {sb.fields.map(f => (
@@ -4664,9 +4510,8 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 {canSticker && (
                   <div style={{ borderTop: "2px dashed #f1f5f9", paddingTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
                     <div style={{ fontSize: 11, fontWeight: 900, color: "#be185d" }}>
-                      🏷️ 条件シール
-                      <span style={{ marginLeft: 5, fontWeight: 700, color: "#94a3b8", fontSize: 9.5 }}>
-                        {(sb.stickers?.length ?? 0) === 0 ? "いつでも動く" : "このときだけ動く"}
+                      {t(locale, "editor_facea2")}<span style={{ marginLeft: 5, fontWeight: 700, color: "#94a3b8", fontSize: 9.5 }}>
+                        {(sb.stickers?.length ?? 0) === 0 ? t(locale, "editor_680cfb") : t(locale, "editor_deab52")}
                       </span>
                     </div>
 
@@ -4680,13 +4525,11 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                         }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                             <span style={{ flex: 1, fontSize: 10.5, fontWeight: 900, color: s.neg ? "#9a3412" : "#9d174d" }}>
-                              {(st?.label ?? s.type).replace(/か$/, "")}{s.neg ? "じゃない" : ""}とき
-                            </span>
-                            <button onClick={() => flipSticker(sb.id, s.id)} title="めくる（〜じゃないとき に変える）"
+                              {(st?.label ?? s.type).replace(/か$/, "")}{s.neg ? t(locale, "editor_d8a16b") : ""}{t(locale, "editor_a1d536")}</span>
+                            <button onClick={() => flipSticker(sb.id, s.id)} title={t(locale, "editor_437328")}
                               style={{ border: "1.5px solid #cbd5e1", background: "#fff", borderRadius: 6, fontSize: 9.5, fontWeight: 900, padding: "2px 6px", cursor: "pointer", color: "#475569" }}>
-                              ↺ めくる
-                            </button>
-                            <button onClick={() => removeSticker(sb.id, s.id)} title="はがす"
+                              {t(locale, "editor_d7a749")}</button>
+                            <button onClick={() => removeSticker(sb.id, s.id)} title={t(locale, "editor_1e35e4")}
                               style={{ border: "none", background: "rgba(0,0,0,0.08)", borderRadius: "50%", width: 18, height: 18, fontSize: 10, fontWeight: 900, cursor: "pointer", color: "#475569" }}>
                               ✕
                             </button>
@@ -4883,7 +4726,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 gap: 4,
                 width: "100%"
               }}>
-                <span>🃏 手札トレイ</span>
+                <span>{t(locale, "editor_1991ea")}</span>
                 {tray.length > 0 && (
                   <span style={{
                     background: "#3b82f6",
@@ -4913,8 +4756,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 }}>
                   <span style={{ fontSize: 24 }}>✨</span>
                   <span style={{ fontSize: 9, fontWeight: 900, textAlign: "center", lineHeight: 1.3 }}>
-                    SPAWNしたカードが<br />ここに並ぶよ
-                  </span>
+                    {t(locale, "editor_c2ad41")}<br />{t(locale, "editor_9b94cb")}</span>
                 </div>
               ) : (
                 tray.map((it) => {
@@ -4925,7 +4767,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                     <button
                       key={it.key}
                       onPointerDown={(e) => handleTrayDragStart(e, it)}
-                      title="ドラッグしてキャンバスに置く"
+                      title={t(locale, "editor_6c3872")}
                       className="btn-card"
                       style={{
                         width: 82,
@@ -5044,7 +4886,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                 <button
                   onClick={undo}
-                  title="元に戻す (Ctrl+Z)"
+                  title={t(locale, "editor_b184ed")}
                   style={{
                     width: 44, height: 40, borderRadius: "9px",
                     background: "linear-gradient(135deg, #ffd1dc 0%, #ff9ebb 100%)", // いちごミルク
@@ -5072,14 +4914,14 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 >
                   ↩
                 </button>
-                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>戻る</span>
+                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>{t(locale, "editor_4a622f")}</span>
               </div>
 
               {/* 2. 進む */}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                 <button
                   onClick={redo}
-                  title="やり直す (Ctrl+Y)"
+                  title={t(locale, "editor_64474b")}
                   style={{
                     width: 44, height: 40, borderRadius: "9px",
                     background: "linear-gradient(135deg, #c3e0e5 0%, #8ecae6 100%)", // ラムネ
@@ -5107,14 +4949,14 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 >
                   ↪
                 </button>
-                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>進む</span>
+                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>{t(locale, "editor_b2b811")}</span>
               </div>
 
               {/* 3. ガイド線 */}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                 <button
                   onClick={() => setShowSnapGuide(!showSnapGuide)}
-                  title="スナップ時のガイド線の表示/非表示"
+                  title={t(locale, "editor_b0ffc8")}
                   style={{
                     width: 44, height: 40, borderRadius: "9px",
                     background: showSnapGuide
@@ -5149,21 +4991,21 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 >
                   🎯
                 </button>
-                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>ガイド線</span>
+                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>{t(locale, "editor_530da6")}</span>
               </div>
 
               {/* 4. クリア */}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                 <button
                   onClick={() => {
-                    if (window.confirm("キャンバス上のすべてのカードを消去しますか？")) {
+                    if (window.confirm(t(locale, "editor_d17502"))) {
                       setBlocks([]);
                       setSelected(null);
                       playDeleteSound();
-                      showToast("すべてのカードを消去しました", "warning");
+                      showToast(t(locale, "editor_e74a18"), "warning");
                     }
                   }}
-                  title="すべてのカードを消去する"
+                  title={t(locale, "editor_7543f3")}
                   style={{
                     width: 44, height: 40, borderRadius: "9px",
                     background: "linear-gradient(135deg, #ffe5d9 0%, #ffcad4 100%)", // ピーチ
@@ -5191,14 +5033,14 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 >
                   🗑️
                 </button>
-                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>クリア</span>
+                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>{t(locale, "editor_deba64")}</span>
               </div>
 
               {/* 5. 保存/読込 */}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                 <button
                   onClick={() => setShowProjects(v => !v)}
-                  title="プロジェクトの保存・読み込み"
+                  title={t(locale, "editor_c78170")}
                   style={{
                     width: 44, height: 40, borderRadius: "9px",
                     background: showProjects
@@ -5233,14 +5075,14 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 >
                   💾
                 </button>
-                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>保存/読込</span>
+                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>{t(locale, "editor_978878")}</span>
               </div>
 
               {/* 6. サンプル */}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                 <button
                   onClick={() => setShowTemplates(v => !v)}
-                  title="テンプレートギャラリー"
+                  title={t(locale, "editor_838f6d")}
                   style={{
                     width: 44, height: 40, borderRadius: "9px",
                     background: showTemplates
@@ -5275,14 +5117,14 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 >
                   🎮
                 </button>
-                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>サンプル</span>
+                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>{t(locale, "editor_dd5b69")}</span>
               </div>
 
               {/* 7. コード */}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                 <button
                   onClick={() => setShowCode(v => !v)}
-                  title="生成コードを表示"
+                  title={t(locale, "editor_bc02ed")}
                   style={{
                     width: 44, height: 40, borderRadius: "9px",
                     background: showCode
@@ -5317,14 +5159,14 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 >
                   💻
                 </button>
-                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>コード</span>
+                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>{t(locale, "editor_50ee82")}</span>
               </div>
 
               {/* 8. ヘルプ */}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                 <button
                   onClick={() => setShowHelp(v => !v)}
-                  title="そうさ早見表をひらく（ショートカットなど）"
+                  title={t(locale, "editor_e26e9d")}
                   style={{
                     width: 44, height: 40, borderRadius: "9px",
                     background: showHelp
@@ -5359,7 +5201,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 >
                   🛠️
                 </button>
-                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>早見表</span>
+                <span style={{ fontSize: 10, fontWeight: 900, color: "#64748b" }}>{t(locale, "editor_7e4d2b")}</span>
               </div>
             </div>
 
@@ -5368,7 +5210,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               disabled={!isLogicValid}
               onClick={() => {
                 playSuccessSound();
-                const lines = (genCode || "// まず きっかけ カードを置いて繋げよう").split("\n");
+                const lines = (genCode || t(locale, "editor_e06732")).split("\n");
                 setReveal(lines);          // ← お祝い演出(実際のコードを見る瞬間)は必ず通す
                 setExportArmed(true);      // ← このボタンを押して初めて設定画面の書き出しを解錠
               }}
@@ -5418,7 +5260,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 }
               }}
             >
-              <span>アドオン<br />完成！🎉</span>
+              <span>{t(locale, "editor_b6e715")}<br />{t(locale, "editor_5d353b")}</span>
             </button>
           </div>
         </div>

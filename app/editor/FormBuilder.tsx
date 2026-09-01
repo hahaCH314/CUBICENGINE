@@ -12,22 +12,24 @@ import {
   type FormSpec, type FormKind, type MenuButton, type FormField, type FieldKind, type ActionType,
   genFormCode, defaultSpec, newButton, newField,
 } from "../../lib/formSpec";
+import { t } from "@/lib/i18n";
+import { useEditorStore } from "@/app/editor/store";
 
 const KINDS: { key: FormKind; label: string; hint: string }[] = [
-  { key: "menu",    label: "メニュー", hint: "ボタンを縦にならべる" },
-  { key: "input",   label: "入力",     hint: "文字・トグル・スライダー等" },
-  { key: "confirm", label: "かくにん", hint: "はい / いいえ の2択" },
+  { key: "menu",    label: t(useEditorStore.getState().locale, "editor_9013ce"), hint: t(useEditorStore.getState().locale, "editor_aca2da") },
+  { key: "input",   label: t(useEditorStore.getState().locale, "editor_97364a"),     hint: t(useEditorStore.getState().locale, "editor_95384e") },
+  { key: "confirm", label: t(useEditorStore.getState().locale, "editor_86dd12"), hint: t(useEditorStore.getState().locale, "editor_6f1d0e") },
 ];
 const ACTIONS: { key: ActionType; label: string }[] = [
-  { key: "message", label: "メッセージを送る" },
-  { key: "command", label: "コマンドを実行" },
-  { key: "none",    label: "なにもしない" },
+  { key: "message", label: t(useEditorStore.getState().locale, "editor_8badc9") },
+  { key: "command", label: t(useEditorStore.getState().locale, "editor_ff25d6") },
+  { key: "none",    label: t(useEditorStore.getState().locale, "editor_1deedd") },
 ];
 const FIELD_KINDS: { key: FieldKind; label: string }[] = [
-  { key: "text",     label: "テキスト" },
+  { key: "text",     label: t(useEditorStore.getState().locale, "editor_fe9ebd") },
   { key: "toggle",   label: "ON/OFF" },
-  { key: "slider",   label: "スライダー" },
-  { key: "dropdown", label: "リスト選択" },
+  { key: "slider",   label: t(useEditorStore.getState().locale, "editor_c95b94") },
+  { key: "dropdown", label: t(useEditorStore.getState().locale, "editor_cbfdcf") },
 ];
 
 function move<T>(arr: T[], i: number, d: number): T[] {
@@ -41,6 +43,7 @@ function move<T>(arr: T[], i: number, d: number): T[] {
 export default function FormBuilder({
   initial, onSave,
 }: { initial?: FormSpec; onSave?: (spec: FormSpec) => void }) {
+    const locale = useEditorStore((s) => s.locale);
   const [spec, setSpec] = useState<FormSpec>(initial ?? defaultSpec("menu"));
   const [showCode, setShowCode] = useState(false);
   const code = useMemo(() => genFormCode(spec, "  "), [spec]);
@@ -55,7 +58,7 @@ export default function FormBuilder({
     <div style={S.wrap}>
       {/* ───────── 左：エディタ ───────── */}
       <div style={S.editor}>
-        <div style={S.h}>フォームを組む</div>
+        <div style={S.h}>{t(locale, "editor_1a99d4")}</div>
 
         {/* 型えらび */}
         <div style={S.seg}>
@@ -69,10 +72,10 @@ export default function FormBuilder({
         <div style={S.hintRow}>{KINDS.find(k => k.key === spec.kind)?.hint}</div>
 
         {/* タイトル・本文 */}
-        <Label t="タイトル" />
+        <Label t={t(locale, "editor_77d0d6")} />
         <input style={S.input} value={spec.title} onChange={e => patch({ title: e.target.value })} />
         {spec.kind !== "input" && (<>
-          <Label t="説明文" />
+          <Label t={t(locale, "editor_172841")} />
           <input style={S.input} value={spec.body} onChange={e => patch({ body: e.target.value })} />
         </>)}
 
@@ -80,15 +83,15 @@ export default function FormBuilder({
         {spec.kind === "menu" && (
           <div style={{ marginTop: 14 }}>
             <div style={S.sectionHead}>
-              <span>ボタン（{spec.buttons.length}）</span>
-              <button style={S.add} onClick={() => patch({ buttons: [...spec.buttons, newButton()] })}>＋ 追加</button>
+              <span>{t(locale, "editor_4c3769")}{spec.buttons.length}）</span>
+              <button style={S.add} onClick={() => patch({ buttons: [...spec.buttons, newButton()] })}>{t(locale, "editor_241b8b")}</button>
             </div>
             {spec.buttons.map((b, i) => (
               <div key={b.id} style={S.card}>
                 <div style={S.cardTop}>
                   <span style={S.num}>{i + 1}</span>
                   <input style={{ ...S.input, margin: 0, flex: 1 }} value={b.label}
-                    onChange={e => patchBtn(i, { label: e.target.value })} placeholder="ボタンの文字" />
+                    onChange={e => patchBtn(i, { label: e.target.value })} placeholder={t(locale, "editor_80e34e")} />
                   <Reorder onUp={() => patch({ buttons: move(spec.buttons, i, -1) })}
                            onDown={() => patch({ buttons: move(spec.buttons, i, 1) })}
                            onDel={() => patch({ buttons: spec.buttons.filter((_, k) => k !== i) })} />
@@ -101,7 +104,7 @@ export default function FormBuilder({
                   {b.action.type !== "none" && (
                     <input style={{ ...S.input, margin: 0, flex: 1 }} value={b.action.value}
                       onChange={e => patchBtn(i, { action: { ...b.action, value: e.target.value } })}
-                      placeholder={b.action.type === "command" ? "例: say クリア！" : "送るメッセージ"} />
+                      placeholder={b.action.type === "command" ? t(locale, "editor_165de4") : t(locale, "editor_5951de")} />
                   )}
                 </div>
               </div>
@@ -113,8 +116,8 @@ export default function FormBuilder({
         {spec.kind === "input" && (
           <div style={{ marginTop: 14 }}>
             <div style={S.sectionHead}>
-              <span>入力欄（{spec.fields.length}）</span>
-              <button style={S.add} onClick={() => patch({ fields: [...spec.fields, newField()] })}>＋ 追加</button>
+              <span>{t(locale, "editor_0605bd")}{spec.fields.length}）</span>
+              <button style={S.add} onClick={() => patch({ fields: [...spec.fields, newField()] })}>{t(locale, "editor_241b8b")}</button>
             </div>
             {spec.fields.map((f, i) => (
               <div key={f.id} style={S.card}>
@@ -129,12 +132,12 @@ export default function FormBuilder({
                            onDel={() => patch({ fields: spec.fields.filter((_, k) => k !== i) })} />
                 </div>
                 <input style={{ ...S.input, marginTop: 6 }} value={f.label}
-                  onChange={e => patchField(i, { label: e.target.value })} placeholder="ラベル" />
+                  onChange={e => patchField(i, { label: e.target.value })} placeholder={t(locale, "editor_fddf3e")} />
                 {f.kind === "toggle" && (
                   <select style={{ ...S.select, marginTop: 6, width: "100%" }} value={f.def}
                     onChange={e => patchField(i, { def: e.target.value })}>
-                    <option value="OFF">初期: OFF</option>
-                    <option value="ON">初期: ON</option>
+                    <option value="OFF">{t(locale, "editor_974ff6")}</option>
+                    <option value="ON">{t(locale, "editor_c8c29d")}</option>
                   </select>
                 )}
                 {f.kind === "slider" && (
@@ -148,7 +151,7 @@ export default function FormBuilder({
                 )}
                 {f.kind === "dropdown" && (
                   <input style={{ ...S.input, marginTop: 6 }} value={f.options}
-                    onChange={e => patchField(i, { options: e.target.value })} placeholder="選択肢（カンマ区切り）" />
+                    onChange={e => patchField(i, { options: e.target.value })} placeholder={t(locale, "editor_7b7703")} />
                 )}
               </div>
             ))}
@@ -159,12 +162,12 @@ export default function FormBuilder({
         {spec.kind === "confirm" && (
           <div style={{ marginTop: 14 }}>
             <div style={{ display: "flex", gap: 8 }}>
-              <div style={{ flex: 1 }}><Label t="はい ボタン" />
+              <div style={{ flex: 1 }}><Label t={t(locale, "editor_c975af")} />
                 <input style={S.input} value={spec.yes} onChange={e => patch({ yes: e.target.value })} /></div>
-              <div style={{ flex: 1 }}><Label t="いいえ ボタン" />
+              <div style={{ flex: 1 }}><Label t={t(locale, "editor_341b11")} />
                 <input style={S.input} value={spec.no} onChange={e => patch({ no: e.target.value })} /></div>
             </div>
-            <Label t="「はい」を押したとき" />
+            <Label t={t(locale, "editor_37e414")} />
             <div style={S.actionRow}>
               <select style={S.select} value={spec.onYes.type}
                 onChange={e => patch({ onYes: { ...spec.onYes, type: e.target.value as ActionType } })}>
@@ -173,28 +176,27 @@ export default function FormBuilder({
               {spec.onYes.type !== "none" && (
                 <input style={{ ...S.input, margin: 0, flex: 1 }} value={spec.onYes.value}
                   onChange={e => patch({ onYes: { ...spec.onYes, value: e.target.value } })}
-                  placeholder={spec.onYes.type === "command" ? "例: time set day" : "送るメッセージ"} />
+                  placeholder={spec.onYes.type === "command" ? t(locale, "editor_9e8fa3") : t(locale, "editor_5951de")} />
               )}
             </div>
           </div>
         )}
 
         {onSave && (
-          <button style={S.save} onClick={() => onSave(spec)}>このフォームを使う</button>
+          <button style={S.save} onClick={() => onSave(spec)}>{t(locale, "editor_410c80")}</button>
         )}
       </div>
 
       {/* ───────── 右：プレビュー＆コード ───────── */}
       <div style={S.side}>
-        <div style={S.h}>プレビュー</div>
+        <div style={S.h}>{t(locale, "editor_21b7d4")}</div>
         <Preview spec={spec} />
         <button style={S.codeToggle} onClick={() => setShowCode(v => !v)}>
-          {showCode ? "▲ コードをかくす" : "▼ 生成コードを見る"}
+          {showCode ? t(locale, "editor_fac65f") : t(locale, "editor_0bdc5e")}
         </button>
         {showCode && <pre style={S.code}>{code}</pre>}
         <div style={S.note}>
-          ※ Bedrockのフォームは自由レイアウト不可。この3型の範囲で作れます。
-        </div>
+          {t(locale, "editor_7fe912")}</div>
       </div>
     </div>
   );
@@ -202,28 +204,29 @@ export default function FormBuilder({
 
 /* ───────── プレビュー（Minecraftのフォーム風モック） ───────── */
 function Preview({ spec }: { spec: FormSpec }) {
+    const locale = useEditorStore((s) => s.locale);
   return (
     <div style={S.mcForm}>
-      <div style={S.mcTitle}>{spec.title || "（タイトル）"}</div>
+      <div style={S.mcTitle}>{spec.title || t(locale, "editor_ff3f09")}</div>
       {spec.kind !== "input" && spec.body && <div style={S.mcBody}>{spec.body}</div>}
       {spec.kind === "menu" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           {(spec.buttons.length ? spec.buttons : [newButton("OK")]).map(b => (
-            <div key={b.id} style={S.mcBtn}>{b.label || "（ボタン）"}</div>
+            <div key={b.id} style={S.mcBtn}>{b.label || t(locale, "editor_436160")}</div>
           ))}
         </div>
       )}
       {spec.kind === "confirm" && (
         <div style={{ display: "flex", gap: 8 }}>
-          <div style={{ ...S.mcBtn, flex: 1 }}>{spec.yes || "はい"}</div>
-          <div style={{ ...S.mcBtn, flex: 1 }}>{spec.no || "いいえ"}</div>
+          <div style={{ ...S.mcBtn, flex: 1 }}>{spec.yes || t(locale, "editor_c4836e")}</div>
+          <div style={{ ...S.mcBtn, flex: 1 }}>{spec.no || t(locale, "editor_5c7c39")}</div>
         </div>
       )}
       {spec.kind === "input" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {(spec.fields.length ? spec.fields : [newField("text")]).map(f => (
             <div key={f.id}>
-              <div style={S.mcLabel}>{f.label || "こうもく"}</div>
+              <div style={S.mcLabel}>{f.label || t(locale, "editor_9e53f6")}</div>
               {f.kind === "toggle" ? (
                 <div style={{ ...S.mcToggle, justifyContent: f.def === "ON" ? "flex-end" : "flex-start" }}>
                   <span style={S.mcKnob} />
@@ -247,11 +250,12 @@ function Preview({ spec }: { spec: FormSpec }) {
 /* ───────── 小さな部品 ───────── */
 function Label({ t }: { t: string }) { return <div style={S.label}>{t}</div>; }
 function Reorder({ onUp, onDown, onDel }: { onUp: () => void; onDown: () => void; onDel: () => void }) {
+    const locale = useEditorStore((s) => s.locale);
   return (
     <div style={{ display: "flex", gap: 4 }}>
-      <button style={S.mini} onClick={onUp} title="上へ">▲</button>
-      <button style={S.mini} onClick={onDown} title="下へ">▼</button>
-      <button style={{ ...S.mini, color: "#f87171" }} onClick={onDel} title="削除">✕</button>
+      <button style={S.mini} onClick={onUp} title={t(locale, "editor_a06d0c")}>▲</button>
+      <button style={S.mini} onClick={onDown} title={t(locale, "editor_120514")}>▼</button>
+      <button style={{ ...S.mini, color: "#f87171" }} onClick={onDel} title={t(locale, "editor_c6577c")}>✕</button>
     </div>
   );
 }

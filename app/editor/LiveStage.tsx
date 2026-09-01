@@ -10,6 +10,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { CBlock } from "./_types";
 import { useThemeStore, WORLD_THEMES, WorldTheme } from "./worldThemes";
+import { t as i18nT } from "@/lib/i18n";
+import { useEditorStore } from "@/app/editor/store";
 
 /* 一手＝1ビート */
 type Beat = {
@@ -130,6 +132,7 @@ function Hero({ asleep, x, hop, kind }: { asleep: boolean; x: number; hop: boole
 
 /* ───────── 各ビートの演出レイヤー ───────── */
 function Fx({ beat }: { beat: Beat }) {
+    const locale = useEditorStore((s) => s.locale);
   const f = beat.fields;
   const t = beat.type;
 
@@ -151,7 +154,7 @@ function Fx({ beat }: { beat: Beat }) {
   if (t === "ac_title") {
     return (
       <div key={beat.id} style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 6, pointerEvents: "none" }}>
-        <div style={{ fontSize: 26, fontWeight: 900, color: "#fff", textShadow: "0 2px 0 #000, 0 0 12px rgba(255,255,255,0.6)", animation: "ls-title 0.5s cubic-bezier(0.2,1.4,0.4,1)" }}>{f.title || "タイトル"}</div>
+        <div style={{ fontSize: 26, fontWeight: 900, color: "#fff", textShadow: "0 2px 0 #000, 0 0 12px rgba(255,255,255,0.6)", animation: "ls-title 0.5s cubic-bezier(0.2,1.4,0.4,1)" }}>{f.title || i18nT(locale, "editor_77d0d6")}</div>
         {f.sub && <div style={{ fontSize: 12, fontWeight: 800, color: "#ffe08a", marginTop: 4, textShadow: "0 1px 2px #000", animation: "ls-title 0.6s ease" }}>{f.sub}</div>}
       </div>
     );
@@ -189,14 +192,14 @@ function Fx({ beat }: { beat: Beat }) {
   }
   // 待機
   if (t === "ct_wait") {
-    return <div key={beat.id} style={chipWrap}><div style={chip}>⏳ {f.s || "1"}秒…</div></div>;
+    return <div key={beat.id} style={chipWrap}><div style={chip}>⏳ {f.s || "1"}{i18nT(locale, "editor_95e20e")}</div></div>;
   }
   // 条件・繰り返し・その他は思考/タグで表現
   if (beat.category === "ifelse") {
-    return <div key={beat.id} style={chipWrap}><div style={{ ...chip, background: "#3a2f4d" }}>🤔 もし「{beat.label}」？</div></div>;
+    return <div key={beat.id} style={chipWrap}><div style={{ ...chip, background: "#3a2f4d" }}>{i18nT(locale, "editor_c4fbf3")}{beat.label}」？</div></div>;
   }
   if (t === "ct_rep") {
-    return <div key={beat.id} style={chipWrap}><div style={chip}>🔁 ×{f.n || "?"} くりかえし</div></div>;
+    return <div key={beat.id} style={chipWrap}><div style={chip}>🔁 ×{f.n || "?"} {i18nT(locale, "editor_fab78e")}</div></div>;
   }
   // 汎用フォールバック
   return (
@@ -207,7 +210,7 @@ function Fx({ beat }: { beat: Beat }) {
 }
 
 function shortId(v?: string) {
-  if (!v) return "アイテム";
+  if (!v) return i18nT(useEditorStore.getState().locale, "editor_1769f6");
   return v.replace(/^minecraft:/, "");
 }
 
@@ -351,6 +354,7 @@ function orderPlaced(blocks: CBlock[]): { b: CBlock; depth: number; loose: boole
 // rightOffset: 右端から空ける距離。PCでは道具リモコン(幅152+右12)が右端に立っているので、
 // その分ずらさないとプレビューや「置いたカード」がリモコンの下に潜って読めなくなる。
 export default function LiveStage({ blocks, onGather, rightOffset = 20 }: { blocks: CBlock[]; onGather?: () => void; rightOffset?: number }) {
+    const locale = useEditorStore((s) => s.locale);
   const seq = useMemo(() => buildSequence(blocks), [blocks]);
   const [step, setStep] = useState(0);
   const [hopKey, setHopKey] = useState(0);
@@ -394,25 +398,7 @@ export default function LiveStage({ blocks, onGather, rightOffset = 20 }: { bloc
       zIndex: 25,
       pointerEvents: "none",
     }}>
-      <style>{`
-        @keyframes ls-bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
-        @keyframes ls-hop { 0%{transform:translateY(0)} 35%{transform:translateY(-10px) scaleY(1.05)} 70%{transform:translateY(0) scaleY(0.94)} 100%{transform:translateY(0)} }
-        @keyframes ls-sleep { 0%,100%{transform:rotate(-2deg)} 50%{transform:rotate(2deg) translateY(-2px)} }
-        @keyframes ls-pop { 0%{transform:scale(0.4);opacity:0} 60%{transform:scale(1.08)} 100%{transform:scale(1);opacity:1} }
-        @keyframes ls-drop { 0%{transform:translateY(-34px) rotate(-12deg);opacity:0} 60%{opacity:1} 100%{transform:translateY(0) rotate(0)} }
-        @keyframes ls-title { 0%{transform:scale(0.5);opacity:0} 70%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
-        @keyframes ls-ring { 0%{width:10px;height:10px;opacity:0.8} 100%{width:64px;height:64px;margin-left:-32px;margin-top:-32px;opacity:0} }
-        @keyframes ls-flash { 0%{opacity:0} 40%{opacity:1} 100%{opacity:0} }
-        @keyframes ls-entrance { 0%{transform:translateX(-120px);opacity:0} 100%{transform:translateX(0);opacity:1} }
-        
-        /* アンビエント用アニメ */
-        @keyframes ls-fly-right { 0%{transform:translateX(0)} 100%{transform:translateX(650px)} }
-        @keyframes ls-fly-right-wavy { 0%{transform:translate(0,0)} 25%{transform:translate(160px,-20px)} 50%{transform:translate(320px,15px)} 75%{transform:translate(480px,-10px)} 100%{transform:translate(650px,0)} }
-        @keyframes ls-swim-left { 0%{transform:translateX(0)} 100%{transform:translateX(-650px)} }
-        @keyframes ls-swim-wobble { 0%{transform:translateY(0) rotate(0deg)} 100%{transform:translateY(8px) rotate(-5deg)} }
-        @keyframes ls-float-up { 0%{transform:translateY(0)} 100%{transform:translateY(-300px)} }
-        @keyframes ls-flap { 0%{transform:scaleY(1)} 100%{transform:scaleY(0.2)} }
-      `}</style>
+      <style>{i18nT(locale, "editor_7999f1")}</style>
 
       {/* ステージ枠（テーマ駆動） */}
       <div style={{
@@ -439,7 +425,7 @@ export default function LiveStage({ blocks, onGather, rightOffset = 20 }: { bloc
           fontSize: 11, fontWeight: 800, boxShadow: "0 2px 6px rgba(0,0,0,0.3)", zIndex: 10
         }}>
           <span style={{ width: 7, height: 7, borderRadius: "50%", background: hasTrigger ? "#ff5a5a" : "#888", boxShadow: hasTrigger ? "0 0 6px #ff5a5a" : "none" }} />
-          {active ? `${CAT_EMOJI[active.category] || "▶"} ${active.label}` : hasTrigger ? "LIVE" : "プレビュー"}
+          {active ? `${CAT_EMOJI[active.category] || "▶"} ${active.label}` : hasTrigger ? "LIVE" : i18nT(locale, "editor_21b7d4")}
         </div>
 
         {/* テーマ切替ボタン */}
@@ -453,7 +439,7 @@ export default function LiveStage({ blocks, onGather, rightOffset = 20 }: { bloc
             display: "flex", alignItems: "center", justifyContent: "center",
             transition: "transform 0.2s"
           }}
-          title="テーマ切替"
+          title={i18nT(locale, "editor_f9df5f")}
           onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
           onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
         >
@@ -472,7 +458,7 @@ export default function LiveStage({ blocks, onGather, rightOffset = 20 }: { bloc
           <>
             <Hero asleep x={0} hop={false} kind={theme.heroKind} />
             <div style={{ position: "absolute", left: 0, right: 0, top: 70, textAlign: "center", color: "rgba(255,255,255,0.8)", textShadow: "0 1px 3px rgba(0,0,0,0.4)", fontSize: 12, fontWeight: 800, pointerEvents: "none", zIndex: 10 }}>
-              {hasBlocks ? "▲ きっかけ カードから つなげてみて" : "ここに 作ったものが 動くよ"}
+              {hasBlocks ? i18nT(locale, "editor_8205b9") : i18nT(locale, "editor_eb4c18")}
             </div>
           </>
         )}
@@ -487,7 +473,7 @@ export default function LiveStage({ blocks, onGather, rightOffset = 20 }: { bloc
               borderRadius: 999, padding: "4px 12px", fontSize: 11, fontWeight: 800, cursor: "pointer",
               boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
             }}
-          >▶ もう一回</button>
+          >{i18nT(locale, "editor_49d119")}</button>
         )}
       </div>
     </div>
@@ -497,7 +483,7 @@ export default function LiveStage({ blocks, onGather, rightOffset = 20 }: { bloc
       <div data-noplace="1" style={{ ...gatherWrap, right: rightOffset }}>
         <button
           onClick={onGather}
-          title="出したカードを全部まとめて画面に映す（カードの位置は変わりません）"
+          title={i18nT(locale, "editor_0f7e19")}
           style={{
             display: "inline-flex", alignItems: "center", gap: 6,
             padding: "7px 16px", borderRadius: 11, cursor: "pointer",
@@ -507,8 +493,7 @@ export default function LiveStage({ blocks, onGather, rightOffset = 20 }: { bloc
             color: "#7c3a00", fontWeight: 900, fontSize: 13, whiteSpace: "nowrap",
           }}
         >
-          🧲 カードあつまれ
-        </button>
+          {i18nT(locale, "editor_8f0bd3")}</button>
       </div>
     )}
 
@@ -518,7 +503,7 @@ export default function LiveStage({ blocks, onGather, rightOffset = 20 }: { bloc
         {/* 木の立て札に書き出す。ただの一覧より「自分の作品の目録」に見えるほうがかわいい */}
         <div style={board}>
           <div style={boardNailL} /><div style={boardNailR} />
-          <div style={boardTitle}>📦 置いたカード（{blocks.length}）</div>
+          <div style={boardTitle}>{i18nT(locale, "editor_f8c36b")}{blocks.length}）</div>
         {/* 横に折り返すと「どれが何番目か」が読めないので、重ねた順に上から下へ1列で並べる。
             プレビューの下は幅が限られるうえ、ここでカードを組み立てるわけではないので、
             流れが読めることを優先する。 */}

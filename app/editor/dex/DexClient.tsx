@@ -18,6 +18,8 @@ import * as LucideIcons from "lucide-react";
 import { TEMPLATES } from "../../../data/templates";
 import { CAT } from "../../../data/categories";
 import type { Category, Tmpl } from "../_types";
+import { t } from "@/lib/i18n";
+import { useEditorStore } from "@/app/editor/store";
 
 /** アイコン描画ヘルパー */
 function Icon({ name, size = 18, color = "#334155" }: { name: string; size?: number; color?: string }) {
@@ -33,6 +35,7 @@ const CATEGORY_ORDER: Category[] = [
 const LS_KEY = "mmc-dex-seen";
 
 export default function DexClient() {
+    const locale = useEditorStore((s) => s.locale);
   const [seen, setSeen] = useState<string[]>([]);
   const [filter, setFilter] = useState<"all" | "seen" | "unseen">("all");
   const [selectedCategory, setSelectedCategory] = useState<Category | "all">("all");
@@ -88,7 +91,7 @@ export default function DexClient() {
   const progressRatio = Math.round((seenCount / totalCards) * 100);
 
   if (!loaded) {
-    return <div style={{ padding: "40px", textAlign: "center", color: "#64748b", fontWeight: 700 }}>図鑑アルバムを開いています... 📖</div>;
+    return <div style={{ padding: "40px", textAlign: "center", color: "#64748b", fontWeight: 700 }}>{t(locale, "editor_7e1756")}</div>;
   }
 
   return (
@@ -110,15 +113,14 @@ export default function DexClient() {
         <div style={{ minWidth: 280, flex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 800, color: "#854d0e" }}>
             <Icon name="Award" size={20} color="#ca8a04" />
-            <span>アルバム収集ステータス</span>
+            <span>{t(locale, "editor_1e1117")}</span>
           </div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 8 }}>
             <span style={{ fontSize: 32, fontWeight: 900, color: "#451a03", letterSpacing: "0.02em" }}>
               {seenCount} / {totalCards}
             </span>
             <span style={{ fontSize: 16, fontWeight: 800, color: "#a16207" }}>
-              ({progressRatio}% コンプリート)
-            </span>
+              ({progressRatio}{t(locale, "editor_921ce4")}</span>
           </div>
           {/* プログレスバー */}
           <div style={{ height: 14, width: "100%", background: "#fef08a", borderRadius: 9999, overflow: "hidden", marginTop: 10, border: "1px solid #eab308" }}>
@@ -143,8 +145,7 @@ export default function DexClient() {
           gap: 8
         }}>
           <span style={{ fontSize: 12, fontWeight: 800, color: "#9a3412" }}>
-            🎮 【検証・テスト用ヘルパー】 (カードクリックでも個別開放可)
-          </span>
+            {t(locale, "editor_d4d3fa")}</span>
           <div style={{ display: "flex", gap: 8 }}>
             <button
               onClick={unlockAll}
@@ -155,8 +156,7 @@ export default function DexClient() {
                 transition: "transform 0.1s"
               }}
             >
-              🌟 全132枚を開放
-            </button>
+              {t(locale, "editor_e47923")}</button>
             <button
               onClick={resetAll}
               style={{
@@ -165,8 +165,7 @@ export default function DexClient() {
                 fontSize: 12, fontWeight: 800
               }}
             >
-              🔒 全てシルエットに戻す
-            </button>
+              {t(locale, "editor_eae4bd")}</button>
           </div>
         </div>
       </div>
@@ -185,8 +184,7 @@ export default function DexClient() {
               border: "none"
             }}
           >
-            全カテゴリ
-          </button>
+            {t(locale, "editor_623363")}</button>
           {CATEGORY_ORDER.map(cat => {
             const def = CAT[cat];
             const active = selectedCategory === cat;
@@ -213,9 +211,9 @@ export default function DexClient() {
         {/* 取得状況フィルタ */}
         <div style={{ display: "flex", gap: 4, background: "#f1f5f9", padding: 4, borderRadius: 10 }}>
           {([
-            { key: "all", label: "全て" },
-            { key: "seen", label: "獲得済 🌟" },
-            { key: "unseen", label: "未獲得 🔒" }
+            { key: "all", label: t(locale, "editor_dbe747") },
+            { key: "seen", label: t(locale, "editor_91b2de") },
+            { key: "unseen", label: t(locale, "editor_512810") }
           ] as const).map(item => (
             <button
               key={item.key}
@@ -263,7 +261,7 @@ export default function DexClient() {
                   </h2>
                 </div>
                 <div style={{ fontSize: 14, fontWeight: 800, color: "#475569", background: "#f1f5f9", padding: "4px 12px", borderRadius: 9999 }}>
-                  獲得: {seenInCat} / {totalInCat}
+                  {t(locale, "editor_cc8015")}{seenInCat} / {totalInCat}
                 </div>
               </div>
 
@@ -301,6 +299,7 @@ function CardItem({ tmpl, isSeen, catDef, onClick }: {
   catDef: (typeof CAT)[Category];
   onClick: () => void;
 }) {
+    const locale = useEditorStore((s) => s.locale);
   const isDarkText = tmpl.category !== "variable";
 
   if (!isSeen) {
@@ -308,7 +307,7 @@ function CardItem({ tmpl, isSeen, catDef, onClick }: {
     return (
       <div
         onClick={onClick}
-        title="クリックで【テスト開放】"
+        title={t(locale, "editor_5dc525")}
         style={{
           cursor: "pointer",
           borderRadius: 16,
@@ -348,8 +347,7 @@ function CardItem({ tmpl, isSeen, catDef, onClick }: {
         {/* 謎のフレーバーテキストボックス */}
         <div style={{ background: "#f8fafc", borderRadius: 10, padding: "8px 10px", textAlign: "center", border: "1px solid #e2e8f0", opacity: 0.7 }}>
           <span style={{ fontSize: 11.5, color: "#64748b", fontWeight: 700, fontStyle: "italic" }}>
-            「未知の力を持ったカードだ…」
-          </span>
+            {t(locale, "editor_5f8ddd")}</span>
         </div>
       </div>
     );
@@ -359,7 +357,7 @@ function CardItem({ tmpl, isSeen, catDef, onClick }: {
   return (
     <div
       onClick={onClick}
-      title="クリックで【未獲得状態にリセット】"
+      title={t(locale, "editor_d8ddf1")}
       style={{
         cursor: "pointer",
         borderRadius: 16,

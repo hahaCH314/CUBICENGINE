@@ -28,6 +28,7 @@ import {
   type ToolKind,
   type WeaponEffect,
 } from "../../../lib/devtab/itemIr";
+import { t } from "@/lib/i18n";
 
 const numberCls = "w-24 px-2 py-1 rounded text-xs bg-black/40 border border-white/15";
 
@@ -51,6 +52,7 @@ function EffectList({
   list: WeaponEffect[];
   onChange: (next: WeaponEffect[]) => void;
 }) {
+    const locale = useEditorStore((s) => s.locale);
   // 相手に掛けるものと自分に掛けるものを分ける。
   // 「相手を速くする」は作れてしまうが、まず作りたいものではない
   const base = WEAPON_EFFECTS.filter(e => e.forSelf === forSelf);
@@ -95,7 +97,7 @@ function EffectList({
                   next[i] = { ...e, seconds: toNumber(ev.target.value) };
                   onChange(next);
                 }} />
-              <span className="text-[10px] text-muted/50">秒</span>
+              <span className="text-[10px] text-muted/50">{t(locale, "editor_0c1fec")}</span>
             </>
           )}
           {/* 強さ。マイクラの表記より1小さいので、画面には見た目の数字を出す */}
@@ -106,7 +108,7 @@ function EffectList({
               next[i] = { ...e, amplifier: Math.max(0, toNumber(ev.target.value) - 1) };
               onChange(next);
             }} />
-          <span className="text-[10px] text-muted/50">の強さ</span>
+          <span className="text-[10px] text-muted/50">{t(locale, "editor_5e6fdf")}</span>
           <button
             onClick={() => onChange(list.filter((_, j) => j !== i))}
             className="text-[11px] px-1.5 py-1 rounded hover:bg-white/10 text-muted/70"
@@ -124,14 +126,14 @@ function EffectList({
           className="self-start text-[11px] px-2 py-1 rounded"
           style={{ background: "rgba(167,139,250,0.15)", border: "1px solid rgba(167,139,250,0.35)" }}
         >
-          ＋ 効果を足す
-        </button>
+          {t(locale, "editor_9e937c")}</button>
       )}
     </div>
   );
 }
 
 function ItemCard({ item }: { item: ItemIR }) {
+    const locale = useEditorStore((s) => s.locale);
   const update = useEditorStore(s => s.updateDevItem);
   const remove = useEditorStore(s => s.removeDevItem);
   const problems = validateItem(item);
@@ -157,15 +159,14 @@ function ItemCard({ item }: { item: ItemIR }) {
           <code className="text-[10px] text-muted/60">cubicengine:{item.id}</code>
         </div>
         <button onClick={() => remove(item.id)} className="text-[11px] px-2 py-1 rounded hover:bg-white/10 text-muted/70">
-          取り消す
-        </button>
+          {t(locale, "editor_873613")}</button>
       </div>
 
       {/* ⚠️ 重ねられる数だけは 1〜64 を外さないこと。マイクラのスロットは64個までで、
           65以上を書くとアイテムごと読み込まれない（他の数値と違い上限が要る） */}
       {!weapon && !armor && (
         <label className="flex items-center gap-3 text-xs">
-          <span className="w-32 shrink-0">重ねられる数<span className="block text-[10px] text-muted/50">1〜64（マイクラの上限）</span></span>
+          <span className="w-32 shrink-0">{t(locale, "editor_58a60a")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_556c3f")}</span></span>
           <input type="number" min={1} max={64} className={numberCls}
             value={item.maxStack}
             onChange={e => update(item.id, { maxStack: toNumber(e.target.value) })} />
@@ -176,10 +177,10 @@ function ItemCard({ item }: { item: ItemIR }) {
           食べる動作が出て使い物にならないので、選ばせる形にする */}
       <div className="flex flex-col gap-1">
         {([
-          ["plain", "見た目だけ", "持てる・置ける。それだけ"],
-          ["food", "食べられる", "回復量を決められます"],
-          ["weapon", "道具・武器", "剣・ツルハシ・斧・シャベル・クワ"],
-          ["armor", "防具", "防御力と、着ている間ずっと効く力"],
+          ["plain", t(locale, "editor_3e9a04"), t(locale, "editor_e75a4d")],
+          ["food", t(locale, "editor_d60079"), t(locale, "editor_b56691")],
+          ["weapon", t(locale, "editor_b2f261"), t(locale, "editor_6f4b12")],
+          ["armor", t(locale, "editor_20d7a7"), t(locale, "editor_a3f261")],
         ] as const).map(([k, label, hint]) => (
           <label key={k} className="flex items-start gap-2 text-xs cursor-pointer">
             <input type="radio" name={`kind-${item.id}`} className="mt-0.5"
@@ -208,7 +209,7 @@ function ItemCard({ item }: { item: ItemIR }) {
       {weapon && (
         <div className="pl-5 flex flex-col gap-1.5">
           <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">道具の種類</span>
+            <span className="w-32 shrink-0">{t(locale, "editor_37c372")}</span>
             <select
               className="flex-1 px-2 py-1 rounded text-xs bg-black/40 border border-white/15"
               value={weapon.kind ?? "sword"}
@@ -227,7 +228,7 @@ function ItemCard({ item }: { item: ItemIR }) {
               出しても意味が無いうえ、何の速さか分からず迷わせる */}
           {(weapon.kind ?? "sword") !== "sword" && (
             <label className="flex items-center gap-3 text-xs">
-              <span className="w-32 shrink-0">掘る速さ<span className="block text-[10px] text-muted/50">ダイヤ8 ／ 上限なし</span></span>
+              <span className="w-32 shrink-0">{t(locale, "editor_790e61")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_975b7f")}</span></span>
               <input type="number" min={0} className={numberCls}
                 value={weapon.digSpeed ?? 8}
                 onChange={e => update(item.id, { weapon: { ...weapon, digSpeed: toNumber(e.target.value) } })} />
@@ -235,33 +236,30 @@ function ItemCard({ item }: { item: ItemIR }) {
           )}
           {(weapon.digSpeed ?? 8) >= 100 && (weapon.kind ?? "sword") !== "sword" && (
             <p className="text-[10px]" style={{ color: "#fbbf24" }}>
-              ⚡ 速さ{weapon.digSpeed} ＝ 触れた瞬間に壊れます
-            </p>
+              {t(locale, "editor_6de9f9")}{weapon.digSpeed} {t(locale, "editor_85490c")}</p>
           )}
 
           {/* ⚠️ max を付けないこと。上限があると「最強の剣を作る」ができない。
               マイクラ側は大きい値をそのまま受け取るので、上限は要らない */}
           <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">攻撃力<span className="block text-[10px] text-muted/50">木の剣4 ダイヤ7 ／ 上限なし</span></span>
+            <span className="w-32 shrink-0">{t(locale, "editor_1ad535")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_feff52")}</span></span>
             <input type="number" min={1} className={numberCls}
               value={weapon.damage}
               onChange={e => update(item.id, { weapon: { ...weapon, damage: toNumber(e.target.value) } })} />
           </label>
           <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">耐久値<span className="block text-[10px] text-muted/50">木59 ダイヤ1561 ／ 0で無限</span></span>
+            <span className="w-32 shrink-0">{t(locale, "editor_050745")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_255dc2")}</span></span>
             <input type="number" min={0} className={numberCls}
               value={weapon.durability}
               onChange={e => update(item.id, { weapon: { ...weapon, durability: toNumber(e.target.value) } })} />
           </label>
           {weapon.durability === 0 && (
             <p className="text-[10px]" style={{ color: "#fbbf24" }}>
-              ⚡ 耐久値0 ＝ <b>絶対に壊れない剣</b>になります
-            </p>
+              {t(locale, "editor_b08320")}<b>{t(locale, "editor_8c9ba7")}</b>{t(locale, "editor_2fb8b3")}</p>
           )}
           {weapon.damage >= 100 && (
             <p className="text-[10px]" style={{ color: "#fbbf24" }}>
-              ⚡ 攻撃力{weapon.damage} ＝ ほぼ何でも一撃です
-            </p>
+              {t(locale, "editor_8b099c")}{weapon.damage} {t(locale, "editor_ebb0bc")}</p>
           )}
           {/* ── ここから「技」にあたる部分 ──
               JSON では書けないので、書き出すときにスクリプトが作られる。
@@ -269,16 +267,13 @@ function ItemCard({ item }: { item: ItemIR }) {
               何も設定しなければスクリプトは1行も足されない */}
           <div className="mt-2 pt-2 flex flex-col gap-2.5" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
             <div className="text-xs font-bold" style={{ color: "#a78bfa" }}>
-              ⚔ 特殊効果
-              <span className="block text-[10px] text-muted/50 font-normal">
-                設定するとスクリプトが作られます（ワールドの「ベータAPI」が要ります）
-              </span>
+              {t(locale, "editor_f7f9c8")}<span className="block text-[10px] text-muted/50 font-normal">
+                {t(locale, "editor_b13e08")}</span>
             </div>
 
             <label className="flex items-center gap-3 text-xs">
               <span className="w-32 shrink-0">
-                殴ると燃やす
-                <span className="block text-[10px] text-muted/50">秒。0で燃やさない</span>
+                {t(locale, "editor_d54956")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_d77aba")}</span>
               </span>
               <input type="number" min={0} className={numberCls}
                 value={weapon.fireSeconds ?? 0}
@@ -288,16 +283,16 @@ function ItemCard({ item }: { item: ItemIR }) {
             {/* ⚠️ ?? [] を外さないこと。この機能より前に保存された作品には
                 effects / selfEffects が無く、undefined を .map して画面が落ちる */}
             <EffectList
-              title="殴った相手に起きること"
-              hint="毒・衰弱など。複数入れると同時に掛かります"
+              title={t(locale, "editor_6fbcd8")}
+              hint={t(locale, "editor_6fe02d")}
               forSelf={false}
               list={weapon.effects ?? []}
               onChange={next => update(item.id, { weapon: { ...weapon, effects: next } })}
             />
 
             <EffectList
-              title="持っている間ずっと自分に"
-              hint="足を速くする・力を上げるなど。手に持っている間だけ効きます"
+              title={t(locale, "editor_bb7ff3")}
+              hint={t(locale, "editor_1bcace")}
               forSelf
               list={weapon.selfEffects ?? []}
               onChange={next => update(item.id, { weapon: { ...weapon, selfEffects: next } })}
@@ -305,15 +300,14 @@ function ItemCard({ item }: { item: ItemIR }) {
           </div>
 
           <p className="text-[10px] text-muted/50">
-            剣は重ねられません。金床での修理はまだできません。
-          </p>
+            {t(locale, "editor_7678b3")}</p>
         </div>
       )}
 
       {armor && (
         <div className="pl-5 flex flex-col gap-1.5">
           <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">どこに着るか</span>
+            <span className="w-32 shrink-0">{t(locale, "editor_7dd8bc")}</span>
             <select
               className="flex-1 px-2 py-1 rounded text-xs bg-black/40 border border-white/15"
               value={armor.slot}
@@ -325,27 +319,26 @@ function ItemCard({ item }: { item: ItemIR }) {
             </select>
           </label>
           <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">防御力<span className="block text-[10px] text-muted/50">ダイヤ一式で20 ／ 上限なし</span></span>
+            <span className="w-32 shrink-0">{t(locale, "editor_0aba42")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_812ce4")}</span></span>
             <input type="number" min={0} className={numberCls}
               value={armor.protection}
               onChange={e => update(item.id, { armor: { ...armor, protection: toNumber(e.target.value) } })} />
           </label>
           <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">耐久値<span className="block text-[10px] text-muted/50">0で無限</span></span>
+            <span className="w-32 shrink-0">{t(locale, "editor_050745")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_96fed4")}</span></span>
             <input type="number" min={0} className={numberCls}
               value={armor.durability}
               onChange={e => update(item.id, { armor: { ...armor, durability: toNumber(e.target.value) } })} />
           </label>
           {armor.protection >= 20 && (
             <p className="text-[10px]" style={{ color: "#fbbf24" }}>
-              ⚡ 防御力{armor.protection} ＝ これ1つでダイヤ一式を超えます
-            </p>
+              {t(locale, "editor_b6005d")}{armor.protection} {t(locale, "editor_d42ccb")}</p>
           )}
 
           <div className="mt-2 pt-2 flex flex-col gap-2.5" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
             <EffectList
-              title="着ている間ずっと自分に"
-              hint="手に何を持っていても効きます"
+              title={t(locale, "editor_01ca5d")}
+              hint={t(locale, "editor_4c81f8")}
               forSelf
               list={armor.wearEffects ?? []}
               onChange={next => update(item.id, { armor: { ...armor, wearEffects: next } })}
@@ -355,8 +348,7 @@ function ItemCard({ item }: { item: ItemIR }) {
           {/* 見た目を作らない判断は itemToBedrock.ts のコメント参照。
               ここで黙っていると「バグでは」と思われるので必ず伝える */}
           <p className="text-[10px]" style={{ color: "rgba(251,191,36,0.8)" }}>
-            ⚠️ 着ても体には表示されません（持ち物の絵だけ）。防御力と効果はちゃんと効きます。
-          </p>
+            {t(locale, "editor_ff3ab4")}</p>
         </div>
       )}
 
@@ -368,11 +360,10 @@ function ItemCard({ item }: { item: ItemIR }) {
           <input type="checkbox" checked={!!skill} disabled={!!food}
             onChange={e => update(item.id, { skill: e.target.checked ? defaultSkill() : null })} />
           <span className="font-bold" style={{ color: "#a78bfa" }}>
-            ✨ 右クリックで技を出す
-            <span className="block text-[10px] text-muted/50 font-normal">
+            {t(locale, "editor_3b6a85")}<span className="block text-[10px] text-muted/50 font-normal">
               {food
-                ? "食べ物には付けられません（右クリックが食べる動作に使われるため）"
-                : "スクリプトが作られます（ワールドの「ベータAPI」が要ります）"}
+                ? t(locale, "editor_85001c")
+                : t(locale, "editor_0d81fc")}
             </span>
           </span>
         </label>
@@ -382,7 +373,7 @@ function ItemCard({ item }: { item: ItemIR }) {
           return (
             <div className="pl-5 flex flex-col gap-1.5">
               <label className="flex items-center gap-3 text-xs">
-                <span className="w-32 shrink-0">どんな技</span>
+                <span className="w-32 shrink-0">{t(locale, "editor_8f4d37")}</span>
                 <select
                   className="flex-1 px-2 py-1 rounded text-xs bg-black/40 border border-white/15"
                   value={skill.kind}
@@ -398,10 +389,8 @@ function ItemCard({ item }: { item: ItemIR }) {
               {def?.hasPower && (
                 <label className="flex items-center gap-3 text-xs">
                   <span className="w-32 shrink-0">
-                    威力
-                    <span className="block text-[10px] text-muted/50">
-                      {skill.kind === "heal" ? "回復する量" : skill.kind === "dash" ? "飛ぶ勢い" : "ダメージ量"} ／ 上限なし
-                    </span>
+                    {t(locale, "editor_9ad5b0")}<span className="block text-[10px] text-muted/50">
+                      {skill.kind === "heal" ? t(locale, "editor_1e3998") : skill.kind === "dash" ? t(locale, "editor_c30150") : t(locale, "editor_776398")} {t(locale, "editor_d41d8a")}</span>
                   </span>
                   <input type="number" min={0} className={numberCls}
                     value={skill.power}
@@ -410,22 +399,21 @@ function ItemCard({ item }: { item: ItemIR }) {
               )}
               {def?.hasRange && (
                 <label className="flex items-center gap-3 text-xs">
-                  <span className="w-32 shrink-0">範囲<span className="block text-[10px] text-muted/50">ブロック ／ 上限なし</span></span>
+                  <span className="w-32 shrink-0">{t(locale, "editor_514eae")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_7e413f")}</span></span>
                   <input type="number" min={0} className={numberCls}
                     value={skill.range}
                     onChange={e => update(item.id, { skill: { ...skill, range: toNumber(e.target.value) } })} />
                 </label>
               )}
               <label className="flex items-center gap-3 text-xs">
-                <span className="w-32 shrink-0">次に使えるまで<span className="block text-[10px] text-muted/50">秒。0で連打できる</span></span>
+                <span className="w-32 shrink-0">{t(locale, "editor_3ce972")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_3197ec")}</span></span>
                 <input type="number" min={0} className={numberCls}
                   value={skill.cooldownSeconds}
                   onChange={e => update(item.id, { skill: { ...skill, cooldownSeconds: toNumber(e.target.value) } })} />
               </label>
               {skill.cooldownSeconds === 0 && (
                 <p className="text-[10px]" style={{ color: "rgba(251,191,36,0.8)" }}>
-                  ⚠️ 0だと押しっぱなしで連発されます。1以上にすると使いやすくなります。
-                </p>
+                  {t(locale, "editor_8e2b62")}</p>
               )}
             </div>
           );
@@ -436,19 +424,19 @@ function ItemCard({ item }: { item: ItemIR }) {
         <div className="pl-5 flex flex-col gap-1.5">
           {/* ここも上限なし。満腹度が最大20でも、それを超える値は無害に切り捨てられる */}
           <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">回復する量<span className="block text-[10px] text-muted/50">肉半分＝1 ／ 上限なし</span></span>
+            <span className="w-32 shrink-0">{t(locale, "editor_1e3998")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_e7d9fb")}</span></span>
             <input type="number" min={0} className={numberCls}
               value={food.nutrition}
               onChange={e => update(item.id, { food: { ...food, nutrition: toNumber(e.target.value) } })} />
           </label>
           <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">腹持ち<span className="block text-[10px] text-muted/50">りんご0.3 肉0.8 ／ 上限なし</span></span>
+            <span className="w-32 shrink-0">{t(locale, "editor_9cc2a8")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_dd068f")}</span></span>
             <input type="number" min={0} step={0.1} className={numberCls}
               value={food.saturation}
               onChange={e => update(item.id, { food: { ...food, saturation: toNumber(e.target.value) } })} />
           </label>
           <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">食べる時間<span className="block text-[10px] text-muted/50">秒。ふつう1.6 ／ 小さいほど速い</span></span>
+            <span className="w-32 shrink-0">{t(locale, "editor_65c82a")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_8f906d")}</span></span>
             <input type="number" min={0.1} step={0.1} className={numberCls}
               value={food.useDuration}
               onChange={e => update(item.id, { food: { ...food, useDuration: toNumber(e.target.value) } })} />
@@ -456,8 +444,7 @@ function ItemCard({ item }: { item: ItemIR }) {
           <label className="flex items-center gap-2 text-xs">
             <input type="checkbox" checked={food.canAlwaysEat}
               onChange={e => update(item.id, { food: { ...food, canAlwaysEat: e.target.checked } })} />
-            お腹いっぱいでも食べられる（金のリンゴと同じ）
-          </label>
+            {t(locale, "editor_211096")}</label>
         </div>
       )}
 
@@ -467,14 +454,14 @@ function ItemCard({ item }: { item: ItemIR }) {
         </div>
       ) : (
         <div className="rounded-lg p-2.5 text-xs" style={{ background: "rgba(60,208,112,0.10)", border: "1px solid rgba(60,208,112,0.35)" }}>
-          クリエイティブの持ち物に出ます。<code className="font-mono">/give @s cubicengine:{item.id}</code> でも出せます。
-        </div>
+          {t(locale, "editor_dde97d")}<code className="font-mono">/give @s cubicengine:{item.id}</code> {t(locale, "editor_61af87")}</div>
       )}
     </div>
   );
 }
 
 export default function ItemBuilder() {
+    const locale = useEditorStore((s) => s.locale);
   const items = useEditorStore(s => s.devItems);
   const upsert = useEditorStore(s => s.upsertDevItem);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -504,10 +491,9 @@ export default function ItemBuilder() {
   return (
     <div className="flex flex-col gap-4 p-5">
       <div>
-        <h2 className="text-lg font-bold">アイテムを作る</h2>
+        <h2 className="text-lg font-bold">{t(locale, "editor_d4bb31")}</h2>
         <p className="text-xs text-muted/70 mt-1">
-          絵を1枚入れるだけで作れます。<b>16×16</b> のPNGがおすすめです。
-        </p>
+          {t(locale, "editor_98b882")}<b>16×16</b> {t(locale, "editor_16602f")}</p>
       </div>
 
       <div
@@ -522,8 +508,8 @@ export default function ItemBuilder() {
         style={{ borderColor: "rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.02)" }}
       >
         <div className="text-2xl mb-1">🍎</div>
-        <div className="text-sm font-bold">アイテムの絵をここにドロップ</div>
-        <div className="text-[11px] text-muted/60 mt-1">クリックして選ぶこともできます</div>
+        <div className="text-sm font-bold">{t(locale, "editor_6a3d69")}</div>
+        <div className="text-[11px] text-muted/60 mt-1">{t(locale, "editor_a4db1b")}</div>
         <input ref={fileRef} type="file" accept="image/png,image/jpeg" className="hidden"
           onChange={e => {
             const f = e.target.files?.[0];

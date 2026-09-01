@@ -11,6 +11,8 @@ import { McButton } from "../_mc";
 import LogicPanel  from "./LogicPanel";
 import GrapePanel  from "./GrapePanel";
 import LaunchPanel from "./LaunchPanel";
+import { t } from "@/lib/i18n";
+
 const ModelPanel   = dynamic(() => import("./ModelPanel"),   { ssr: false });  // Three.js は SSR 不可のため dynamic 維持
 
 /* ─── Types ─── */
@@ -26,6 +28,7 @@ interface MenuItem {
 
 /* ─── Menu Definitions ─── */
 function useMenuItems() {
+    const locale = useEditorStore((s) => s.locale);
   const handleExport = useCallback(async () => {
     const state = useEditorStore.getState();
     // 抜け道防止：メインの「アドオン完成！」ボタンを押して解錠していないと書き出さない。
@@ -40,14 +43,14 @@ function useMenuItems() {
       try {
         const det = await api.detect();
         if (!det?.modsDir) {
-          alert("Minecraft (.minecraft/mods) が見つかりません。\n先に Minecraft Java版を一度起動して .minecraft を作ってください。");
+          alert(t(locale, "editor_bc1ce8"));
           return;
         }
         const files = await buildJavaFileList(state, state.generatedJsCode || "");
         const res = await api.buildAndInstall({ files, modsDir: det.modsDir, projectName: state.projectName });
         alert(`✅ ${res.jarName} を mods に導入しました！\nForge 1.20.1 でマイクラを起動して確認してください。`);
       } catch (e: any) {
-        alert("❌ ビルドに失敗しました：\n" + (e?.message || e) + "\n\n※初回はGradle本体(8.8)のDLに数分かかります。ネット接続とJDK17を確認してください。");
+        alert(t(locale, "editor_8c12a3") + (e?.message || e) + t(locale, "editor_a563f2"));
       }
       return;
     }
@@ -60,53 +63,53 @@ function useMenuItems() {
       console.error("Failed to export project:", err);
       const msg = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
       alert(
-        "❌ アドオンを書き出せませんでした\n\n" +
+        t(locale, "editor_6bf4c2") +
         msg +
-        "\n\nこの文をそのまま作者に伝えてもらえると、原因が分かります。",
+        t(locale, "editor_59a5f9"),
       );
     }
   }, []);
 
   const menuItems: Record<MenuKey, MenuItem[]> = {
     file: [
-      { label: "新規プロジェクト", shortcut: "Ctrl+N" },
-      { label: "開く...", shortcut: "Ctrl+O" },
+      { label: t(locale, "editor_b6106f"), shortcut: "Ctrl+N" },
+      { label: t(locale, "editor_353084"), shortcut: "Ctrl+O" },
       { label: "divider", divider: true },
-      { label: "保存", shortcut: "Ctrl+S" },
-      { label: "名前を付けて保存...", shortcut: "Ctrl+Shift+S" },
+      { label: t(locale, "editor_be5fbb"), shortcut: "Ctrl+S" },
+      { label: t(locale, "editor_4c3141"), shortcut: "Ctrl+Shift+S" },
       { label: "divider", divider: true },
-      { label: "エクスポート", shortcut: "Ctrl+E", action: handleExport },
+      { label: t(locale, "editor_be3cfd"), shortcut: "Ctrl+E", action: handleExport },
       { label: "divider", divider: true },
-      { label: "設定", shortcut: "Ctrl+," },
+      { label: t(locale, "editor_029c0d"), shortcut: "Ctrl+," },
     ],
     edit: [
-      { label: "元に戻す", shortcut: "Ctrl+Z" },
-      { label: "やり直し", shortcut: "Ctrl+Shift+Z" },
+      { label: t(locale, "editor_db693a"), shortcut: "Ctrl+Z" },
+      { label: t(locale, "editor_14d4eb"), shortcut: "Ctrl+Shift+Z" },
       { label: "divider", divider: true },
-      { label: "切り取り", shortcut: "Ctrl+X" },
-      { label: "コピー", shortcut: "Ctrl+C" },
-      { label: "貼り付け", shortcut: "Ctrl+V" },
+      { label: t(locale, "editor_b92202"), shortcut: "Ctrl+X" },
+      { label: t(locale, "editor_9e646d"), shortcut: "Ctrl+C" },
+      { label: t(locale, "editor_c272d4"), shortcut: "Ctrl+V" },
       { label: "divider", divider: true },
-      { label: "すべて選択", shortcut: "Ctrl+A" },
-      { label: "選択解除" },
+      { label: t(locale, "editor_ab0e66"), shortcut: "Ctrl+A" },
+      { label: t(locale, "editor_404885") },
     ],
     view: [
-      { label: "ズームイン", shortcut: "Ctrl+=" },
-      { label: "ズームアウト", shortcut: "Ctrl+-" },
+      { label: t(locale, "editor_5d603f"), shortcut: "Ctrl+=" },
+      { label: t(locale, "editor_0e1421"), shortcut: "Ctrl+-" },
       { label: "divider", divider: true },
-      { label: "グリッド表示切替" },
-      { label: "ワイヤーフレーム表示" },
+      { label: t(locale, "editor_4af590") },
+      { label: t(locale, "editor_14e5fe") },
       { label: "divider", divider: true },
-      { label: "フルスクリーン", shortcut: "F11" },
+      { label: t(locale, "editor_278138"), shortcut: "F11" },
     ],
   };
   return menuItems;
 }
 
 const menuLabels: Record<MenuKey, string> = {
-  file: "ファイル",
-  edit: "編集",
-  view: "表示",
+  file: t(useEditorStore.getState().locale, "editor_1abe2e"),
+  edit: t(useEditorStore.getState().locale, "editor_757886"),
+  view: t(useEditorStore.getState().locale, "editor_3d7dfb"),
 };
 
 /* HEX 色を相対的に明るく/暗くする小ヘルパー（タブのベベル色生成用） */
@@ -124,13 +127,13 @@ const darken  = (hex: string) => shiftHex(hex, -60);
 const tabConfig: { key: Tab; label: string; color: string; icon: string }[] = [
   {
     key: "logic",
-    label: "ロジック",
+    label: t(useEditorStore.getState().locale, "editor_92e35f"),
     color: "#00ddb5", // SPROUT×GROVE中間色（アクアマリン）
     icon: "🧩",
   },
   {
     key: "model",
-    label: "モデル",
+    label: t(useEditorStore.getState().locale, "editor_17850b"),
     color: "#3cd070",
     icon: "📦",
   },
@@ -138,13 +141,13 @@ const tabConfig: { key: Tab; label: string; color: string; icon: string }[] = [
     // 上級者向け。既存のタブより後ろに置く。初めての人の導線（ロジック→モデル→マイクラへ）を
     // 割り込まないようにするため、「マイクラへ」の手前ではなく後ろに並べている
     key: "developer",
-    label: "デベロッパー",
+    label: t(useEditorStore.getState().locale, "editor_6af213"),
     color: "#a78bfa",
     icon: "🛠",
   },
   {
     key: "settings",
-    label: "マイクラへ",
+    label: t(useEditorStore.getState().locale, "editor_17b3c8"),
     color: "#3cd070",
     icon: "🚀",
   },
@@ -219,16 +222,16 @@ function EditorAuthButton() {
 
 /* ─── Status Bar ─── */
 function StatusBar() {
+    const locale = useEditorStore((s) => s.locale);
   const blocksCount = useEditorStore((s) => s.blocks.length);
   return (
     <div className="h-7 bg-panel border-t-2 border-[#121210] flex items-center justify-between px-3 text-[10px] text-muted font-sans" style={{ textShadow: "1px 1px 0px #1e1208" }}>
       <div className="flex items-center gap-4">
         <span className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 bg-emerald-500 shadow-[0_0_4px_#10b981]" />
-          準備完了
-        </span>
-        <span>カード: {blocksCount}</span>
-        <span>グリッド: 16×16</span>
+          {t(locale, "editor_46f58c")}</span>
+        <span>{t(locale, "editor_08cb6e")}{blocksCount}</span>
+        <span>{t(locale, "editor_8c7bb5")}</span>
       </div>
       <div className="flex items-center gap-4">
         <span>Bedrock v1.21</span>
@@ -247,6 +250,7 @@ function PhoneHint() {
 
 /* ─── Main Editor Page ─── */
 export default function EditorPage() {
+    const locale = useEditorStore((s) => s.locale);
   const [activeTab, setActiveTab] = useState<Tab>("logic");
 
   // 2026-08-23、Java の設計図に mobs を足した（spec 2）ので、
@@ -362,7 +366,7 @@ export default function EditorPage() {
         <Link
           href="/"
           className="flex items-center justify-center px-2 py-1 mr-4 group shrink-0"
-          title="ホームへ戻る"
+          title={t(locale, "editor_e48a5b")}
         >
           {/* 強めのピクセル文字（マイクラ風のアウトラインと影付き・サイズ調整版） */}
           <span className="font-pixel relative transition-transform duration-150 group-hover:scale-110 group-active:scale-95" style={{

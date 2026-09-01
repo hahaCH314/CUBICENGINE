@@ -8,7 +8,10 @@ import { DEFAULT_JAVA_TARGET, type JavaTargetId } from "../../lib/javaEngine/tar
 function initLocale(): Locale {
   if (typeof window !== "undefined") {
     const v = window.localStorage.getItem("mmc_locale");
-    if (v === "ja" || v === "en") return v;
+    if (v === "ja" || v === "en") {
+      document.documentElement.lang = v;
+      return v;
+    }
   }
   return DEFAULT_LOCALE;
 }
@@ -262,7 +265,10 @@ export const useEditorStore = create<EditorState>((set) => ({
   locale: initLocale(),
 
   setLocale: (l) => {
-    if (typeof window !== "undefined") window.localStorage.setItem("mmc_locale", l);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("mmc_locale", l);
+      document.documentElement.lang = l;
+    }
     set({ locale: l });
   },
   setLogicGraphJson:  (json) => set({ logicGraphJson: json }),

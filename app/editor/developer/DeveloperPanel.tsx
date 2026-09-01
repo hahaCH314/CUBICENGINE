@@ -19,8 +19,10 @@ import ItemBuilder from "./ItemBuilder";
 import { useEditorStore } from "../store";
 import { getAiAdapter } from "../../../lib/devtab/ai";
 import type { MobIR } from "../../../lib/devtab/ir";
+import { t } from "@/lib/i18n";
 
 export default function DeveloperPanel() {
+    const locale = useEditorStore((s) => s.locale);
   // 取り込んだモブは store に置く。exporter が書き出し時にここを見るので、
   // タブを離れても、ページ内の他の操作をしても設定が消えない
   const mobs = useEditorStore(s => s.devMobs);
@@ -71,13 +73,12 @@ export default function DeveloperPanel() {
       <div className="px-5 pt-4 pb-2 border-b shrink-0" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
         <div className="flex items-center gap-2">
           <span className="text-lg">🛠</span>
-          <h1 className="font-black tracking-tight">デベロッパー</h1>
+          <h1 className="font-black tracking-tight">{t(locale, "editor_6af213")}</h1>
           <span
             className="text-[10px] px-2 py-0.5 rounded-full"
             style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.6)" }}
           >
-            上級者向け
-          </span>
+            {t(locale, "editor_826117")}</span>
         </div>
         {/* ⚠️ Java版は3Dモデルを持てない（Forgeのエンティティモデルは
             Javaのコードで書くもので、JSONから作れない）。
@@ -85,17 +86,17 @@ export default function DeveloperPanel() {
             出てこないときに「壊れている」と思われる。先に伝える */}
         <p className="text-[11px] text-muted/60 mt-1">
           {isJava
-            ? "モブの強さや落とすものを決められます。見た目はバニラのモブを土台にします。"
-            : "自分で作った3Dモデルを取り込んで、マイクラで動くモブにします。"}
+            ? t(locale, "editor_fa980f")
+            : t(locale, "editor_5e926f")}
         </p>
       </div>
 
       {/* ── Java版だけ：前提MODを使うかどうか ── */}
       {isJava && (
         <div className="px-5 pt-3 shrink-0">
-          <div className="text-[10px] font-bold text-muted/50 mb-1.5">どう作る？</div>
+          <div className="text-[10px] font-bold text-muted/50 mb-1.5">{t(locale, "editor_3900d5")}</div>
           <div className="flex gap-1">
-            {([["normal", "🍃 ふつう"], ["prereq", "🧩 前提mod"]] as const).map(([k, label]) => {
+            {([["normal", t(locale, "editor_28b00a")], ["prereq", t(locale, "editor_618036")]] as const).map(([k, label]) => {
               const on = modMode === k;
               return (
                 <button
@@ -122,12 +123,11 @@ export default function DeveloperPanel() {
                 ? { background: "rgba(52,211,153,0.10)", border: "1px solid rgba(52,211,153,0.35)" }
                 : { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", opacity: 0.6 }}
             >
-              <div className="font-bold text-emerald-200">🍃 ふつう</div>
+              <div className="font-bold text-emerald-200">{t(locale, "editor_28b00a")}</div>
               <div className="text-muted/70 mt-0.5">
-                遊ぶ人は <b>Forge だけ</b>。<br />
-                見た目はバニラのモブ。<br />
-                強さ・名前・落とすものは反映。
-              </div>
+                {t(locale, "editor_f284f5")}<b>{t(locale, "editor_d50f48")}</b>{t(locale, "punct.period")}<br />
+                {t(locale, "editor_b577b4")}<br />
+                {t(locale, "editor_de7792")}</div>
             </div>
             <div
               className="rounded-lg p-2.5"
@@ -135,12 +135,11 @@ export default function DeveloperPanel() {
                 ? { background: "rgba(52,211,153,0.10)", border: "1px solid rgba(52,211,153,0.35)" }
                 : { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", opacity: 0.6 }}
             >
-              <div className="font-bold text-emerald-200">🧩 前提mod</div>
+              <div className="font-bold text-emerald-200">{t(locale, "editor_618036")}</div>
               <div className="text-muted/70 mt-0.5">
-                遊ぶ人は <b>Forge ＋ GeckoLib</b>。<br />
-                <b>作った形とアニメがそのまま出る。</b><br />
-                入れてもらう手間が増えます。
-              </div>
+                {t(locale, "editor_f284f5")}<b>Forge ＋ GeckoLib</b>{t(locale, "punct.period")}<br />
+                <b>{t(locale, "editor_b6d27a")}</b><br />
+                {t(locale, "editor_20ab4d")}</div>
             </div>
           </div>
           {/* ⚠️ 前提MODは**遊ぶ側**に手間を増やす選択。作った本人がそれを
@@ -150,30 +149,26 @@ export default function DeveloperPanel() {
               className="mt-2 rounded-lg p-2.5 text-[10.5px] leading-relaxed"
               style={{ background: "rgba(250,204,21,0.10)", border: "1px solid rgba(250,204,21,0.3)" }}
             >
-              <b>遊ぶ人は GeckoLib を入れる必要があります。</b>
+              <b>{t(locale, "editor_adf43e")}</b>
               <span className="block text-muted/70 mt-0.5">
-                入れていない人は、マイクラが起動しません。作品を渡すときは
-                「GeckoLib も入れてね」と一緒に伝えてください。
-              </span>
+                {t(locale, "editor_5ed733")}</span>
               {/* 先に言わないと、動きを作り込んでから「再生されない」と分かることになる */}
               <span className="block text-muted/70 mt-1.5">
-                <b>動きの名前は <code>walk</code> と <code>idle</code> だけ</b>が再生されます。
-                Blockbench で別の名前を付けていると、書き出せてもゲームでは棒立ちになります。
-              </span>
+                <b>{t(locale, "editor_930fae")}<code>walk</code> {t(locale, "editor_a5401f")}<code>idle</code> {t(locale, "editor_05f4e1")}</b>{t(locale, "editor_901910")}</span>
             </div>
           )}
         </div>
       )}
 
       <div className="flex gap-1 px-5 pt-3 shrink-0">
-        {([["mob", "🧟 モブ"], ["item", "🍎 アイテム"]] as const).map(([k, label]) => {
+        {([["mob", t(locale, "editor_37e126")], ["item", t(locale, "editor_d03993")]] as const).map(([k, label]) => {
           const locked = isJava && k === "item";
           return (
             <button
               key={k}
               onClick={() => { if (!locked) setMode(k); }}
               disabled={locked}
-              title={locked ? "アイテムは統合版だけで作れます" : undefined}
+              title={locked ? t(locale, "editor_e211b6") : undefined}
               className="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
               style={
                 locked
@@ -196,18 +191,16 @@ export default function DeveloperPanel() {
         {mode === "item" && isJava ? (
           <div className="p-8 flex flex-col items-center justify-center text-center gap-3">
             <div className="text-4xl">🔒</div>
-            <div className="text-sm font-bold">アイテムは統合版だけで作れます</div>
+            <div className="text-sm font-bold">{t(locale, "editor_e211b6")}</div>
             <p className="text-xs text-muted/70 leading-relaxed max-w-xs">
-              いま Java版（パソコン）を作るモードです。<br />
-              Java版で作れるのは <b>モブ</b> だけです。
-            </p>
+              {t(locale, "editor_5b2636")}<br />
+              {t(locale, "editor_2423d8")}<b>{t(locale, "editor_276d81")}</b> {t(locale, "editor_115676")}</p>
             <button
               onClick={() => setMode("mob")}
               className="mt-1 text-xs font-bold px-4 py-2 rounded-lg"
               style={{ background: "rgba(167,139,250,0.22)", color: "#ddd6fe" }}
             >
-              モブづくりへ
-            </button>
+              {t(locale, "editor_19e912")}</button>
           </div>
         ) : mode === "item" ? <ItemBuilder /> : <>
         {/* ⚠️ Java版では取り込んだ形は反映されない（見た目はバニラのモブになる）。
@@ -218,12 +211,9 @@ export default function DeveloperPanel() {
             className="mx-5 mt-3 rounded-lg p-3 text-[11px] leading-relaxed"
             style={{ background: "rgba(250,204,21,0.10)", border: "1px solid rgba(250,204,21,0.3)" }}
           >
-            <b>いまは「🍃 ふつう」なので、取り込んだ形は出ません。</b>
+            <b>{t(locale, "editor_527795")}</b>
             <span className="block text-muted/70 mt-0.5">
-              見た目はバニラのモブ（おとなしい＝村人／襲う＝ゾンビ）になります。
-              強さ・名前・落とすものは設定どおりに反映されます。
-              形をそのまま出したいときは「🧩 前提mod」を選んでください。
-            </span>
+              {t(locale, "editor_704a99")}</span>
           </div>
         )}
         <ModelImport onLoaded={handleLoaded} />
@@ -246,9 +236,9 @@ export default function DeveloperPanel() {
 
       <div className="px-5 py-2 border-t text-[11px] text-muted/50 shrink-0" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
         {mobs.length + itemCount > 0
-          ? <>書き出しに含めます: モブ {mobs.length} 体 ／ アイテム {itemCount} 個</>
-          : <>モデルや絵を読み込むと、ここで設定できます。</>}
-        {!ai.ready && <>　／　自作AI連携: {ai.reason}</>}
+          ? <>{t(locale, "editor_4bf62d")}{mobs.length} {t(locale, "editor_f2c43d")}{itemCount} {t(locale, "editor_087637")}</>
+          : <>{t(locale, "editor_eef062")}</>}
+        {!ai.ready && <>　{t(locale, "editor_c7a289")}{ai.reason}</>}
       </div>
     </div>
   );

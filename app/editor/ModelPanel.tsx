@@ -7,6 +7,7 @@ import { useEditorStore } from "./store";
 import type { VoxelBlock } from "./store";
 import { McButton } from "../_mc";
 import { BLOCK_PARTICLES } from "../../lib/devtab/blockToScript";
+import { t } from "@/lib/i18n";
 
 /* ═══════════════════════════════════════════
    Three.js Viewport
@@ -18,6 +19,7 @@ function ThreeViewport({paintMode, setPaintMode, mode = "blocks", simple = true,
   simple?: boolean;
   activeTool?: "select" | "add" | "paint" | "delete";
 }) {
+    const locale = useEditorStore((s) => s.locale);
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef  = useRef<THREE.WebGLRenderer | null>(null);
   const sceneRef     = useRef<THREE.Scene | null>(null);
@@ -621,11 +623,11 @@ function ThreeViewport({paintMode, setPaintMode, mode = "blocks", simple = true,
       <div className="w-full h-full flex items-center justify-center text-center p-6" style={{ background: "#23211e" }}>
         <div className="max-w-sm">
           <div className="text-3xl mb-3">🧊</div>
-          <p className="text-sm font-bold text-white mb-2">3Dビューを表示できません</p>
+          <p className="text-sm font-bold text-white mb-2">{t(locale, "editor_313432")}</p>
           <p className="text-xs text-[#9aa0a6] leading-relaxed">
-            この環境では WebGL（3D描画）が無効です。<br />
-            ブラウザのハードウェアアクセラレーションを有効にするか、別のブラウザ/PCでお試しください。<br />
-            <span className="text-[#a3e635]">他の機能（ロジック・書き出し等）はそのまま使えます。</span>
+            {t(locale, "editor_836df6")}<br />
+            {t(locale, "editor_5931ca")}<br />
+            <span className="text-[#a3e635]">{t(locale, "editor_82c5b2")}</span>
           </p>
         </div>
       </div>
@@ -701,20 +703,21 @@ function updateBlockColors(mesh: THREE.Mesh, block: VoxelBlock) {
    テクスチャプリセット
    ═══════════════════════════════════════════ */
 const PRESETS = [
-  { name: "草",       top: "#4ade80", side: "#8B6914", bottom: "#6B4E12" },
-  { name: "石",       top: "#9ca3af", side: "#78716c", bottom: "#57534e" },
-  { name: "ダイヤ",   top: "#67e8f9", side: "#22d3ee", bottom: "#0891b2" },
-  { name: "金",       top: "#fde047", side: "#eab308", bottom: "#a16207" },
-  { name: "レッドスト",top: "#f87171", side: "#dc2626", bottom: "#991b1b" },
-  { name: "ラピス",   top: "#60a5fa", side: "#2563eb", bottom: "#1e3a8a" },
-  { name: "黒曜石",   top: "#3f3f46", side: "#27272a", bottom: "#18181b" },
-  { name: "アメシスト",top: "#c084fc", side: "#9333ea", bottom: "#6b21a8" },
+  { name: t(useEditorStore.getState().locale, "editor_7d3cfe"),       top: "#4ade80", side: "#8B6914", bottom: "#6B4E12" },
+  { name: t(useEditorStore.getState().locale, "editor_87cc01"),       top: "#9ca3af", side: "#78716c", bottom: "#57534e" },
+  { name: t(useEditorStore.getState().locale, "editor_c5359d"),   top: "#67e8f9", side: "#22d3ee", bottom: "#0891b2" },
+  { name: t(useEditorStore.getState().locale, "editor_9c4189"),       top: "#fde047", side: "#eab308", bottom: "#a16207" },
+  { name: t(useEditorStore.getState().locale, "editor_ace4b8"),top: "#f87171", side: "#dc2626", bottom: "#991b1b" },
+  { name: t(useEditorStore.getState().locale, "editor_30d6fb"),   top: "#60a5fa", side: "#2563eb", bottom: "#1e3a8a" },
+  { name: t(useEditorStore.getState().locale, "editor_b5773e"),   top: "#3f3f46", side: "#27272a", bottom: "#18181b" },
+  { name: t(useEditorStore.getState().locale, "editor_169d4e"),top: "#c084fc", side: "#9333ea", bottom: "#6b21a8" },
 ];
 
 /* ═══════════════════════════════════════════
    プロパティパネル（変形・色）
    ═══════════════════════════════════════════ */
 function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" | "items"; simple?: boolean }) {
+    const locale = useEditorStore((s) => s.locale);
   const panelRef = useRef<HTMLDivElement>(null);
   const [bounceY, setBounceY] = useState(0);
 
@@ -876,7 +879,7 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
       {/* ── ブロック一覧（何個でも作れる） ── */}
       <div>
         <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2">
-          🧱 {mode === "items" ? "アイテム" : "ブロック"}一覧 ({workingBlocks.length})
+          🧱 {mode === "items" ? t(locale, "editor_1769f6") : t(locale, "editor_847085")}{t(locale, "editor_4d6d7e")}{workingBlocks.length})
         </div>
         <div className="flex flex-col gap-1 max-h-48 overflow-y-auto pr-0.5 bg-[#151411] border-2 border-[#1f1e1a] mc-bevel-inset p-1" style={{ borderRadius: "6px" }}>
           {workingBlocks.map((b) => {
@@ -902,12 +905,12 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
                 />
                 <button 
                   onClick={(e) => { e.stopPropagation(); duplicateFn(b.id); }} 
-                  title="複製"
+                  title={t(locale, "editor_1fde1c")}
                   className="text-[11px] text-muted hover:text-accent shrink-0 cursor-pointer p-0.5"
                 >⧉</button>
                 <button 
                   onClick={(e) => { e.stopPropagation(); removeFn(b.id); }} 
-                  title="削除"
+                  title={t(locale, "editor_c6577c")}
                   className="text-[11px] text-muted hover:text-rose-400 shrink-0 cursor-pointer p-0.5"
                 >🗑️</button>
               </div>
@@ -918,7 +921,7 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
           onClick={handleAddNew}
           className="mt-2.5 w-full mc-btn mc-btn--sm mc-btn--primary"
         >
-          ＋ 新しい{mode === "items" ? "アイテム" : "ブロック"}
+          {t(locale, "editor_9d2c89")}{mode === "items" ? t(locale, "editor_1769f6") : t(locale, "editor_847085")}
         </button>
       </div>
 
@@ -926,7 +929,7 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
       {sel && mode !== "items" && (
         <div className="border-t border-border/40 pt-3">
           <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2 flex items-center justify-between">
-            <span>🧱 本物のブロックにする</span>
+            <span>{t(locale, "editor_23900b")}</span>
             <button 
               onClick={() => updateFn(sel.id, { registered: !sel.registered })}
               className={`font-pixel text-[10px] px-2.5 py-1 border-2 border-[#1f1e1a] rounded transition-all cursor-pointer ${
@@ -941,13 +944,13 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
           {sel.registered ? (
             <div className="space-y-3 bg-[#151411] rounded-lg p-2.5 border-2 border-[#1f1e1a] mc-bevel-inset">
               <div>
-                <label className="text-[10px] text-muted font-bold block mb-1">識別子 (ID)</label>
+                <label className="text-[10px] text-muted font-bold block mb-1">{t(locale, "editor_b276bd")}</label>
                 <div className="text-[11px] font-mono text-cyan-300 px-2.5 py-1.5 bg-[#1a1916] border border-[#2c2c2c] rounded truncate shadow-inner">
                   {nsSlug}:{sel.name}
                 </div>
               </div>
               <div>
-                <label className="text-[10px] text-foreground/80 font-bold block mb-1">表示名（ゲーム内）</label>
+                <label className="text-[10px] text-foreground/80 font-bold block mb-1">{t(locale, "editor_65c3b5")}</label>
                 <input 
                   value={sel.displayName ?? ""} 
                   placeholder={sel.name}
@@ -957,34 +960,34 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
                 />
               </div>
               <div>
-                <label className="text-[10px] text-foreground/80 font-bold block mb-1">かたさ（壊れにくさ）</label>
+                <label className="text-[10px] text-foreground/80 font-bold block mb-1">{t(locale, "editor_0e0907")}</label>
                 <select 
                   value={sel.hardness ?? 1.5} 
-                  title="かたさ" 
+                  title={t(locale, "editor_8f3444")} 
                   onChange={(e) => updateFn(sel.id, { hardness: parseFloat(e.target.value) })}
                   className="w-full px-2 py-1 bg-[#1a1916] border-2 border-[#2c2c2c] mc-bevel-inset text-xs text-foreground/85 focus:outline-none focus:border-accent/40"
                   style={{ borderRadius: "4px" }}
                 >
-                  <option value={0}>やわらかい（0・葉っぱ）</option>
-                  <option value={0.5}>土レベル（0.5）</option>
-                  <option value={1.5}>石レベル（1.5）</option>
-                  <option value={3}>鉄レベル（3）</option>
-                  <option value={5}>ダイヤレベル（5）</option>
-                  <option value={50}>オブシディアン級（50）</option>
+                  <option value={0}>{t(locale, "editor_82203b")}</option>
+                  <option value={0.5}>{t(locale, "editor_0302cd")}</option>
+                  <option value={1.5}>{t(locale, "editor_424f7e")}</option>
+                  <option value={3}>{t(locale, "editor_de7fef")}</option>
+                  <option value={5}>{t(locale, "editor_4070ca")}</option>
+                  <option value={50}>{t(locale, "editor_9adba7")}</option>
                 </select>
               </div>
               <div>
-                <label className="text-[10px] text-foreground/80 font-bold block mb-1">光レベル（0〜15）</label>
+                <label className="text-[10px] text-foreground/80 font-bold block mb-1">{t(locale, "editor_912b45")}</label>
                 <select 
                   value={sel.lightLevel ?? 0} 
-                  title="光レベル" 
+                  title={t(locale, "editor_7b8a88")} 
                   onChange={(e) => updateFn(sel.id, { lightLevel: parseInt(e.target.value) })}
                   className="w-full px-2 py-1 bg-[#1a1916] border-2 border-[#2c2c2c] mc-bevel-inset text-xs text-foreground/85 focus:outline-none"
                   style={{ borderRadius: "4px" }}
                 >
                   {Array.from({ length: 16 }, (_, i) => i).map(n => (
                     <option key={n} value={n}>
-                      {n}{n === 0 ? "（光らない）" : n === 15 ? "（最大）" : ""}
+                      {n}{n === 0 ? t(locale, "editor_b55ef2") : n === 15 ? t(locale, "editor_c9e907") : ""}
                     </option>
                   ))}
                 </select>
@@ -996,14 +999,12 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
                   「設定したのに出ない」の原因が分からない */}
               <div className="col-span-2">
                 <label className="text-[10px] text-foreground/80 font-bold block mb-1">
-                  まわりに出る粒子
-                  <span className="block text-[9px] text-foreground/45 font-normal">
-                    ワールドの「ベータAPI」をONにすると出ます
-                  </span>
+                  {t(locale, "editor_687fbc")}<span className="block text-[9px] text-foreground/45 font-normal">
+                    {t(locale, "editor_640f39")}</span>
                 </label>
                 <select
                   value={sel.particle ?? ""}
-                  title="まわりに出る粒子"
+                  title={t(locale, "editor_687fbc")}
                   onChange={(e) => updateFn(sel.id, { particle: e.target.value })}
                   className="w-full px-2 py-1 bg-[#1a1916] border-2 border-[#2c2c2c] mc-bevel-inset text-xs text-foreground/85 focus:outline-none"
                   style={{ borderRadius: "4px" }}
@@ -1016,8 +1017,7 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
             </div>
           ) : (
             <p className="text-[10px] text-muted/65 italic leading-relaxed">
-              ONにすると、ID・表示名・かたさ・光を設定して「本物のブロック」として書き出せます
-            </p>
+              {t(locale, "editor_15771d")}</p>
           )}
         </div>
       )}
@@ -1025,10 +1025,10 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
       {/* ── グループ管理 ── */}
       {selectedIds.length > 0 && (
         <div className="border-t border-border/40 pt-3">
-          <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2">グループ</div>
+          <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2">{t(locale, "editor_b70a4e")}</div>
           <button
             onClick={() => {
-              const name = prompt("グループ名を入力:");
+              const name = prompt(t(locale, "editor_fc5866"));
               if (name) {
                 const groupId = createGroup(name);
                 assignToGroup(selectedIds, groupId);
@@ -1036,11 +1036,10 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
             }}
             className="mc-btn mc-btn--sm w-full mb-2.5"
           >
-            新しいグループ作成
-          </button>
+            {t(locale, "editor_13b70c")}</button>
           {sel?.groupId && (
             <div className="px-2.5 py-1.5 bg-[#151411] border-2 border-[#1f1e1a] mc-bevel-inset text-[11px] text-foreground/80" style={{ borderRadius: "4px" }}>
-              グループ: <span className="text-accent font-bold">{groups[sel.groupId]?.name || "？"}</span>
+              {t(locale, "editor_4f4462")}<span className="text-accent font-bold">{groups[sel.groupId]?.name || "？"}</span>
             </div>
           )}
         </div>
@@ -1048,12 +1047,12 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
 
       {/* ── 選択中ブロック ── */}
       <div>
-        <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2">プロパティ</div>
+        <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2">{t(locale, "editor_cda34e")}</div>
         {sel ? (
           <div className="space-y-4">
             {/* 名前 */}
             <div>
-              <label className="text-[11px] text-foreground/90 font-pixel block mb-1">名前</label>
+              <label className="text-[11px] text-foreground/90 font-pixel block mb-1">{t(locale, "editor_5b9e23")}</label>
               <input value={sel.name}
                 onChange={(e) => updateFn(sel.id, { name: e.target.value })}
                 className="w-full px-2.5 py-1.5 bg-[#1a1916] border-2 border-[#2c2c2c] mc-bevel-inset text-xs font-mono text-foreground/90 focus:outline-none focus:border-accent/40"
@@ -1066,15 +1065,15 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
               <div className="space-y-4">
                 {/* 📏 おおきさ */}
                 <div>
-                  <label className="text-[11px] text-foreground/90 font-pixel block mb-1.5 font-bold">📏 おおきさ</label>
+                  <label className="text-[11px] text-foreground/90 font-pixel block mb-1.5 font-bold">{t(locale, "editor_43a9fb")}</label>
                   <div className="flex flex-col gap-1.5">
                     <div className="flex gap-1.5">
                       <button onClick={() => updateFn(sel.id, { scale: [0.5, 0.5, 0.5] })}
-                        className="flex-1 py-1 mc-btn mc-btn--sm text-xs font-bold">S (小)</button>
+                        className="flex-1 py-1 mc-btn mc-btn--sm text-xs font-bold">{t(locale, "editor_678e95")}</button>
                       <button onClick={() => updateFn(sel.id, { scale: [1, 1, 1] })}
-                        className="flex-1 py-1 mc-btn mc-btn--sm mc-btn--info text-xs font-bold">M (中)</button>
+                        className="flex-1 py-1 mc-btn mc-btn--sm mc-btn--info text-xs font-bold">{t(locale, "editor_8c83d6")}</button>
                       <button onClick={() => updateFn(sel.id, { scale: [2, 2, 2] })}
-                        className="flex-1 py-1 mc-btn mc-btn--sm mc-btn--grape text-xs font-bold">L (大)</button>
+                        className="flex-1 py-1 mc-btn mc-btn--sm mc-btn--grape text-xs font-bold">{t(locale, "editor_ac66a5")}</button>
                     </div>
                     <div className="flex gap-1.5">
                       <button onClick={() => {
@@ -1083,55 +1082,53 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
                         const ny = Math.max(0.1, s[1] - 0.1);
                         const nz = Math.max(0.1, s[2] - 0.1);
                         updateFn(sel.id, { scale: [nx, ny, nz] });
-                      }} className="flex-1 py-1 mc-btn mc-btn--sm text-xs">ー ちいさく</button>
+                      }} className="flex-1 py-1 mc-btn mc-btn--sm text-xs">{t(locale, "editor_35a09f")}</button>
                       <button onClick={() => {
                         const s = sel.scale ?? [1, 1, 1];
                         updateFn(sel.id, { scale: [s[0] + 0.1, s[1] + 0.1, s[2] + 0.1] });
-                      }} className="flex-1 py-1 mc-btn mc-btn--sm text-xs">＋ でかく</button>
+                      }} className="flex-1 py-1 mc-btn mc-btn--sm text-xs">{t(locale, "editor_0d9615")}</button>
                     </div>
                   </div>
                 </div>
 
                 {/* 🔄 むき (まわす) */}
                 <div>
-                  <label className="text-[11px] text-foreground/90 font-pixel block mb-1.5 font-bold">🔄 むき (まわす)</label>
+                  <label className="text-[11px] text-foreground/90 font-pixel block mb-1.5 font-bold">{t(locale, "editor_425db9")}</label>
                   <div className="flex gap-1.5">
                     <button onClick={() => { const r = sel.rotation ?? [0, 0, 0]; updateFn(sel.id, { rotation: [r[0], r[1] - 90, r[2]] }); }}
-                      className="flex-1 py-1.5 mc-btn mc-btn--sm text-xs font-bold">左にまわす ↺</button>
+                      className="flex-1 py-1.5 mc-btn mc-btn--sm text-xs font-bold">{t(locale, "editor_a41fd1")}</button>
                     <button onClick={() => { const r = sel.rotation ?? [0, 0, 0]; updateFn(sel.id, { rotation: [r[0], r[1] + 90, r[2]] }); }}
-                      className="flex-1 py-1.5 mc-btn mc-btn--sm text-xs font-bold">右にまわす ↻</button>
+                      className="flex-1 py-1.5 mc-btn mc-btn--sm text-xs font-bold">{t(locale, "editor_0f841c")}</button>
                     <button onClick={() => { const r = sel.rotation ?? [0, 0, 0]; updateFn(sel.id, { rotation: [r[0] + 90, r[1], r[2]] }); }}
-                      className="flex-1 py-1.5 mc-btn mc-btn--sm text-xs font-bold">たおす ⤼</button>
+                      className="flex-1 py-1.5 mc-btn mc-btn--sm text-xs font-bold">{t(locale, "editor_2d9f7b")}</button>
                   </div>
                 </div>
 
                 {/* 📍 うごかす */}
                 <div>
-                  <label className="text-[11px] text-foreground/90 font-pixel block mb-1.5 font-bold">📍 うごかす (コントローラー)</label>
+                  <label className="text-[11px] text-foreground/90 font-pixel block mb-1.5 font-bold">{t(locale, "editor_872778")}</label>
                   <div className="flex gap-3 items-center">
                     {/* 十字キー (平面X-Z) */}
                     <div className="grid grid-cols-3 grid-rows-3 gap-1 w-[96px] h-[96px] bg-[#151411] border-2 border-[#1f1e1a] rounded p-1 mc-bevel-inset relative shrink-0">
                       <div />
-                      <button onClick={() => { const p = [...sel.position] as [number, number, number]; p[2] += 1; updateFn(sel.id, { position: p }); }} title="まえ" className="mc-btn mc-btn--sm p-0 flex items-center justify-center font-bold text-xs">▲</button>
+                      <button onClick={() => { const p = [...sel.position] as [number, number, number]; p[2] += 1; updateFn(sel.id, { position: p }); }} title={t(locale, "editor_83610a")} className="mc-btn mc-btn--sm p-0 flex items-center justify-center font-bold text-xs">▲</button>
                       <div />
 
-                      <button onClick={() => { const p = [...sel.position] as [number, number, number]; p[0] -= 1; updateFn(sel.id, { position: p }); }} title="ひだり" className="mc-btn mc-btn--sm p-0 flex items-center justify-center font-bold text-xs">◀</button>
+                      <button onClick={() => { const p = [...sel.position] as [number, number, number]; p[0] -= 1; updateFn(sel.id, { position: p }); }} title={t(locale, "editor_ec442a")} className="mc-btn mc-btn--sm p-0 flex items-center justify-center font-bold text-xs">◀</button>
                       <div className="bg-[#2a2924] border border-black/20 rounded-sm" />
-                      <button onClick={() => { const p = [...sel.position] as [number, number, number]; p[0] += 1; updateFn(sel.id, { position: p }); }} title="みぎ" className="mc-btn mc-btn--sm p-0 flex items-center justify-center font-bold text-xs">▶</button>
+                      <button onClick={() => { const p = [...sel.position] as [number, number, number]; p[0] += 1; updateFn(sel.id, { position: p }); }} title={t(locale, "editor_df8376")} className="mc-btn mc-btn--sm p-0 flex items-center justify-center font-bold text-xs">▶</button>
 
                       <div />
-                      <button onClick={() => { const p = [...sel.position] as [number, number, number]; p[2] -= 1; updateFn(sel.id, { position: p }); }} title="おく" className="mc-btn mc-btn--sm p-0 flex items-center justify-center font-bold text-xs">▼</button>
+                      <button onClick={() => { const p = [...sel.position] as [number, number, number]; p[2] -= 1; updateFn(sel.id, { position: p }); }} title={t(locale, "editor_fc7721")} className="mc-btn mc-btn--sm p-0 flex items-center justify-center font-bold text-xs">▼</button>
                       <div />
                     </div>
 
                     {/* 高さボタン (Y) */}
                     <div className="flex flex-col gap-1.5 flex-1">
                       <button onClick={() => { const p = [...sel.position] as [number, number, number]; p[1] += 1; updateFn(sel.id, { position: p }); }} className="py-2 mc-btn mc-btn--sm mc-btn--primary text-xs font-bold flex items-center justify-center gap-1">
-                        ▲ うえにいく
-                      </button>
+                        {t(locale, "editor_adf7fd")}</button>
                       <button onClick={() => { const p = [...sel.position] as [number, number, number]; p[1] -= 1; updateFn(sel.id, { position: p }); }} className="py-2 mc-btn mc-btn--sm mc-btn--danger text-xs font-bold flex items-center justify-center gap-1">
-                        ▼ したにいく
-                      </button>
+                        {t(locale, "editor_60e9ac")}</button>
                     </div>
                   </div>
                 </div>
@@ -1142,12 +1139,11 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
             {!simple && (<>
             {/* グリッドスナップ */}
             <div>
-              <label className="text-[11px] text-foreground/90 font-pixel block mb-1">グリッドスナップ</label>
+              <label className="text-[11px] text-foreground/90 font-pixel block mb-1">{t(locale, "editor_e81545")}</label>
               <div className="flex items-center justify-between mb-2">
                 <label className="flex items-center gap-2 cursor-pointer text-xs text-foreground/75 font-pixel">
                   <input type="checkbox" checked={gridSnapEnabled} onChange={(e) => setGridSnap(e.target.checked, gridSnapSize)} className="cursor-pointer" />
-                  有効にする
-                </label>
+                  {t(locale, "editor_e4142d")}</label>
               </div>
               {gridSnapEnabled && (
                 <select value={gridSnapSize} onChange={(e) => setGridSnap(true, parseFloat(e.target.value))}
@@ -1163,21 +1159,21 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
             </div>
 
             {/* 位置 */}
-            <Vec3Editor label="📍 場所 (横 / 縦 / 奥)" values={sel.position}
+            <Vec3Editor label={t(locale, "editor_a1a2ab")} values={sel.position}
               onChange={(v) => updateFn(sel.id, { position: v })} snap={gridSnapEnabled} />
 
             {/* スケール */}
-            <Vec3Editor label="📏 大きさ (横 / 縦 / 奥)" values={sel.scale ?? [1,1,1]}
+            <Vec3Editor label={t(locale, "editor_f16898")} values={sel.scale ?? [1,1,1]}
               onChange={(v) => updateFn(sel.id, { scale: v })} step={0.1} />
 
             {/* 回転 */}
-            <Vec3Editor label="🔄 向き (傾き・度)" values={sel.rotation ?? [0,0,0]}
+            <Vec3Editor label={t(locale, "editor_ce117b")} values={sel.rotation ?? [0,0,0]}
               onChange={(v) => updateFn(sel.id, { rotation: v })} step={5}
               colors={["text-orange-400 font-bold","text-yellow-400 font-bold","text-pink-400 font-bold"]} />
 
             {/* 面カラー - インベントリスロット風 */}
             <div>
-              <label className="text-[11px] text-[#fbbf24] font-pixel block mb-2">🎨 面の色 (クリックで変更)</label>
+              <label className="text-[11px] text-[#fbbf24] font-pixel block mb-2">{t(locale, "editor_550770")}</label>
               <div className="grid grid-cols-3 gap-2">
                 {(["top","bottom","front","back","left","right"] as const).map((face) => (
                   <div key={face} className="flex flex-col items-center gap-1">
@@ -1199,7 +1195,7 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
 
             {/* テクスチャアップロード - インベントリスロット風 */}
             <div>
-              <label className="text-[11px] text-[#fbbf24] font-pixel block mb-2">📤 テクスチャ (PNG画像ドロップ)</label>
+              <label className="text-[11px] text-[#fbbf24] font-pixel block mb-2">{t(locale, "editor_b2be9c")}</label>
               <div className="grid grid-cols-3 gap-2">
                 {(["top","bottom","front","back","left","right"] as const).map((face) => {
                   const tex = sel.faces[face].texture;
@@ -1245,26 +1241,23 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
               onClick={() => removeFn(sel.id)}
               className="mt-2 mc-btn mc-btn--sm mc-btn--danger w-full"
             >
-              🗑️ このブロックを削除
-            </button>
+              {t(locale, "editor_ce75ba")}</button>
           </div>
         ) : workingBlocks.length === 0 ? (
           <div className="text-center py-6 bg-[#151411] border-2 border-[#1f1e1a] mc-bevel-inset rounded-lg p-3 my-2">
-            <p className="text-xs text-[#fbbf24] font-pixel mb-1.5">🧱 パーツがありません</p>
+            <p className="text-xs text-[#fbbf24] font-pixel mb-1.5">{t(locale, "editor_20deeb")}</p>
             <p className="text-[10px] text-muted font-pixel leading-relaxed">
-              「＋ 新しいブロック」ボタンを押すか、プレビュー画面のボタンから最初のパーツを追加してみよう！
-            </p>
+              {t(locale, "editor_463c0e")}</p>
           </div>
         ) : (
-          <p className="text-xs text-muted/50 italic leading-relaxed text-center font-pixel py-4">ブロックを選択してください</p>
+          <p className="text-xs text-muted/50 italic leading-relaxed text-center font-pixel py-4">{t(locale, "editor_be7d73")}</p>
         )}
       </div>
 
       {/* ── テクスチャプリセット ── */}
       <div className="border-t border-border/40 pt-3">
         <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2">
-          🎨 色・柄 (ワンタッチ)
-        </div>
+          {t(locale, "editor_123aef")}</div>
         <div className="grid grid-cols-2 gap-2">
           {PRESETS.map((p) => (
             <button 
@@ -1289,10 +1282,10 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
       {/* ── 表示設定（プロのみ） ── */}
       {!simple && (
         <div className="border-t border-border/40 pt-3">
-          <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2">表示設定</div>
+          <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2">{t(locale, "editor_2b2e22")}</div>
           {[
-            { label: "グリッド表示",         val: showGrid,      set: setShowGrid },
-            { label: "ワイヤーフレーム", val: showWireframe, set: setShowWireframe },
+            { label: t(locale, "editor_4912b2"),         val: showGrid,      set: setShowGrid },
+            { label: t(locale, "editor_d5e689"), val: showWireframe, set: setShowWireframe },
           ].map(({ label, val, set }) => (
             <label key={label} className="flex items-center justify-between cursor-pointer mb-2 font-pixel text-xs text-foreground/75">
               <span>{label}</span>
@@ -1313,8 +1306,7 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
           🧱
         </div>
         <span className="text-[9px] font-pixel mt-1.5 tracking-widest text-muted">
-          --- BEDROCK (岩盤) ---
-        </span>
+          {t(locale, "editor_d9574b")}</span>
       </div>
     </div>
   );
@@ -1338,6 +1330,7 @@ function ToolSidebar({
   activeTool?: "select" | "add" | "paint" | "delete";
   setActiveTool: (t: "select" | "add" | "paint" | "delete") => void;
 }) {
+    const locale = useEditorStore((s) => s.locale);
   const blocks        = useEditorStore((s) => s.blocks);
   const items         = useEditorStore((s) => s.items);
   const selectedBlockIds   = useEditorStore((s) => s.selectedBlockIds);
@@ -1393,25 +1386,25 @@ function ToolSidebar({
   const simpleTools = [
     {
       icon: "👆",
-      tip: "えらぶ (選択)",
+      tip: t(locale, "editor_49f1ba"),
       action: () => { setActiveTool("select"); setPaintMode(false); },
       active: activeTool === "select"
     },
     {
       icon: "🧱",
-      tip: "おく (クリックで隣に置く)",
+      tip: t(locale, "editor_190005"),
       action: () => { setActiveTool("add"); setPaintMode(false); },
       active: activeTool === "add"
     },
     {
       icon: "🎨",
-      tip: "ぬる (クリックでぬる)",
+      tip: t(locale, "editor_6ec6aa"),
       action: () => { setActiveTool("paint"); setPaintMode(true); },
       active: activeTool === "paint"
     },
     {
       icon: "💥",
-      tip: "こわす (クリックで壊す)",
+      tip: t(locale, "editor_2077d2"),
       action: () => { setActiveTool("delete"); setPaintMode(false); },
       active: activeTool === "delete"
     }
@@ -1421,19 +1414,19 @@ function ToolSidebar({
   const proTools = [
     { 
       icon: "⊞", 
-      tip: "選択モード", 
+      tip: t(locale, "editor_8e483f"), 
       action: paintMode ? () => { setPaintMode(false); setActiveTool("select"); } : undefined, 
       active: !paintMode 
     },
     { 
       icon: "✎", 
-      tip: paintMode ? "ペイント中（Esc で終了）" : "ペイントモード", 
+      tip: paintMode ? t(locale, "editor_6ca5e6") : t(locale, "editor_9fb5ce"), 
       action: () => { setPaintMode(!paintMode); setActiveTool(!paintMode ? "paint" : "select"); }, 
       active: paintMode 
     },
-    { icon: "＋", tip: "立方体を追加", action: handleAdd, active: false },
-    { icon: "⧉", tip: "複製 (Ctrl+D)", action: selectedIds.length > 0 ? handleDuplicate : undefined, active: false },
-    { icon: "🗑", tip: "選択を削除", action: selectedIds.length > 0 ? () => selectedIds.forEach((id) => removeFn(id)) : undefined, active: false },
+    { icon: "＋", tip: t(locale, "editor_10cbda"), action: handleAdd, active: false },
+    { icon: "⧉", tip: t(locale, "editor_3dc159"), action: selectedIds.length > 0 ? handleDuplicate : undefined, active: false },
+    { icon: "🗑", tip: t(locale, "editor_b34975"), action: selectedIds.length > 0 ? () => selectedIds.forEach((id) => removeFn(id)) : undefined, active: false },
   ];
 
   const tools = simple ? simpleTools : proTools;
@@ -1478,6 +1471,7 @@ function ToolSidebar({
    ModelPanel
    ═══════════════════════════════════════════ */
 export default function ModelPanel() {
+    const locale = useEditorStore((s) => s.locale);
   const [paintMode, setPaintMode] = useState(false);
   const [mode, setMode] = useState<"blocks" | "items">("blocks");
   const [showHelp, setShowHelp] = useState(false);
@@ -1557,8 +1551,7 @@ export default function ModelPanel() {
             textShadow: mode === "blocks" ? "1.5px 1.5px 0px rgba(0,0,0,0.6)" : "none",
           }}
         >
-          ⊞ ブロック
-        </button>
+          {t(locale, "editor_ace5da")}</button>
         <button
           onClick={() => setMode("items")}
           className="font-pixel text-xs px-4 py-2 border-3 border-[#1f1e1a] transition-all cursor-pointer relative"
@@ -1576,8 +1569,7 @@ export default function ModelPanel() {
             textShadow: mode === "items" ? "1.5px 1.5px 0px rgba(0,0,0,0.6)" : "none",
           }}
         >
-          ✨ アイテム
-        </button>
+          {t(locale, "editor_c17280")}</button>
 
         {/* かんたん/プロ 切替は廃止：モード(SPROUT=かんたん / GROVE=プロ)で自動決定 */}
       </div>
@@ -1592,17 +1584,14 @@ export default function ModelPanel() {
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-20">
               <div className="bg-[#1f1e1a]/95 border-3 border-[#121210] p-4 text-center select-none max-w-xs shadow-2xl rounded-lg pointer-events-auto" style={{ boxShadow: "0 20px 25px -5px rgba(0,0,0,0.5)" }}>
                 <p className="font-pixel text-[13px] text-[#fbbf24] mb-1.5" style={{ textShadow: "1.5px 1.5px 0 rgba(0,0,0,0.8)" }}>
-                  🧱 何も置かれていません
-                </p>
+                  {t(locale, "editor_b3fda4")}</p>
                 <p className="font-pixel text-[10px] text-foreground/85 leading-relaxed mb-3">
-                  「最初のパーツを追加する」ボタンを押すと、3D空間の中心にパーツが置かれます！
-                </p>
+                  {t(locale, "editor_2c8808")}</p>
                 <button
                   onClick={handleAddNewFirst}
                   className="mc-btn mc-btn--primary mc-btn--sm w-full py-2 font-bold text-xs"
                 >
-                  最初のパーツを追加する
-                </button>
+                  {t(locale, "editor_62d02b")}</button>
               </div>
             </div>
           )}
@@ -1617,18 +1606,16 @@ export default function ModelPanel() {
           <div className="absolute bottom-4 right-4 w-4 h-4 border-b-3 border-r-3 border-[#fb7185]/55 pointer-events-none z-10" />
 
           <div className="absolute top-3 left-3 px-3 py-1.5 border-2 border-[#1f1e1a] bg-panel text-[10px] text-foreground/85 font-pixel pointer-events-none shadow-lg z-20" style={{ borderRadius: "5px" }}>
-            🧊 3Dプレビュー ・ {paintMode ? "🎨 ぬりモード" : "👆 えらぶモード"} (ドラッグでまわす)
-          </div>
+            {t(locale, "editor_9115cf")}{paintMode ? t(locale, "editor_af253c") : t(locale, "editor_333d6b")} {t(locale, "editor_9b8499")}</div>
 
           {/* カメラの視点リセットボタン */}
           <button
             onClick={() => window.dispatchEvent(new CustomEvent("mmc-reset-camera"))}
             className="absolute bottom-3 right-3 mc-btn mc-btn--sm z-20 flex items-center gap-1 font-pixel"
             style={{ padding: "6px 10px" }}
-            title="カメラの向きを正面に戻す"
+            title={t(locale, "editor_c3e543")}
           >
-            🏠 視点リセット
-          </button>
+            {t(locale, "editor_daf43e")}</button>
 
           {/* 操作ガイドボタン */}
           <button
@@ -1636,8 +1623,7 @@ export default function ModelPanel() {
             className="absolute top-3 right-3 mc-btn mc-btn--sm z-20"
             style={{ padding: "6px 10px" }}
           >
-            ❓ 操作ガイド
-          </button>
+            {t(locale, "editor_20d16b")}</button>
 
           <div className={`absolute bottom-4 left-4 flex items-center gap-2 pointer-events-none ${simple ? "hidden" : ""}`}>
             <div className="w-8 h-8 flex items-center justify-center bg-[#151411] border-2 border-[#1f1e1a] mc-bevel-inset text-xs font-pixel text-[#fb7185] font-bold shadow-[0_0_8px_rgba(251,113,133,0.4)]" style={{ textShadow: "1px 1px 0px #5f131a", borderRadius: "4px" }}>
@@ -1657,8 +1643,7 @@ export default function ModelPanel() {
               <div className="w-full max-w-xl border-3 border-[#1f1e1a] bg-panel flex flex-col max-h-[85%] relative shadow-[0_12px_24px_rgba(0,0,0,0.6)]" style={{ borderRadius: "8px" }}>
                 <div className="mc-panel__title flex justify-between items-center bg-[#1f1e1a] border-b-2 border-[#1f1e1a]">
                   <span className="font-pixel text-[11px] text-[#fbbf24] flex items-center gap-1.5" style={{ textShadow: "1px 1px 0px rgba(0,0,0,0.7)" }}>
-                    ❓ 3Dモデルエディタ操作ガイド
-                  </span>
+                    {t(locale, "editor_1db173")}</span>
                   <button
                     onClick={() => setShowHelp(false)}
                     className="mc-btn mc-btn--sm px-2 py-0.5"
@@ -1672,48 +1657,43 @@ export default function ModelPanel() {
                   {/* カメラ操作 */}
                   <div className="space-y-1.5">
                     <div className="font-bold text-[#fbbf24] font-pixel border-b border-border/40 pb-1 flex items-center gap-1">
-                      🖱️ 視点・カメラ操作
-                    </div>
+                      {t(locale, "editor_de8453")}</div>
                     <ul className="list-disc pl-4 space-y-1 font-pixel text-[11px]">
-                      <li><strong className="text-foreground">回転:</strong> 画面を左クリックしながらドラッグ</li>
-                      <li><strong className="text-foreground">平行移動:</strong> 右クリックしながらドラッグ、または <kbd className="px-1.5 py-0.5 bg-[#8c8779] border-2 border-[#1f1e1a] mc-bevel text-white text-[9px] shadow-inner" style={{ borderRadius: "4px" }}>Ctrl</kbd> + 左ドラッグ</li>
-                      <li><strong className="text-foreground">ズーム:</strong> マウスホイールのスクロール</li>
+                      <li><strong className="text-foreground">{t(locale, "editor_db9c11")}</strong> {t(locale, "editor_d971cf")}</li>
+                      <li><strong className="text-foreground">{t(locale, "editor_7e41cc")}</strong> {t(locale, "editor_93ba33")}<kbd className="px-1.5 py-0.5 bg-[#8c8779] border-2 border-[#1f1e1a] mc-bevel text-white text-[9px] shadow-inner" style={{ borderRadius: "4px" }}>Ctrl</kbd> {t(locale, "editor_46274b")}</li>
+                      <li><strong className="text-foreground">{t(locale, "editor_189971")}</strong> {t(locale, "editor_ae69e0")}</li>
                     </ul>
                   </div>
  
                   {/* ツール操作 */}
                   <div className="space-y-1.5">
                     <div className="font-bold text-[#fbbf24] font-pixel border-b border-border/40 pb-1 flex items-center gap-1">
-                      🧱 ブロックの組み立て
-                    </div>
+                      {t(locale, "editor_8dafe7")}</div>
                     <ul className="list-disc pl-4 space-y-1 font-pixel text-[11px]">
-                      <li><strong className="text-foreground">追加:</strong> 左側ツールの <span className="font-extrabold text-[#10b981]">＋</span> ボタンをクリックします。</li>
-                      <li><strong className="text-foreground">複製:</strong> ブロックを選んで <kbd className="px-1.5 py-0.5 bg-[#8c8779] border-2 border-[#1f1e1a] mc-bevel text-white text-[9px] shadow-inner" style={{ borderRadius: "4px" }}>Ctrl</kbd> + <kbd className="px-1.5 py-0.5 bg-[#8c8779] border-2 border-[#1f1e1a] mc-bevel text-white text-[9px] shadow-inner" style={{ borderRadius: "4px" }}>D</kbd>（または左ツールの <span className="text-[#f59e0b]">⧉</span> ボタン）</li>
-                      <li><strong className="text-foreground">削除:</strong> 右パネル最下部の「このブロックを削除」ボタン（または左ツールの <span className="text-rose-500">🗑</span> ボタン）</li>
-                      <li><strong className="text-foreground">複数選択:</strong> <kbd className="px-1.5 py-0.5 bg-[#8c8779] border-2 border-[#1f1e1a] mc-bevel text-white text-[9px] shadow-inner" style={{ borderRadius: "4px" }}>Ctrl</kbd> キーを押しながら複数のブロックをクリック</li>
+                      <li><strong className="text-foreground">{t(locale, "editor_6fa1a8")}</strong> {t(locale, "editor_7829d7")}<span className="font-extrabold text-[#10b981]">＋</span> {t(locale, "editor_d1225f")}</li>
+                      <li><strong className="text-foreground">{t(locale, "editor_588eae")}</strong> {t(locale, "editor_585a55")}<kbd className="px-1.5 py-0.5 bg-[#8c8779] border-2 border-[#1f1e1a] mc-bevel text-white text-[9px] shadow-inner" style={{ borderRadius: "4px" }}>Ctrl</kbd> + <kbd className="px-1.5 py-0.5 bg-[#8c8779] border-2 border-[#1f1e1a] mc-bevel text-white text-[9px] shadow-inner" style={{ borderRadius: "4px" }}>D</kbd>{t(locale, "editor_490bc9")}<span className="text-[#f59e0b]">⧉</span> {t(locale, "editor_7b393e")}</li>
+                      <li><strong className="text-foreground">{t(locale, "editor_7aae2a")}</strong> {t(locale, "editor_b1aac8")}<span className="text-rose-500">🗑</span> {t(locale, "editor_7b393e")}</li>
+                      <li><strong className="text-foreground">{t(locale, "editor_b2750f")}</strong> <kbd className="px-1.5 py-0.5 bg-[#8c8779] border-2 border-[#1f1e1a] mc-bevel text-white text-[9px] shadow-inner" style={{ borderRadius: "4px" }}>Ctrl</kbd> {t(locale, "editor_226c0d")}</li>
                     </ul>
                   </div>
  
                   {/* ペイントモード */}
                   <div className="space-y-1.5">
                     <div className="font-bold text-[#fbbf24] font-pixel border-b border-border/40 pb-1 flex items-center gap-1">
-                      🎨 色付けとペイント
-                    </div>
+                      {t(locale, "editor_13788f")}</div>
                     <ul className="list-disc pl-4 space-y-1 font-pixel text-[11px]">
-                      <li><strong className="text-foreground">直感ペイント:</strong> 左側ツールの <span className="text-rose-400">✎</span> ボタンでペイントモードへ切り替え。右パネルで色やテクスチャを選び、3Dモデルの面を直接クリックするとペイントできます。</li>
-                      <li><strong className="text-foreground">モード解除:</strong> もう一度 <span className="text-rose-400">✎</span> ボタンを押すか、<kbd className="px-1.5 py-0.5 bg-[#8c8779] border-2 border-[#1f1e1a] mc-bevel text-white text-[9px] shadow-inner" style={{ borderRadius: "4px" }}>Esc</kbd> キーで選択モードに戻ります。</li>
-                      <li><strong className="text-foreground">プリセット:</strong> 「草」や「石」のボタンで、マイクラ定番カラーをワンクリックで適用可能！</li>
+                      <li><strong className="text-foreground">{t(locale, "editor_5f1f1c")}</strong> {t(locale, "editor_7829d7")}<span className="text-rose-400">✎</span> {t(locale, "editor_2ec211")}</li>
+                      <li><strong className="text-foreground">{t(locale, "editor_3478fa")}</strong> {t(locale, "editor_57bb4a")}<span className="text-rose-400">✎</span> {t(locale, "editor_955fe7")}<kbd className="px-1.5 py-0.5 bg-[#8c8779] border-2 border-[#1f1e1a] mc-bevel text-white text-[9px] shadow-inner" style={{ borderRadius: "4px" }}>Esc</kbd> {t(locale, "editor_9bd8bd")}</li>
+                      <li><strong className="text-foreground">{t(locale, "editor_7792b9")}</strong> {t(locale, "editor_c21995")}</li>
                     </ul>
                   </div>
  
                   {/* グリッドスナップ */}
                   <div className="space-y-1.5">
                     <div className="font-bold text-[#fbbf24] font-pixel border-b border-border/40 pb-1 flex items-center gap-1">
-                      📐 配置のコツ
-                    </div>
+                      {t(locale, "editor_513586")}</div>
                     <p className="pl-1 leading-relaxed font-pixel text-[11px]">
-                      右パネルの「<strong className="text-foreground">グリッドスナップ有効</strong>」にチェックを入れると、パーツを <span className="text-[#fb7185] font-bold">0.5</span> や <span className="text-[#fb7185] font-bold">1.0</span> 単位でカチカチと規則正しく吸着配置できるようになり、モデル構築がとてもスムーズになります！
-                    </p>
+                      {t(locale, "editor_754181")}<strong className="text-foreground">{t(locale, "editor_7b5eb1")}</strong>{t(locale, "editor_4d29ca")}<span className="text-[#fb7185] font-bold">0.5</span> {t(locale, "editor_3cb21c")}<span className="text-[#fb7185] font-bold">1.0</span> {t(locale, "editor_a859e8")}</p>
                   </div>
                 </div>
  
@@ -1722,8 +1702,7 @@ export default function ModelPanel() {
                     onClick={() => setShowHelp(false)}
                     className="mc-btn mc-btn--primary mc-btn--sm"
                   >
-                    閉じる (Esc)
-                  </button>
+                    {t(locale, "editor_9299b2")}</button>
                 </div>
               </div>
             </div>

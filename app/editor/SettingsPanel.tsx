@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { useEditorStore } from "./store";
 import { JAVA_TARGET_LIST, getJavaTarget } from "../../lib/javaEngine/targets";
 import { exportProject, buildJavaFileList } from "./exporter";
+import { t } from "@/lib/i18n";
 
 /* ═══════════════════════════════════════════
    Toggle Switch
@@ -39,6 +40,7 @@ const inputCls =
    （"プログラマーになった気持ち" の核）
    ═══════════════════════════════════════════ */
 function BuildTerminal() {
+    const locale = useEditorStore((s) => s.locale);
   const [building, setBuilding] = useState(false);
   const [log, setLog] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +68,7 @@ function BuildTerminal() {
     if (building) return;
     // 抜け道防止：Bedrockはメインの「アドオン完成！」で解錠必須。Java(GROVE)は「放つ」が本番なので不要。
     if (!useEditorStore.getState().exportArmed && useEditorStore.getState().targetPlatform !== "java") {
-      setLog(["⚠ まず ロジック画面の「アドオン完成！🎉」ボタンを押してください。"]);
+      setLog([t(locale, "editor_022e20")]);
       return;
     }
     setBuilding(true);
@@ -77,14 +79,14 @@ function BuildTerminal() {
       const state = useEditorStore.getState();
       const plat = state.targetPlatform as "bedrock" | "java";
       const isElec = typeof window !== "undefined" && !!(window as any).electronAPI?.isElectron;
-      push(`# ターゲット: ${plat === "java" ? "Java / Forge 1.20.1" : "Bedrock / 統合版"} ${isElec ? "(デスクトップ)" : "(Web)"}`);
+      push(`# ターゲット: ${plat === "java" ? "Java / Forge 1.20.1" : t(locale, "editor_844896")} ${isElec ? t(locale, "editor_992f33") : "(Web)"}`);
 
       // デスクトップのJavaは、ソースZIPでなく本物ビルド→.minecraft/mods へ.jar導入（「放つ」と同じ）。
       if (plat === "java" && isElec) {
         const api = (window as any).electronAPI.minecraft;
-        push("$ cubicengine build --install (Java / 本物ビルド)");
+        push(t(locale, "editor_4bc914"));
         const det = await api.detect();
-        if (!det?.modsDir) throw new Error("Minecraft (.minecraft/mods) が見つかりません。\n先にMinecraft Java版を一度起動して .minecraft を作ってください。");
+        if (!det?.modsDir) throw new Error(t(locale, "editor_c2d0e7"));
         const files = await buildJavaFileList(state as any, state.generatedJsCode || "");
         api.onBuildLog?.((m: string) => push(m));
         const res = await api.buildAndInstall({ files, modsDir: det.modsDir, projectName: state.projectName });
@@ -98,22 +100,22 @@ function BuildTerminal() {
 
       push("$ cubicengine build --release");
       await wait(220);
-      push("  ▸ manifest.json を生成 …");
+      push(t(locale, "editor_a837e0"));
       await wait(260);
       push("  ✓ manifest.json");
       push(`  ▸ scripts/main.js を書き出し (${state.blocks.length} blocks) …`);
       await wait(300);
       push("  ✓ scripts/main.js");
-      push(plat === "bedrock" ? "  ▸ textures / blocks をパック …" : "  ▸ java sources を生成 …");
+      push(plat === "bedrock" ? t(locale, "editor_e9aefa") : t(locale, "editor_4e6e24"));
       await wait(280);
       push(plat === "bedrock" ? "  ✓ resource pack" : "  ✓ src/main/java");
-      push("  ▸ 圧縮中 …");
+      push(t(locale, "editor_c4da08"));
       // 実エクスポート
       const shared = await exportProject(state, state.generatedJsCode);
       await wait(180);
-      push("  ✓ 圧縮完了");
+      push(t(locale, "editor_90afc2"));
       push("");
-      push(shared ? "✅ BUILD SUCCESS — 共有メニューを起動しました！" : "✅ BUILD SUCCESS — ダウンロード完了！");
+      push(shared ? t(locale, "editor_0bcb79") : t(locale, "editor_d7d013"));
       setExportedPlatform(plat);
       setExportShared(shared);
       setShowGuide(true);
@@ -136,8 +138,7 @@ function BuildTerminal() {
       >
         {log.length === 0 ? (
           <div className="text-muted/40">
-            <span className="text-emerald-400/60">●</span> ビルド待機中… 「ビルド＆ダウンロード」を押すとここに出力が流れます
-          </div>
+            <span className="text-emerald-400/60">●</span> {t(locale, "editor_ff1b87")}</div>
         ) : (
           log.map((line, i) => (
             <div
@@ -169,8 +170,7 @@ function BuildTerminal() {
           className="mt-0.5 flex-shrink-0"
         />
         <div className="min-w-0 break-words text-[11px] text-foreground/80 leading-relaxed">
-          <strong className="text-rose-400">【重要】</strong> 私は、他者への迷惑行為（荒らし、サーバー妨害、著作権侵害など）を目的としてこのアドオンを使用しないことに同意し、自己責任でエクスポートします。
-        </div>
+          <strong className="text-rose-400">{t(locale, "editor_85be83")}</strong> {t(locale, "editor_302134")}</div>
       </label>
 
       {/* ビルドボタン */}
@@ -178,7 +178,7 @@ function BuildTerminal() {
         id="export-btn"
         onClick={handleBuild}
         disabled={building || !armed || !agreed}
-        title={!armed ? "先にロジック画面の「アドオン完成！🎉」ボタンを押してください" : !agreed ? "利用規約に同意してください" : undefined}
+        title={!armed ? t(locale, "editor_b68505") : !agreed ? t(locale, "editor_e3d365") : undefined}
         className={`mc-btn ${building || !armed || !agreed ? "" : "mc-btn--primary"} w-full py-3`}
         style={{ fontSize: 13, borderRadius: 16, opacity: !building && !armed ? 0.6 : !agreed ? 0.8 : 1 }}
       >
@@ -188,14 +188,13 @@ function BuildTerminal() {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            ビルド中…
-          </>
+            {t(locale, "editor_77c296")}</>
         ) : !armed ? (
-          <>🔒 まず「アドオン完成！🎉」を押してね</>
+          <>{t(locale, "editor_c07de9")}</>
         ) : !agreed ? (
-          <>⛔ 同意してエクスポートを解錠</>
+          <>{t(locale, "editor_cd6fce")}</>
         ) : (
-          <>⚡ ビルド＆エクスポート</>
+          <>{t(locale, "editor_1c3c36")}</>
         )}
       </button>
       {error && (
@@ -207,48 +206,46 @@ function BuildTerminal() {
         <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(60,50,30,0.45)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
           <div style={{ background: "var(--panel)", border: "2px solid var(--accent)", borderRadius: 16, padding: 24, maxWidth: 480, width: "100%", color: "var(--foreground)", position: "relative" }}>
             <button onClick={() => setShowGuide(false)} style={{ position: "absolute", top: 12, right: 12, background: "none", border: "none", color: "var(--muted)", fontSize: 20, cursor: "pointer", lineHeight: 1 }}>✕</button>
-            <div style={{ fontSize: 20, fontWeight: 900, marginBottom: 16 }}>{exportShared ? "🚀 マイクラへ送信！" : "✅ ダウンロード完了！"}</div>
+            <div style={{ fontSize: 20, fontWeight: 900, marginBottom: 16 }}>{exportShared ? t(locale, "editor_bc7c2e") : t(locale, "editor_3c3fa5")}</div>
             {exportedPlatform === "bedrock" ? (
               <>
-                <div style={{ fontSize: 14, fontWeight: 800, color: "var(--accent)", marginBottom: 10 }}>📱 Bedrock（統合版）の入れ方</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: "var(--accent)", marginBottom: 10 }}>{t(locale, "editor_1ed1f1")}</div>
                 <ol style={{ fontSize: 13, lineHeight: 2, paddingLeft: 20 }}>
                   {exportShared ? (
                     <>
-                      <li>画面下の共有メニューから <strong>Minecraft</strong> のアイコンをタップ！</li>
-                      <li>Minecraft が自動で開いてインポートされます</li>
+                      <li>{t(locale, "editor_2ac253")}<strong>Minecraft</strong> {t(locale, "editor_1edaa5")}</li>
+                      <li>{t(locale, "editor_78acbe")}</li>
                     </>
                   ) : (
                     <>
-                      <li>ダウンロードした <strong>.mcaddon</strong> ファイルを開く</li>
-                      <li>Minecraft が自動で開いてインポートされます</li>
+                      <li>{t(locale, "editor_736d6d")}<strong>.mcaddon</strong> {t(locale, "editor_556dcf")}</li>
+                      <li>{t(locale, "editor_78acbe")}</li>
                     </>
                   )}
-                  <li>ワールド設定の「ビヘイビアーパック」を追加 ✅</li>
-                  <li>「リソースパック」を追加 ✅（<strong>両方必須！</strong>）</li>
-                  <li>ワールドに入って <strong style={{ color: "#15803d" }}>緑の起動メッセージ</strong> が出れば成功！</li>
+                  <li>{t(locale, "editor_6bb3ff")}</li>
+                  <li>{t(locale, "editor_3c22c8")}<strong>{t(locale, "editor_38426c")}</strong>）</li>
+                  <li>{t(locale, "editor_2a9102")}<strong style={{ color: "#15803d" }}>{t(locale, "editor_52c38c")}</strong> {t(locale, "editor_4eda40")}</li>
                 </ol>
                 <div style={{ marginTop: 12, padding: "8px 12px", background: "rgba(220,80,80,0.12)", borderRadius: 8, fontSize: 12, color: "#a83232" }}>
-                  ⚠️ BPだけ有効ではスクリプトは動きません。<strong>RPも必ず同時に有効</strong>にしてください。
-                </div>
+                  {t(locale, "editor_7fbd21")}<strong>{t(locale, "editor_f15e7b")}</strong>{t(locale, "editor_6c41e5")}</div>
               </>
             ) : (
               <>
-                <div style={{ fontSize: 14, fontWeight: 800, color: "#b8860b", marginBottom: 10 }}>☕ Java Edition（PC）の入れ方</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: "#b8860b", marginBottom: 10 }}>{t(locale, "editor_fc4f5b")}</div>
                 <ol style={{ fontSize: 13, lineHeight: 2, paddingLeft: 20 }}>
-                  <li>ZIPを解凍</li>
-                  <li>Forge を導入：<strong>files.minecraftforge.net</strong></li>
-                  <li>解凍フォルダで <code style={{ background: "var(--surface-active)", padding: "1px 6px", borderRadius: 4 }}>gradle build</code></li>
-                  <li><code>build/libs/</code> の <strong>.jar</strong> を <code>.minecraft/mods/</code> へ</li>
-                  <li>Forge プロファイルで起動</li>
+                  <li>{t(locale, "editor_877064")}</li>
+                  <li>{t(locale, "editor_4a43d7")}<strong>files.minecraftforge.net</strong></li>
+                  <li>{t(locale, "editor_38c95c")}<code style={{ background: "var(--surface-active)", padding: "1px 6px", borderRadius: 4 }}>gradle build</code></li>
+                  <li><code>build/libs/</code> {t(locale, "editor_359ebe")}<strong>.jar</strong> {t(locale, "editor_96ac23")}<code>.minecraft/mods/</code> {t(locale, "editor_40346e")}</li>
+                  <li>{t(locale, "editor_c8a535")}</li>
                 </ol>
                 <div style={{ marginTop: 12, padding: "8px 12px", background: "rgba(218,165,32,0.15)", borderRadius: 8, fontSize: 12, color: "#8a6914" }}>
-                  ⚠️ バニラでは動きません。<strong>Forge 必須</strong>。
+                  {t(locale, "editor_35c529")}<strong>{t(locale, "editor_e152af")}</strong>{t(locale, "punct.period")}
                 </div>
               </>
             )}
              <button onClick={() => setShowGuide(false)} className="mc-btn mc-btn--primary w-full" style={{ marginTop: 16 }}>
-               わかった！
-             </button>
+               {t(locale, "editor_f67ad6")}</button>
           </div>
         </div>
       )}
@@ -311,6 +308,7 @@ function LiveTree() {
    設定パネル（開発コックピット）
    ═══════════════════════════════════════════ */
 export default function SettingsPanel() {
+    const locale = useEditorStore((s) => s.locale);
   const projectName = useEditorStore((s) => s.projectName);
   const setProjectName = useEditorStore((s) => s.setProjectName);
   const projectDescription = useEditorStore((s) => s.projectDescription);
@@ -370,7 +368,7 @@ export default function SettingsPanel() {
       {/* ── ヘッダー：タイトル＋モード切替 ── */}
       <div className="flex items-center justify-between shrink-0">
         <h2 className="text-sm font-bold text-foreground/90 flex items-center gap-2">
-          <span className="text-accent">🚀</span> マイクラへ <span className="text-muted/50 text-xs font-mono">— ビルド＆ダウンロード</span>
+          <span className="text-accent">🚀</span> {t(locale, "editor_17b3c8")}<span className="text-muted/50 text-xs font-mono">{t(locale, "editor_fdf19b")}</span>
         </h2>
         {/* モード切替（プロ）は廃止＝常にかんたん */}
       </div>
@@ -381,7 +379,7 @@ export default function SettingsPanel() {
         {/* ▌ 左：アイデンティティ（アイコン＋なまえ） */}
         <div className="flex flex-col gap-3 min-h-0">
           <div className="bg-panel rounded-xl border border-border p-3">
-            <div className="text-[10px] font-bold text-accent uppercase tracking-wider mb-2">アイコン & なまえ</div>
+            <div className="text-[10px] font-bold text-accent uppercase tracking-wider mb-2">{t(locale, "editor_0baad1")}</div>
             <div className="flex items-center gap-3">
               <div className="relative shrink-0">
                 {packIconDataUrl ? (
@@ -397,21 +395,21 @@ export default function SettingsPanel() {
               </div>
               <div className="flex flex-col gap-1.5 flex-1 min-w-0">
                 <label className="cursor-pointer">
-                  <div className="mc-btn mc-btn--sm mc-btn--info text-center w-full">📁 画像を選ぶ</div>
+                  <div className="mc-btn mc-btn--sm mc-btn--info text-center w-full">{t(locale, "editor_22503a")}</div>
                   <input type="file" accept="image/png,image/jpeg,image/gif,image/webp" className="hidden" onChange={handleIconFile} />
                 </label>
                 {packIconDataUrl && (
-                  <button onClick={() => setPackIconDataUrl("")} className="mc-btn mc-btn--sm mc-btn--danger w-full">↺ もどす</button>
+                  <button onClick={() => setPackIconDataUrl("")} className="mc-btn mc-btn--sm mc-btn--danger w-full">{t(locale, "editor_a7ecda")}</button>
                 )}
-                <p className="text-[9px] text-muted/50 leading-tight">128×128 PNG 推奨</p>
+                <p className="text-[9px] text-muted/50 leading-tight">{t(locale, "editor_351719")}</p>
               </div>
             </div>
             <div className="mt-2 pt-2 border-t border-border/60">
-              <Row label="なまえ">
+              <Row label={t(locale, "editor_d8a5aa")}>
                 <input value={projectName} onChange={(e) => setProjectName(e.target.value)} className={`${inputCls} w-40`} />
               </Row>
               {pro && (
-                <Row label="説明">
+                <Row label={t(locale, "editor_d59c76")}>
                   <input value={projectDescription} onChange={(e) => setProjectDescription(e.target.value)} className={`${inputCls} w-40`} />
                 </Row>
               )}
@@ -421,14 +419,14 @@ export default function SettingsPanel() {
           {/* エディター設定（プロのみ） */}
           {pro && (
             <div className="bg-panel rounded-xl border border-border p-3">
-              <div className="text-[10px] font-bold text-accent uppercase tracking-wider mb-1">エディター</div>
-              <Row label="自動保存"><Toggle value={autoSave} onChange={setAutoSave} /></Row>
-              <Row label="グリッドスナップ"><Toggle value={gridSnap} onChange={setGridSnap} /></Row>
-              <Row label="テーマ">
-                <select value={theme} onChange={(e) => applyTheme(e.target.value)} title="エディターの配色テーマ" className={inputCls}>
-                  <option value="dark">🪨 Dark（石）</option>
-                  <option value="midnight">🌃 Midnight（紺）</option>
-                  <option value="abyss">🕳️ Abyss（漆黒）</option>
+              <div className="text-[10px] font-bold text-accent uppercase tracking-wider mb-1">{t(locale, "editor_fa5b46")}</div>
+              <Row label={t(locale, "editor_c459fa")}><Toggle value={autoSave} onChange={setAutoSave} /></Row>
+              <Row label={t(locale, "editor_e81545")}><Toggle value={gridSnap} onChange={setGridSnap} /></Row>
+              <Row label={t(locale, "editor_724a86")}>
+                <select value={theme} onChange={(e) => applyTheme(e.target.value)} title={t(locale, "editor_b3aaac")} className={inputCls}>
+                  <option value="dark">{t(locale, "editor_cf0d13")}</option>
+                  <option value="midnight">{t(locale, "editor_de6aac")}</option>
+                  <option value="abyss">{t(locale, "editor_e55220")}</option>
                 </select>
               </Row>
             </div>
@@ -436,7 +434,7 @@ export default function SettingsPanel() {
 
           {/* コミュニティ・リンク */}
           <div className="bg-panel rounded-xl border border-border p-3">
-            <div className="text-[10px] font-bold text-accent uppercase tracking-wider mb-2">リンク & サポート</div>
+            <div className="text-[10px] font-bold text-accent uppercase tracking-wider mb-2">{t(locale, "editor_f27aa4")}</div>
             {/* ⚠️ **Discord は外した**（2026-08-17、伊波さん「ここはもう会社のだから
                 切り離して欲しい」）。誰もいないサーバーに招くと逆効果で、
                 「13歳以上」の注意書きもそのために要っていたもの。
@@ -451,18 +449,17 @@ export default function SettingsPanel() {
               🏠 CUBICENGINEstudio
             </a>
             <p className="text-[9px] text-muted/50 mt-1.5 text-center leading-tight">
-              お問い合わせ: cubicenginestudio@icloud.com
-            </p>
+              {t(locale, "editor_ca50d9")}</p>
           </div>
         </div>
 
         {/* ▌ 中央：ビルドターゲット & 出力設定 */}
         <div className="flex flex-col gap-3 min-h-0">
           <div className="bg-panel rounded-xl border border-border p-3">
-            <div className="text-[10px] font-bold text-accent uppercase tracking-wider mb-1">つくる先</div>
-            <Row label="プラットフォーム">
+            <div className="text-[10px] font-bold text-accent uppercase tracking-wider mb-1">{t(locale, "editor_798124")}</div>
+            <Row label={t(locale, "editor_3418ba")}>
               <div className={inputCls} style={{ cursor: "default", pointerEvents: "none" }}>
-                {targetPlatform === "java" ? "🟪 Java（MOD）" : "🟢 Bedrock（統合版）"}
+                {targetPlatform === "java" ? "🟪 Java（MOD）" : t(locale, "editor_06bd3a")}
               </div>
             </Row>
             {/* ── Java版だけ：どのローダー・どのバージョン向けに出すか ──
@@ -473,7 +470,7 @@ export default function SettingsPanel() {
                    出るのが、このプロジェクトで一番高くつく形。 */}
             {targetPlatform === "java" && (
               <div className="mt-2">
-                <div className="text-[11px] font-bold mb-1.5">どっちのマイクラで遊びますか？</div>
+                <div className="text-[11px] font-bold mb-1.5">{t(locale, "editor_4cced5")}</div>
                 <div className="flex gap-2">
                   {JAVA_TARGET_LIST.map((tg) => {
                     const on = javaTarget === tg.id;
@@ -505,21 +502,19 @@ export default function SettingsPanel() {
                 {/* 遊ぶ人が何を入れるかを、選んだあとにも出しておく。
                     作った .jar を人に渡すとき、これを伝えないと相手が動かせない */}
                 <div className="text-[10px] text-muted/60 mt-1.5 leading-relaxed">
-                  遊ぶ人は <b>{getJavaTarget(javaTarget).requires}</b> が必要です。
-                  書き出すファイル名にも入るので、渡すときに間違えません。
-                </div>
+                  {t(locale, "editor_f284f5")}<b>{getJavaTarget(javaTarget).requires}</b> {t(locale, "editor_e7e007")}</div>
               </div>
             )}
             {targetPlatform === "bedrock" && (
               <>
-                <Row label="MCバージョン">
+                <Row label={t(locale, "editor_5c22e7")}>
                   <select value={mcVersion} onChange={(e) => setMcVersion(e.target.value as "1.21.40+" | "1.21.0" | "1.20.x")} className={inputCls}>
-                    <option value="1.21.40+">1.21.40+ / 1.22〜（最新）</option>
+                    <option value="1.21.40+">{t(locale, "editor_b0747a")}</option>
                     <option value="1.21.0">1.21.0〜1.21.30</option>
-                    <option value="1.20.x">1.20.x（古い）</option>
+                    <option value="1.20.x">{t(locale, "editor_bb4a02")}</option>
                   </select>
                 </Row>
-                <Row label="ベータAPI"><Toggle value={betaApi} onChange={setBetaApi} /></Row>
+                <Row label={t(locale, "editor_7692be")}><Toggle value={betaApi} onChange={setBetaApi} /></Row>
               </>
             )}
           </div>
@@ -533,11 +528,11 @@ export default function SettingsPanel() {
              .zip で受け取れる逃げ道が要る。技術的な設定ではなく「保存できない人の出口」。 */}
           {targetPlatform === "bedrock" && (
             <div className="bg-panel rounded-xl border border-border p-3">
-              <div className="text-[11px] font-bold mb-2">保存できないとき</div>
+              <div className="text-[11px] font-bold mb-2">{t(locale, "editor_30ba28")}</div>
               <div className="flex gap-2">
                 {([
-                  ["mcaddon", ".mcaddon", "ふつうはこちら"],
-                  ["zip", ".zip", "スマホで保存できないとき"],
+                  ["mcaddon", ".mcaddon", t(locale, "editor_69034c")],
+                  ["zip", ".zip", t(locale, "editor_922227")],
                 ] as const).map(([v, label, hint]) => (
                   <button
                     key={v}
@@ -555,17 +550,15 @@ export default function SettingsPanel() {
               </div>
               {exportFormat === "zip" && (
                 <p className="text-[10px] text-muted/70 mt-2 leading-relaxed">
-                  保存したあと、ファイル名の <b>.zip</b> を <b>.mcaddon</b> に変えると
-                  マイクラで開けます。中身は同じものです。
-                </p>
+                  {t(locale, "editor_923152")}<b>.zip</b> {t(locale, "editor_96ac23")}<b>.mcaddon</b> {t(locale, "editor_f7070f")}</p>
               )}
             </div>
           )}
 
           {/* ステータス */}
           <div className="bg-panel rounded-xl border border-border p-3 flex gap-4 text-[11px] text-muted">
-            <span>📦 ブロック <span className="text-foreground/80 font-bold">{blocks.length}</span></span>
-            <span>📝 コード <span className="text-foreground/80 font-bold">{generatedJsCode ? generatedJsCode.split("\n").length : 0}</span> 行</span>
+            <span>{t(locale, "editor_87a077")}<span className="text-foreground/80 font-bold">{blocks.length}</span></span>
+            <span>{t(locale, "editor_f76ee4")}<span className="text-foreground/80 font-bold">{generatedJsCode ? generatedJsCode.split("\n").length : 0}</span> {t(locale, "editor_2d5aef")}</span>
           </div>
         </div>
 
@@ -573,13 +566,12 @@ export default function SettingsPanel() {
         <div className="flex flex-col gap-3 min-h-0">
           <div className="bg-panel rounded-xl border border-border p-3 flex flex-col min-h-0" style={{ flex: pro ? "1 1 0" : "0 0 auto" }}>
             <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> ビルド出力
-            </div>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> {t(locale, "editor_d5ea2a")}</div>
             <BuildTerminal />
           </div>
           {pro && (
             <div className="bg-panel rounded-xl border border-border p-3 flex flex-col min-h-0" style={{ flex: "1 1 0" }}>
-              <div className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider mb-2">📦 出力プレビュー（ライブ）</div>
+              <div className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider mb-2">{t(locale, "editor_7a81a9")}</div>
               <LiveTree />
             </div>
           )}

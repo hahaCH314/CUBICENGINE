@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import { t } from "@/lib/i18n";
+import { useEditorStore } from "@/app/editor/store";
 
 interface CodeRevealOverlayProps {
   revealCode: string;
@@ -9,6 +11,7 @@ interface CodeRevealOverlayProps {
 }
 
 export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop", tone = "kid" }: CodeRevealOverlayProps) {
+    const locale = useEditorStore((s) => s.locale);
   const adult = tone === "adult";
   const lines = revealCode.split("\n");
   const [revShown, setRevShown] = useState(0);
@@ -41,23 +44,23 @@ export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop", ton
   // トーン別の文言（kid=SPROUT やさしい / adult=GROVE 大人・プロ向け）
   const T = {
     revealTitle: adult
-      ? "⟨ SOURCE GENERATED ⟩　あなたのコード"
-      : `✨ ${isWorkshop ? "あなたが書いたコードが生まれた" : "電脳に放つコードの具現化"}`,
+      ? t(locale, "editor_d5a963")
+      : `✨ ${isWorkshop ? t(locale, "editor_53d8ae") : t(locale, "editor_0c0819")}`,
     practiceTitle: adult
-      ? "✍️ お手本を見ながら書き写す"
-      : "✍️ おてほんを見ながら書いてみよう（まちがえてもOK）",
-    modelLabel: adult ? "お手本（生成コード）" : "👀 おてほん",
-    inputLabel: adult ? "ここに書き写す" : "✍️ ここに打ってみよう",
+      ? t(locale, "editor_ad317e")
+      : t(locale, "editor_186a97"),
+    modelLabel: adult ? t(locale, "editor_7481a1") : t(locale, "editor_c4f56f"),
+    inputLabel: adult ? t(locale, "editor_9bf228") : t(locale, "editor_ac8885"),
     placeholder: adult
-      ? "お手本を見ながら、同じコードを書き写してください。"
-      : "おてほんを見ながら、同じコードを打ってみよう。まちがえても大丈夫！",
-    progressDone: adult ? "✓ 完全一致" : "🎉 かんぺき！",
-    progressUnit: adult ? "% 一致" : "% 書けた",
-    practiceRelease: adult ? "✓ 完了して閉じる" : "🚀 マイクラへ放つ",
-    practiceLocked: adult ? "全行一致で完了" : "ぜんぶ書けたら放てる",
-    back: adult ? "← 戻る" : "← もどる",
-    inviteBtn: adult ? "✍️ 自分で書いて確かめる" : "✍️ コード書く練習してみる？",
-    releaseBtn: adult ? "とじる" : "マイクラへ放つ",
+      ? t(locale, "editor_f80b55")
+      : t(locale, "editor_401265"),
+    progressDone: adult ? t(locale, "editor_67d7af") : t(locale, "editor_b2f75c"),
+    progressUnit: adult ? t(locale, "editor_e4d5e7") : t(locale, "editor_2a98c3"),
+    practiceRelease: adult ? t(locale, "editor_5cccef") : t(locale, "editor_aacc78"),
+    practiceLocked: adult ? t(locale, "editor_0d5fd7") : t(locale, "editor_4f821a"),
+    back: adult ? t(locale, "editor_4ac399") : t(locale, "editor_c2c7d8"),
+    inviteBtn: adult ? t(locale, "editor_6234a3") : t(locale, "editor_dd46c2"),
+    releaseBtn: adult ? t(locale, "editor_2b2a3f") : t(locale, "editor_625778"),
   };
 
   // タイピング進行処理
@@ -378,9 +381,9 @@ export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop", ton
             letterSpacing: "0.05em",
           }}>
             {adult ? (
-              <>🟢 これがあなたのコード。<span style={{ color: isWorkshop ? "#ffe9c4" : "#adffd0", textDecoration: "underline", textUnderlineOffset: "4px" }}>Minecraftで動きます</span>。</>
+              <>{t(locale, "editor_d3ed26")}<span style={{ color: isWorkshop ? "#ffe9c4" : "#adffd0", textDecoration: "underline", textUnderlineOffset: "4px" }}>{t(locale, "editor_5aad0e")}</span>{t(locale, "punct.period")}</>
             ) : (
-              <>🟢 マイクラで動く — これ、<span style={{ color: isWorkshop ? "#ffe9c4" : "#adffd0", textDecoration: "underline", textUnderlineOffset: "4px" }}>あなたが創った</span>。</>
+              <>{t(locale, "editor_f75068")}<span style={{ color: isWorkshop ? "#ffe9c4" : "#adffd0", textDecoration: "underline", textUnderlineOffset: "4px" }}>{t(locale, "editor_104967")}</span>{t(locale, "punct.period")}</>
             )}
           </div>
 

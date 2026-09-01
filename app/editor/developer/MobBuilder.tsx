@@ -15,6 +15,7 @@ import { normalizeAggression } from "../../../lib/devtab/ir";
 // マイクラが読み込みに失敗する。必ずこれを通す（理由は itemIr.ts のコメント）
 import { toNumber } from "../../../lib/devtab/itemIr";
 import type { MobIR } from "../../../lib/devtab/ir";
+import { t } from "@/lib/i18n";
 
 // three.js は SSR 不可。ModelPanel と同じ扱いにする
 const MobPreview = dynamic(() => import("./MobPreview"), { ssr: false });
@@ -39,21 +40,22 @@ const numberCls = "w-24 px-2 py-1 rounded text-xs bg-black/40 border border-whit
  * ここに無いものも入力欄に直接打てば使える。
  */
 const VANILLA_DROPS = [
-  { id: "minecraft:diamond", label: "ダイヤモンド" },
-  { id: "minecraft:emerald", label: "エメラルド" },
-  { id: "minecraft:gold_ingot", label: "金インゴット" },
-  { id: "minecraft:iron_ingot", label: "鉄インゴット" },
-  { id: "minecraft:bone", label: "骨" },
-  { id: "minecraft:string", label: "糸" },
-  { id: "minecraft:leather", label: "革" },
-  { id: "minecraft:feather", label: "羽" },
-  { id: "minecraft:gunpowder", label: "火薬" },
-  { id: "minecraft:rotten_flesh", label: "腐った肉" },
-  { id: "minecraft:apple", label: "リンゴ" },
-  { id: "minecraft:beef", label: "生の牛肉" },
+  { id: "minecraft:diamond", label: t(useEditorStore.getState().locale, "editor_017964") },
+  { id: "minecraft:emerald", label: t(useEditorStore.getState().locale, "editor_7be5c1") },
+  { id: "minecraft:gold_ingot", label: t(useEditorStore.getState().locale, "editor_d5003f") },
+  { id: "minecraft:iron_ingot", label: t(useEditorStore.getState().locale, "editor_e713fb") },
+  { id: "minecraft:bone", label: t(useEditorStore.getState().locale, "editor_aeac48") },
+  { id: "minecraft:string", label: t(useEditorStore.getState().locale, "editor_eb162d") },
+  { id: "minecraft:leather", label: t(useEditorStore.getState().locale, "editor_9dac8c") },
+  { id: "minecraft:feather", label: t(useEditorStore.getState().locale, "editor_389b8c") },
+  { id: "minecraft:gunpowder", label: t(useEditorStore.getState().locale, "editor_550947") },
+  { id: "minecraft:rotten_flesh", label: t(useEditorStore.getState().locale, "editor_9308cc") },
+  { id: "minecraft:apple", label: t(useEditorStore.getState().locale, "editor_208aae") },
+  { id: "minecraft:beef", label: t(useEditorStore.getState().locale, "editor_6c721a") },
 ] as const;
 
 export default function MobBuilder({ mob }: { mob: MobIR }) {
+    const locale = useEditorStore((s) => s.locale);
   const update = useEditorStore(s => s.updateDevMobBehavior);
   const remove = useEditorStore(s => s.removeDevMob);
   // 自分で作ったアイテムをドロップ品にできるようにする。
@@ -75,55 +77,51 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
           onClick={() => remove(mob.id)}
           className="text-[11px] px-2 py-1 rounded hover:bg-white/10 text-muted/70"
         >
-          取り消す
-        </button>
+          {t(locale, "editor_873613")}</button>
       </div>
 
       <MobPreview ir={mob} />
 
       {mob.animations.length > 0 && (
         <p className="text-[11px] text-muted/60">
-          動き {mob.animations.length} 個: {mob.animations.map(a => `${a.name}${a.loop ? "（くり返し）" : ""}`).join(" / ")}
+          {t(locale, "editor_272138")}{mob.animations.length} {t(locale, "editor_7096d2")}{mob.animations.map(a => `${a.name}${a.loop ? t(locale, "editor_cf533a") : ""}`).join(" / ")}
           <br />
           <span className="text-muted/45">
-            くり返す動きはマイクラで自動再生されます。プレビューには出ません。
-          </span>
+            {t(locale, "editor_019604")}</span>
         </p>
       )}
 
       <section>
-        <h3 className="text-xs font-bold mb-1 text-muted/80">基本</h3>
+        <h3 className="text-xs font-bold mb-1 text-muted/80">{t(locale, "editor_4092ed")}</h3>
         {/* ⚠️ max を付けないこと。「倒せないボス」を作れることが価値なので、
             上限を設けると作りたいものが作れなくなる */}
-        <Row label="体力" hint="ハート半分＝1 ／ 上限なし">
+        <Row label={t(locale, "editor_fd5f39")} hint={t(locale, "editor_6afcaa")}>
           <input type="number" min={1} className={numberCls}
             value={b.health}
             onChange={e => update(mob.id, { health: toNumber(e.target.value) })} />
         </Row>
-        <Row label="歩く速さ" hint="0.25でふつう ／ 上限なし">
+        <Row label={t(locale, "editor_4868ee")} hint={t(locale, "editor_5452cb")}>
           <input type="number" min={0} step={0.05} className={numberCls}
             value={b.movementSpeed}
             onChange={e => update(mob.id, { movementSpeed: toNumber(e.target.value) })} />
         </Row>
         {b.movementSpeed >= 1 && (
           <p className="text-[10px] pl-1" style={{ color: "#fbbf24" }}>
-            ⚡ 速さ{b.movementSpeed} ＝ 走っても逃げきれません
-          </p>
+            {t(locale, "editor_6de9f9")}{b.movementSpeed} {t(locale, "editor_9880af")}</p>
         )}
         {b.health >= 1000 && (
           <p className="text-[10px] pl-1" style={{ color: "#fbbf24" }}>
-            ⚡ 体力{b.health} ＝ ハート{Math.floor(b.health / 2)}個ぶんのボスです
-          </p>
+            {t(locale, "editor_388123")}{b.health} {t(locale, "editor_f5fc7a")}{Math.floor(b.health / 2)}{t(locale, "editor_c25388")}</p>
         )}
       </section>
 
       <section>
-        <h3 className="text-xs font-bold mb-1 text-muted/80">性格</h3>
+        <h3 className="text-xs font-bold mb-1 text-muted/80">{t(locale, "editor_689150")}</h3>
         <div className="flex flex-col gap-1 py-1">
           {([
-            ["peaceful", "おとなしい", "襲いません。殴られると逃げます"],
-            ["player", "プレイヤーを襲う", "ふつうの敵モブ"],
-            ["berserk", "なんでも襲う（戦闘狂）", "プレイヤーも動物も、同じ種類も襲います"],
+            ["peaceful", t(locale, "editor_57a339"), t(locale, "editor_db3298")],
+            ["player", t(locale, "editor_ba78fd"), t(locale, "editor_2d1948")],
+            ["berserk", t(locale, "editor_ce5fd0"), t(locale, "editor_d6f0b3")],
           ] as const).map(([v, label, hint]) => (
             <label key={v} className="flex items-start gap-2 text-xs cursor-pointer">
               <input type="radio" name={`aggr-${mob.id}`} checked={aggr === v} className="mt-0.5"
@@ -141,7 +139,7 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
           ))}
         </div>
         {aggr !== "peaceful" && (
-          <Row label="攻撃力" hint="ハート半分＝1 ／ 上限なし">
+          <Row label={t(locale, "editor_1ad535")} hint={t(locale, "editor_6afcaa")}>
             <input type="number" min={1} className={numberCls}
               value={b.attackDamage}
               onChange={e => update(mob.id, { attackDamage: toNumber(e.target.value) })} />
@@ -149,18 +147,16 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
         )}
         {aggr !== "peaceful" && b.attackDamage >= 50 && (
           <p className="text-[10px] pl-1" style={{ color: "#fbbf24" }}>
-            ⚡ 攻撃力{b.attackDamage} ＝ ダイヤ装備でも一撃です
-          </p>
+            {t(locale, "editor_8b099c")}{b.attackDamage} {t(locale, "editor_60a25a")}</p>
         )}
         {aggr === "berserk" && (
           <p className="text-[10px] pl-1" style={{ color: "rgba(251,191,36,0.8)" }}>
-            ⚠️ 同じ種類同士も襲います。2匹以上出すと共食いして1匹になります。
-          </p>
+            {t(locale, "editor_d54921")}</p>
         )}
       </section>
 
       <section>
-        <h3 className="text-xs font-bold mb-1 text-muted/80">たおしたとき落とすもの</h3>
+        <h3 className="text-xs font-bold mb-1 text-muted/80">{t(locale, "editor_4b852d")}</h3>
         {b.drops.map((d, i) => (
           <div key={i} className="flex items-center gap-2 py-1">
             {/* 自作アイテムを一覧から選べるようにする。手打ちだと綴りを間違えても
@@ -197,7 +193,7 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
         {/* 入力欄の候補。自作アイテムを先に出す（探しに来る理由がこちらのため） */}
         <datalist id={`drops-${mob.id}`}>
           {myItems.map(it => (
-            <option key={it.id} value={`cubicengine:${it.id}`}>{it.displayName}（自分で作ったもの）</option>
+            <option key={it.id} value={`cubicengine:${it.id}`}>{it.displayName}{t(locale, "editor_29f7f3")}</option>
           ))}
           {VANILLA_DROPS.map(v => (
             <option key={v.id} value={v.id}>{v.label}</option>
@@ -210,8 +206,7 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
             style={{ background: "rgba(255,255,255,0.07)" }}
             onClick={() => update(mob.id, { drops: [...b.drops, { item: "minecraft:diamond", min: 1, max: 1, chance: 1 }] })}
           >
-            ＋ 落とすものを足す
-          </button>
+            {t(locale, "editor_405537")}</button>
           {/* 作ったアイテムはワンタッチで足せるようにする。
               識別子を覚えていなくても繋げられるのが狙い */}
           {myItems.map(it => (
@@ -235,21 +230,19 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
 
         {myItems.length === 0 && (
           <p className="text-[10px] text-muted/50 mt-1">
-            🍎 アイテム で作ったものは、ここから直接えらべるようになります。
-          </p>
+            {t(locale, "editor_53ca7f")}</p>
         )}
       </section>
 
       <section>
-        <h3 className="text-xs font-bold mb-1 text-muted/80">スポーンエッグ</h3>
+        <h3 className="text-xs font-bold mb-1 text-muted/80">{t(locale, "editor_d23e69")}</h3>
         <label className="flex items-center gap-2 text-xs py-1">
           <input type="checkbox" checked={b.spawnEgg.enabled}
             onChange={e => update(mob.id, { spawnEgg: { ...b.spawnEgg, enabled: e.target.checked } })} />
-          クリエイティブに卵を出す
-        </label>
+          {t(locale, "editor_ed24cd")}</label>
         {b.spawnEgg.enabled ? (
           <>
-            <Row label="卵の色" hint="下地と斑点">
+            <Row label={t(locale, "editor_d659d2")} hint={t(locale, "editor_7b8d1a")}>
               <input type="color" className="w-10 h-7 rounded bg-transparent border border-white/15"
                 value={b.spawnEgg.baseColor}
                 onChange={e => update(mob.id, { spawnEgg: { ...b.spawnEgg, baseColor: e.target.value } })} />
@@ -259,7 +252,7 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
               {/* 実物と同じ見え方を出しておく。マイクラを開かずに色を決められる */}
               <span
                 className="inline-block w-5 h-6 ml-1"
-                title="でき上がりの見た目"
+                title={t(locale, "editor_e0adcc")}
                 style={{
                   background: b.spawnEgg.baseColor,
                   borderRadius: "50% 50% 45% 45% / 60% 60% 40% 40%",
@@ -268,28 +261,25 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
               />
             </Row>
             <p className="text-[10px] text-muted/50 pl-1">
-              画像は要りません。色から自動で卵の絵が作られます。
-            </p>
+              {t(locale, "editor_3414a0")}</p>
           </>
         ) : (
           <p className="text-[10px] text-muted/50 pl-1">
-            卵を出さない場合、<code className="font-mono">/summon</code> か自然発生でしか出せません。
-          </p>
+            {t(locale, "editor_740047")}<code className="font-mono">/summon</code> {t(locale, "editor_b25c0d")}</p>
         )}
       </section>
 
       <section>
-        <h3 className="text-xs font-bold mb-1 text-muted/80">自然にわいてくる</h3>
+        <h3 className="text-xs font-bold mb-1 text-muted/80">{t(locale, "editor_8034f6")}</h3>
         <label className="flex items-center gap-2 text-xs py-1">
           <input type="checkbox" checked={b.spawn.enabled}
             onChange={e => update(mob.id, { spawn: { ...b.spawn, enabled: e.target.checked } })} />
-          ワールドに自然発生させる
-        </label>
+          {t(locale, "editor_18378a")}</label>
         {b.spawn.enabled && (
           <>
             {/* ⚠️ ここは 0〜15 を外さないこと。マイクラの明るさは16段階しかなく、
                 16以上を書くとスポーンルールごと読み込まれない（他と違い上限が要る） */}
-            <Row label="明るさ" hint="0=真っ暗 15=昼">
+            <Row label={t(locale, "editor_dfa86e")} hint={t(locale, "editor_5632c8")}>
               <input type="number" min={0} max={15} className={numberCls}
                 value={b.spawn.minLightLevel}
                 onChange={e => update(mob.id, { spawn: { ...b.spawn, minLightLevel: toNumber(e.target.value) } })} />
@@ -298,15 +288,14 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
                 value={b.spawn.maxLightLevel}
                 onChange={e => update(mob.id, { spawn: { ...b.spawn, maxLightLevel: toNumber(e.target.value) } })} />
             </Row>
-            <Row label="出やすさ" hint="大きいほど多い ／ 上限なし">
+            <Row label={t(locale, "editor_41200c")} hint={t(locale, "editor_8b26d1")}>
               <input type="number" min={1} className={numberCls}
                 value={b.spawn.weight}
                 onChange={e => update(mob.id, { spawn: { ...b.spawn, weight: toNumber(e.target.value) } })} />
             </Row>
             {b.spawn.weight >= 500 && (
               <p className="text-[10px] pl-1" style={{ color: "#fbbf24" }}>
-                ⚡ 出やすさ{b.spawn.weight} ＝ ワールドがこのモブだらけになります
-              </p>
+                {t(locale, "editor_1c26e8")}{b.spawn.weight} {t(locale, "editor_5127ea")}</p>
             )}
           </>
         )}
@@ -314,16 +303,15 @@ export default function MobBuilder({ mob }: { mob: MobIR }) {
 
       {problems.length > 0 ? (
         <div className="rounded-lg p-3 text-xs" style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.4)" }}>
-          <div className="font-bold mb-1">このままだと出力できません</div>
+          <div className="font-bold mb-1">{t(locale, "editor_75c6d8")}</div>
           <ul className="list-disc pl-4 space-y-0.5">
             {problems.map((p, i) => <li key={i}>{p}</li>)}
           </ul>
         </div>
       ) : (
         <div className="rounded-lg p-3 text-xs" style={{ background: "rgba(60,208,112,0.10)", border: "1px solid rgba(60,208,112,0.35)" }}>
-          準備できています。「🚀 マイクラへ」からアドオンを書き出すと、このモブが入ります。<br />
-          ゲーム内では <code className="font-mono">/summon cubicengine:{mob.id}</code> で呼び出せます。
-        </div>
+          {t(locale, "editor_db51c3")}<br />
+          {t(locale, "editor_1fc61f")}<code className="font-mono">/summon cubicengine:{mob.id}</code> {t(locale, "editor_fbc795")}</div>
       )}
     </div>
   );

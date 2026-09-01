@@ -7,6 +7,7 @@ import { exportProject, buildJavaFileList } from "./exporter";
 import { useEditorStore } from "./store";
 import { buildGroveStructure, type GroveSlot } from "../../lib/groveTree";
 import { CodeRevealOverlay } from "./CodeRevealOverlay";
+import { t as i18nT } from "@/lib/i18n";
 
 /* ──────────────────────────────────────────────────────────────
    GrapePanel — 🌿 GROVE（JAVA / 自然×メタバース）/ 構造は「ハブ」
@@ -19,64 +20,64 @@ import { CodeRevealOverlay } from "./CodeRevealOverlay";
 type Cat = "trigger" | "action" | "ifelse" | "value" | "loop";
 
 const CAT_STYLE: Record<Cat, { label: string; color: string; glow: string }> = {
-  trigger: { label: "トリガー",   color: "#d45d79", glow: "#ff8fa9" }, // 深みのあるローズルビー
-  action:  { label: "アクション", color: "#3a86c8", glow: "#74b3e8" }, // 深みのあるサファイアブルー
-  ifelse:  { label: "条件分岐",   color: "#229c8e", glow: "#58dbcd" }, // 深みのあるエメラルドティール
-  value:   { label: "値",         color: "#d9a13c", glow: "#ffd075" }, // 深みのあるアンバーゴールド
-  loop:    { label: "ループ",     color: "#c67b32", glow: "#ffb470" }, // 深みのある琥珀トパーズ
+  trigger: { label: i18nT(useEditorStore.getState().locale, "editor_a3ef5f"),   color: "#d45d79", glow: "#ff8fa9" }, // 深みのあるローズルビー
+  action:  { label: i18nT(useEditorStore.getState().locale, "editor_36a9d7"), color: "#3a86c8", glow: "#74b3e8" }, // 深みのあるサファイアブルー
+  ifelse:  { label: i18nT(useEditorStore.getState().locale, "editor_fcefb8"),   color: "#229c8e", glow: "#58dbcd" }, // 深みのあるエメラルドティール
+  value:   { label: i18nT(useEditorStore.getState().locale, "editor_90013f"),         color: "#d9a13c", glow: "#ffd075" }, // 深みのあるアンバーゴールド
+  loop:    { label: i18nT(useEditorStore.getState().locale, "editor_0b32df"),     color: "#c67b32", glow: "#ffb470" }, // 深みのある琥珀トパーズ
 };
 const CAT_ORDER: Cat[] = ["trigger", "action", "ifelse", "value", "loop"];
 
 interface ItemDef { type: string; label: string; emoji: string; cat: Cat; needsText: boolean; placeholder: string; }
 
 const ITEMS: ItemDef[] = [
-  { type: "on_join",  label: "プレイヤー参加", emoji: "👋", cat: "trigger", needsText: false, placeholder: "" },
-  { type: "on_break", label: "ブロック破壊",   emoji: "⛏️", cat: "trigger", needsText: false, placeholder: "" },
-  { type: "on_chat",  label: "チャット受信",   emoji: "💬", cat: "trigger", needsText: true,  placeholder: "合言葉" },
-  { type: "on_use",   label: "アイテム使用",   emoji: "🔮", cat: "trigger", needsText: true, placeholder: "diamond" },
-  { type: "on_hurt",  label: "被ダメージ",     emoji: "💥", cat: "trigger", needsText: false, placeholder: "" },
-  { type: "on_tick",  label: "毎ティック",     emoji: "⏰", cat: "trigger", needsText: false, placeholder: "" },
-  { type: "say",      label: "メッセージ送信", emoji: "📢", cat: "action",  needsText: true,  placeholder: "こんにちは！" },
-  { type: "give",     label: "アイテム付与",   emoji: "🎁", cat: "action",  needsText: true,  placeholder: "diamond ×1" },
-  { type: "effect",   label: "エフェクト付与", emoji: "✨", cat: "action",  needsText: false, placeholder: "" },
-  { type: "tp",       label: "テレポート",     emoji: "🌀", cat: "action",  needsText: true,  placeholder: "0 64 0" },
-  { type: "title",    label: "タイトル表示",   emoji: "🎬", cat: "action", needsText: true,  placeholder: "クリア！" },
-  { type: "sound",    label: "サウンド再生",   emoji: "🔊", cat: "action",  needsText: true,  placeholder: "random.levelup" },
-  { type: "command",  label: "コマンド実行",   emoji: "⌨️", cat: "action",  needsText: true,  placeholder: "time set day" },
-  { type: "if",       label: "条件分岐",       emoji: "🔀", cat: "ifelse",  needsText: true,  placeholder: "夜のとき" },
-  { type: "repeat",   label: "繰り返し",       emoji: "🔄", cat: "loop",    needsText: true,  placeholder: "3 回" },
-  { type: "number",   label: "数値",           emoji: "💎", cat: "value",   needsText: true,  placeholder: "10" },
+  { type: "on_join",  label: i18nT(useEditorStore.getState().locale, "editor_831831"), emoji: "👋", cat: "trigger", needsText: false, placeholder: "" },
+  { type: "on_break", label: i18nT(useEditorStore.getState().locale, "editor_a50245"),   emoji: "⛏️", cat: "trigger", needsText: false, placeholder: "" },
+  { type: "on_chat",  label: i18nT(useEditorStore.getState().locale, "editor_df410b"),   emoji: "💬", cat: "trigger", needsText: true,  placeholder: i18nT(useEditorStore.getState().locale, "editor_c597ad") },
+  { type: "on_use",   label: i18nT(useEditorStore.getState().locale, "editor_7c3e1e"),   emoji: "🔮", cat: "trigger", needsText: true, placeholder: "diamond" },
+  { type: "on_hurt",  label: i18nT(useEditorStore.getState().locale, "editor_c99864"),     emoji: "💥", cat: "trigger", needsText: false, placeholder: "" },
+  { type: "on_tick",  label: i18nT(useEditorStore.getState().locale, "editor_4c862e"),     emoji: "⏰", cat: "trigger", needsText: false, placeholder: "" },
+  { type: "say",      label: i18nT(useEditorStore.getState().locale, "editor_15f84e"), emoji: "📢", cat: "action",  needsText: true,  placeholder: i18nT(useEditorStore.getState().locale, "editor_87e7e2") },
+  { type: "give",     label: i18nT(useEditorStore.getState().locale, "editor_dcea42"),   emoji: "🎁", cat: "action",  needsText: true,  placeholder: "diamond ×1" },
+  { type: "effect",   label: i18nT(useEditorStore.getState().locale, "editor_a2ed00"), emoji: "✨", cat: "action",  needsText: false, placeholder: "" },
+  { type: "tp",       label: i18nT(useEditorStore.getState().locale, "editor_149f76"),     emoji: "🌀", cat: "action",  needsText: true,  placeholder: "0 64 0" },
+  { type: "title",    label: i18nT(useEditorStore.getState().locale, "editor_eb4cff"),   emoji: "🎬", cat: "action", needsText: true,  placeholder: i18nT(useEditorStore.getState().locale, "editor_613b53") },
+  { type: "sound",    label: i18nT(useEditorStore.getState().locale, "editor_782b9c"),   emoji: "🔊", cat: "action",  needsText: true,  placeholder: "random.levelup" },
+  { type: "command",  label: i18nT(useEditorStore.getState().locale, "editor_10f2ae"),   emoji: "⌨️", cat: "action",  needsText: true,  placeholder: "time set day" },
+  { type: "if",       label: i18nT(useEditorStore.getState().locale, "editor_fcefb8"),       emoji: "🔀", cat: "ifelse",  needsText: true,  placeholder: i18nT(useEditorStore.getState().locale, "editor_ea3192") },
+  { type: "repeat",   label: i18nT(useEditorStore.getState().locale, "editor_ebf87b"),       emoji: "🔄", cat: "loop",    needsText: true,  placeholder: i18nT(useEditorStore.getState().locale, "editor_e50111") },
+  { type: "number",   label: i18nT(useEditorStore.getState().locale, "editor_fbb4b9"),           emoji: "💎", cat: "value",   needsText: true,  placeholder: "10" },
 ];
 
 // 「アイテム付与」用：アイテム候補(id=ゲーム内ID / label=日本語つき)。個数は別ドロップダウンにする（×1が分かりにくい対策）。
 const GIVE_ITEMS: { id: string; label: string }[] = [
-  { id: "diamond",          label: "ダイヤ (diamond)" },
-  { id: "iron_ingot",       label: "鉄インゴット (iron_ingot)" },
-  { id: "gold_ingot",       label: "金インゴット (gold_ingot)" },
-  { id: "netherite_ingot",  label: "ネザライト (netherite_ingot)" },
-  { id: "emerald",          label: "エメラルド (emerald)" },
-  { id: "golden_apple",     label: "金のリンゴ (golden_apple)" },
-  { id: "bread",            label: "パン (bread)" },
-  { id: "diamond_sword",    label: "ダイヤの剣 (diamond_sword)" },
-  { id: "diamond_pickaxe",  label: "ダイヤのツルハシ (diamond_pickaxe)" },
-  { id: "oak_log",          label: "樫の原木 (oak_log)" },
+  { id: "diamond",          label: i18nT(useEditorStore.getState().locale, "editor_58198d") },
+  { id: "iron_ingot",       label: i18nT(useEditorStore.getState().locale, "editor_dd835e") },
+  { id: "gold_ingot",       label: i18nT(useEditorStore.getState().locale, "editor_13f9f2") },
+  { id: "netherite_ingot",  label: i18nT(useEditorStore.getState().locale, "editor_d92b4b") },
+  { id: "emerald",          label: i18nT(useEditorStore.getState().locale, "editor_4c76e3") },
+  { id: "golden_apple",     label: i18nT(useEditorStore.getState().locale, "editor_402de1") },
+  { id: "bread",            label: i18nT(useEditorStore.getState().locale, "editor_e686b6") },
+  { id: "diamond_sword",    label: i18nT(useEditorStore.getState().locale, "editor_81fc50") },
+  { id: "diamond_pickaxe",  label: i18nT(useEditorStore.getState().locale, "editor_013ee9") },
+  { id: "oak_log",          label: i18nT(useEditorStore.getState().locale, "editor_835698") },
   { id: "tnt",              label: "TNT (tnt)" },
-  { id: "ender_pearl",      label: "エンダーパール (ender_pearl)" },
+  { id: "ender_pearl",      label: i18nT(useEditorStore.getState().locale, "editor_983f88") },
 ];
 const GIVE_COUNTS = ["1", "2", "4", "8", "16", "32", "64"];
 
 // ブロックごとの候補（ドロップダウン用）。※自由入力もそのまま可（datalist＝候補＋手入力の両対応）
 const ITEM_OPTIONS: Record<string, string[]> = {
-  on_chat: ["ひらけごま", "こんにちは", "スタート", "たすけて"],
+  on_chat: [i18nT(useEditorStore.getState().locale, "editor_55b24b"), i18nT(useEditorStore.getState().locale, "editor_c0e89a"), i18nT(useEditorStore.getState().locale, "editor_9219fc"), i18nT(useEditorStore.getState().locale, "editor_9ceb2d")],
   on_use:  ["diamond", "stick", "compass", "clock", "apple", "bow"],
-  say:     ["こんにちは！", "ようこそ！", "クリア！", "がんばって！", "レベルアップ！"],
+  say:     [i18nT(useEditorStore.getState().locale, "editor_87e7e2"), i18nT(useEditorStore.getState().locale, "editor_452a4e"), i18nT(useEditorStore.getState().locale, "editor_613b53"), i18nT(useEditorStore.getState().locale, "editor_35ee59"), i18nT(useEditorStore.getState().locale, "editor_25c9b0")],
   give:    ["diamond ×1", "diamond ×16", "iron_ingot ×1", "golden_apple ×1", "netherite_ingot ×1", "emerald ×16", "diamond_sword ×1", "diamond_pickaxe ×1", "bread ×3", "oak_log ×16", "tnt ×1", "ender_pearl ×1"],
   tp:      ["0 64 0", "0 100 0", "100 64 100", "0 -60 0"],
-  title:   ["クリア！", "スタート！", "ゲームオーバー", "ようこそ！", "ステージ1"],
+  title:   [i18nT(useEditorStore.getState().locale, "editor_613b53"), i18nT(useEditorStore.getState().locale, "editor_dce518"), i18nT(useEditorStore.getState().locale, "editor_825b31"), i18nT(useEditorStore.getState().locale, "editor_452a4e"), i18nT(useEditorStore.getState().locale, "editor_b8a134")],
   sound:   ["random.levelup", "random.orb", "random.pop", "mob.villager.yes", "random.explode", "note.pling"],
   command: ["time set day", "time set night", "weather clear", "weather rain", "gamemode creative @s", "difficulty peaceful", "give @s diamond 1"],
-  if:      ["夜のとき", "雨のとき", "スニーク中"],
-  repeat:  ["3 回", "5 回", "10 回", "100 回"],
+  if:      [i18nT(useEditorStore.getState().locale, "editor_ea3192"), i18nT(useEditorStore.getState().locale, "editor_144356"), i18nT(useEditorStore.getState().locale, "editor_e08887")],
+  repeat:  [i18nT(useEditorStore.getState().locale, "editor_e50111"), i18nT(useEditorStore.getState().locale, "editor_9ef641"), i18nT(useEditorStore.getState().locale, "editor_328196"), i18nT(useEditorStore.getState().locale, "editor_a80e80")],
   number:  ["1", "5", "10", "16", "64", "100"],
 };
 
@@ -298,6 +299,7 @@ let _gid = 1;
 const newGrapeId = () => `g${Date.now().toString(36)}${(_gid++).toString(36)}${Math.random().toString(36).slice(2, 5)}`;
 
 export default function GrapePanel() {
+    const locale = useEditorStore((s) => s.locale);
   const [fruits, setFruits] = useState<Fruit[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -728,14 +730,14 @@ export default function GrapePanel() {
           const api = (window as any).electronAPI.minecraft;
           const det = await api.detect();
           if (!det?.modsDir) {
-            alert("Minecraft (.minecraft/mods) が見つかりません。\n先に Minecraft Java版を一度起動して .minecraft を作ってください。");
+            alert(i18nT(locale, "editor_bc1ce8"));
             return;
           }
           const files = await buildJavaFileList(outState as any, (outState as any).generatedJsCode || "");
           const res = await api.buildAndInstall({ files, modsDir: det.modsDir, projectName: outState.projectName });
           alert(`✅ ${res.jarName} を mods に導入しました！\nForge 1.20.1 でマイクラを起動して確認してください。`);
         } catch (e: any) {
-          alert("❌ ビルドに失敗しました：\n" + (e?.message || e) + "\n\n※初回はGradle本体(8.8)のDLに数分かかります。ネット接続とJDK17を確認してください。");
+          alert(i18nT(locale, "editor_8c12a3") + (e?.message || e) + i18nT(locale, "editor_a563f2"));
         }
       })();
     } else {
@@ -754,9 +756,9 @@ export default function GrapePanel() {
         console.error("Failed to export project:", err);
         const msg = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
         alert(
-          "❌ アドオンを書き出せませんでした\n\n" +
+          i18nT(locale, "editor_6bf4c2") +
           msg +
-          "\n\nこの文をそのまま作者に伝えてもらえると、原因が分かります。",
+          i18nT(locale, "editor_59a5f9"),
         );
       }
     }
@@ -925,7 +927,7 @@ export default function GrapePanel() {
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); setZoom(getDefaultZoom()); stageRef.current?.scrollTo({ left: 0, top: 0 }); }}
-            title="表示を元に戻す（100%・中央）"
+            title={i18nT(locale, "editor_692abe")}
             style={{ border: "none", background: "none", color: "#5ae3f0", cursor: "pointer", fontSize: 15, fontWeight: 900, width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", outline: "none" }}
           >
             ⟲
@@ -1240,8 +1242,7 @@ export default function GrapePanel() {
             boxShadow: "0 4px 16px rgba(0,180,255,0.45), inset 0 1px 0 rgba(255,255,255,0.4)",
             display: "flex", alignItems: "center", gap: 6, animation: "mc-invite 1.8s ease-in-out infinite",
           }}>
-            <span style={{ fontSize: 15 }}>⛏️</span> マイクラへ放つ ▶
-          </button>
+            <span style={{ fontSize: 15 }}>⛏️</span> {i18nT(locale, "editor_23343a")}</button>
         )}
 
         {/* コード誕生＋写経（大人トーン）。GROVE=JAVA/プロ向けなので tone="adult" */}
@@ -1316,15 +1317,15 @@ export default function GrapePanel() {
                           {!GIVE_ITEMS.some((g) => g.id === gItem) && <option value={gItem}>{gItem}</option>}
                           {GIVE_ITEMS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
                         </select>
-                        <select value={gCount} onChange={(e) => setDraft(`${gItem} ×${e.target.value}`)} style={selSt} title="個数">
-                          {!GIVE_COUNTS.includes(gCount) && <option value={gCount}>{gCount}こ</option>}
-                          {GIVE_COUNTS.map((n) => <option key={n} value={n}>{n}こ</option>)}
+                        <select value={gCount} onChange={(e) => setDraft(`${gItem} ×${e.target.value}`)} style={selSt} title={i18nT(locale, "editor_7bdd30")}>
+                          {!GIVE_COUNTS.includes(gCount) && <option value={gCount}>{gCount}{i18nT(locale, "editor_9b9b7e")}</option>}
+                          {GIVE_COUNTS.map((n) => <option key={n} value={n}>{n}{i18nT(locale, "editor_9b9b7e")}</option>)}
                         </select>
                       </>
                     );
                   })() : (
                     <>
-                      <input ref={inputRef} value={draft} placeholder={spawn.item.placeholder || "中身を書く…"}
+                      <input ref={inputRef} value={draft} placeholder={spawn.item.placeholder || i18nT(locale, "editor_91acbb")}
                         list={ITEM_OPTIONS[spawn.item.type] ? `grove-dl-${spawn.item.type}` : undefined}
                         onChange={(e) => setDraft(e.target.value)}
                         onKeyDown={(e) => { if (e.key === "Enter") confirmType(); if (e.key === "Escape") setSpawn(null); }}
@@ -1537,11 +1538,11 @@ const TRIGGER_JAVA: Record<string, string> = {
 function fruitsToCode(hub: Fruit, spokes: Fruit[]): string[] {
   const ev = TRIGGER_JAVA[hub.item.type] || "onEvent";
   const lines: string[] = [];
-  lines.push("// ⚡ あなたが創った MOD — CUBICENGINE GROVE");
+  lines.push(i18nT(useEditorStore.getState().locale, "editor_87cf1a"));
   lines.push("@SubscribeEvent");
   lines.push(`public void ${ev}(Player player) {`);
   if (hub.item.type === "on_chat" && hub.text) lines.push(`    if (!message.equals("${hub.text}")) return;`);
-  if (spokes.length === 0) lines.push("    // 「すること」を足してみよう");
+  if (spokes.length === 0) lines.push(i18nT(useEditorStore.getState().locale, "editor_49b0e5"));
   for (const s of spokes) lines.push("    " + actionToJava(s));
   lines.push("}");
   return lines;
@@ -1549,14 +1550,14 @@ function fruitsToCode(hub: Fruit, spokes: Fruit[]): string[] {
 function actionToJava(f: Fruit): string {
   const t = f.text.trim();
   switch (f.item.type) {
-    case "say":    return `player.sendMessage("${t || "こんにちは！"}");`;
+    case "say":    return `player.sendMessage("${t || i18nT(useEditorStore.getState().locale, "editor_87e7e2")}");`;
     case "give":   return `player.give(new ItemStack("${t || "diamond"}"));`;
     case "effect": return `player.addEffect(Effects.JUMP_BOOST, 200);`;
     case "tp":     return `player.teleportTo(${t || "0, 64, 0"});`;
-    case "title":  return `player.showTitle("${t || "クリア！"}");`;
+    case "title":  return `player.showTitle("${t || i18nT(useEditorStore.getState().locale, "editor_613b53")}");`;
     case "sound":  return `player.playSound("${t || "random.levelup"}");`;
     case "command":return `server.runCommand("${t || "time set day"}");`;
-    case "if":     return `if (world.isNight()) { /* ${t || "じょうけん"} */ }`;
+    case "if":     return `if (world.isNight()) { /* ${t || i18nT(useEditorStore.getState().locale, "editor_1cca7e")} */ }`;
     case "repeat": return `for (int i = 0; i < ${parseInt(t) || 3}; i++) { /* くりかえす */ }`;
     case "number": return `int value = ${parseInt(t) || 0};`;
     default:       return `// ${f.item.label}`;

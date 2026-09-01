@@ -15,6 +15,8 @@ import { useState } from "react";
 import * as LucideIcons from "lucide-react";
 import type { CBlock } from "./_types";
 import { CAT } from "../../data/categories";
+import { t } from "@/lib/i18n";
+import { useEditorStore } from "@/app/editor/store";
 
 /** 見本を「重ねてある順」に並べる。もしもの中身は一段下げる。 */
 function ordered(blocks: CBlock[]): { b: CBlock; depth: number }[] {
@@ -48,6 +50,7 @@ export default function ReferencePanel({
   isMobile: boolean;
   onClose: () => void;
 }) {
+    const locale = useEditorStore((s) => s.locale);
   const [open, setOpen] = useState(true);
 
   if (!open) {
@@ -63,8 +66,7 @@ export default function ReferencePanel({
           boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
         }}
       >
-        📋 見本
-      </button>
+        {t(locale, "editor_2284af")}</button>
     );
   }
 
@@ -86,20 +88,18 @@ export default function ReferencePanel({
       }}>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={{ fontSize: 9.5, fontWeight: 900, color: "#78350f", letterSpacing: "0.06em" }}>
-            📋 みほん
-          </div>
+            {t(locale, "editor_a0fbde")}</div>
           <div style={{ fontSize: 12, fontWeight: 900, color: "#451a03", lineHeight: 1.3, overflowWrap: "anywhere" }}>
             {title}
           </div>
           {author && (
             <div style={{ fontSize: 9.5, fontWeight: 800, color: "#78350f", marginTop: 1 }}>
-              {author} の作品
-            </div>
+              {author} {t(locale, "editor_210ed5")}</div>
           )}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 3, flexShrink: 0 }}>
-          <button onClick={() => setOpen(false)} title="たたむ" style={miniBtn}>─</button>
-          <button onClick={onClose} title="見本をとじる" style={miniBtn}>✕</button>
+          <button onClick={() => setOpen(false)} title={t(locale, "editor_9e856b")} style={miniBtn}>─</button>
+          <button onClick={onClose} title={t(locale, "editor_463616")} style={miniBtn}>✕</button>
         </div>
       </div>
 
@@ -147,8 +147,7 @@ export default function ReferencePanel({
         flexShrink: 0, padding: "6px 8px", borderTop: "2px dashed #fcd34d",
         fontSize: 9, fontWeight: 800, color: "#92400e", lineHeight: 1.45, textAlign: "center",
       }}>
-        この順にカードをおいてみよう
-      </div>
+        {t(locale, "editor_a42a59")}</div>
     </div>
   );
 }

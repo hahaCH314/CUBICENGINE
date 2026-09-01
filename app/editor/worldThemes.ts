@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { t } from "@/lib/i18n";
+import { useEditorStore } from "@/app/editor/store";
 
 export type WorldThemeId = "land" | "sea";
 
@@ -31,7 +33,7 @@ export interface WorldTheme {
 export const WORLD_THEMES: Record<WorldThemeId, WorldTheme> = {
   land: {
     id: "land",
-    name: "陸",
+    name: t(useEditorStore.getState().locale, "editor_3a5fe5"),
     emoji: "🌳",
     bgGradient: "linear-gradient(to bottom, #bfe3ff 0%, #dff0ff 52%, #f0f8ff 100%)",
     groundColor: "linear-gradient(#5fa845, #4a7d36)",
@@ -48,7 +50,7 @@ export const WORLD_THEMES: Record<WorldThemeId, WorldTheme> = {
   },
   sea: {
     id: "sea",
-    name: "海",
+    name: t(useEditorStore.getState().locale, "editor_9aa7f8"),
     emoji: "🌊",
     bgGradient: "linear-gradient(to bottom, #1ebbf0 0%, #0a4f9e 60%, #062b59 100%)",
     groundColor: "linear-gradient(#e2cda3, #c2ae84)",

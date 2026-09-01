@@ -17,12 +17,14 @@ import { useState } from "react";
 import * as LucideIcons from "lucide-react";
 import HowToInstallModal from "./HowToInstallModal";
 import { useEditorStore } from "./store";
+import { t } from "@/lib/i18n";
 
 interface Props {
   onClose: () => void;
 }
 
 export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
+    const locale = useEditorStore((s) => s.locale);
   const [step, setStep] = useState<number>(0);
   const [showInstallGuide, setShowInstallGuide] = useState<boolean>(false);
   // ⚠️ 出るファイルも入れ方も版でまったく違う。作っている版のほうを見せる。
@@ -33,10 +35,10 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
   const fileExt = isJava ? ".jar" : ".mcaddon";
 
   const steps = [
-    { title: "これはなにができる道具？", subtitle: isJava ? "〜 魔法のMODづくり 〜" : "〜 魔法のアドオンづくり 〜" },
-    { title: "ステップ1：『きっかけ』をえらぶ", subtitle: "〜 すべてはここから始まる 〜" },
-    { title: "ステップ2：『すること』をピタッ！と重ねる", subtitle: "〜 超重要！繋がらないと動かない 〜" },
-    { title: "完成したらマイクラの世界へ！", subtitle: "〜 夢の世界で遊びつくそう 〜" },
+    { title: t(locale, "editor_ccbda0"), subtitle: isJava ? t(locale, "editor_1f04e8") : t(locale, "editor_1a140f") },
+    { title: t(locale, "editor_c796a0"), subtitle: t(locale, "editor_de89d1") },
+    { title: t(locale, "editor_69dbe0"), subtitle: t(locale, "editor_308788") },
+    { title: t(locale, "editor_4c4c61"), subtitle: t(locale, "editor_d35093") },
   ];
 
   const current = steps[step];
@@ -71,16 +73,7 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
         color: "#1e293b",
         animation: "to-fadeIn 0.25s ease-out both"
       }}>
-        <style>{`
-          /* 中の箱が枠を超えないようにする最後の砦。
-             インラインstyleで1つずつ指定すると必ず付け忘れるので、まとめて掛ける。
-             長い英数字(.mcaddon など)が折り返せずに横へ伸びるのも防ぐ。 */
-          .to-body, .to-body * { box-sizing: border-box; max-width: 100%; min-width: 0; }
-          .to-body { overflow-wrap: anywhere; }
-          @keyframes to-fadeIn { 0% { opacity: 0; transform: scale(0.96); } 100% { opacity: 1; transform: scale(1); } }
-          @keyframes to-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-          @keyframes to-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        `}</style>
+        <style>{t(locale, "editor_74aa97")}</style>
 
         {/* ── トップ・タイトルヘッダー（明るいトランプ/ TC G風バナー） ── */}
         <div style={{
@@ -107,7 +100,7 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
           </div>
           <button
             onClick={onClose}
-            title="説明をとじます"
+            title={t(locale, "editor_13f8d3")}
             style={{
               cursor: "pointer", width: 34, height: 34, borderRadius: "50%",
               border: "2px solid rgba(255, 255, 255, 0.4)", background: "rgba(0, 0, 0, 0.2)",
@@ -143,22 +136,17 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
                   textAlign: "left"
                 }}>
                   <div style={{ fontSize: 13, fontWeight: 900, color: isJava ? "#c2410c" : "#047857" }}>
-                    {isJava ? "マイクラの拡張MOD" : "マイクラの拡張パック"}
+                    {isJava ? t(locale, "editor_0ca37e") : t(locale, "editor_988105")}
                   </div>
                   <div style={{ fontSize: 20, fontWeight: 900, color: isJava ? "#7c2d12" : "#065f46", fontFamily: "monospace" }}>✨ {fileExt}</div>
                 </div>
               </div>
               <div style={{ background: "#fffbeb", border: "2px solid #fef08a", borderRadius: 16, padding: "16px 20px", textAlign: "left" }}>
                 <p style={{ fontSize: 15, fontWeight: 800, color: "#78350f", margin: 0, lineHeight: 1.6 }}>
-                  ここはマイクラの世界に新しい遊び方やルールを追加する魔法のパワーアップパック（＝
-                  <b>{isJava ? "「MOD」" : "「アドオン」"}</b>）を、
-                  <b>プログラミングのコードを１行も書かずに作れる場所</b>だよ！
-                </p>
+                  {t(locale, "editor_30dc0a")}<b>{isJava ? "「MOD」" : t(locale, "editor_d3f16f")}</b>{t(locale, "editor_9af60b")}<b>{t(locale, "editor_28dfd5")}</b>{t(locale, "editor_43e51c")}</p>
                 <p style={{ fontSize: 14, fontWeight: 700, color: "#92400e", margin: "10px 0 0 0", lineHeight: 1.6 }}>
-                  作ったカードの組み合わせが <span style={{ background: "#fef08a", padding: "2px 6px", borderRadius: 6, fontWeight: 900 }}>{fileExt}</span>
-                  {isJava ? "（ジャー）" : " （エムシー・アドオン）"}というファイルになり、
-                  君のいつものマイクラに読み込むだけで本当に動き出すんだ！
-                </p>
+                  {t(locale, "editor_b1e7db")}<span style={{ background: "#fef08a", padding: "2px 6px", borderRadius: 6, fontWeight: 900 }}>{fileExt}</span>
+                  {isJava ? t(locale, "editor_aed5c2") : t(locale, "editor_b0812e")}{t(locale, "editor_e79c1c")}</p>
               </div>
 
               {/* 「アドオン」も「MOD」も、知らない人には通じない言葉。
@@ -169,12 +157,9 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
                 padding: "14px 16px", textAlign: "left", width: "100%",
               }}>
                 <div style={{ fontSize: 13, fontWeight: 900, color: "#475569", marginBottom: 10 }}>
-                  📘 「アドオン」と「MOD」ってなに？
-                </div>
+                  {t(locale, "editor_e22f2e")}</div>
                 <p style={{ fontSize: 13.5, fontWeight: 700, color: "#475569", margin: "0 0 12px 0", lineHeight: 1.65 }}>
-                  どちらも <b>マイクラを作りかえるもの</b> だよ。名前がちがうのは、
-                  <b>遊んでいるマイクラの種類</b> がちがうから。
-                </p>
+                  {t(locale, "editor_a3052f")}<b>{t(locale, "editor_a1d473")}</b> {t(locale, "editor_f19166")}<b>{t(locale, "editor_42caa1")}</b> {t(locale, "editor_9176ff")}</p>
                 {/* いま作っている版のほうを濃く出す。作り方は同じでも
                     「できるファイル・入れ方・必要なもの」は全部ちがうので、
                     ここで自分の版がどれかを掴めないと最後の一歩で詰まる。 */}
@@ -185,14 +170,13 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
                     opacity: !isJava ? 1 : 0.65,
                   }}>
                     <div style={{ fontSize: 13, fontWeight: 900, color: "#047857" }}>
-                      🟢 アドオン <span style={{ fontSize: 11, color: "#059669" }}>＝ 統合版（スマホ・Switch・PC）</span>
-                      {!isJava && <span style={{ fontSize: 10, marginLeft: 6, background: "#10b981", color: "#fff", padding: "1px 6px", borderRadius: 999 }}>いまこっち</span>}
+                      {t(locale, "editor_dee428")}<span style={{ fontSize: 11, color: "#059669" }}>{t(locale, "editor_012a84")}</span>
+                      {!isJava && <span style={{ fontSize: 10, marginLeft: 6, background: "#10b981", color: "#fff", padding: "1px 6px", borderRadius: 999 }}>{t(locale, "editor_e407f4")}</span>}
                     </div>
                     <div style={{ fontSize: 12.5, fontWeight: 700, color: "#065f46", marginTop: 3, lineHeight: 1.55 }}>
-                      ふだんスマホやSwitchで遊んでいるならこっち。
-                      <br />できるファイル … <b style={{ fontFamily: "monospace" }}>.mcaddon</b>
-                      <br />入れ方 … <b>ファイルを開くだけ</b>
-                      <br />必要なもの … <b>なし</b>
+                      {t(locale, "editor_d6258c")}<br />{t(locale, "editor_d949f2")}<b style={{ fontFamily: "monospace" }}>.mcaddon</b>
+                      <br />{t(locale, "editor_8c4b3b")}<b>{t(locale, "editor_30f759")}</b>
+                      <br />{t(locale, "editor_7abe3d")}<b>{t(locale, "editor_3609f9")}</b>
                     </div>
                   </div>
                   <div style={{
@@ -201,21 +185,18 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
                     opacity: isJava ? 1 : 0.65,
                   }}>
                     <div style={{ fontSize: 13, fontWeight: 900, color: "#c2410c" }}>
-                      🟠 MOD <span style={{ fontSize: 11, color: "#ea580c" }}>＝ Java版（パソコン）</span>
-                      {isJava && <span style={{ fontSize: 10, marginLeft: 6, background: "#f97316", color: "#fff", padding: "1px 6px", borderRadius: 999 }}>いまこっち</span>}
+                      🟠 MOD <span style={{ fontSize: 11, color: "#ea580c" }}>{t(locale, "editor_5a8dc4")}</span>
+                      {isJava && <span style={{ fontSize: 10, marginLeft: 6, background: "#f97316", color: "#fff", padding: "1px 6px", borderRadius: 999 }}>{t(locale, "editor_e407f4")}</span>}
                     </div>
                     <div style={{ fontSize: 12.5, fontWeight: 700, color: "#7c2d12", marginTop: 3, lineHeight: 1.55 }}>
-                      パソコンのJava版で遊んでいるならこっち。
-                      <br />できるファイル … <b style={{ fontFamily: "monospace" }}>.jar</b>
-                      <br />入れ方 … <b>mods フォルダに置く</b>
-                      <br />必要なもの … <b>Forge 1.20.1</b>
+                      {t(locale, "editor_7c7498")}<br />{t(locale, "editor_d949f2")}<b style={{ fontFamily: "monospace" }}>.jar</b>
+                      <br />{t(locale, "editor_8c4b3b")}<b>{t(locale, "editor_4d8b70")}</b>
+                      <br />{t(locale, "editor_7abe3d")}<b>Forge 1.20.1</b>
                     </div>
                   </div>
                 </div>
                 <p style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", margin: "10px 0 0 0", lineHeight: 1.55 }}>
-                  どっちか分からなくても大丈夫。<b>カードの作り方はまったく同じ</b>だよ！
-                  ちがうのは最後の「マイクラへの入れ方」だけ。
-                </p>
+                  {t(locale, "editor_dca47e")}<b>{t(locale, "editor_d1ed52")}</b>{t(locale, "editor_317568")}</p>
               </div>
             </div>
           )}
@@ -226,19 +207,16 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
               <div style={{ background: "#fef08a", border: "3px solid #d97706", borderRadius: 16, padding: "12px 24px", display: "flex", alignItems: "center", gap: 12, boxShadow: "0 6px 16px rgba(217, 119, 6, 0.2)", animation: "to-bounce 2s ease-in-out infinite" }}>
                 <span style={{ fontSize: 32 }}>⚡</span>
                 <div>
-                  <div style={{ fontSize: 11, fontWeight: 900, color: "#854d0e" }}>スタートの条件カード</div>
-                  <div style={{ fontSize: 18, fontWeight: 900, color: "#451a03" }}>「ブロックを叩いたとき」 など</div>
+                  <div style={{ fontSize: 11, fontWeight: 900, color: "#854d0e" }}>{t(locale, "editor_5d127a")}</div>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: "#451a03" }}>{t(locale, "editor_a47840")}</div>
                 </div>
               </div>
               <div style={{ background: "#ffffff", border: "2px solid #e2e8f0", borderRadius: 16, padding: "16px 20px" }}>
                 <h4 style={{ margin: "0 0 8px 0", fontSize: 16, fontWeight: 900, color: "#0f172a" }}>
-                  ❓ そもそもプログラムってなに？
-                </h4>
+                  {t(locale, "editor_3e512b")}</h4>
                 <p style={{ fontSize: 14.5, fontWeight: 700, color: "#334155", margin: 0, lineHeight: 1.7 }}>
-                  マイクラを動かすルールは、必ず <b>『きっかけ（〜したとき）』</b> と <b>『すること（〜なる）』</b> のセットで出来ています！
-                  <br /><br />
-                  だから、最初は画面下のキーボードから黄色の <b>『きっかけ』</b> カードを選んで、空っぽのキャンバスにポンと置きましょう！すべてはそこから始まります！
-                </p>
+                  {t(locale, "editor_eb1b55")}<b>{t(locale, "editor_76aba4")}</b> {t(locale, "editor_a5401f")}<b>{t(locale, "editor_05c48f")}</b> {t(locale, "editor_7e3f92")}<br /><br />
+                  {t(locale, "editor_ba01eb")}<b>{t(locale, "editor_5bd5c2")}</b> {t(locale, "editor_9d8359")}</p>
               </div>
             </div>
           )}
@@ -250,11 +228,9 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
                 <span style={{ fontSize: 26 }}>⚠️</span>
                 <div>
                   <div style={{ fontSize: 15, fontWeight: 900, color: "#991b1b" }}>
-                    超重要な注意！ カードは『置いただけ』では動かないぞ！
-                  </div>
+                    {t(locale, "editor_e4c527")}</div>
                   <div style={{ fontSize: 12.5, fontWeight: 800, color: "#b91c1c" }}>
-                    バラバラに置いてあるカードは、マイクラが気づくことができません。
-                  </div>
+                    {t(locale, "editor_7105f4")}</div>
                 </div>
               </div>
 
@@ -262,11 +238,11 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                 {/* NG例 */}
                 <div style={{ background: "#f8fafc", border: "2px dashed #94a3b8", borderRadius: 14, padding: 12, textAlign: "center" }}>
-                  <div style={{ fontSize: 13, fontWeight: 900, color: "#64748b", marginBottom: 8 }}>❌ 離れてバラバラ (動きません)</div>
+                  <div style={{ fontSize: 13, fontWeight: 900, color: "#64748b", marginBottom: 8 }}>{t(locale, "editor_696aa4")}</div>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-                    <MiniCard emoji="⚡" label="叩いたとき" color="#facc15" border="#d97706" />
-                    <span style={{ fontSize: 11, color: "#ef4444", fontWeight: 800 }}>▲ スキマが空いてる… ▲</span>
-                    <MiniCard emoji="✨" label="ダイヤ獲得" color="#38bdf8" border="#0284c7" />
+                    <MiniCard emoji="⚡" label={t(locale, "editor_692c90")} color="#facc15" border="#d97706" />
+                    <span style={{ fontSize: 11, color: "#ef4444", fontWeight: 800 }}>{t(locale, "editor_c3b73a")}</span>
+                    <MiniCard emoji="✨" label={t(locale, "editor_aa9200")} color="#38bdf8" border="#0284c7" />
                   </div>
                 </div>
 
@@ -274,13 +250,13 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
                 <div style={{ background: "#ecfdf5", border: "2px solid #10b981", borderRadius: 14, padding: 12, textAlign: "center", boxShadow: "0 4px 12px rgba(16, 185, 129, 0.15)" }}>
                   {/* ⚠️ この図が「正解」。文章とズレていたので、図のほうに合わせて
                       「きっかけが上」だと言い切る形にした（2026-08-31） */}
-                  <div style={{ fontSize: 13, fontWeight: 900, color: "#047857", marginBottom: 8 }}>⭕ きっかけが上・ことが下</div>
+                  <div style={{ fontSize: 13, fontWeight: 900, color: "#047857", marginBottom: 8 }}>{t(locale, "editor_5bb2a9")}</div>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
-                    <div style={{ fontSize: 10, fontWeight: 900, color: "#047857", marginBottom: 2 }}>▼ きっかけ（黄）を上に</div>
-                    <MiniCard emoji="⚡" label="叩いたとき" color="#facc15" border="#d97706" />
-                    <div style={{ margin: "-4px 0", zIndex: 2, fontSize: 16, color: "#10b981", fontWeight: 900 }}>🔗 接続完了！</div>
-                    <MiniCard emoji="✨" label="ダイヤ獲得" color="#38bdf8" border="#0284c7" />
-                    <div style={{ fontSize: 10, fontWeight: 900, color: "#047857", marginTop: 2 }}>▲ こと（青）を下に</div>
+                    <div style={{ fontSize: 10, fontWeight: 900, color: "#047857", marginBottom: 2 }}>{t(locale, "editor_e82a67")}</div>
+                    <MiniCard emoji="⚡" label={t(locale, "editor_692c90")} color="#facc15" border="#d97706" />
+                    <div style={{ margin: "-4px 0", zIndex: 2, fontSize: 16, color: "#10b981", fontWeight: 900 }}>{t(locale, "editor_4313c6")}</div>
+                    <MiniCard emoji="✨" label={t(locale, "editor_aa9200")} color="#38bdf8" border="#0284c7" />
+                    <div style={{ fontSize: 10, fontWeight: 900, color: "#047857", marginTop: 2 }}>{t(locale, "editor_08bfbb")}</div>
                   </div>
                 </div>
               </div>
@@ -292,14 +268,12 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
                     その並びだと きっかけ の下に何も無い＝**何も起きない抜け殻**になる。
                     しかも書き出しは成功してしまうので、誰も間違いに気づけない。
                     「上下」ではなく「どっちが先か」で書くこと。 */}
-                💡 <b>『きっかけ（黄カード）』が いちばん上。</b>
-                その <b>すぐ下に『こと（青カード）』をピッタリくっつけます。</b>
+                💡 <b>{t(locale, "editor_4e20c7")}</b>
+                {t(locale, "editor_caa28a")}<b>{t(locale, "editor_ecf147")}</b>
                 <br />
                 <span style={{ color: "#b91c1c" }}>
-                  ⚠️ 逆さま（青が上・黄が下）にすると、くっついていても何も起きません。
-                </span>
-                <br />上から下へ、順番に実行されます！
-              </p>
+                  {t(locale, "editor_96fbdf")}</span>
+                <br />{t(locale, "editor_f47092")}</p>
             </div>
           )}
 
@@ -312,38 +286,29 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
                   color: "#ffffff", fontWeight: 900, fontSize: 18, boxShadow: "0 4px 12px rgba(34, 197, 94, 0.3)",
                   border: "3px solid #052e16", animation: "to-pulse 1.5s ease-in-out infinite"
                 }}>
-                  🎉 {isJava ? "MOD" : "アドオン"}完成！
-                </div>
+                  🎉 {isJava ? "MOD" : t(locale, "editor_b6e715")}{t(locale, "editor_2cd9ed")}</div>
                 <div style={{ fontSize: 24, color: "#334155" }}>➜</div>
                 <div style={{
                   padding: "12px 20px", borderRadius: 16, background: "#0f172a",
                   color: "#38bdf8", fontWeight: 900, fontSize: 18, border: "2px solid #475569"
                 }}>
-                  🚀 マイクラへ導入
-                </div>
+                  {t(locale, "editor_6d0609")}</div>
               </div>
 
               <div style={{ background: "#ffffff", border: "2px solid #e2e8f0", borderRadius: 16, padding: "16px", width: "100%" }}>
                 {isJava ? (
                   <p style={{ fontSize: 14, fontWeight: 800, color: "#334155", margin: 0, lineHeight: 1.7 }}>
-                    1. カードを正しくつないだら、右下の明るい緑の <b>『MOD完成！🎉』</b> ボタンを押します。
-                    <br />
-                    2. <b>「.jar」</b> ファイルがダウンロードされます（待ち時間なし・インストール不要）。
-                    <br />
-                    3. それを <b>mods フォルダ</b> に置いて、ランチャーを <b>「forge」</b> にして起動！
-                    <br />
+                    {t(locale, "editor_9e407d")}<b>{t(locale, "editor_da59bb")}</b> {t(locale, "editor_91712f")}<br />
+                    2. <b>「.jar」</b> {t(locale, "editor_0c42dc")}<br />
+                    {t(locale, "editor_faa436")}<b>{t(locale, "editor_9d8f97")}</b> {t(locale, "editor_15c1ff")}<b>「forge」</b> {t(locale, "editor_457718")}<br />
                     <span style={{ color: "#c2410c" }}>
-                      ⚠️ Java版は <b>パソコンだけ</b>。<b>Forge 1.20.1</b> が要ります。下のボタンに全部書いてあるよ。
-                    </span>
+                      {t(locale, "editor_f5ea59")}<b>{t(locale, "editor_fcd560")}</b>{t(locale, "punct.period")}<b>Forge 1.20.1</b> {t(locale, "editor_5b9654")}</span>
                   </p>
                 ) : (
                   <p style={{ fontSize: 14, fontWeight: 800, color: "#334155", margin: 0, lineHeight: 1.7 }}>
-                    1. カードを正しくつないだら、右下の明るい緑の <b>『アドオン完成！🎉』</b> ボタンを押します。
-                    <br />
-                    2. 画面の指示にしたがって <b>「.mcaddon」</b> をダウンロード！
-                    <br />
-                    3. ダブルクリックで開いて、いつものマイクラで遊び込もう！
-                  </p>
+                    {t(locale, "editor_9e407d")}<b>{t(locale, "editor_24ba24")}</b> {t(locale, "editor_91712f")}<br />
+                    {t(locale, "editor_e21a3f")}<b>「.mcaddon」</b> {t(locale, "editor_866f02")}<br />
+                    {t(locale, "editor_babeb1")}</p>
                 )}
                 <div style={{ textAlign: "center", marginTop: 14 }}>
                   <button
@@ -356,8 +321,8 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
                   >
                     <span>
                       {isJava
-                        ? "🎮 詳しい「Java版への入れ方ガイド（mods フォルダ）」を見る"
-                        : "🎮 詳しい「マイクラへの入れ方ガイド（スマホ/PC/Switch対応）」を見る"}
+                        ? t(locale, "editor_bfa6e2")
+                        : t(locale, "editor_90e2b8")}
                     </span>
                   </button>
                 </div>
@@ -403,8 +368,7 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
                   color: "#475569", fontWeight: 800, padding: "9px 18px", borderRadius: 12, fontSize: 14
                 }}
               >
-                ◀ 前へ
-              </button>
+                {t(locale, "editor_6cc1e5")}</button>
             ) : (
               <div />
             )}
@@ -418,8 +382,7 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
                   boxShadow: "0 3px 6px rgba(245, 158, 11, 0.3)"
                 }}
               >
-                次へ進む ▶
-              </button>
+                {t(locale, "editor_a64996")}</button>
             ) : (
               <button
                 onClick={onClose}
@@ -429,8 +392,7 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
                   boxShadow: "0 4px 10px rgba(16, 185, 129, 0.3)"
                 }}
               >
-                🌟 さあ、アドオンを作ろう！
-              </button>
+                {t(locale, "editor_fdadc1")}</button>
             )}
           </div>
         </div>

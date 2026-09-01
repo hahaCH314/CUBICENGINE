@@ -14,8 +14,10 @@ import { describeIR } from "../../../lib/devtab/bbmodel";
 import type { MobIR } from "../../../lib/devtab/ir";
 import { useEditorStore } from "../store";
 import { MOB_MOTIONS, describeVoxels, voxelsToMobIR, type MobMotion } from "../../../lib/devtab/voxelToIr";
+import { t } from "@/lib/i18n";
 
 export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => void }) {
+    const locale = useEditorStore((s) => s.locale);
   const [busy, setBusy] = useState(false);
   const [ir, setIr] = useState<MobIR | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
@@ -47,7 +49,7 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
         const res = await Promise.race([
           parseBbmodelAsync(text, fallback),
           new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error("時間内に読み込めませんでした")), 15000),
+            setTimeout(() => reject(new Error(t(locale, "editor_3f8c61"))), 15000),
           ),
         ]);
         setWarnings(res.warnings);
@@ -76,18 +78,18 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
     // 識別子はここから作られるので、日本語なら voxel_mob に落ちる（警告は出す）
     const ir = voxelsToMobIR(voxels, projectName, motion);
     if (!ir) {
-      setErrors(["モデルタブに立方体がありません"]);
+      setErrors([t(locale, "editor_82effe")]);
       return;
     }
     if (!ir.textures[0]?.dataUrl) {
-      setErrors(["色のテクスチャを作れませんでした"]);
+      setErrors([t(locale, "editor_7456ee")]);
       return;
     }
     const w: string[] = [];
     if (ir.id === "voxel_mob") {
       w.push(`マイクラ内部の名前は「${ir.id}」になります（プロジェクト名に英字を入れると変えられます）`);
     }
-    w.push("面の色をそのまま貼っています。細かい模様を付けたいときは Blockbench を使ってください。");
+    w.push(t(locale, "editor_85685b"));
     setWarnings(w);
     setIr(ir);
     onLoaded?.(ir);
@@ -112,11 +114,9 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
     // 縦スクロールは親の DeveloperPanel が持っている。
     <div className="flex flex-col gap-4 p-5">
       <div>
-        <h2 className="text-lg font-bold">モデルを取り込む</h2>
+        <h2 className="text-lg font-bold">{t(locale, "editor_2ba947")}</h2>
         <p className="text-xs text-muted/70 mt-1">
-          Blockbench で作った <code>.bbmodel</code> を読み込みます。テクスチャは
-          「埋め込み」で保存されたものだけ取り込めます。
-        </p>
+          {t(locale, "editor_546dd9")}<code>.bbmodel</code> {t(locale, "editor_740a56")}</p>
       </div>
 
       {/* 置き場所。クリックでもドラッグでも入れられるようにする */}
@@ -135,8 +135,8 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
         }}
       >
         <div className="text-3xl mb-2">📦</div>
-        <div className="text-sm font-bold">{busy ? "読み込み中…" : ".bbmodel をここにドロップ"}</div>
-        <div className="text-[11px] text-muted/60 mt-1">クリックしてファイルを選ぶこともできます</div>
+        <div className="text-sm font-bold">{busy ? t(locale, "editor_4699f5") : t(locale, "editor_b7cab0")}</div>
+        <div className="text-[11px] text-muted/60 mt-1">{t(locale, "editor_43b70e")}</div>
         <input
           ref={fileRef}
           type="file"
@@ -157,13 +157,11 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
         <div className="rounded-xl p-4 flex flex-wrap items-center gap-3" style={{ background: "rgba(60,208,112,0.08)", border: "1px solid rgba(60,208,112,0.3)" }}>
           <span className="text-2xl">📦</span>
           <div className="flex-1 text-xs">
-            <b>モデルタブで作った形</b>をモブにできます
-            <span className="block text-[10px] text-muted/60">
-              立方体 {voxelStats.cubes} 個 ／ 色 {voxelStats.colors} 種。面の色はそのまま貼られます
-            </span>
+            <b>{t(locale, "editor_a7d1f5")}</b>{t(locale, "editor_5b6538")}<span className="block text-[10px] text-muted/60">
+              {t(locale, "editor_0f8007")}{voxelStats.cubes} {t(locale, "editor_6aa31f")}{voxelStats.colors} {t(locale, "editor_feeac6")}</span>
           </div>
             <label className="flex items-center gap-2 text-xs w-full">
-              <span className="shrink-0">動き</span>
+              <span className="shrink-0">{t(locale, "editor_272138")}</span>
               <select
                 className="flex-1 px-2 py-1 rounded text-xs bg-black/40 border border-white/15"
                 value={motion}
@@ -179,14 +177,13 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
             className="text-xs font-bold px-3 py-2 rounded-lg shrink-0"
             style={{ background: "#3cd070", color: "#06240f" }}
           >
-            モブにする
-          </button>
+            {t(locale, "editor_139645")}</button>
         </div>
       )}
 
       {errors.length > 0 && (
         <div className="rounded-lg p-3 text-xs" style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.4)" }}>
-          <div className="font-bold mb-1">読み込めませんでした</div>
+          <div className="font-bold mb-1">{t(locale, "editor_9c3e69")}</div>
           <ul className="list-disc pl-4 space-y-0.5">
             {errors.map((m, i) => <li key={i}>{m}</li>)}
           </ul>
@@ -195,7 +192,7 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
 
       {warnings.length > 0 && (
         <div className="rounded-lg p-3 text-xs" style={{ background: "rgba(250,204,21,0.10)", border: "1px solid rgba(250,204,21,0.35)" }}>
-          <div className="font-bold mb-1">読み込めましたが、気をつけてほしい点があります</div>
+          <div className="font-bold mb-1">{t(locale, "editor_cba9a9")}</div>
           <ul className="list-disc pl-4 space-y-0.5">
             {warnings.map((m, i) => <li key={i}>{m}</li>)}
           </ul>
@@ -211,9 +208,9 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
 
           <div className="grid grid-cols-3 gap-3 text-center mb-4">
             {[
-              ["ボーン", stats.bones],
-              ["立方体", stats.cubes],
-              ["テクスチャ", stats.textures],
+              [t(locale, "editor_02869c"), stats.bones],
+              [t(locale, "editor_0f8007"), stats.cubes],
+              [t(locale, "editor_15ee71"), stats.textures],
             ].map(([label, n]) => (
               <div key={String(label)} className="rounded-lg py-2" style={{ background: "rgba(0,0,0,0.25)" }}>
                 <div className="text-xl font-black">{n}</div>

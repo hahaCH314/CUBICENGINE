@@ -14,6 +14,8 @@ import { useEffect, useMemo, useState } from "react";
 import type { CBlock } from "./_types";
 import { buildShareUrl, toWire } from "../../lib/share";
 import { makeQr, qrToSvg } from "../../lib/qr";
+import { t } from "@/lib/i18n";
+import { useEditorStore } from "@/app/editor/store";
 
 const NAME_KEY = "mmc-share-name";
 
@@ -26,6 +28,7 @@ export default function ShareDialog({
   remixSrc?: string;
   onClose: () => void;
 }) {
+    const locale = useEditorStore((s) => s.locale);
   const [title, setTitle] = useState(projectName || "");
   const [author, setAuthor] = useState("");
   const [remix, setRemix] = useState(false);
@@ -71,7 +74,7 @@ export default function ShareDialog({
   const send = async () => {
     save();
     try {
-      await navigator.share({ title: title.trim() || "ぼくのアドオン", url });
+      await navigator.share({ title: title.trim() || t(locale, "editor_dbfee0"), url });
     } catch { /* 閉じただけ。何もしない */ }
   };
 
@@ -104,15 +107,14 @@ export default function ShareDialog({
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
           <span style={{ fontSize: 26 }}>📣</span>
-          <h2 style={{ fontSize: 19, fontWeight: 900, color: "#14532d" }}>作品をみせる</h2>
+          <h2 style={{ fontSize: 19, fontWeight: 900, color: "#14532d" }}>{t(locale, "editor_2666b5")}</h2>
           <button onClick={onClose} style={{
             marginLeft: "auto", width: 30, height: 30, borderRadius: 9, cursor: "pointer",
             border: "2px solid #e2e8f0", background: "#f8fafc", color: "#64748b", fontWeight: 900,
           }}>✕</button>
         </div>
         <p style={{ fontSize: 12, color: "#64748b", fontWeight: 700, marginBottom: 16, lineHeight: 1.6 }}>
-          リンクを送るだけで、ともだちが<b>マイクラを持っていなくても</b>作品が動くところを見られるよ。
-        </p>
+          {t(locale, "editor_c0298e")}<b>{t(locale, "editor_878b0b")}</b>{t(locale, "editor_97f509")}</p>
 
         {/* 出典が付くことは本人にも見せる。黙って名前を入れるのは不誠実だし、
             「ちゃんと元の人の名前が残る」と分かるほうが安心して真似できる。 */}
@@ -124,25 +126,22 @@ export default function ShareDialog({
           }}>
             <span style={{ fontSize: 16 }}>🔁</span>
             <span style={{ fontSize: 11.5, fontWeight: 800, color: "#92400e", lineHeight: 1.55 }}>
-              この作品には <b>{remixSrc}</b> の名前がいっしょに入ります。
-              <span style={{ display: "block", color: "#b45309", fontWeight: 700, marginTop: 2 }}>
-                まねさせてもらった人の名前は、みせるときに必ずついていくよ。
-              </span>
+              {t(locale, "editor_6464ac")}<b>{remixSrc}</b> {t(locale, "editor_f6afad")}<span style={{ display: "block", color: "#b45309", fontWeight: 700, marginTop: 2 }}>
+                {t(locale, "editor_e60017")}</span>
             </span>
           </div>
         )}
 
-        <Field label="作品のなまえ">
+        <Field label={t(locale, "editor_794beb")}>
           <input value={title} onChange={e => setTitle(e.target.value)}
-            placeholder="ばくはつニワトリ" style={input} />
+            placeholder={t(locale, "editor_faf373")} style={input} />
         </Field>
 
-        <Field label="つくった人（いれなくてもOK）">
+        <Field label={t(locale, "editor_95dd38")}>
           <input value={author} onChange={e => setAuthor(e.target.value)}
-            placeholder="ニックネーム" maxLength={20} style={input} />
+            placeholder={t(locale, "editor_eb1dfd")} maxLength={20} style={input} />
           <p style={{ fontSize: 10.5, color: "#94a3b8", fontWeight: 700, marginTop: 4, lineHeight: 1.5 }}>
-            ほんとうの名前は書かないでね。この名前はリンクの中に入るだけで、どこにも保存されないよ。
-          </p>
+            {t(locale, "editor_d5f6a4")}</p>
         </Field>
 
         {/* 丸ごとコピーを許すかどうかは、作った本人が決める */}
@@ -155,23 +154,20 @@ export default function ShareDialog({
             style={{ marginTop: 2, width: 18, height: 18, accentColor: "#f59e0b" }} />
           <span>
             <span style={{ fontSize: 13, fontWeight: 900, color: remix ? "#92400e" : "#475569" }}>
-              🔁 まねして作ってもいい
-            </span>
+              {t(locale, "editor_0fe713")}</span>
             <span style={{ display: "block", fontSize: 10.5, color: "#94a3b8", fontWeight: 700, marginTop: 3, lineHeight: 1.5 }}>
-              オフなら「見るだけ」。オンにすると相手が中身をひらけるようになり、
-              その作品には<b>あなたの名前が残ります</b>。
+              {t(locale, "editor_68414d")}<b>{t(locale, "editor_6a38b7")}</b>{t(locale, "punct.period")}
             </span>
           </span>
         </label>
 
         <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
           <button onClick={copy} disabled={!url || tooBig} style={{ ...btn, flex: 1, opacity: url && !tooBig ? 1 : 0.5 }}>
-            {copied ? "✓ コピーした！" : "🔗 リンクをコピー"}
+            {copied ? t(locale, "editor_64cd3f") : t(locale, "editor_f1e1d8")}
           </button>
           {canShare && (
             <button onClick={send} disabled={!url || tooBig} style={{ ...btn, background: "linear-gradient(135deg,#93c5fd,#3b82f6)", boxShadow: "0 4px 0 #1d4ed8", color: "#fff", opacity: url && !tooBig ? 1 : 0.5 }}>
-              📤 おくる
-            </button>
+              {t(locale, "editor_943259")}</button>
           )}
         </div>
 
@@ -183,10 +179,8 @@ export default function ShareDialog({
               dangerouslySetInnerHTML={{ __html: qr }}
             />
             <p style={{ fontSize: 11.5, fontWeight: 800, color: "#475569", lineHeight: 1.6 }}>
-              📷 目の前のともだちには、これを読んでもらうのが早いよ。
-              <span style={{ display: "block", color: "#94a3b8", fontWeight: 700, marginTop: 3 }}>
-                カメラを向けるだけ。ネットにつながっていなくても渡せる。
-              </span>
+              {t(locale, "editor_5e1292")}<span style={{ display: "block", color: "#94a3b8", fontWeight: 700, marginTop: 3 }}>
+                {t(locale, "editor_d0f320")}</span>
             </p>
           </div>
         )}
@@ -197,7 +191,7 @@ export default function ShareDialog({
 
         <p style={{ fontSize: 10.5, color: "#94a3b8", fontWeight: 700, marginTop: 10, lineHeight: 1.6 }}>
           {tooBig
-            ? "⚠️ 作品が大きすぎてリンクにできませんでした。カードを減らすか、分けて送ってね。"
+            ? t(locale, "editor_513485")
             : `この作品はリンクの中（${url.length} 文字）に入っています。サーバーには何も送られません。`}
         </p>
       </div>

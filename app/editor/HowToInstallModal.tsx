@@ -13,6 +13,7 @@
 import { useEffect, useRef, useState } from "react";
 import { X, Smartphone, Monitor, Sparkles, CheckCircle2, AlertTriangle } from "lucide-react";
 import { useEditorStore } from "./store";
+import { t } from "@/lib/i18n";
 
 type Edition = "bedrock" | "java";
 
@@ -29,6 +30,7 @@ function slugOf(name: string): string {
 }
 
 export default function HowToInstallModal({ isOpen, onClose, projectName = "my_addon" }: Props) {
+    const locale = useEditorStore((s) => s.locale);
   const [deviceTab, setDeviceTab] = useState<"ios" | "android" | "pc">("ios");
   const targetPlatform = useEditorStore((s) => s.targetPlatform);
 
@@ -59,12 +61,11 @@ export default function HowToInstallModal({ isOpen, onClose, projectName = "my_a
             <span className="text-2xl">{isJava ? "🟧" : "🟩"}</span>
             <div>
               <h2 className="font-extrabold text-lg text-yellow-300 drop-shadow-md">
-                マイクラへのあそびかたガイド 🎮
-              </h2>
+                {t(locale, "editor_4aa38d")}</h2>
               <p className={`text-xs font-bold ${isJava ? "text-orange-100" : "text-emerald-100"}`}>
                 {isJava
-                  ? "ダウンロードした MOD をマイクラに入れよう！"
-                  : "ダウンロードしたアドオンをマイクラに入れよう！"}
+                  ? t(locale, "editor_04f037")
+                  : t(locale, "editor_f1d0a2")}
               </p>
             </div>
           </div>
@@ -85,7 +86,7 @@ export default function HowToInstallModal({ isOpen, onClose, projectName = "my_a
                 !isJava ? "bg-emerald-500 text-slate-950 shadow-md scale-105" : "text-slate-400 hover:text-white"
               }`}
             >
-              🟢 統合版<span className="hidden sm:inline">（スマホ・Switch）</span>
+              {t(locale, "editor_95c92d")}<span className="hidden sm:inline">{t(locale, "editor_ff43b9")}</span>
               <span className="block font-mono text-[10px] opacity-80">.mcaddon</span>
             </button>
             <button
@@ -94,7 +95,7 @@ export default function HowToInstallModal({ isOpen, onClose, projectName = "my_a
                 isJava ? "bg-orange-500 text-slate-950 shadow-md scale-105" : "text-slate-400 hover:text-white"
               }`}
             >
-              🟠 Java版<span className="hidden sm:inline">（パソコン）</span>
+              {t(locale, "editor_4f382b")}<span className="hidden sm:inline">{t(locale, "editor_c407de")}</span>
               <span className="block font-mono text-[10px] opacity-80">.jar</span>
             </button>
           </div>
@@ -132,51 +133,41 @@ export default function HowToInstallModal({ isOpen, onClose, projectName = "my_a
                       : "text-slate-400 hover:text-white"
                   }`}
                 >
-                  <Monitor size={14} /> パソコン(Win)
-                </button>
+                  <Monitor size={14} /> {t(locale, "editor_b92760")}</button>
               </div>
 
               {/* ステップ案内 */}
               <div className="space-y-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
                 {deviceTab === "ios" && (
                   <>
-                    <Step n={1} title="ファイルを開く">
-                      「ファイル」アプリの「ダウンロード」フォルダにある <Code>{slug}.mcaddon</Code> をタップ！
-                    </Step>
-                    <Step n={2} title="「Minecraft」を選択">
-                      共有メニューが表示されたら、「Minecraft」アイコンをえらんで開きます。
-                    </Step>
-                    <Step n={3} title="ワールドでオンにする！">
-                      マイクラが自動起動してインポートされます。「ワールド設定 ➔ ビヘイビアーパック」でONにすれば完了！✨
-                    </Step>
+                    <Step n={1} title={t(locale, "editor_556dcf")}>
+                      {t(locale, "editor_c572de")}<Code>{slug}.mcaddon</Code> {t(locale, "editor_9df7a6")}</Step>
+                    <Step n={2} title={t(locale, "editor_ff2d46")}>
+                      {t(locale, "editor_df25fc")}</Step>
+                    <Step n={3} title={t(locale, "editor_b5102d")}>
+                      {t(locale, "editor_156181")}</Step>
                   </>
                 )}
 
                 {deviceTab === "android" && (
                   <>
-                    <Step n={1} title="ダウンロードを開く">
-                      ブラウザの通知または「ファイル」アプリから <Code>{slug}.mcaddon</Code> をタップ！
-                    </Step>
-                    <Step n={2} title="マイクラで開く">
-                      「このアプリで開く」で「Minecraft」を選びます。
-                    </Step>
-                    <Step n={3} title="ワールドに適用する！">
-                      ワールド編集画面の「ビヘイビアーパック」でアドオンを有効化して遊ぼう！🎉
-                    </Step>
+                    <Step n={1} title={t(locale, "editor_105128")}>
+                      {t(locale, "editor_a30ffa")}<Code>{slug}.mcaddon</Code> {t(locale, "editor_9df7a6")}</Step>
+                    <Step n={2} title={t(locale, "editor_54fe2a")}>
+                      {t(locale, "editor_7372ff")}</Step>
+                    <Step n={3} title={t(locale, "editor_eae23e")}>
+                      {t(locale, "editor_5e4832")}</Step>
                   </>
                 )}
 
                 {deviceTab === "pc" && (
                   <>
-                    <Step n={1} title="ファイルをダブルクリック">
-                      ダウンロードした <Code>{slug}.mcaddon</Code> ファイルをダブルクリックするだけ！
-                    </Step>
-                    <Step n={2} title="自動インポート完了">
-                      Minecraft（統合版）が自動で起動し、上部に「インポート完了」と出ます。
-                    </Step>
-                    <Step n={3} title="ワールドに追加！">
-                      ワールドの設定から「ビヘイビアーパック」を選んで「有効化」すればすぐに冒険できます！
-                    </Step>
+                    <Step n={1} title={t(locale, "editor_2fadfd")}>
+                      {t(locale, "editor_736d6d")}<Code>{slug}.mcaddon</Code> {t(locale, "editor_3d0411")}</Step>
+                    <Step n={2} title={t(locale, "editor_bb7a1a")}>
+                      {t(locale, "editor_e0afb4")}</Step>
+                    <Step n={3} title={t(locale, "editor_ebbfa9")}>
+                      {t(locale, "editor_b53750")}</Step>
                   </>
                 )}
               </div>
@@ -185,8 +176,7 @@ export default function HowToInstallModal({ isOpen, onClose, projectName = "my_a
               <div className="bg-emerald-950/40 p-3 rounded-xl border border-emerald-800/60 flex items-center gap-2 text-xs text-emerald-200">
                 <Sparkles className="text-yellow-400 flex-shrink-0" size={18} />
                 <span>
-                  ワールドの「ベータ機能（実験的機能）」をONにすると、アドオンがより確実に動くよ！
-                </span>
+                  {t(locale, "editor_8a2f4d")}</span>
               </div>
             </>
           )}
@@ -199,65 +189,46 @@ export default function HowToInstallModal({ isOpen, onClose, projectName = "my_a
               <div className="bg-orange-950/50 p-3 rounded-xl border border-orange-700/60 flex items-start gap-2 text-xs text-orange-100">
                 <Monitor className="text-orange-300 flex-shrink-0 mt-0.5" size={18} />
                 <span>
-                  Java版は <b className="text-yellow-300">パソコンのマイクラだけ</b>で遊べます。
-                  スマホ・Switch・Xbox のマイクラ（統合版）には入れられません。
-                </span>
+                  {t(locale, "editor_2e1c2f")}<b className="text-yellow-300">{t(locale, "editor_f6d349")}</b>{t(locale, "editor_ca76c7")}</span>
               </div>
 
               <div className="space-y-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
-                <Step n={1} title="Forge 1.20.1 を入れる" java>
-                  MOD を動かすための土台です。<b className="text-yellow-300">files.minecraftforge.net</b> から
-                  <b className="text-yellow-300"> 1.20.1</b> のインストーラーをダウンロードし、
-                  「Install client」で入れます。
-                  <span className="block mt-1 text-orange-300/90">
-                    ⚠️ バージョンが 1.20.1 でないと、作った MOD は読み込まれません。
-                  </span>
+                <Step n={1} title={t(locale, "editor_3500b0")} java>
+                  {t(locale, "editor_0a6211")}<b className="text-yellow-300">files.minecraftforge.net</b> {t(locale, "editor_0dbdaf")}<b className="text-yellow-300"> 1.20.1</b> {t(locale, "editor_29ef07")}<span className="block mt-1 text-orange-300/90">
+                    {t(locale, "editor_a07385")}</span>
                 </Step>
-                <Step n={2} title="mods フォルダを開く" java>
-                  Forge を入れて一度マイクラを起動すると <Code java>mods</Code> フォルダができます。
-                  <span className="block mt-1">
-                    Windows … <Code java>Win + R</Code> を押して <Code java>%appdata%\.minecraft\mods</Code>
+                <Step n={2} title={t(locale, "editor_30631a")} java>
+                  {t(locale, "editor_1b5ea6")}<Code java>mods</Code> {t(locale, "editor_8bd353")}<span className="block mt-1">
+                    Windows … <Code java>Win + R</Code> {t(locale, "editor_d35c70")}<Code java>%appdata%\.minecraft\mods</Code>
                   </span>
                   <span className="block">
                     Mac … <Code java>~/Library/Application Support/minecraft/mods</Code>
                   </span>
                   <span className="block mt-1 text-slate-400">
-                    見あたらないときは、自分で <Code java>mods</Code> という名前のフォルダを作ってOK。
-                  </span>
+                    {t(locale, "editor_fc4af4")}<Code java>mods</Code> {t(locale, "editor_ebd787")}</span>
                 </Step>
-                <Step n={3} title=".jar をそのまま置く" java>
-                  ダウンロードした <Code java>{slug}-mod.jar</Code> を、その mods フォルダに
-                  <b className="text-yellow-300">コピーするだけ</b>。
+                <Step n={3} title={t(locale, "editor_0155d2")} java>
+                  {t(locale, "editor_736d6d")}<Code java>{slug}-mod.jar</Code> {t(locale, "editor_73efd8")}<b className="text-yellow-300">{t(locale, "editor_c0380a")}</b>{t(locale, "punct.period")}
                   <span className="block mt-1 text-orange-300/90">
-                    ⚠️ 開いたり、展開（解凍）したりしないこと。ファイルのまま置きます。
-                  </span>
+                    {t(locale, "editor_07388c")}</span>
                   {/* ⚠️ 実際に踏んだ落とし穴（2026-08-30）。Forge は .jar のファイル名から
                       Java のモジュール名を作るので、日本語が入っていると名前が空になり
                       「Invalid module name」で**MOD読み込みより前に落ちる**。
                       出るのは意味不明な英語のエラーだけで、利用者には
                       「MODを入れたらマイクラが壊れた」としか見えない。 */}
                   <span className="block mt-1 text-orange-300/90">
-                    ⚠️ <b className="text-yellow-300">名前を日本語に変えないでください。</b>
-                    「まほうのMOD.jar」のようにすると、マイクラが起動しなくなります。
-                    変えたいときは英語と数字だけで。
-                  </span>
+                    ⚠️ <b className="text-yellow-300">{t(locale, "editor_e02f49")}</b>
+                    {t(locale, "editor_567000")}</span>
                 </Step>
-                <Step n={4} title="Forge で起動する！" java>
-                  マイクラのランチャーで、遊び方（プロファイル）を
-                  <b className="text-yellow-300">「forge」</b>に切り替えてプレイ。
-                  ワールドに入るとチャットにメッセージが出て、作ったブロックは
-                  クリエイティブの持ち物に並びます！🎉
-                </Step>
+                <Step n={4} title={t(locale, "editor_2c2bdb")} java>
+                  {t(locale, "editor_41a6b6")}<b className="text-yellow-300">「forge」</b>{t(locale, "editor_827901")}</Step>
               </div>
 
               <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800 flex items-start gap-2 text-xs text-slate-300">
                 <AlertTriangle className="text-amber-400 flex-shrink-0 mt-0.5" size={18} />
                 <span>
-                  何も起きないときは、
-                  <b className="text-yellow-300">①ランチャーが「forge」になっているか</b>、
-                  <b className="text-yellow-300">②置いた場所が本当に mods フォルダか</b> の順に見てね。
-                  だいたいこのどちらかです。
-                </span>
+                  {t(locale, "editor_adfcdc")}<b className="text-yellow-300">{t(locale, "editor_dd54b0")}</b>{t(locale, "punct.comma")}
+                  <b className="text-yellow-300">{t(locale, "editor_88ef5a")}</b> {t(locale, "editor_67725f")}</span>
               </div>
             </>
           )}
@@ -272,8 +243,7 @@ export default function HowToInstallModal({ isOpen, onClose, projectName = "my_a
             }`}
           >
             <CheckCircle2 size={18} />
-            わかった！マイクラであそぶ 🎉
-          </button>
+            {t(locale, "editor_253421")}</button>
         </div>
       </div>
     </div>

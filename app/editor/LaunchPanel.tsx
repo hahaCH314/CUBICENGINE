@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useEditorStore } from "./store";
 import { buildJavaFileList } from "./exporter";
+import { t } from "@/lib/i18n";
 
 /* ══════════════════════════════════════════════════════════
    型定義
@@ -57,6 +58,7 @@ function Step({ n, label, done, active }: { n: number; label: string; done: bool
 ══════════════════════════════════════════════════════════ */
 
 export default function LaunchPanel() {
+    const locale = useEditorStore((s) => s.locale);
   const projectName = useEditorStore(s => s.projectName);
   // store state は buildAndLaunch 内で直接取得する
 
@@ -91,7 +93,7 @@ export default function LaunchPanel() {
   const buildAndLaunch = useCallback(async () => {
     if (!status?.modsDir) return;
     setPhase("building");
-    setLogs(["🚀 ビルド開始..."]);
+    setLogs([t(locale, "editor_7c610a")]);
     setJarName("");
 
     // ログリスナー登録
@@ -133,11 +135,9 @@ export default function LaunchPanel() {
       <div style={{ padding: 40, textAlign: "center" }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>🖥️</div>
         <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>
-          ランチャーは .exe 版のみ利用できます
-        </h2>
+          {t(locale, "editor_e68c92")}</h2>
         <p style={{ color: "#888", fontSize: 13 }}>
-          デスクトップアプリ（CUBICENGINE デスクトップ版）を使用してください。
-        </p>
+          {t(locale, "editor_766472")}</p>
       </div>
     );
   }
@@ -150,27 +150,25 @@ export default function LaunchPanel() {
         {/* ヘッダー */}
         <div style={{ marginBottom: 10, flexShrink: 0 }}>
           <h2 style={{ fontSize: 18, fontWeight: 800, color: "#222" }}>
-            ☕ Java Minecraft ランチャー
-          </h2>
+            {t(locale, "editor_582d2a")}</h2>
           <p style={{ fontSize: 12, color: "#888" }}>
-            作成した Mod をワンクリックでビルド・インストール・起動。
-          </p>
+            {t(locale, "editor_ac596b")}</p>
         </div>
 
         {/* ステップ表示（横並び・コンパクト） */}
         <div style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 10, flexShrink: 0,
           padding: "12px 14px", background: "#fff", borderRadius: 14,
           border: "2px solid #e8eaf0", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-          <Step n={1} label="Minecraft 環境を検出"
+          <Step n={1} label={t(locale, "editor_61a7e1")}
             done={phase !== "idle" && phase !== "detecting"}
             active={phase === "detecting"} />
-          <Step n={2} label="Forge Mod をビルド（JDK 17 必要）"
+          <Step n={2} label={t(locale, "editor_f094ab")}
             done={phase === "done"}
             active={phase === "building"} />
-          <Step n={3} label="mods/ フォルダへインストール"
+          <Step n={3} label={t(locale, "editor_c1eaf3")}
             done={phase === "done"}
-            active={phase === "building" && logs.some(l => l.includes("インストール"))} />
-          <Step n={4} label="Minecraft ランチャーを起動"
+            active={phase === "building" && logs.some(l => l.includes(t(locale, "editor_14b7d7")))} />
+          <Step n={4} label={t(locale, "editor_6d4c06")}
             done={false}
             active={phase === "done"} />
         </div>
@@ -179,14 +177,13 @@ export default function LaunchPanel() {
         <div style={{ flex: 1, minHeight: 0, overflowY: "auto", paddingRight: 4 }}>
         {phase === "idle" && (
           <button onClick={detect} style={primaryBtn}>
-            🔍 環境を検出する
-          </button>
+            {t(locale, "editor_a16b80")}</button>
         )}
 
         {phase === "detecting" && (
           <div style={card}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>🔍</div>
-            <div style={{ fontWeight: 700 }}>Minecraft を探しています...</div>
+            <div style={{ fontWeight: 700 }}>{t(locale, "editor_f082c3")}</div>
           </div>
         )}
 
@@ -195,22 +192,21 @@ export default function LaunchPanel() {
             {/* 検出結果 */}
             <div style={card}>
               <div style={{ fontSize: 13, fontWeight: 800, color: "#6c5ce7", marginBottom: 10 }}>
-                🔎 検出結果
-              </div>
-              <InfoRow label="Minecraft フォルダ"
-                value={status.minecraftDir || "❌ 見つかりません"}
+                {t(locale, "editor_50fe06")}</div>
+              <InfoRow label={t(locale, "editor_58cd01")}
+                value={status.minecraftDir || t(locale, "editor_ca0d6f")}
                 ok={!!status.minecraftDir} />
-              <InfoRow label="mods/ フォルダ"
-                value={status.modsDir || "❌ 見つかりません"}
+              <InfoRow label={t(locale, "editor_5111d8")}
+                value={status.modsDir || t(locale, "editor_ca0d6f")}
                 ok={!!status.modsDir} />
-              <InfoRow label="Minecraft ランチャー"
-                value={status.launcherPath ? "✅ 検出" : "⚠️ 見つかりません（手動で起動）"}
+              <InfoRow label={t(locale, "editor_96967f")}
+                value={status.launcherPath ? t(locale, "editor_fe971d") : t(locale, "editor_cc9a87")}
                 ok={!!status.launcherPath} />
               <InfoRow label="Java (JDK)"
-                value={status.hasJava ? `✅ ${status.javaVersion}` : "❌ 未インストール"}
+                value={status.hasJava ? `✅ ${status.javaVersion}` : t(locale, "editor_7b259d")}
                 ok={status.hasJava} />
               {status.forgeVersions.length > 0 && (
-                <InfoRow label="Forge バージョン"
+                <InfoRow label={t(locale, "editor_cb9b3b")}
                   value={status.forgeVersions.join(", ")}
                   ok={true} />
               )}
@@ -220,16 +216,13 @@ export default function LaunchPanel() {
             {!status.hasJava && (
               <div style={{ ...card, background: "#fff3e0", border: "2px solid #ffcc80" }}>
                 <div style={{ fontWeight: 700, color: "#e67e22", marginBottom: 6 }}>
-                  ⚠️ JDK 17 以上が必要です
-                </div>
+                  {t(locale, "editor_f3092f")}</div>
                 <div style={{ fontSize: 12, color: "#888", marginBottom: 10 }}>
-                  Forge Mod のビルドには Java Development Kit が必要です。
-                </div>
+                  {t(locale, "editor_499570")}</div>
                 <a href="https://adoptium.net"
                   onClick={e => { e.preventDefault(); (window as any).electronAPI && shell_open("https://adoptium.net"); }}
                   style={{ fontSize: 12, color: "#6c5ce7", fontWeight: 700 }}>
-                  → Adoptium から JDK 17 をダウンロード
-                </a>
+                  {t(locale, "editor_b99eed")}</a>
               </div>
             )}
 
@@ -237,12 +230,9 @@ export default function LaunchPanel() {
             {!status.minecraftDir && (
               <div style={{ ...card, background: "#fce4ec", border: "2px solid #f48fb1" }}>
                 <div style={{ fontWeight: 700, color: "#c2185b" }}>
-                  ❌ Minecraft Java Edition が見つかりません
-                </div>
+                  {t(locale, "editor_e6388e")}</div>
                 <div style={{ fontSize: 12, color: "#888" }}>
-                  先に Minecraft Java Edition をインストールして、
-                  一度起動して .minecraft フォルダを作成してください。
-                </div>
+                  {t(locale, "editor_efdbec")}</div>
               </div>
             )}
 
@@ -251,12 +241,10 @@ export default function LaunchPanel() {
               <button onClick={buildAndLaunch}
                 disabled={!status.hasJava || !status.modsDir}
                 style={!status.hasJava || !status.modsDir ? disabledBtn : primaryBtn}>
-                🔨 Modをビルドしてインストール
-              </button>
+                {t(locale, "editor_ed0612")}</button>
               {status.modsDir && (
                 <button onClick={() => api.openModsDir(status.modsDir)} style={secondaryBtn}>
-                  📂 mods/ を開く
-                </button>
+                  {t(locale, "editor_5f2909")}</button>
               )}
             </div>
           </div>
@@ -267,8 +255,7 @@ export default function LaunchPanel() {
           <div style={{ marginTop: 16, ...card, padding: 0, overflow: "hidden" }}>
             <div style={{ padding: "10px 14px", background: "var(--surface)",
               fontSize: 11, fontWeight: 700, color: "var(--accent)" }}>
-              🔨 ビルドログ
-            </div>
+              {t(locale, "editor_7f316d")}</div>
             <div style={{ background: "var(--surface-hover)", padding: "10px 14px",
               maxHeight: 240, overflowY: "auto", fontFamily: "monospace",
               fontSize: 11, color: "#15803d", lineHeight: 1.7 }}>
@@ -284,19 +271,15 @@ export default function LaunchPanel() {
             border: "2px solid #00b894", textAlign: "center" }}>
             <div style={{ fontSize: 36, marginBottom: 8 }}>🎉</div>
             <div style={{ fontSize: 16, fontWeight: 800, color: "#00b894", marginBottom: 4 }}>
-              インストール完了！
-            </div>
+              {t(locale, "editor_d76242")}</div>
             <div style={{ fontSize: 12, color: "#555", marginBottom: 16 }}>
-              <strong>{jarName}</strong> を mods/ フォルダに追加しました。
-            </div>
+              <strong>{jarName}</strong> {t(locale, "editor_34f460")}</div>
             <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
               <button onClick={launch} style={primaryBtn}>
-                🚀 Minecraft を起動
-              </button>
+                {t(locale, "editor_e27ac6")}</button>
               {status?.modsDir && (
                 <button onClick={() => api.openModsDir(status.modsDir)} style={secondaryBtn}>
-                  📂 mods/ を確認
-                </button>
+                  {t(locale, "editor_35c22d")}</button>
               )}
             </div>
           </div>
@@ -305,14 +288,14 @@ export default function LaunchPanel() {
         {/* エラー */}
         {phase === "error" && (
           <div style={{ ...card, background: "#fce4ec", border: "2px solid #f48fb1" }}>
-            <div style={{ fontWeight: 800, color: "#c2185b", marginBottom: 8 }}>❌ エラーが発生しました</div>
+            <div style={{ fontWeight: 800, color: "#c2185b", marginBottom: 8 }}>{t(locale, "editor_332567")}</div>
             <pre style={{ fontSize: 11, color: "#555", whiteSpace: "pre-wrap",
               background: "#fff0f3", borderRadius: 8, padding: 10, marginBottom: 12 }}>
               {errMsg}
             </pre>
 
             {/* Gradle 未インストール時は自動インストールボタンを出す */}
-            {errMsg.includes("Gradle がインストールされていません") && isElectron && (
+            {errMsg.includes(t(locale, "editor_4df314")) && isElectron && (
               <button
                 onClick={async () => {
                   setPhase("building");
@@ -320,7 +303,7 @@ export default function LaunchPanel() {
                   try {
                     await api.installGradle();
                     setPhase("ready");
-                    alert("✅ インストール完了！アプリを再起動してから「Minecraftにインストール」を押してください。");
+                    alert(t(locale, "editor_511dfb"));
                   } catch (e: any) {
                     setErrMsg(e.message);
                     setPhase("error");
@@ -328,21 +311,18 @@ export default function LaunchPanel() {
                 }}
                 style={{ ...secondaryBtn, background: "#4caf50", color: "#fff", marginBottom: 8,
                   fontWeight: 800, fontSize: 13, padding: "10px 20px" }}>
-                🪄 Gradle を自動インストール（おまかせ）
-              </button>
+                {t(locale, "editor_e588db")}</button>
             )}
 
             <button onClick={() => { setPhase("ready"); setErrMsg(""); }} style={secondaryBtn}>
-              もう一度試す
-            </button>
+              {t(locale, "editor_f28ac9")}</button>
           </div>
         )}
 
         {/* 再検出ボタン */}
         {phase !== "idle" && phase !== "detecting" && phase !== "building" && (
           <button onClick={detect} style={{ ...secondaryBtn, marginTop: 12, fontSize: 11 }}>
-            🔄 再検出
-          </button>
+            {t(locale, "editor_47a065")}</button>
         )}
         </div>
       </div>
