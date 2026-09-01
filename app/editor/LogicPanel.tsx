@@ -2471,13 +2471,11 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
   // 説明書を見た印。⚠️ 中身を作り直したら、この番号を上げること。
   // 上げないと、前の説明書を見たことがある人には新しいものが一生出ない。
   // v2 = 横スワイプの5枚組（文字だらけで読みにくい、と言われて作り直した版）
+  //
+  // ⚠️ 自動で出す判定は simpleMode を見るので、この下ではなく
+  //    simpleMode を宣言したあと（toggleSimple の直後）に置いてある。
+  //    ここに書くと const simpleMode の初期化前に依存配列が読まれて落ちる。
   const TUTORIAL_SEEN_KEY = "mmc-tutorial-seen-v2";
-  useEffect(() => {
-    try {
-      if (localStorage.getItem(TUTORIAL_SEEN_KEY)) return;
-    } catch { return; } // localStorage が使えない環境では出さない（毎回出るのを防ぐ）
-    setShowTutorial(true);
-  }, []);
   const closeTutorial = useCallback(() => {
     setShowTutorial(false);
     try { localStorage.setItem(TUTORIAL_SEEN_KEY, "1"); } catch { }
@@ -2494,14 +2492,34 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
   // 初心者モード。ONだと STARTER_TYPES の12種だけ見せる。
   // 初期値は「はじめて開いた人= ON」。一度切り替えたら localStorage で覚える
   const [simpleMode, setSimpleMode] = useState(true);
+  // localStorage を読み終えたか。⚠️ これが無いと、まだ既定値(true)のうちに
+  // 説明書の判定が走り、「ぜんぶ」を選んでいる人にも一瞬出てしまう。
+  // 初期値を localStorage から直接作れないのは、サーバ側で描くときに
+  // localStorage が無く、画面の食い違い(hydration mismatch)になるため。
+  const [simpleLoaded, setSimpleLoaded] = useState(false);
   useEffect(() => {
     try { const v = localStorage.getItem("ce-simple-mode"); if (v !== null) setSimpleMode(v === "1"); } catch {}
+    setSimpleLoaded(true);
   }, []);
   const toggleSimple = () => setSimpleMode(prev => {
     const next = !prev;
     try { localStorage.setItem("ce-simple-mode", next ? "1" : "0"); } catch {}
+    // 「かんたん」に切り替えるのは “説明がほしい” という意思表示なので、
+    // 一度見たあとでも説明書を出し直す。逆（ぜんぶへ）のときは出さない。
+    if (next) setShowTutorial(true);
     return next;
   });
+
+  // 説明書を自動で出す判定。**初心者モードの人にだけ出す。**
+  // 「ぜんぶ」を自分で選んだ人は、もう案内が要らないと判断している。
+  // simpleLoaded を待つのは、既定値のまま判定して誤爆させないため。
+  useEffect(() => {
+    if (!simpleLoaded || !simpleMode) return;
+    try {
+      if (localStorage.getItem(TUTORIAL_SEEN_KEY)) return;
+    } catch { return; } // localStorage が使えない環境では出さない（毎回出るのを防ぐ）
+    setShowTutorial(true);
+  }, [simpleLoaded, simpleMode, TUTORIAL_SEEN_KEY]);
   const [activeGroup, setActiveGroup] = useState<string>("when");
   const [selectedTemplate, setSelectedTemplate] = useState<Tmpl | null>(null);
 
