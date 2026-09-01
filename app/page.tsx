@@ -10,6 +10,7 @@ import DraggableLogo from "./DraggableLogo";
 import LaserBlast from "./LaserBlast";
 import CubeParticles from "./CubeParticles";
 import ForestLineArt from "./ForestLineArt";
+import { IS_STORE_BUILD } from "../lib/build";
 
 // 子どもでも読みやすいよう、意味のかたまり単位で改行する（かたまりの途中では折り返さない）
 // ※スマホ(狭い画面)では、かたまりが画面幅を超えて横にはみ出すのを防ぐため折り返しを許可。
@@ -498,9 +499,11 @@ export default function HomePage() {
                  タイトルと同じ箱に入れて、隣であることを保つ。
               ⚠️ スマホでは出さない。タイトルが小さくなるので、170pxのキューブが
                  隣に並ぶと文字を押しつぶす。 */}
-          <div className="hidden sm:block absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[130px] z-10">
-            <DraggableLogo />
-          </div>
+          {!IS_STORE_BUILD && (
+            <div className="hidden sm:block absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[130px] z-10">
+              <DraggableLogo />
+            </div>
+          )}
           <h1
             className="text-[clamp(1.2rem,7vw,3rem)] sm:text-6xl md:text-7xl font-pixel tracking-normal sm:tracking-wider animate-float-slow"
             style={{
