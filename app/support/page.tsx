@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Compass, Gem, Sparkles } from "lucide-react";
+import { IS_STORE_BUILD } from "../../lib/build";
 
 export const metadata: Metadata = {
   title: "開発を応援する",
@@ -129,6 +130,11 @@ export default function SupportPage() {
         </div>
 
         {/* 寄付ボタン */}
+        {/* ⚠️ アプリ版(App Store / Google Play)では **ボタンごと出力しない**（IS_STORE_BUILD）。
+            アプリ内から外部の決済ページへ誘導することになるため（App Store 3.1.1）。
+            「準備中」表示にも落とさない。準備中＝あとから現れるもの、と読めてしまい、
+            5.6（隠し機能）の指摘を蒸し返すことになる。詳細は lib/build.ts。 */}
+        {!IS_STORE_BUILD && (
         <div className="mt-6">
           {DONATE_URL ? (
             <>
@@ -157,6 +163,7 @@ export default function SupportPage() {
             </span>
           )}
         </div>
+        )}
 
         {/* お知らせ・連絡（非公式 / Discord は1行、返金不可はその下の行へ） */}
         <div className="mt-8 space-y-1.5 text-xs text-gray-400 leading-relaxed">

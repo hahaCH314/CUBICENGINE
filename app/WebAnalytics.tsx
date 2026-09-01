@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from 'react'
 import { Analytics } from '@vercel/analytics/next'
+import { IS_STORE_BUILD } from '../lib/build'
 
 /**
  * Vercel Web Analytics（来訪者数の計測）。Web版のみ。
@@ -40,14 +41,20 @@ const getServerSnapshot = () => false
 const getSnapshot = () =>
   !(window as MaybeElectronWindow).electronAPI?.isElectron
 
-// Android版はビルド時点で確定する。process.env はここで値に置き換わるので、
-// Android ビルドの out/ には Analytics のコードごと入らない
-const IS_ANDROID = process.env.MMC_TARGET === 'android'
-
+// アプリ版(App Store / Google Play)はビルド時点で確定する。
+//
+// ⚠️ 以前ここは `process.env.MMC_TARGET === 'android'` を見ていたが、**効いていなかった**。
+//    クライアントコンポーネントに埋め込まれる env は `NEXT_PUBLIC_` 接頭辞付きだけで、
+//    接頭辞の無い MMC_TARGET は実行時 undefined になる（ビルド後の out/ を読むと
+//    `"android"===process.env.MMC_TARGET` が実行時判定のまま残っているのが確認できる）。
+//    その結果アプリ版でも <Analytics /> がマウントされ、同一オリジンの
+//    /_vercel/insights/script.js を取りに行って 404 になっていた
+//    （端末外へデータは出ないが、「計測しない」という設計意図は壊れていた）。
+//    → NEXT_PUBLIC_ 付きの IS_STORE_BUILD で判定する。詳細は lib/build.ts。
 export default function WebAnalytics() {
   const isWeb = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 
-  if (IS_ANDROID) return null
+  if (IS_STORE_BUILD) return null
   if (process.env.NODE_ENV !== 'production') return null
   if (!isWeb) return null
 

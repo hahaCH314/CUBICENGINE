@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 import { useEditorStore } from "./store";
 import { JAVA_TARGET_LIST, getJavaTarget } from "../../lib/javaEngine/targets";
 import { exportProject, buildJavaFileList } from "./exporter";
+import { isThemeSongEnabled, setThemeSongEnabled, subscribeThemeSong } from "../../lib/themeSong";
 
 /* ═══════════════════════════════════════════
    Toggle Switch
@@ -335,6 +336,17 @@ export default function SettingsPanel() {
   const [gridSnap, setGridSnap] = useState(true);
   const [autoUuid, setAutoUuid] = useState(true);
 
+  // テーマ曲（完成のときの音楽）のオン/オフ。実体は localStorage で lib/themeSong.ts が持つ。
+  // ⚠️ useState + useEffect で読み込まないこと。サーバ側で描くときは localStorage が
+  //    無いので初期値を直接作れず、useEffect で入れ直すと画面の食い違い(hydration mismatch)を
+  //    避けるために書いたコードが、今度は setState-in-effect になる。
+  //    購読口が themeSong.ts にあるので、外部ストアとして読むのが素直。
+  const themeSongOn = useSyncExternalStore(
+    subscribeThemeSong,
+    isThemeSongEnabled,
+    () => true, // サーバ側では既定（鳴らす）
+  );
+
   // エディターテーマ（CSS変数を data-theme で切替・localStorage記憶）
   const [theme, setTheme] = useState("dark");
   useEffect(() => {
@@ -416,6 +428,19 @@ export default function SettingsPanel() {
                 </Row>
               )}
             </div>
+          </div>
+
+          {/* 音の設定。⚠️ 下の「エディター」カードと違って pro で囲まないこと。
+              アプリ版(統合版)は常に かんたん なので、pro の中に入れると
+              いちばん止めたい人（スマホの子）から設定が見えなくなる。 */}
+          <div className="bg-panel rounded-xl border border-border p-3">
+            <div className="text-[10px] font-bold text-accent uppercase tracking-wider mb-1">音</div>
+            <Row label="完成のときに音楽">
+              <Toggle value={themeSongOn} onChange={setThemeSongEnabled} />
+            </Row>
+            <p className="text-[9px] text-muted/50 leading-tight mt-1">
+              「アドオン完成！」を押すとテーマ曲が流れます。鳴っている間は左下の「🎵 とめる」で止められます。
+            </p>
           </div>
 
           {/* エディター設定（プロのみ） */}
