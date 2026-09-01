@@ -70,8 +70,7 @@ function EffectList({
       {tNode(locale, "editor_frag_1a05c06809b_31", { arg0: <div className="text-xs font-bold">
         {title}
         <span className="block text-[10px] text-muted/50 font-normal">{hint}</span>
-      </div>, arg1: {/* ⚠️ choices が空だと choices[0].id で落ちる。今の分類では起きないが、
-          効果を足したり分類を変えたときに空になりうる */} })}</div>
+      </div>, })}</div>
   );
 }
 
@@ -103,9 +102,7 @@ function ItemCard({ item }: { item: ItemIR }) {
         </div>
         <button onClick={() => remove(item.id)} className="text-[11px] px-2 py-1 rounded hover:bg-white/10 text-muted/70">
           {t(locale, "editor_873613")}</button>
-      </div>, arg1: {/* ⚠️ 重ねられる数だけは 1〜64 を外さないこと。マイクラのスロットは64個までで、
-          65以上を書くとアイテムごと読み込まれない（他の数値と違い上限が要る） */}, arg2: {/* 種類は排他。食べられる剣は作れてしまうが、持ち替えるたびに
-          食べる動作が出て使い物にならないので、選ばせる形にする */}, arg3: <div className="flex flex-col gap-1">
+      </div>,   arg3: <div className="flex flex-col gap-1">
         {([
           ["plain", t(locale, "editor_3e9a04"), t(locale, "editor_e75a4d")],
           ["food", t(locale, "editor_d60079"), t(locale, "editor_b56691")],
@@ -134,9 +131,7 @@ function ItemCard({ item }: { item: ItemIR }) {
             </span>
           </label>
         ))}
-      </div>, arg4: {/* ── 技。武器・防具・ただのアイテムに付けられる ──
-          ⚠️ 食べ物には付けられない。どちらも右クリックを使うため、
-             use_modifiers を奪い合って技が黙って効かなくなる */}, arg5: <div className="flex flex-col gap-2">
+      </div>,  arg5: <div className="flex flex-col gap-2">
         <label className={`flex items-center gap-2 text-xs ${food ? "opacity-40" : "cursor-pointer"}`}>
           <input type="checkbox" checked={!!skill} disabled={!!food}
             onChange={e => update(item.id, { skill: e.target.checked ? defaultSkill() : null })} />

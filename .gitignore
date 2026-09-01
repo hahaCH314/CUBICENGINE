@@ -73,3 +73,5 @@ hs_err_pid*.log
 test-mod-out/
 test-mod.zip
 testExport.js
+
+eslint_report.json

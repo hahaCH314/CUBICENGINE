@@ -129,7 +129,7 @@ export default function TutorialOverlay({ onClose }: { onClose: () => void }) {
           display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 12,
         }}>
           
-          {tNode(locale, "editor_frag_1a05c067bf0_1", { arg0: {/* STEP 0: これは何？ */}, arg1: {/* STEP 1: きっかけを置く */}, arg2: {/* STEP 2: することを重ねる（★最重要注意点！） */}, arg3: {/* STEP 3: 完成とダウンロード */} })}</div>
+          {tNode(locale, "editor_frag_1a05c067bf0_1", {    })}</div>
 
         {/* ── フッター・ステップ操作エリア ── */}
         <div style={{

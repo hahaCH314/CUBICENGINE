@@ -1,0 +1,113 @@
+﻿name: Build Desktop and Mobile Apps
+
+on:
+  push:
+    branches:
+      - main
+      - feature/*
+  workflow_dispatch:
+
+jobs:
+  build-mac:
+    name: Build Mac (macOS)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Mac Apps (Sprout & Grove)
+        run: npm run build:all:mac
+
+      - name: Upload Mac Artifacts (Sprout)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cubicengine-mac-sprout
+          path: dist-exe/sprout/*.dmg
+          if-no-files-found: ignore
+
+      - name: Upload Mac Artifacts (Grove)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cubicengine-mac-grove
+          path: dist-exe/grove/*.dmg
+          if-no-files-found: ignore
+
+  build-win:
+    name: Build Windows (Windows)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Windows Apps (Sprout & Grove)
+        run: npm run build:all:win
+
+      - name: Upload Windows Artifacts (Sprout)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cubicengine-win-sprout
+          path: dist-exe/sprout/*.exe
+          if-no-files-found: ignore
+
+      - name: Upload Windows Artifacts (Grove)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cubicengine-win-grove
+          path: dist-exe/grove/*.exe
+          if-no-files-found: ignore
+
+  build-android:
+    name: Build Android APK (Ubuntu)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Sync Capacitor Android
+        run: npm run android:build
+        
+      - name: Build Android APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+        
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: cubicengine-android-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: ignore

@@ -15,7 +15,7 @@ import { normalizeAggression } from "../../../lib/devtab/ir";
 // マイクラが読み込みに失敗する。必ずこれを通す（理由は itemIr.ts のコメント）
 import { toNumber } from "../../../lib/devtab/itemIr";
 import type { MobIR } from "../../../lib/devtab/ir";
-import { t } from "@/lib/i18n";
+import { t, tNode } from "@/lib/i18n";
 
 // three.js は SSR 不可。ModelPanel と同じ扱いにする
 const MobPreview = dynamic(() => import("./MobPreview"), { ssr: false });

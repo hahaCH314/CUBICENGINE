@@ -873,7 +873,7 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
       }}
     >
 
-      {tNode(locale, "editor_frag_1a05c067c5b_7", { arg0: {/* ── ブロック一覧（何個でも作れる） ── */}, arg1: <div>
+      {tNode(locale, "editor_frag_1a05c067c5b_7", {  arg1: <div>
         <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2">
           {tNode(locale, "editor_frag_1a05c067c75_8", { arg0: workingBlocks.length })}</div>
         <div className="flex flex-col gap-1 max-h-48 overflow-y-auto pr-0.5 bg-[#151411] border-2 border-[#1f1e1a] mc-bevel-inset p-1" style={{ borderRadius: "6px" }}>
@@ -917,18 +917,18 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
           className="mt-2.5 w-full mc-btn mc-btn--sm mc-btn--primary"
         >
           {tNode(locale, "editor_frag_1a05c067c97_9")}</button>
-      </div>, arg2: {/* ── 本物のマイクラブロックにする ── */}, arg3: {/* ── グループ管理 ── */}, arg4: {/* ── 選択中ブロック ── */}, arg5: <div>
+      </div>,    arg5: <div>
         <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2">{t(locale, "editor_cda34e")}</div>
         {sel ? (
           <div className="space-y-4">
-            {tNode(locale, "editor_frag_1a05c067cb1_10", { arg0: {/* 名前 */}, arg1: <div>
+            {tNode(locale, "editor_frag_1a05c067cb1_10", {  arg1: <div>
               <label className="text-[11px] text-foreground/90 font-pixel block mb-1">{t(locale, "editor_5b9e23")}</label>
               <input value={sel.name}
                 onChange={(e) => updateFn(sel.id, { name: e.target.value })}
                 className="w-full px-2.5 py-1.5 bg-[#1a1916] border-2 border-[#2c2c2c] mc-bevel-inset text-xs font-mono text-foreground/90 focus:outline-none focus:border-accent/40"
                 style={{ borderRadius: "4px" }}
               />
-            </div>, arg2: {/* ── かんたんモード: 直感コントロール ── */}, arg3: {/* ── プロモード: 数値トランスフォーム等 ── */}, arg4: {/* 削除ボタン */}, arg5: <button
+            </div>,    arg5: <button
               onClick={() => removeFn(sel.id)}
               className="mt-2 mc-btn mc-btn--sm mc-btn--danger w-full"
             >
@@ -942,7 +942,7 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
         ) : (
           <p className="text-xs text-muted/50 italic leading-relaxed text-center font-pixel py-4">{t(locale, "editor_be7d73")}</p>
         )}
-      </div>, arg6: {/* ── テクスチャプリセット ── */}, arg7: <div className="border-t border-border/40 pt-3">
+      </div>,  arg7: <div className="border-t border-border/40 pt-3">
         <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2">
           {t(locale, "editor_123aef")}</div>
         <div className="grid grid-cols-2 gap-2">
@@ -964,7 +964,7 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
             </button>
           ))}
         </div>
-      </div>, arg8: {/* ── 表示設定（プロのみ） ── */}, arg9: {/* ── 最下部の岩盤（スクロール終端の遊び心） ── */}, arg10: <div className="mt-4 pt-4 border-t border-dashed border-[#1f1e1a] flex flex-col items-center justify-center opacity-40 select-none shrink-0 pb-2">
+      </div>,   arg10: <div className="mt-4 pt-4 border-t border-dashed border-[#1f1e1a] flex flex-col items-center justify-center opacity-40 select-none shrink-0 pb-2">
         <div className="w-8 h-8 bg-[#151411] border-2 border-[#1f1e1a] mc-bevel-inset flex items-center justify-center text-sm filter grayscale" style={{ borderRadius: "4px" }}>
           🧱
         </div>
@@ -1239,14 +1239,14 @@ export default function ModelPanel() {
       <div className="flex h-full flex-1 flex-col sm:flex-row">
         <ToolSidebar paintMode={paintMode} setPaintMode={setPaintMode} mode={mode} simple={simple} activeTool={activeTool} setActiveTool={setActiveTool} />
         <div className="flex-1 relative overflow-hidden bg-[#23211e] min-h-[50%]">
-          {tNode(locale, "editor_frag_1a05c067cd2_11", { arg0: <ThreeViewport paintMode={paintMode} setPaintMode={setPaintMode} mode={mode} simple={simple} activeTool={activeTool} />, arg1: {/* 初回ブロックがないときのお助けチュートリアルダイアログ */}, arg2: {/* ビューポート前面のインナービネットシャドウ（映画風・奥行き感） */}, arg3: <div className="absolute inset-0 pointer-events-none z-10 shadow-[inset_0_0_80px_rgba(0,0,0,0.65)]" />, arg4: {/* 四隅のHUDブラケット (L字型の角装飾) */}, arg5: <div className="absolute top-4 left-4 w-4 h-4 border-t-3 border-l-3 border-[#fb7185]/55 pointer-events-none z-10" />, arg6: <div className="absolute top-4 right-4 w-4 h-4 border-t-3 border-r-3 border-[#fb7185]/55 pointer-events-none z-10" />, arg7: <div className="absolute bottom-4 left-4 w-4 h-4 border-b-3 border-l-3 border-[#fb7185]/55 pointer-events-none z-10" />, arg8: <div className="absolute bottom-4 right-4 w-4 h-4 border-b-3 border-r-3 border-[#fb7185]/55 pointer-events-none z-10" />, arg9: <div className="absolute top-3 left-3 px-3 py-1.5 border-2 border-[#1f1e1a] bg-panel text-[10px] text-foreground/85 font-pixel pointer-events-none shadow-lg z-20" style={{ borderRadius: "5px" }}>
-            {tNode(locale, "editor_frag_1a05c067cf1_12")}</div>, arg10: {/* カメラの視点リセットボタン */}, arg11: <button
+          {tNode(locale, "editor_frag_1a05c067cd2_11", { arg0: <ThreeViewport paintMode={paintMode} setPaintMode={setPaintMode} mode={mode} simple={simple} activeTool={activeTool} />,   arg3: <div className="absolute inset-0 pointer-events-none z-10 shadow-[inset_0_0_80px_rgba(0,0,0,0.65)]" />,  arg5: <div className="absolute top-4 left-4 w-4 h-4 border-t-3 border-l-3 border-[#fb7185]/55 pointer-events-none z-10" />, arg6: <div className="absolute top-4 right-4 w-4 h-4 border-t-3 border-r-3 border-[#fb7185]/55 pointer-events-none z-10" />, arg7: <div className="absolute bottom-4 left-4 w-4 h-4 border-b-3 border-l-3 border-[#fb7185]/55 pointer-events-none z-10" />, arg8: <div className="absolute bottom-4 right-4 w-4 h-4 border-b-3 border-r-3 border-[#fb7185]/55 pointer-events-none z-10" />, arg9: <div className="absolute top-3 left-3 px-3 py-1.5 border-2 border-[#1f1e1a] bg-panel text-[10px] text-foreground/85 font-pixel pointer-events-none shadow-lg z-20" style={{ borderRadius: "5px" }}>
+            {tNode(locale, "editor_frag_1a05c067cf1_12")}</div>,  arg11: <button
             onClick={() => window.dispatchEvent(new CustomEvent("mmc-reset-camera"))}
             className="absolute bottom-3 right-3 mc-btn mc-btn--sm z-20 flex items-center gap-1 font-pixel"
             style={{ padding: "6px 10px" }}
             title={t(locale, "editor_c3e543")}
           >
-            {t(locale, "editor_daf43e")}</button>, arg12: {/* 操作ガイドボタン */}, arg13: <button
+            {t(locale, "editor_daf43e")}</button>,  arg13: <button
             onClick={() => setShowHelp(true)}
             className="absolute top-3 right-3 mc-btn mc-btn--sm z-20"
             style={{ padding: "6px 10px" }}
@@ -1261,7 +1261,7 @@ export default function ModelPanel() {
             <div className="w-8 h-8 flex items-center justify-center bg-[#151411] border-2 border-[#1f1e1a] mc-bevel-inset text-xs font-pixel text-[#3b82f6] font-bold shadow-[0_0_8px_rgba(59,130,246,0.4)]" style={{ textShadow: "1px 1px 0px #1e3a8a", borderRadius: "4px" }}>
               Z
             </div>
-          </div>, arg15: {/* マイクラ風ヘルプモーダル */} })}</div>
+          </div>, })}</div>
         <PropertiesPanel mode={mode} simple={simple} />
       </div>
     </div>

@@ -4,13 +4,20 @@ import type { MobIR } from "../../lib/devtab/ir";
 import type { ItemIR } from "../../lib/devtab/itemIr";
 import { DEFAULT_JAVA_TARGET, type JavaTargetId } from "../../lib/javaEngine/targets";
 
-/** ロケール初期値: localStorage(mmc_locale) があれば復元、無ければ既定(ja) */
+/** ロケール初期値: localStorage(mmc_locale) があれば復元、無ければ端末言語、それでもなければ既定(ja) */
 function initLocale(): Locale {
   if (typeof window !== "undefined") {
+    // 1. 保存済みの選択
     const v = window.localStorage.getItem("mmc_locale");
     if (v === "ja" || v === "en") {
       document.documentElement.lang = v;
       return v;
+    }
+    // 2. 端末の言語 (OS)
+    const navLang = navigator.language || (navigator as any).userLanguage;
+    if (navLang && navLang.startsWith("en")) {
+      document.documentElement.lang = "en";
+      return "en";
     }
   }
   return DEFAULT_LOCALE;

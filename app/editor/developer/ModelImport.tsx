@@ -117,7 +117,7 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
         <h2 className="text-lg font-bold">{t(locale, "editor_2ba947")}</h2>
         <p className="text-xs text-muted/70 mt-1">
           {tNode(locale, "editor_frag_1a05c06806f_25", { arg0: <code>.bbmodel</code> })}</p>
-      </div>, arg1: {/* 置き場所。クリックでもドラッグでも入れられるようにする */}, arg2: <div
+      </div>,  arg2: <div
         onDragOver={e => {
           e.preventDefault();
           setDragOver(true);
@@ -146,7 +146,6 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
             e.target.value = "";
           }}
         />
-      </div>, arg3: {/* モデルタブで積んだものを、そのままモブにできる。
-          Blockbench を持っていない人でもモブが作れるようにするための入口 */} })}</div>
+      </div>, })}</div>
   );
 }

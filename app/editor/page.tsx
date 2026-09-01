@@ -248,9 +248,9 @@ function PhoneHint() {
   return null;
 }
 
-/* ─── Main Editor Page ─── */
-export default function EditorPage() {
+  export default function EditorPage() {
     const locale = useEditorStore((s) => s.locale);
+    const setLocale = useEditorStore((s) => s.setLocale);
   const [activeTab, setActiveTab] = useState<Tab>("logic");
 
   // 2026-08-23、Java の設計図に mobs を足した（spec 2）ので、
@@ -403,6 +403,15 @@ export default function EditorPage() {
 
         {/* Spacer */}
         <div className="flex-1" />
+
+        {/* 言語切替ボタン */}
+        <button
+          onClick={() => setLocale(locale === "ja" ? "en" : "ja")}
+          className="px-2 py-1 text-[10px] sm:text-xs font-pixel text-foreground/75 hover:bg-surface hover:text-foreground transition-colors shrink-0"
+          title={locale === "ja" ? "Switch to English" : "日本語に切り替え"}
+        >
+          {locale === "ja" ? "EN" : "JP"}
+        </button>
 
         {/* ログインボタン（右上） */}
         <EditorAuthButton />

@@ -78,7 +78,7 @@ export default function HowToInstallModal({ isOpen, onClose, projectName = "my_a
         </div>
 
         <div className="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
-          {tNode(locale, "editor_frag_1a05c06800a_21", { arg0: {/* ── どっちのマイクラ？（ここが分からないと以降が全部間違う） ── */}, arg1: <div className="grid grid-cols-2 gap-2 p-1 bg-slate-800 rounded-xl border border-slate-700">
+          {tNode(locale, "editor_frag_1a05c06800a_21", {  arg1: <div className="grid grid-cols-2 gap-2 p-1 bg-slate-800 rounded-xl border border-slate-700">
             <button
               onClick={() => setEdition("bedrock")}
               className={`py-2.5 rounded-lg font-bold text-xs transition-all ${
@@ -97,7 +97,7 @@ export default function HowToInstallModal({ isOpen, onClose, projectName = "my_a
               {t(locale, "editor_4f382b")}<span className="hidden sm:inline">{t(locale, "editor_c407de")}</span>
               <span className="block font-mono text-[10px] opacity-80">.jar</span>
             </button>
-          </div>, arg2: {/* ══════════ 統合版 ══════════ */}, arg3: {/* ══════════ Java版 ══════════ */}, arg4: {/* 閉じるボタン */}, arg5: <button
+          </div>,    arg5: <button
             onClick={onClose}
             className={`w-full py-3 text-slate-950 font-black rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all transform active:scale-95 ${
               isJava

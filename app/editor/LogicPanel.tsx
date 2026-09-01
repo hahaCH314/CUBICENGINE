@@ -503,8 +503,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
             : `drop-shadow(0 0 8px ${cat.bg}66) drop-shadow(0 4px 8px rgba(0,0,0,0.3))`,
       transition: "opacity 0.25s ease, filter 0.15s, transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1)",
     }}>
-      {tNode(locale, "editor_frag_1a05c067d4a_13", { arg0: {/* ✨キラキラカード＝ホログラム箔（ビックリマンシール風の虹プリズム＋流れる光沢）。
-          ※箔のテカリ(一般的な視覚効果)のみ。特定キャラ/デザインは使わない。 */}, arg1: isKira && (
+      {tNode(locale, "editor_frag_1a05c067d4a_13", {  arg1: isKira && (
         <>
           <style>{`@keyframes holoFlow { from { background-position: 0% 50%; } to { background-position: 300% 50%; } }
             @keyframes holoSheen { 0% { background-position: 140% 0; } 100% { background-position: -40% 0; } }
@@ -555,10 +554,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
             animation: "kiraStarPop 0.5s cubic-bezier(0.2,1.5,0.35,1) 0.1s both",
           }}>✨</div>
         </>
-      ), arg2: {/* 貼られた条件シール＝カードの上に重なる帯。
-          「このカードは、この条件のときだけ動く」を、入れ子や差込口ではなく
-          カード自身の見た目で示す。複数枚なら上から順に「かつ」。 */}, arg3: {/* くりかえしカード＝中身を上方向に「囲む」オリジナル枠（このアプリのループ色／点線／🔁）。
-          ※ Scratch等のトレードドレス(オレンジ/パズル凹凸/特定の矢印)は使わない。 */}, arg4: {/* メインカードノード（ポケカ風：白ベースカード ＋ カテゴリカラーの細い外枠フチ） */}, arg5: <div style={{
+      ),    arg5: <div style={{
         position: "absolute",
         left: leftOffset, top: 0, width: cardW, height: cardH,
         background: "#ffffff", // 白いカードベース
@@ -665,7 +661,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
             </span>
           )}
         </div>
-      </div>, arg6: {/* スロットポート（条件分岐などの場合、下部にはみ出して表示） */}, arg7: (isCond || isLoop) && (
+      </div>,  arg7: (isCond || isLoop) && (
         <div style={{
           position: "absolute",
           top: cardH + 4, // カード下端のすぐ下に自動追従
@@ -678,7 +674,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
           {isCond && renderSlotButton("then")}
           {isLoop && renderSlotButton("then")}
         </div>
-      ), arg8: {/* 削除ボタン */} })}</div>
+      ), })}</div>
   );
 }
 
@@ -3790,7 +3786,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
           【中央】プレイ面（ソリティア風キャンバス）
           ======================================================== */}
         <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
-          {tNode(locale, "editor_frag_1a05c067e70_18", { arg0: <ThemeBackdrop theme="workshop" zoom={zoom} pan={pan} />, arg1: {/* 操作キャンバス復元（カード描画＋ドラッグ/接続。背景はWorkshopBackdropを透過。色はヒマワリが後で） */}, arg2: <div ref={containerRef} onPointerDown={handleBgDown}
+          {tNode(locale, "editor_frag_1a05c067e70_18", { arg0: <ThemeBackdrop theme="workshop" zoom={zoom} pan={pan} />,  arg2: <div ref={containerRef} onPointerDown={handleBgDown}
             style={{ position: "absolute", inset: 0, cursor: "grab", background: "transparent", zIndex: 1, touchAction: "none" }}>
             {blocks.length > 0 && (
               <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 6, pointerEvents: "none" }}>
@@ -3936,7 +3932,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               hasBlocks={blocks.length > 0}
               onClose={() => setShowTemplates(false)}
             />
-          ), arg5: {/* 統計インジケーター（スリム版） */}, arg6: <div style={{
+          ),  arg6: <div style={{
             position: "absolute", top: 8, left: 8, zIndex: 20,
             display: "flex", gap: 5
           }}>
@@ -3974,7 +3970,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               <span style={{ fontFamily: "monospace", letterSpacing: "0.02em", color: "#eab308" }}>{Math.round(zoom / BASE_ZOOM * 100)}%</span>
             </button>
 
-          </div>, arg7: {/* トースト通知 */}, arg8: toast && (
+          </div>,  arg8: toast && (
             <div style={{
               position: "absolute", top: 14, left: "50%", transform: "translateX(-50%)",
               zIndex: 100,
@@ -3997,18 +3993,18 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               </span>
               {toast.message}
             </div>
-          ), arg9: {/* コード誕生演出 */}, arg10: reveal && (
+          ),  arg10: reveal && (
             <CodeRevealOverlay
               revealCode={reveal.join("\n")}
               onClose={() => { setReveal(null); onExportReady?.(); }}
               theme="workshop"
             />
-          ), arg11: {/* たまに横切る影／落ちてくる光の雫（アンビエント装飾）。スマホでは負荷源になるので出さない。 */}, arg12: !isMobile && (
+          ),  arg12: !isMobile && (
             <>
               <WanderingShadow />
               <FallingWisp />
             </>
-          ), arg13: {/* モバイル用 FAB：カードと道具を独立に開く2ボタン（同時に出さない＝重ならない） */}, arg14: {/* ⌨️ 下部キーボード：カードを“打つ”入力面（左右パネルを統合） */}, arg15: {/* 📋 見本（もらった作品を横に置いて、見ながら作れるように） */}, arg16: reference && (
+          ),    arg16: reference && (
             <ReferencePanel
               blocks={reference.blocks}
               title={reference.title}
@@ -4020,22 +4016,14 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 history.replaceState(null, "", window.location.pathname + window.location.search);
               }}
             />
-          ), arg17: {/* 📖 はじめての人向けチュートリアル（初回は自動・以後は ❓作り方 から） */}, arg18: showTutorial && <TutorialOverlay onClose={closeTutorial} />, arg19: {/* 📣 作品をみせる（リンクを作る。データはリンクの中だけ） */}, arg20: showShare && (
+          ),  arg18: showTutorial && <TutorialOverlay onClose={closeTutorial} />,  arg20: showShare && (
             <ShareDialog
               blocks={blocks}
               projectName={useEditorStore.getState().projectName}
               remixSrc={remixSrc}
               onClose={() => setShowShare(false)}
             />
-          ), arg21: {/* 🗑️ ゴミ箱：カードを掴んでいる間だけ現れる。
-              常設しないのは、いつも置いてあると盤面の邪魔になるうえ、
-              触る用事が無いときに誤って触れてしまうため。必要な瞬間だけ出す。
-              置き場所は左下＝右側の据え置き（プレビュー／立て札／リモコン）と競合しない。 */}, arg22: {/* 🎛️ 道具リモコン
-              下部キーボードの中に4列で押し込むと 42px 角までしか取れず、アイコンもラベルも
-              潰れていた。そこでキーボードから切り離した独立パネルにして縦1列に並べる。
-              キーボード(高さ178)より背が高く、上へはみ出して立つ＝リモコンらしい佇まい。
-              スマホでは右から出し入れするドロワーになり、画面が低い端末では中身だけ
-              スクロールする（下がはみ出して押せない、という事故を防ぐ）。 */}, arg23: {/* スマホ：アドオン完成を独立ボタンで常時表示（ツールメニューに埋めない） */}, arg24: {/* ✏️ 選んだカードの中身エディタ（直接配置式＝旧STEP3の代わり。条件もここで変える） */}, arg25: {/* コードプレビュー */}, arg26: showCode && (
+          ),      arg26: showCode && (
             <div className="mc-panel" style={{ position: "absolute", bottom: 10, left: 8, right: 8, zIndex: 45, maxHeight: 240, background: "#ffffff", display: "flex", flexDirection: "column", border: "2px solid #cbd5e1", boxShadow: "0 8px 32px rgba(0,0,0,0.1)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 14px", borderBottom: "2px solid #e2e8f0" }}>
                 <span className="font-pixel text-[11px] text-[#0ea5e9] font-bold">⚡ GENERATED CODE</span>
@@ -4045,10 +4033,10 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 {genCode}
               </pre>
             </div>
-          ), arg27: {/* スナップインジケーター */}, arg28: snapHint && showSnapGuide && (
+          ),  arg28: snapHint && showSnapGuide && (
             <SnapIndicator x={snapHint.pos.x} y={snapHint.pos.y} zoom={zoom} slot={snapHint.slot}
               color={snapHint.slot === "inner" ? "#8b5cf6" : snapHint.slot === "then" ? "#10b981" : snapHint.slot === "else" ? "#f97316" : "#0ea5e9"} />
-          ), arg29: {/* パーティクル */}, arg30: particles.map(p => {
+          ),  arg30: particles.map(p => {
             if (p.type === "ripple") {
               return (
                 <div key={p.id} style={{
@@ -4084,7 +4072,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 })}
               </div>
             );
-          }), arg31: {/* 衝撃リング */}, arg32: impacts.map(p => (
+          }),  arg32: impacts.map(p => (
             <div key={p.id} style={{ position: "absolute", left: p.x, top: p.y, pointerEvents: "none", zIndex: 199 }}>
               <div style={{
                 position: "absolute", left: "50%", top: "50%",
@@ -4102,7 +4090,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 animation: "impactFlash 0.5s ease-out forwards",
               }} />
             </div>
-          )), arg33: {/* 紙吹雪 */}, arg34: confetti.map(c => (
+          )),  arg34: confetti.map(c => (
             <div key={c.id} style={{ position: "absolute", left: c.x, top: c.y, pointerEvents: "none", zIndex: 201 }}>
               {Array.from({ length: 14 }).map((_, i) => {
                 const ang = (i / 14) * 360 + (i * 17) % 30;
@@ -4127,7 +4115,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 );
               })}
             </div>
-          )), arg35: {/* 右ペイン：コントロールパネル */}, arg36: <div data-right-panel="1" style={{
+          )),  arg36: <div data-right-panel="1" style={{
             position: "absolute",
             top: 10,
             right: 10,

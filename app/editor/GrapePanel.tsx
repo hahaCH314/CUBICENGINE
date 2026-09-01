@@ -797,8 +797,8 @@ export default function GrapePanel() {
           cursor: sending ? "default" : draggingId ? "grabbing" : "crosshair",
         }}
       >
-        {tNode(locale, "editor_frag_1a05c068027_22", { arg0: {/* 上からの光芒（god rays） */}, arg1: <div style={{ position: "absolute", top: "-12%", left: "50%", transform: "translateX(-50%)", width: "62%", height: "95%", pointerEvents: "none", filter: "blur(7px)", opacity: 0.8,
-          background: "conic-gradient(from 178deg at 50% 0%, transparent 0deg, rgba(0,210,255,0.08) 10deg, transparent 20deg, rgba(0,210,255,0.06) 30deg, transparent 40deg, rgba(0,210,255,0.07) 50deg, transparent 60deg)" }} />, arg2: {/* 両脇のバイオ発光（＝遊び場） */}, arg3: <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "24%", pointerEvents: "none", background: "radial-gradient(58% 48% at 0% 58%, rgba(0,180,230,0.22), transparent 72%)" }} />, arg4: <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "24%", pointerEvents: "none", background: "radial-gradient(58% 48% at 100% 46%, rgba(0,140,200,0.20), transparent 72%)" }} />, arg5: {/* 底のもや */}, arg6: <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: "32%", pointerEvents: "none", background: "linear-gradient(to top, rgba(0,150,210,0.24), transparent)", filter: "blur(12px)" }} />, arg7: {/* 漂う発光の粒（丸くボケ足のある美しい光の粒） */}, arg8: <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+        {tNode(locale, "editor_frag_1a05c068027_22", {  arg1: <div style={{ position: "absolute", top: "-12%", left: "50%", transform: "translateX(-50%)", width: "62%", height: "95%", pointerEvents: "none", filter: "blur(7px)", opacity: 0.8,
+          background: "conic-gradient(from 178deg at 50% 0%, transparent 0deg, rgba(0,210,255,0.08) 10deg, transparent 20deg, rgba(0,210,255,0.06) 30deg, transparent 40deg, rgba(0,210,255,0.07) 50deg, transparent 60deg)" }} />,  arg3: <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "24%", pointerEvents: "none", background: "radial-gradient(58% 48% at 0% 58%, rgba(0,180,230,0.22), transparent 72%)" }} />, arg4: <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "24%", pointerEvents: "none", background: "radial-gradient(58% 48% at 100% 46%, rgba(0,140,200,0.20), transparent 72%)" }} />,  arg6: <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: "32%", pointerEvents: "none", background: "linear-gradient(to top, rgba(0,150,210,0.24), transparent)", filter: "blur(12px)" }} />,  arg8: <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
           {MOTES.map((m, i) => (
             <div key={i} style={{ position: "absolute", left: m.x, top: m.y, pointerEvents: "none" }}>
               {/* 外側の霧散ハロー（大きく柔らかく） */}
@@ -828,7 +828,7 @@ export default function GrapePanel() {
               }} />
             </div>
           ))}
-        </div>, arg9: {/* 🌠 たまに出現するマイクラの星座イースターエッグ */}, arg10: constellation && (
+        </div>,  arg10: constellation && (
           <div
             key={constellation.id}
             style={{
@@ -875,9 +875,9 @@ export default function GrapePanel() {
               })()}
             </div>
           </div>
-        ), arg11: {/* 周辺ビネット（中央へ集中させる） */}, arg12: <div style={{ position: "absolute", inset: 0, pointerEvents: "none", boxShadow: "inset 0 0 200px rgba(0,0,0,0.72)" }} />, arg13: {/* タイトル＝GROVE */}, arg14: <div style={{ position: "absolute", top: 16, left: 20, zIndex: 2, fontWeight: 900, fontSize: 15, color: "#a8eeff", letterSpacing: "0.18em", display: "flex", alignItems: "center", gap: 8, textShadow: "0 1px 6px rgba(0,180,255,0.5)", pointerEvents: "none" }}>
+        ),  arg12: <div style={{ position: "absolute", inset: 0, pointerEvents: "none", boxShadow: "inset 0 0 200px rgba(0,0,0,0.72)" }} />,  arg14: <div style={{ position: "absolute", top: 16, left: 20, zIndex: 2, fontWeight: 900, fontSize: 15, color: "#a8eeff", letterSpacing: "0.18em", display: "flex", alignItems: "center", gap: 8, textShadow: "0 1px 6px rgba(0,180,255,0.5)", pointerEvents: "none" }}>
           <span style={{ fontSize: 18 }}>🌿</span> GROVE <span style={{ fontSize: 10, fontWeight: 800, opacity: 0.7, letterSpacing: "0.1em" }}>JAVA</span>
-        </div>, arg15: {/* 🔍 ズームコントローラー */}, arg16: <div style={{
+        </div>,  arg16: <div style={{
           position: "absolute", top: 16, right: 20, zIndex: 10,
           display: "flex", alignItems: "center", gap: 6,
           background: "rgba(5, 25, 50, 0.75)", backdropFilter: "blur(8px)",
@@ -914,7 +914,7 @@ export default function GrapePanel() {
           >
             ⟲
           </button>
-        </div>, arg17: {/* 🌟 ズーム対象のコンテンツラッパー */}, arg18: <div style={{
+        </div>,  arg18: <div style={{
           position: "absolute",
           inset: 0,
           transform: `scale(${zoom})`,
@@ -1198,7 +1198,7 @@ export default function GrapePanel() {
               </div>
             );
           })()}
-        </div>, arg19: {/* 閃光（フラッシュ）画面全体 */}, arg20: launchPhase === "launch" && (
+        </div>,  arg20: launchPhase === "launch" && (
           <div style={{
             position: "absolute",
             inset: 0,
@@ -1207,14 +1207,14 @@ export default function GrapePanel() {
             pointerEvents: "none",
             animation: "flash-overlay 0.8s ease-out forwards",
           }} />
-        ), arg21: {/* マイクラへ放つ（固定・右下） */}, arg22: {/* コード誕生＋写経（大人トーン）。GROVE=JAVA/プロ向けなので tone="adult" */}, arg23: reveal && (
+        ),   arg23: reveal && (
           <CodeRevealOverlay
             revealCode={reveal.join("\n")}
             onClose={() => setReveal(null)}
             theme="grove"
             tone="adult"
           />
-        ), arg24: {/* 種まきラジアル / インライン入力（カーソルの場所に出る） */} })}</div>
+        ), })}</div>
     </div>
   );
 }
