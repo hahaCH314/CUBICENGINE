@@ -96,6 +96,17 @@ const KINDS = [{ key: "menu", labelKey: "editor_9013ce" }, …];
 - 使うのは主に**子ども**。短く、やさしい語で。ボタンは日本語より英語の方が長くなりがちなので、収まるか実機で見て。
 - 22キーに `\r\n` とJSXのインデント（空白18個など）が混入している。訳すついでに掃除して。
 
+**⑤ スマホ版（Android/iOS）— 小さいが要る2つ（伊波さん確認 2026-09-01）**
+
+コード自体はスマホにも自動で乗る。`android:build` / `ios:build` は `MMC_TARGET=android next build` で `out/` を作り、`capacitor.config.ts` の `webDir: 'out'` がそのまま同梱する形なので、**スマホ用の別コードベースは無い**。辞書もエディタの `t()` もそのまま届く。`store.ts` の `document.documentElement.lang` 更新もWebViewで動く。残るのは次の2つだけ。
+
+- **エディタ内に言語切替が無い。** `setLocale` を呼んでいるのは `app/page.tsx:515` のトップページ1か所だけ。`start_url: '/'` なのでアプリはトップから開き、そこで切り替えれば localStorage 経由でエディタにも効く。ただしエディタに入ったあとは戻らないと変えられない。スマホは画面が狭くて戻るのが億劫なので、**エディタ側にも小さく置く**。置き場所は実機（≈360px）で見て決めていい（ヒマワリの領分）。
+- **端末の言語を見ていない。** `app/editor/store.ts:7` の `initLocale()` は `localStorage.mmc_locale` だけを見て、無ければ `ja`。**英語設定のスマホでも日本語で起動する。** アプリはOSの言語に従うのが普通なので違和感が出る。優先順位は「① 保存済みの選択 → ② 端末の言語 → ③ 既定(ja)」。保存済みの選択を必ず最優先にすること（一度日本語を選んだ人の設定を、OSが英語だからと上書きしない）。
+
+**⑥ やらないこと（判断済み・手を出さないで）**
+
+`app/manifest.ts` の `description` と、ルート `app/layout.tsx` の title / description / OG は日本語固定のままでいい。**ここはビルド時に1回だけ決まる値で `t()` を通せない**（通すとサーバ側で常に既定ロケールになる＝意味が無いうえストアがサーババンドルに入る）。英語圏に出すときは Play / App Store のストア掲載文と合わせて別途やる話。
+
 ### 🔷 シオンが受け取り時に見るところ
 
 ```
@@ -104,6 +115,13 @@ grep -rn "getState().locale" app/editor/        # ③が終われば exporter �
 grep -rn "<style>{.*t(" app/editor/             # ①が終われば 0件
 grep -rniE "\.gemini|brain/|C:\\Users"          # 恒久ルール
 git status --short lib/codegen.ts lib/codegenJava.ts data/templates.ts   # 空であること
+
+# tNode を使うファイルは全部 import しているか（使用14 / import 0 だった 2026-09-01 時点）
+comm -13 <(grep -rl "import.*tNode" app --include=*.tsx | sort) <(grep -rl "tNode(" app --include=*.tsx | sort)
+
+# JSXコメントを引数に渡していないか。{/* … */} は値として渡すと空オブジェクト {} になり、
+# React が "Objects are not valid as a React child" で落ちる
+grep -rn "arg[0-9]*: {/\*" app --include=*.tsx
 ```
 
 辞書の未訳率も測る（`en === ja` の件数）。
