@@ -60,6 +60,7 @@ export const DICT: Record<string, Entry> = {
   //    デスクトップ版は「mods フォルダへ自動で入れたい人」向けの補助に降格している。
   //    文言を「パソコン版が必要」に戻さないこと。もう嘘になる。
   "dl.groveWin":      { ja: "Java版をダウンロード（Windows）", en: "Download for Java Edition (Windows)" },
+  "dl.groveMac":      { ja: "Java版をダウンロード（Mac）", en: "Download for Java Edition (Mac)" },
   // 504MB あるので、押す前にサイズが分かるようにする（うっかり通信量を使わせない）。
   // 署名なしインストーラなので Windows の警告も先に伝えておく＝初見で怖がらせない。
   "dl.groveNote":     { ja: "ブラウザだけで .jar を作れます。パソコン版は mods へ自動で入れたい人向けです\n約171MB・Windows用／「詳細情報」→「実行」で進めます", en: "You can build the .jar in your browser. The desktop app just installs it into mods for you.\nAbout 171MB, Windows only. Choose \"More info\" → \"Run\" if Windows warns you." },
@@ -68,7 +69,13 @@ export const DICT: Record<string, Entry> = {
   // 日付を添える。リンク先は常に最新なので、古くなっても嘘にはならない。
   // SHA-256 はあえて出さない。この製品を使うのは主に子どもで、64桁の文字列は
   // 意味が伝わらず不安を増やすだけ。必要な人はリンク先のURLに入っている。
-  "dl.scanned":       { ja: "🛡 配布しているファイルの検査結果", en: "🛡 Scan report for the file we distribute" },
+  // Mac 版は署名(Developer ID)を持っていないため、初回は必ず
+  //   「開発元を確認できないため開けません」
+  // と出て**そのままでは起動できない**。右クリック→「開く」の手順を知らないと
+  // 「壊れている」と受け取られて終わる。Windows の「詳細情報→実行」と同じ扱いで先に伝える。
+  // Intel と Apple Silicon の両方で動く(universal)ので、機種を選ばせない。
+  "dl.groveMacNote":  { ja: "約448MB・Mac用（Intel / Apple シリコン 両対応）\nはじめて開くときは、アイコンを右クリック →「開く」を選んでください", en: "About 448MB, for Mac (works on both Intel and Apple silicon).\nThe first time, right-click the icon and choose \"Open\"." },
+  "dl.scanned":       { ja: "🛡 配布している Windows 版ファイルの検査結果", en: "🛡 Scan report for the Windows file we distribute" },
   "dl.scanLink":      { ja: "検査結果を見る", en: "View the scan result" },
   "dl.win":           { ja: "💻 Windows版 (.exe)", en: "💻 Windows (.exe)" },
   "dl.mac":           { ja: "🍎 macOS版 (.dmg)", en: "🍎 macOS (.dmg)" },
