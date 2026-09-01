@@ -26,7 +26,12 @@
       "Bash(cp \"E:/iOS移行_MACのシオンへ/iOS版の引き継ぎ_まずこれを読んで.md\" \"I:/iOS移行_MACのシオンへ/\")",
       "Read(//i/iOS移行_MACのシオンへ/**)",
       "Bash(node --check __TRACKED_VAR__/v.mjs)",
-      "Bash(curl -s \"https://api.github.com/repos/hahaCH314/CUBICENGINE/releases/tags/v0.1.3\")"
+      "Bash(curl -s \"https://api.github.com/repos/hahaCH314/CUBICENGINE/releases/tags/v0.1.3\")",
+      "PowerShell(Copy-Item \"e:\\\\MMC\\\\CUBIC_ENGINE\\\\public\\\\founder.jpg\" \"E:\\\\MMC\\\\CUBIC_ENGINE_cm\\\\public\\\\founder.jpg\" -Force; Get-ChildItem \"E:\\\\MMC\\\\CUBIC_ENGINE_cm\\\\public\" | Select-Object @{n='KB';e={[int]\\($_.Length/1kb\\)}},Name)",
+      "PowerShell(Get-ChildItem \"E:\\\\MMC\\\\CUBIC_ENGINE_cm\\\\out\" | Sort-Object Name | Select-Object @{n='MB';e={\"{0:N1}\" -f \\($_.Length/1MB\\)}},Name; \"--- still render progress ---\"; Get-Content \"E:\\\\Temp\\\\claude\\\\e--MMC-CUBIC-ENGINE\\\\2a2b7e53-b9db-4605-92dc-807cd0d358c3\\\\tasks\\\\bepkczl2n.output\" -Tail 5 -ErrorAction SilentlyContinue)"
+    ],
+    "additionalDirectories": [
+      "E:\\MMC\\CUBIC_ENGINE_cm\\src\\cm"
     ]
   }
 }

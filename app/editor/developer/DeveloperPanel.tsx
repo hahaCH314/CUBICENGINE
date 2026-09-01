@@ -19,7 +19,7 @@ import ItemBuilder from "./ItemBuilder";
 import { useEditorStore } from "../store";
 import { getAiAdapter } from "../../../lib/devtab/ai";
 import type { MobIR } from "../../../lib/devtab/ir";
-import { t } from "@/lib/i18n";
+import { t, tNode } from "@/lib/i18n";
 
 export default function DeveloperPanel() {
     const locale = useEditorStore((s) => s.locale);
@@ -125,9 +125,7 @@ export default function DeveloperPanel() {
             >
               <div className="font-bold text-emerald-200">{t(locale, "editor_28b00a")}</div>
               <div className="text-muted/70 mt-0.5">
-                {t(locale, "editor_f284f5")}<b>{t(locale, "editor_d50f48")}</b>{t(locale, "punct.period")}<br />
-                {t(locale, "editor_b577b4")}<br />
-                {t(locale, "editor_de7792")}</div>
+                {tNode(locale, "editor_frag_1a05c0680b9_35", { arg0: <b>{t(locale, "editor_d50f48")}</b>, arg1: t(locale, "punct.period"), arg2: <br />, arg3: <br /> })}</div>
             </div>
             <div
               className="rounded-lg p-2.5"
@@ -137,9 +135,7 @@ export default function DeveloperPanel() {
             >
               <div className="font-bold text-emerald-200">{t(locale, "editor_618036")}</div>
               <div className="text-muted/70 mt-0.5">
-                {t(locale, "editor_f284f5")}<b>Forge ＋ GeckoLib</b>{t(locale, "punct.period")}<br />
-                <b>{t(locale, "editor_b6d27a")}</b><br />
-                {t(locale, "editor_20ab4d")}</div>
+                {tNode(locale, "editor_frag_1a05c0680bc_36", { arg0: <b>Forge ＋ GeckoLib</b>, arg1: t(locale, "punct.period"), arg2: <br />, arg3: <b>{t(locale, "editor_b6d27a")}</b>, arg4: <br /> })}</div>
             </div>
           </div>
           {/* ⚠️ 前提MODは**遊ぶ側**に手間を増やす選択。作った本人がそれを
@@ -154,7 +150,7 @@ export default function DeveloperPanel() {
                 {t(locale, "editor_5ed733")}</span>
               {/* 先に言わないと、動きを作り込んでから「再生されない」と分かることになる */}
               <span className="block text-muted/70 mt-1.5">
-                <b>{t(locale, "editor_930fae")}<code>walk</code> {t(locale, "editor_a5401f")}<code>idle</code> {t(locale, "editor_05f4e1")}</b>{t(locale, "editor_901910")}</span>
+                <b>{tNode(locale, "editor_frag_1a05c0680bf_37", { arg0: <code>walk</code>, arg1: <code>idle</code> })}</b>{t(locale, "editor_901910")}</span>
             </div>
           )}
         </div>
@@ -193,8 +189,7 @@ export default function DeveloperPanel() {
             <div className="text-4xl">🔒</div>
             <div className="text-sm font-bold">{t(locale, "editor_e211b6")}</div>
             <p className="text-xs text-muted/70 leading-relaxed max-w-xs">
-              {t(locale, "editor_5b2636")}<br />
-              {t(locale, "editor_2423d8")}<b>{t(locale, "editor_276d81")}</b> {t(locale, "editor_115676")}</p>
+              {tNode(locale, "editor_frag_1a05c0680c2_38", { arg0: <br />, arg1: <b>{t(locale, "editor_276d81")}</b> })}</p>
             <button
               onClick={() => setMode("mob")}
               className="mt-1 text-xs font-bold px-4 py-2 rounded-lg"
@@ -235,11 +230,7 @@ export default function DeveloperPanel() {
       </div>
 
       <div className="px-5 py-2 border-t text-[11px] text-muted/50 shrink-0" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-        {mobs.length + itemCount > 0
-          ? <>{t(locale, "editor_4bf62d")}{mobs.length} {t(locale, "editor_f2c43d")}{itemCount} {t(locale, "editor_087637")}</>
-          : <>{t(locale, "editor_eef062")}</>}
-        {!ai.ready && <>　{t(locale, "editor_c7a289")}{ai.reason}</>}
-      </div>
+        {tNode(locale, "editor_frag_1a05c0680c6_39")}</div>
     </div>
   );
 }

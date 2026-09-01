@@ -28,7 +28,7 @@ import {
   type ToolKind,
   type WeaponEffect,
 } from "../../../lib/devtab/itemIr";
-import { t } from "@/lib/i18n";
+import { t, tNode } from "@/lib/i18n";
 
 const numberCls = "w-24 px-2 py-1 rounded text-xs bg-black/40 border border-white/15";
 
@@ -67,68 +67,11 @@ function EffectList({
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="text-xs font-bold">
+      {tNode(locale, "editor_frag_1a05c06809b_31", { arg0: <div className="text-xs font-bold">
         {title}
         <span className="block text-[10px] text-muted/50 font-normal">{hint}</span>
-      </div>
-
-      {list.map((e, i) => (
-        <div key={i} className="flex items-center gap-1.5 text-xs">
-          <select
-            className="flex-1 px-2 py-1 rounded text-xs bg-black/40 border border-white/15"
-            value={e.id}
-            onChange={ev => {
-              const next = [...list];
-              next[i] = { ...e, id: ev.target.value };
-              onChange(next);
-            }}
-          >
-            {choices.map(c => (
-              <option key={c.id} value={c.id}>{c.label}</option>
-            ))}
-          </select>
-          {/* 秒数は「持っている間」には意味がない（掛け直し続けるため） */}
-          {!forSelf && (
-            <>
-              <input type="number" min={1} className="w-14 px-2 py-1 rounded text-xs bg-black/40 border border-white/15"
-                value={e.seconds}
-                onChange={ev => {
-                  const next = [...list];
-                  next[i] = { ...e, seconds: toNumber(ev.target.value) };
-                  onChange(next);
-                }} />
-              <span className="text-[10px] text-muted/50">{t(locale, "editor_0c1fec")}</span>
-            </>
-          )}
-          {/* 強さ。マイクラの表記より1小さいので、画面には見た目の数字を出す */}
-          <input type="number" min={1} max={256} className="w-14 px-2 py-1 rounded text-xs bg-black/40 border border-white/15"
-            value={e.amplifier + 1}
-            onChange={ev => {
-              const next = [...list];
-              next[i] = { ...e, amplifier: Math.max(0, toNumber(ev.target.value) - 1) };
-              onChange(next);
-            }} />
-          <span className="text-[10px] text-muted/50">{t(locale, "editor_5e6fdf")}</span>
-          <button
-            onClick={() => onChange(list.filter((_, j) => j !== i))}
-            className="text-[11px] px-1.5 py-1 rounded hover:bg-white/10 text-muted/70"
-          >
-            ✕
-          </button>
-        </div>
-      ))}
-
-      {/* ⚠️ choices が空だと choices[0].id で落ちる。今の分類では起きないが、
-          効果を足したり分類を変えたときに空になりうる */}
-      {choices.length > 0 && (
-        <button
-          onClick={() => onChange([...list, { id: choices[0].id, seconds: 5, amplifier: 0 }])}
-          className="self-start text-[11px] px-2 py-1 rounded"
-          style={{ background: "rgba(167,139,250,0.15)", border: "1px solid rgba(167,139,250,0.35)" }}
-        >
-          {t(locale, "editor_9e937c")}</button>
-      )}
-    </div>
+      </div>, arg1: {/* ⚠️ choices が空だと choices[0].id で落ちる。今の分類では起きないが、
+          効果を足したり分類を変えたときに空になりうる */} })}</div>
   );
 }
 
@@ -145,7 +88,7 @@ function ItemCard({ item }: { item: ItemIR }) {
 
   return (
     <div className="rounded-xl p-4 flex flex-col gap-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)" }}>
-      <div className="flex items-center gap-3">
+      {tNode(locale, "editor_frag_1a05c06809f_32", { arg0: <div className="flex items-center gap-3">
         {/* ドット絵なので拡大時にぼかさない */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={item.iconDataUrl} alt="" width={48} height={48}
@@ -160,22 +103,9 @@ function ItemCard({ item }: { item: ItemIR }) {
         </div>
         <button onClick={() => remove(item.id)} className="text-[11px] px-2 py-1 rounded hover:bg-white/10 text-muted/70">
           {t(locale, "editor_873613")}</button>
-      </div>
-
-      {/* ⚠️ 重ねられる数だけは 1〜64 を外さないこと。マイクラのスロットは64個までで、
-          65以上を書くとアイテムごと読み込まれない（他の数値と違い上限が要る） */}
-      {!weapon && !armor && (
-        <label className="flex items-center gap-3 text-xs">
-          <span className="w-32 shrink-0">{t(locale, "editor_58a60a")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_556c3f")}</span></span>
-          <input type="number" min={1} max={64} className={numberCls}
-            value={item.maxStack}
-            onChange={e => update(item.id, { maxStack: toNumber(e.target.value) })} />
-        </label>
-      )}
-
-      {/* 種類は排他。食べられる剣は作れてしまうが、持ち替えるたびに
-          食べる動作が出て使い物にならないので、選ばせる形にする */}
-      <div className="flex flex-col gap-1">
+      </div>, arg1: {/* ⚠️ 重ねられる数だけは 1〜64 を外さないこと。マイクラのスロットは64個までで、
+          65以上を書くとアイテムごと読み込まれない（他の数値と違い上限が要る） */}, arg2: {/* 種類は排他。食べられる剣は作れてしまうが、持ち替えるたびに
+          食べる動作が出て使い物にならないので、選ばせる形にする */}, arg3: <div className="flex flex-col gap-1">
         {([
           ["plain", t(locale, "editor_3e9a04"), t(locale, "editor_e75a4d")],
           ["food", t(locale, "editor_d60079"), t(locale, "editor_b56691")],
@@ -204,158 +134,9 @@ function ItemCard({ item }: { item: ItemIR }) {
             </span>
           </label>
         ))}
-      </div>
-
-      {weapon && (
-        <div className="pl-5 flex flex-col gap-1.5">
-          <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">{t(locale, "editor_37c372")}</span>
-            <select
-              className="flex-1 px-2 py-1 rounded text-xs bg-black/40 border border-white/15"
-              value={weapon.kind ?? "sword"}
-              onChange={e => update(item.id, { weapon: { ...weapon, kind: e.target.value as ToolKind } })}
-            >
-              {TOOL_KINDS.map(k => (
-                <option key={k.id} value={k.id}>{k.label}</option>
-              ))}
-            </select>
-          </label>
-          <p className="text-[10px] text-muted/50 pl-1">
-            {TOOL_KINDS.find(k => k.id === (weapon.kind ?? "sword"))?.hint}
-          </p>
-
-          {/* 剣は「掘る道具」ではないので速さを出さない。
-              出しても意味が無いうえ、何の速さか分からず迷わせる */}
-          {(weapon.kind ?? "sword") !== "sword" && (
-            <label className="flex items-center gap-3 text-xs">
-              <span className="w-32 shrink-0">{t(locale, "editor_790e61")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_975b7f")}</span></span>
-              <input type="number" min={0} className={numberCls}
-                value={weapon.digSpeed ?? 8}
-                onChange={e => update(item.id, { weapon: { ...weapon, digSpeed: toNumber(e.target.value) } })} />
-            </label>
-          )}
-          {(weapon.digSpeed ?? 8) >= 100 && (weapon.kind ?? "sword") !== "sword" && (
-            <p className="text-[10px]" style={{ color: "#fbbf24" }}>
-              {t(locale, "editor_6de9f9")}{weapon.digSpeed} {t(locale, "editor_85490c")}</p>
-          )}
-
-          {/* ⚠️ max を付けないこと。上限があると「最強の剣を作る」ができない。
-              マイクラ側は大きい値をそのまま受け取るので、上限は要らない */}
-          <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">{t(locale, "editor_1ad535")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_feff52")}</span></span>
-            <input type="number" min={1} className={numberCls}
-              value={weapon.damage}
-              onChange={e => update(item.id, { weapon: { ...weapon, damage: toNumber(e.target.value) } })} />
-          </label>
-          <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">{t(locale, "editor_050745")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_255dc2")}</span></span>
-            <input type="number" min={0} className={numberCls}
-              value={weapon.durability}
-              onChange={e => update(item.id, { weapon: { ...weapon, durability: toNumber(e.target.value) } })} />
-          </label>
-          {weapon.durability === 0 && (
-            <p className="text-[10px]" style={{ color: "#fbbf24" }}>
-              {t(locale, "editor_b08320")}<b>{t(locale, "editor_8c9ba7")}</b>{t(locale, "editor_2fb8b3")}</p>
-          )}
-          {weapon.damage >= 100 && (
-            <p className="text-[10px]" style={{ color: "#fbbf24" }}>
-              {t(locale, "editor_8b099c")}{weapon.damage} {t(locale, "editor_ebb0bc")}</p>
-          )}
-          {/* ── ここから「技」にあたる部分 ──
-              JSON では書けないので、書き出すときにスクリプトが作られる。
-              スクリプトが要るのはこの3つ（燃やす／相手に効果／自分に効果）だけで、
-              何も設定しなければスクリプトは1行も足されない */}
-          <div className="mt-2 pt-2 flex flex-col gap-2.5" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-            <div className="text-xs font-bold" style={{ color: "#a78bfa" }}>
-              {t(locale, "editor_f7f9c8")}<span className="block text-[10px] text-muted/50 font-normal">
-                {t(locale, "editor_b13e08")}</span>
-            </div>
-
-            <label className="flex items-center gap-3 text-xs">
-              <span className="w-32 shrink-0">
-                {t(locale, "editor_d54956")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_d77aba")}</span>
-              </span>
-              <input type="number" min={0} className={numberCls}
-                value={weapon.fireSeconds ?? 0}
-                onChange={e => update(item.id, { weapon: { ...weapon, fireSeconds: toNumber(e.target.value) } })} />
-            </label>
-
-            {/* ⚠️ ?? [] を外さないこと。この機能より前に保存された作品には
-                effects / selfEffects が無く、undefined を .map して画面が落ちる */}
-            <EffectList
-              title={t(locale, "editor_6fbcd8")}
-              hint={t(locale, "editor_6fe02d")}
-              forSelf={false}
-              list={weapon.effects ?? []}
-              onChange={next => update(item.id, { weapon: { ...weapon, effects: next } })}
-            />
-
-            <EffectList
-              title={t(locale, "editor_bb7ff3")}
-              hint={t(locale, "editor_1bcace")}
-              forSelf
-              list={weapon.selfEffects ?? []}
-              onChange={next => update(item.id, { weapon: { ...weapon, selfEffects: next } })}
-            />
-          </div>
-
-          <p className="text-[10px] text-muted/50">
-            {t(locale, "editor_7678b3")}</p>
-        </div>
-      )}
-
-      {armor && (
-        <div className="pl-5 flex flex-col gap-1.5">
-          <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">{t(locale, "editor_7dd8bc")}</span>
-            <select
-              className="flex-1 px-2 py-1 rounded text-xs bg-black/40 border border-white/15"
-              value={armor.slot}
-              onChange={e => update(item.id, { armor: { ...armor, slot: e.target.value as ArmorSlot } })}
-            >
-              {ARMOR_SLOTS.map(s => (
-                <option key={s.id} value={s.id}>{s.label}（{s.example}）</option>
-              ))}
-            </select>
-          </label>
-          <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">{t(locale, "editor_0aba42")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_812ce4")}</span></span>
-            <input type="number" min={0} className={numberCls}
-              value={armor.protection}
-              onChange={e => update(item.id, { armor: { ...armor, protection: toNumber(e.target.value) } })} />
-          </label>
-          <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">{t(locale, "editor_050745")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_96fed4")}</span></span>
-            <input type="number" min={0} className={numberCls}
-              value={armor.durability}
-              onChange={e => update(item.id, { armor: { ...armor, durability: toNumber(e.target.value) } })} />
-          </label>
-          {armor.protection >= 20 && (
-            <p className="text-[10px]" style={{ color: "#fbbf24" }}>
-              {t(locale, "editor_b6005d")}{armor.protection} {t(locale, "editor_d42ccb")}</p>
-          )}
-
-          <div className="mt-2 pt-2 flex flex-col gap-2.5" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-            <EffectList
-              title={t(locale, "editor_01ca5d")}
-              hint={t(locale, "editor_4c81f8")}
-              forSelf
-              list={armor.wearEffects ?? []}
-              onChange={next => update(item.id, { armor: { ...armor, wearEffects: next } })}
-            />
-          </div>
-
-          {/* 見た目を作らない判断は itemToBedrock.ts のコメント参照。
-              ここで黙っていると「バグでは」と思われるので必ず伝える */}
-          <p className="text-[10px]" style={{ color: "rgba(251,191,36,0.8)" }}>
-            {t(locale, "editor_ff3ab4")}</p>
-        </div>
-      )}
-
-      {/* ── 技。武器・防具・ただのアイテムに付けられる ──
+      </div>, arg4: {/* ── 技。武器・防具・ただのアイテムに付けられる ──
           ⚠️ 食べ物には付けられない。どちらも右クリックを使うため、
-             use_modifiers を奪い合って技が黙って効かなくなる */}
-      <div className="flex flex-col gap-2">
+             use_modifiers を奪い合って技が黙って効かなくなる */}, arg5: <div className="flex flex-col gap-2">
         <label className={`flex items-center gap-2 text-xs ${food ? "opacity-40" : "cursor-pointer"}`}>
           <input type="checkbox" checked={!!skill} disabled={!!food}
             onChange={e => update(item.id, { skill: e.target.checked ? defaultSkill() : null })} />
@@ -372,7 +153,7 @@ function ItemCard({ item }: { item: ItemIR }) {
           const def = SKILL_KINDS.find(k => k.id === skill.kind);
           return (
             <div className="pl-5 flex flex-col gap-1.5">
-              <label className="flex items-center gap-3 text-xs">
+              {tNode(locale, "editor_frag_1a05c0680a2_33", { arg0: <label className="flex items-center gap-3 text-xs">
                 <span className="w-32 shrink-0">{t(locale, "editor_8f4d37")}</span>
                 <select
                   className="flex-1 px-2 py-1 rounded text-xs bg-black/40 border border-white/15"
@@ -383,80 +164,15 @@ function ItemCard({ item }: { item: ItemIR }) {
                     <option key={k.id} value={k.id}>{k.label}</option>
                   ))}
                 </select>
-              </label>
-              {def && <p className="text-[10px] text-muted/50 pl-1">{def.hint}</p>}
-
-              {def?.hasPower && (
-                <label className="flex items-center gap-3 text-xs">
-                  <span className="w-32 shrink-0">
-                    {t(locale, "editor_9ad5b0")}<span className="block text-[10px] text-muted/50">
-                      {skill.kind === "heal" ? t(locale, "editor_1e3998") : skill.kind === "dash" ? t(locale, "editor_c30150") : t(locale, "editor_776398")} {t(locale, "editor_d41d8a")}</span>
-                  </span>
-                  <input type="number" min={0} className={numberCls}
-                    value={skill.power}
-                    onChange={e => update(item.id, { skill: { ...skill, power: toNumber(e.target.value) } })} />
-                </label>
-              )}
-              {def?.hasRange && (
-                <label className="flex items-center gap-3 text-xs">
-                  <span className="w-32 shrink-0">{t(locale, "editor_514eae")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_7e413f")}</span></span>
-                  <input type="number" min={0} className={numberCls}
-                    value={skill.range}
-                    onChange={e => update(item.id, { skill: { ...skill, range: toNumber(e.target.value) } })} />
-                </label>
-              )}
-              <label className="flex items-center gap-3 text-xs">
+              </label>, arg1: def && <p className="text-[10px] text-muted/50 pl-1">{def.hint}</p>, arg2: <label className="flex items-center gap-3 text-xs">
                 <span className="w-32 shrink-0">{t(locale, "editor_3ce972")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_3197ec")}</span></span>
                 <input type="number" min={0} className={numberCls}
                   value={skill.cooldownSeconds}
                   onChange={e => update(item.id, { skill: { ...skill, cooldownSeconds: toNumber(e.target.value) } })} />
-              </label>
-              {skill.cooldownSeconds === 0 && (
-                <p className="text-[10px]" style={{ color: "rgba(251,191,36,0.8)" }}>
-                  {t(locale, "editor_8e2b62")}</p>
-              )}
-            </div>
+              </label> })}</div>
           );
         })()}
-      </div>
-
-      {food && (
-        <div className="pl-5 flex flex-col gap-1.5">
-          {/* ここも上限なし。満腹度が最大20でも、それを超える値は無害に切り捨てられる */}
-          <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">{t(locale, "editor_1e3998")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_e7d9fb")}</span></span>
-            <input type="number" min={0} className={numberCls}
-              value={food.nutrition}
-              onChange={e => update(item.id, { food: { ...food, nutrition: toNumber(e.target.value) } })} />
-          </label>
-          <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">{t(locale, "editor_9cc2a8")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_dd068f")}</span></span>
-            <input type="number" min={0} step={0.1} className={numberCls}
-              value={food.saturation}
-              onChange={e => update(item.id, { food: { ...food, saturation: toNumber(e.target.value) } })} />
-          </label>
-          <label className="flex items-center gap-3 text-xs">
-            <span className="w-32 shrink-0">{t(locale, "editor_65c82a")}<span className="block text-[10px] text-muted/50">{t(locale, "editor_8f906d")}</span></span>
-            <input type="number" min={0.1} step={0.1} className={numberCls}
-              value={food.useDuration}
-              onChange={e => update(item.id, { food: { ...food, useDuration: toNumber(e.target.value) } })} />
-          </label>
-          <label className="flex items-center gap-2 text-xs">
-            <input type="checkbox" checked={food.canAlwaysEat}
-              onChange={e => update(item.id, { food: { ...food, canAlwaysEat: e.target.checked } })} />
-            {t(locale, "editor_211096")}</label>
-        </div>
-      )}
-
-      {problems.length > 0 ? (
-        <div className="rounded-lg p-2.5 text-xs" style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.4)" }}>
-          <ul className="list-disc pl-4 space-y-0.5">{problems.map((p, i) => <li key={i}>{p}</li>)}</ul>
-        </div>
-      ) : (
-        <div className="rounded-lg p-2.5 text-xs" style={{ background: "rgba(60,208,112,0.10)", border: "1px solid rgba(60,208,112,0.35)" }}>
-          {t(locale, "editor_dde97d")}<code className="font-mono">/give @s cubicengine:{item.id}</code> {t(locale, "editor_61af87")}</div>
-      )}
-    </div>
+      </div> })}</div>
   );
 }
 
@@ -493,7 +209,7 @@ export default function ItemBuilder() {
       <div>
         <h2 className="text-lg font-bold">{t(locale, "editor_d4bb31")}</h2>
         <p className="text-xs text-muted/70 mt-1">
-          {t(locale, "editor_98b882")}<b>16×16</b> {t(locale, "editor_16602f")}</p>
+          {tNode(locale, "editor_frag_1a05c0680a7_34", { arg0: <b>16×16</b> })}</p>
       </div>
 
       <div

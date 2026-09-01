@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { useEditorStore } from "./store";
 import { JAVA_TARGET_LIST, getJavaTarget } from "../../lib/javaEngine/targets";
 import { exportProject, buildJavaFileList } from "./exporter";
-import { t } from "@/lib/i18n";
+import { t, tNode } from "@/lib/i18n";
 
 /* ═══════════════════════════════════════════
    Toggle Switch
@@ -92,7 +92,7 @@ function BuildTerminal() {
         const res = await api.buildAndInstall({ files, modsDir: det.modsDir, projectName: state.projectName });
         api.offBuildLog?.();
         push("");
-        push(`✅ ${res.jarName} を mods に導入しました！Forge 1.20.1 で起動して確認してね。`);
+        push(`✅ ${res.jarName} ${t(locale, "editor_installed_jar")}`);
         setExportedPlatform("java");
         setShowGuide(false);
         return;
@@ -103,7 +103,7 @@ function BuildTerminal() {
       push(t(locale, "editor_a837e0"));
       await wait(260);
       push("  ✓ manifest.json");
-      push(`  ▸ scripts/main.js を書き出し (${state.blocks.length} blocks) …`);
+      push(`  ▸ ${t(locale, "editor_writing_scripts").replace("{count}", String(state.blocks.length))}`);
       await wait(300);
       push("  ✓ scripts/main.js");
       push(plat === "bedrock" ? t(locale, "editor_e9aefa") : t(locale, "editor_4e6e24"));
@@ -224,10 +224,10 @@ function BuildTerminal() {
                   )}
                   <li>{t(locale, "editor_6bb3ff")}</li>
                   <li>{t(locale, "editor_3c22c8")}<strong>{t(locale, "editor_38426c")}</strong>）</li>
-                  <li>{t(locale, "editor_2a9102")}<strong style={{ color: "#15803d" }}>{t(locale, "editor_52c38c")}</strong> {t(locale, "editor_4eda40")}</li>
+                  <li>{tNode(locale, "settings_play_step", { play: <strong style={{ color: "#15803d" }}>{t(locale, "editor_52c38c")}</strong> })}</li>
                 </ol>
                 <div style={{ marginTop: 12, padding: "8px 12px", background: "rgba(220,80,80,0.12)", borderRadius: 8, fontSize: 12, color: "#a83232" }}>
-                  {t(locale, "editor_7fbd21")}<strong>{t(locale, "editor_f15e7b")}</strong>{t(locale, "editor_6c41e5")}</div>
+                  {tNode(locale, "settings_world_edit", { pencil: <strong>{t(locale, "editor_f15e7b")}</strong> })}</div>
               </>
             ) : (
               <>
@@ -236,11 +236,11 @@ function BuildTerminal() {
                   <li>{t(locale, "editor_877064")}</li>
                   <li>{t(locale, "editor_4a43d7")}<strong>files.minecraftforge.net</strong></li>
                   <li>{t(locale, "editor_38c95c")}<code style={{ background: "var(--surface-active)", padding: "1px 6px", borderRadius: 4 }}>gradle build</code></li>
-                  <li><code>build/libs/</code> {t(locale, "editor_359ebe")}<strong>.jar</strong> {t(locale, "editor_96ac23")}<code>.minecraft/mods/</code> {t(locale, "editor_40346e")}</li>
+                  <li>{tNode(locale, "settings_deploy_jar", { libs: <code>build/libs/</code>, ext: <strong>.jar</strong>, mods: <code>.minecraft/mods/</code> })}</li>
                   <li>{t(locale, "editor_c8a535")}</li>
                 </ol>
                 <div style={{ marginTop: 12, padding: "8px 12px", background: "rgba(218,165,32,0.15)", borderRadius: 8, fontSize: 12, color: "#8a6914" }}>
-                  {t(locale, "editor_35c529")}<strong>{t(locale, "editor_e152af")}</strong>{t(locale, "punct.period")}
+                  {tNode(locale, "settings_launch_check", { bang: <strong>{t(locale, "editor_e152af")}</strong> })}{t(locale, "punct.period")}
                 </div>
               </>
             )}
@@ -502,7 +502,7 @@ export default function SettingsPanel() {
                 {/* 遊ぶ人が何を入れるかを、選んだあとにも出しておく。
                     作った .jar を人に渡すとき、これを伝えないと相手が動かせない */}
                 <div className="text-[10px] text-muted/60 mt-1.5 leading-relaxed">
-                  {t(locale, "editor_f284f5")}<b>{getJavaTarget(javaTarget).requires}</b> {t(locale, "editor_e7e007")}</div>
+                  {tNode(locale, "settings_requires_java", { version: <b>{getJavaTarget(javaTarget).requires}</b> })}</div>
               </div>
             )}
             {targetPlatform === "bedrock" && (
@@ -550,7 +550,7 @@ export default function SettingsPanel() {
               </div>
               {exportFormat === "zip" && (
                 <p className="text-[10px] text-muted/70 mt-2 leading-relaxed">
-                  {t(locale, "editor_923152")}<b>.zip</b> {t(locale, "editor_96ac23")}<b>.mcaddon</b> {t(locale, "editor_f7070f")}</p>
+                  {tNode(locale, "settings_rename_zip", { zip: <b>.zip</b>, addon: <b>.mcaddon</b> })}</p>
               )}
             </div>
           )}

@@ -14,7 +14,7 @@ import { describeIR } from "../../../lib/devtab/bbmodel";
 import type { MobIR } from "../../../lib/devtab/ir";
 import { useEditorStore } from "../store";
 import { MOB_MOTIONS, describeVoxels, voxelsToMobIR, type MobMotion } from "../../../lib/devtab/voxelToIr";
-import { t } from "@/lib/i18n";
+import { t, tNode } from "@/lib/i18n";
 
 export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => void }) {
     const locale = useEditorStore((s) => s.locale);
@@ -113,14 +113,11 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
     // 画面外へ押し出される（スクロールすれば見えるが、誰も気づけない）。
     // 縦スクロールは親の DeveloperPanel が持っている。
     <div className="flex flex-col gap-4 p-5">
-      <div>
+      {tNode(locale, "editor_frag_1a05c06806c_24", { arg0: <div>
         <h2 className="text-lg font-bold">{t(locale, "editor_2ba947")}</h2>
         <p className="text-xs text-muted/70 mt-1">
-          {t(locale, "editor_546dd9")}<code>.bbmodel</code> {t(locale, "editor_740a56")}</p>
-      </div>
-
-      {/* 置き場所。クリックでもドラッグでも入れられるようにする */}
-      <div
+          {tNode(locale, "editor_frag_1a05c06806f_25", { arg0: <code>.bbmodel</code> })}</p>
+      </div>, arg1: {/* 置き場所。クリックでもドラッグでも入れられるようにする */}, arg2: <div
         onDragOver={e => {
           e.preventDefault();
           setDragOver(true);
@@ -149,99 +146,7 @@ export default function ModelImport({ onLoaded }: { onLoaded?: (ir: MobIR) => vo
             e.target.value = "";
           }}
         />
-      </div>
-
-      {/* モデルタブで積んだものを、そのままモブにできる。
-          Blockbench を持っていない人でもモブが作れるようにするための入口 */}
-      {voxelStats.cubes > 0 && (
-        <div className="rounded-xl p-4 flex flex-wrap items-center gap-3" style={{ background: "rgba(60,208,112,0.08)", border: "1px solid rgba(60,208,112,0.3)" }}>
-          <span className="text-2xl">📦</span>
-          <div className="flex-1 text-xs">
-            <b>{t(locale, "editor_a7d1f5")}</b>{t(locale, "editor_5b6538")}<span className="block text-[10px] text-muted/60">
-              {t(locale, "editor_0f8007")}{voxelStats.cubes} {t(locale, "editor_6aa31f")}{voxelStats.colors} {t(locale, "editor_feeac6")}</span>
-          </div>
-            <label className="flex items-center gap-2 text-xs w-full">
-              <span className="shrink-0">{t(locale, "editor_272138")}</span>
-              <select
-                className="flex-1 px-2 py-1 rounded text-xs bg-black/40 border border-white/15"
-                value={motion}
-                onChange={e => setMotion(e.target.value as MobMotion)}
-              >
-                {MOB_MOTIONS.map(m => (
-                  <option key={m.id} value={m.id}>{m.label}</option>
-                ))}
-              </select>
-            </label>
-          <button
-            onClick={fromVoxels}
-            className="text-xs font-bold px-3 py-2 rounded-lg shrink-0"
-            style={{ background: "#3cd070", color: "#06240f" }}
-          >
-            {t(locale, "editor_139645")}</button>
-        </div>
-      )}
-
-      {errors.length > 0 && (
-        <div className="rounded-lg p-3 text-xs" style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.4)" }}>
-          <div className="font-bold mb-1">{t(locale, "editor_9c3e69")}</div>
-          <ul className="list-disc pl-4 space-y-0.5">
-            {errors.map((m, i) => <li key={i}>{m}</li>)}
-          </ul>
-        </div>
-      )}
-
-      {warnings.length > 0 && (
-        <div className="rounded-lg p-3 text-xs" style={{ background: "rgba(250,204,21,0.10)", border: "1px solid rgba(250,204,21,0.35)" }}>
-          <div className="font-bold mb-1">{t(locale, "editor_cba9a9")}</div>
-          <ul className="list-disc pl-4 space-y-0.5">
-            {warnings.map((m, i) => <li key={i}>{m}</li>)}
-          </ul>
-        </div>
-      )}
-
-      {ir && stats && (
-        <div className="rounded-lg p-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)" }}>
-          <div className="flex items-baseline justify-between gap-3 mb-3">
-            <div className="font-bold">{ir.displayName}</div>
-            <code className="text-[11px] text-muted/70">{ir.geometry.identifier}</code>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 text-center mb-4">
-            {[
-              [t(locale, "editor_02869c"), stats.bones],
-              [t(locale, "editor_0f8007"), stats.cubes],
-              [t(locale, "editor_15ee71"), stats.textures],
-            ].map(([label, n]) => (
-              <div key={String(label)} className="rounded-lg py-2" style={{ background: "rgba(0,0,0,0.25)" }}>
-                <div className="text-xl font-black">{n}</div>
-                <div className="text-[10px] text-muted/60">{label}</div>
-              </div>
-            ))}
-          </div>
-
-          {ir.textures.length > 0 && (
-            <div className="flex flex-wrap gap-3">
-              {ir.textures.map(t => (
-                <figure key={t.name} className="text-center">
-                  {/* テクスチャは16px等の極小画像。拡大時にぼかさない */}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={t.dataUrl}
-                    alt={t.name}
-                    width={64}
-                    height={64}
-                    style={{ imageRendering: "pixelated", background: "rgba(0,0,0,0.4)", borderRadius: 6 }}
-                  />
-                  <figcaption className="text-[10px] text-muted/60 mt-1">
-                    {t.name}
-                    {t.width > 0 && <> ({t.width}×{t.height})</>}
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+      </div>, arg3: {/* モデルタブで積んだものを、そのままモブにできる。
+          Blockbench を持っていない人でもモブが作れるようにするための入口 */} })}</div>
   );
 }

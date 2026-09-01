@@ -398,7 +398,23 @@ export default function LiveStage({ blocks, onGather, rightOffset = 20 }: { bloc
       zIndex: 25,
       pointerEvents: "none",
     }}>
-      <style>{i18nT(locale, "editor_7999f1")}</style>
+      <style>{`@keyframes ls-bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+        @keyframes ls-hop { 0%{transform:translateY(0)} 35%{transform:translateY(-10px) scaleY(1.05)} 70%{transform:translateY(0) scaleY(0.94)} 100%{transform:translateY(0)} }
+        @keyframes ls-sleep { 0%,100%{transform:rotate(-2deg)} 50%{transform:rotate(2deg) translateY(-2px)} }
+        @keyframes ls-pop { 0%{transform:scale(0.4);opacity:0} 60%{transform:scale(1.08)} 100%{transform:scale(1);opacity:1} }
+        @keyframes ls-drop { 0%{transform:translateY(-34px) rotate(-12deg);opacity:0} 60%{opacity:1} 100%{transform:translateY(0) rotate(0)} }
+        @keyframes ls-title { 0%{transform:scale(0.5);opacity:0} 70%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+        @keyframes ls-ring { 0%{width:10px;height:10px;opacity:0.8} 100%{width:64px;height:64px;margin-left:-32px;margin-top:-32px;opacity:0} }
+        @keyframes ls-flash { 0%{opacity:0} 40%{opacity:1} 100%{opacity:0} }
+        @keyframes ls-entrance { 0%{transform:translateX(-120px);opacity:0} 100%{transform:translateX(0);opacity:1} }
+        
+        /* アンビエント用アニメ */
+        @keyframes ls-fly-right { 0%{transform:translateX(0)} 100%{transform:translateX(650px)} }
+        @keyframes ls-fly-right-wavy { 0%{transform:translate(0,0)} 25%{transform:translate(160px,-20px)} 50%{transform:translate(320px,15px)} 75%{transform:translate(480px,-10px)} 100%{transform:translate(650px,0)} }
+        @keyframes ls-swim-left { 0%{transform:translateX(0)} 100%{transform:translateX(-650px)} }
+        @keyframes ls-swim-wobble { 0%{transform:translateY(0) rotate(0deg)} 100%{transform:translateY(8px) rotate(-5deg)} }
+        @keyframes ls-float-up { 0%{transform:translateY(0)} 100%{transform:translateY(-300px)} }
+        @keyframes ls-flap { 0%{transform:scaleY(1)} 100%{transform:scaleY(0.2)} }`}</style>
 
       {/* ステージ枠（テーマ駆動） */}
       <div style={{

@@ -7,7 +7,7 @@ import { exportProject, buildJavaFileList } from "./exporter";
 import { useEditorStore } from "./store";
 import { buildGroveStructure, type GroveSlot } from "../../lib/groveTree";
 import { CodeRevealOverlay } from "./CodeRevealOverlay";
-import { t as i18nT } from "@/lib/i18n";
+import { t as i18nT, tNode } from "@/lib/i18n";
 
 /* ──────────────────────────────────────────────────────────────
    GrapePanel — 🌿 GROVE（JAVA / 自然×メタバース）/ 構造は「ハブ」
@@ -20,49 +20,49 @@ import { t as i18nT } from "@/lib/i18n";
 type Cat = "trigger" | "action" | "ifelse" | "value" | "loop";
 
 const CAT_STYLE: Record<Cat, { label: string; color: string; glow: string }> = {
-  trigger: { label: i18nT(useEditorStore.getState().locale, "editor_a3ef5f"),   color: "#d45d79", glow: "#ff8fa9" }, // 深みのあるローズルビー
-  action:  { label: i18nT(useEditorStore.getState().locale, "editor_36a9d7"), color: "#3a86c8", glow: "#74b3e8" }, // 深みのあるサファイアブルー
-  ifelse:  { label: i18nT(useEditorStore.getState().locale, "editor_fcefb8"),   color: "#229c8e", glow: "#58dbcd" }, // 深みのあるエメラルドティール
-  value:   { label: i18nT(useEditorStore.getState().locale, "editor_90013f"),         color: "#d9a13c", glow: "#ffd075" }, // 深みのあるアンバーゴールド
-  loop:    { label: i18nT(useEditorStore.getState().locale, "editor_0b32df"),     color: "#c67b32", glow: "#ffb470" }, // 深みのある琥珀トパーズ
+  trigger: { get label() { return i18nT(useEditorStore.getState().locale, "editor_a3ef5f"); },   color: "#d45d79", glow: "#ff8fa9" }, // 深みのあるローズルビー
+  action:  { get label() { return i18nT(useEditorStore.getState().locale, "editor_36a9d7"); }, color: "#3a86c8", glow: "#74b3e8" }, // 深みのあるサファイアブルー
+  ifelse:  { get label() { return i18nT(useEditorStore.getState().locale, "editor_fcefb8"); },   color: "#229c8e", glow: "#58dbcd" }, // 深みのあるエメラルドティール
+  value:   { get label() { return i18nT(useEditorStore.getState().locale, "editor_90013f"); },         color: "#d9a13c", glow: "#ffd075" }, // 深みのあるアンバーゴールド
+  loop:    { get label() { return i18nT(useEditorStore.getState().locale, "editor_0b32df"); },     color: "#c67b32", glow: "#ffb470" }, // 深みのある琥珀トパーズ
 };
 const CAT_ORDER: Cat[] = ["trigger", "action", "ifelse", "value", "loop"];
 
 interface ItemDef { type: string; label: string; emoji: string; cat: Cat; needsText: boolean; placeholder: string; }
 
 const ITEMS: ItemDef[] = [
-  { type: "on_join",  label: i18nT(useEditorStore.getState().locale, "editor_831831"), emoji: "👋", cat: "trigger", needsText: false, placeholder: "" },
-  { type: "on_break", label: i18nT(useEditorStore.getState().locale, "editor_a50245"),   emoji: "⛏️", cat: "trigger", needsText: false, placeholder: "" },
-  { type: "on_chat",  label: i18nT(useEditorStore.getState().locale, "editor_df410b"),   emoji: "💬", cat: "trigger", needsText: true,  placeholder: i18nT(useEditorStore.getState().locale, "editor_c597ad") },
-  { type: "on_use",   label: i18nT(useEditorStore.getState().locale, "editor_7c3e1e"),   emoji: "🔮", cat: "trigger", needsText: true, placeholder: "diamond" },
-  { type: "on_hurt",  label: i18nT(useEditorStore.getState().locale, "editor_c99864"),     emoji: "💥", cat: "trigger", needsText: false, placeholder: "" },
-  { type: "on_tick",  label: i18nT(useEditorStore.getState().locale, "editor_4c862e"),     emoji: "⏰", cat: "trigger", needsText: false, placeholder: "" },
-  { type: "say",      label: i18nT(useEditorStore.getState().locale, "editor_15f84e"), emoji: "📢", cat: "action",  needsText: true,  placeholder: i18nT(useEditorStore.getState().locale, "editor_87e7e2") },
-  { type: "give",     label: i18nT(useEditorStore.getState().locale, "editor_dcea42"),   emoji: "🎁", cat: "action",  needsText: true,  placeholder: "diamond ×1" },
-  { type: "effect",   label: i18nT(useEditorStore.getState().locale, "editor_a2ed00"), emoji: "✨", cat: "action",  needsText: false, placeholder: "" },
-  { type: "tp",       label: i18nT(useEditorStore.getState().locale, "editor_149f76"),     emoji: "🌀", cat: "action",  needsText: true,  placeholder: "0 64 0" },
-  { type: "title",    label: i18nT(useEditorStore.getState().locale, "editor_eb4cff"),   emoji: "🎬", cat: "action", needsText: true,  placeholder: i18nT(useEditorStore.getState().locale, "editor_613b53") },
-  { type: "sound",    label: i18nT(useEditorStore.getState().locale, "editor_782b9c"),   emoji: "🔊", cat: "action",  needsText: true,  placeholder: "random.levelup" },
-  { type: "command",  label: i18nT(useEditorStore.getState().locale, "editor_10f2ae"),   emoji: "⌨️", cat: "action",  needsText: true,  placeholder: "time set day" },
-  { type: "if",       label: i18nT(useEditorStore.getState().locale, "editor_fcefb8"),       emoji: "🔀", cat: "ifelse",  needsText: true,  placeholder: i18nT(useEditorStore.getState().locale, "editor_ea3192") },
-  { type: "repeat",   label: i18nT(useEditorStore.getState().locale, "editor_ebf87b"),       emoji: "🔄", cat: "loop",    needsText: true,  placeholder: i18nT(useEditorStore.getState().locale, "editor_e50111") },
-  { type: "number",   label: i18nT(useEditorStore.getState().locale, "editor_fbb4b9"),           emoji: "💎", cat: "value",   needsText: true,  placeholder: "10" },
+  { type: "on_join",  get label() { return i18nT(useEditorStore.getState().locale, "editor_831831"); }, emoji: "👋", cat: "trigger", needsText: false, placeholder: "" },
+  { type: "on_break", get label() { return i18nT(useEditorStore.getState().locale, "editor_a50245"); },   emoji: "⛏️", cat: "trigger", needsText: false, placeholder: "" },
+  { type: "on_chat",  get label() { return i18nT(useEditorStore.getState().locale, "editor_df410b"); },   emoji: "💬", cat: "trigger", needsText: true,  get placeholder() { return i18nT(useEditorStore.getState().locale, "editor_c597ad"); } },
+  { type: "on_use",   get label() { return i18nT(useEditorStore.getState().locale, "editor_7c3e1e"); },   emoji: "🔮", cat: "trigger", needsText: true, placeholder: "diamond" },
+  { type: "on_hurt",  get label() { return i18nT(useEditorStore.getState().locale, "editor_c99864"); },     emoji: "💥", cat: "trigger", needsText: false, placeholder: "" },
+  { type: "on_tick",  get label() { return i18nT(useEditorStore.getState().locale, "editor_4c862e"); },     emoji: "⏰", cat: "trigger", needsText: false, placeholder: "" },
+  { type: "say",      get label() { return i18nT(useEditorStore.getState().locale, "editor_15f84e"); }, emoji: "📢", cat: "action",  needsText: true,  get placeholder() { return i18nT(useEditorStore.getState().locale, "editor_87e7e2"); } },
+  { type: "give",     get label() { return i18nT(useEditorStore.getState().locale, "editor_dcea42"); },   emoji: "🎁", cat: "action",  needsText: true,  placeholder: "diamond ×1" },
+  { type: "effect",   get label() { return i18nT(useEditorStore.getState().locale, "editor_a2ed00"); }, emoji: "✨", cat: "action",  needsText: false, placeholder: "" },
+  { type: "tp",       get label() { return i18nT(useEditorStore.getState().locale, "editor_149f76"); },     emoji: "🌀", cat: "action",  needsText: true,  placeholder: "0 64 0" },
+  { type: "title",    get label() { return i18nT(useEditorStore.getState().locale, "editor_eb4cff"); },   emoji: "🎬", cat: "action", needsText: true,  get placeholder() { return i18nT(useEditorStore.getState().locale, "editor_613b53"); } },
+  { type: "sound",    get label() { return i18nT(useEditorStore.getState().locale, "editor_782b9c"); },   emoji: "🔊", cat: "action",  needsText: true,  placeholder: "random.levelup" },
+  { type: "command",  get label() { return i18nT(useEditorStore.getState().locale, "editor_10f2ae"); },   emoji: "⌨️", cat: "action",  needsText: true,  placeholder: "time set day" },
+  { type: "if",       get label() { return i18nT(useEditorStore.getState().locale, "editor_fcefb8"); },       emoji: "🔀", cat: "ifelse",  needsText: true,  get placeholder() { return i18nT(useEditorStore.getState().locale, "editor_ea3192"); } },
+  { type: "repeat",   get label() { return i18nT(useEditorStore.getState().locale, "editor_ebf87b"); },       emoji: "🔄", cat: "loop",    needsText: true,  get placeholder() { return i18nT(useEditorStore.getState().locale, "editor_e50111"); } },
+  { type: "number",   get label() { return i18nT(useEditorStore.getState().locale, "editor_fbb4b9"); },           emoji: "💎", cat: "value",   needsText: true,  placeholder: "10" },
 ];
 
 // 「アイテム付与」用：アイテム候補(id=ゲーム内ID / label=日本語つき)。個数は別ドロップダウンにする（×1が分かりにくい対策）。
 const GIVE_ITEMS: { id: string; label: string }[] = [
-  { id: "diamond",          label: i18nT(useEditorStore.getState().locale, "editor_58198d") },
-  { id: "iron_ingot",       label: i18nT(useEditorStore.getState().locale, "editor_dd835e") },
-  { id: "gold_ingot",       label: i18nT(useEditorStore.getState().locale, "editor_13f9f2") },
-  { id: "netherite_ingot",  label: i18nT(useEditorStore.getState().locale, "editor_d92b4b") },
-  { id: "emerald",          label: i18nT(useEditorStore.getState().locale, "editor_4c76e3") },
-  { id: "golden_apple",     label: i18nT(useEditorStore.getState().locale, "editor_402de1") },
-  { id: "bread",            label: i18nT(useEditorStore.getState().locale, "editor_e686b6") },
-  { id: "diamond_sword",    label: i18nT(useEditorStore.getState().locale, "editor_81fc50") },
-  { id: "diamond_pickaxe",  label: i18nT(useEditorStore.getState().locale, "editor_013ee9") },
-  { id: "oak_log",          label: i18nT(useEditorStore.getState().locale, "editor_835698") },
+  { id: "diamond",          get label() { return i18nT(useEditorStore.getState().locale, "editor_58198d"); } },
+  { id: "iron_ingot",       get label() { return i18nT(useEditorStore.getState().locale, "editor_dd835e"); } },
+  { id: "gold_ingot",       get label() { return i18nT(useEditorStore.getState().locale, "editor_13f9f2"); } },
+  { id: "netherite_ingot",  get label() { return i18nT(useEditorStore.getState().locale, "editor_d92b4b"); } },
+  { id: "emerald",          get label() { return i18nT(useEditorStore.getState().locale, "editor_4c76e3"); } },
+  { id: "golden_apple",     get label() { return i18nT(useEditorStore.getState().locale, "editor_402de1"); } },
+  { id: "bread",            get label() { return i18nT(useEditorStore.getState().locale, "editor_e686b6"); } },
+  { id: "diamond_sword",    get label() { return i18nT(useEditorStore.getState().locale, "editor_81fc50"); } },
+  { id: "diamond_pickaxe",  get label() { return i18nT(useEditorStore.getState().locale, "editor_013ee9"); } },
+  { id: "oak_log",          get label() { return i18nT(useEditorStore.getState().locale, "editor_835698"); } },
   { id: "tnt",              label: "TNT (tnt)" },
-  { id: "ender_pearl",      label: i18nT(useEditorStore.getState().locale, "editor_983f88") },
+  { id: "ender_pearl",      get label() { return i18nT(useEditorStore.getState().locale, "editor_983f88"); } },
 ];
 const GIVE_COUNTS = ["1", "2", "4", "8", "16", "32", "64"];
 
@@ -797,16 +797,8 @@ export default function GrapePanel() {
           cursor: sending ? "default" : draggingId ? "grabbing" : "crosshair",
         }}
       >
-        {/* 上からの光芒（god rays） */}
-        <div style={{ position: "absolute", top: "-12%", left: "50%", transform: "translateX(-50%)", width: "62%", height: "95%", pointerEvents: "none", filter: "blur(7px)", opacity: 0.8,
-          background: "conic-gradient(from 178deg at 50% 0%, transparent 0deg, rgba(0,210,255,0.08) 10deg, transparent 20deg, rgba(0,210,255,0.06) 30deg, transparent 40deg, rgba(0,210,255,0.07) 50deg, transparent 60deg)" }} />
-        {/* 両脇のバイオ発光（＝遊び場） */}
-        <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "24%", pointerEvents: "none", background: "radial-gradient(58% 48% at 0% 58%, rgba(0,180,230,0.22), transparent 72%)" }} />
-        <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "24%", pointerEvents: "none", background: "radial-gradient(58% 48% at 100% 46%, rgba(0,140,200,0.20), transparent 72%)" }} />
-        {/* 底のもや */}
-        <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: "32%", pointerEvents: "none", background: "linear-gradient(to top, rgba(0,150,210,0.24), transparent)", filter: "blur(12px)" }} />
-        {/* 漂う発光の粒（丸くボケ足のある美しい光の粒） */}
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+        {tNode(locale, "editor_frag_1a05c068027_22", { arg0: {/* 上からの光芒（god rays） */}, arg1: <div style={{ position: "absolute", top: "-12%", left: "50%", transform: "translateX(-50%)", width: "62%", height: "95%", pointerEvents: "none", filter: "blur(7px)", opacity: 0.8,
+          background: "conic-gradient(from 178deg at 50% 0%, transparent 0deg, rgba(0,210,255,0.08) 10deg, transparent 20deg, rgba(0,210,255,0.06) 30deg, transparent 40deg, rgba(0,210,255,0.07) 50deg, transparent 60deg)" }} />, arg2: {/* 両脇のバイオ発光（＝遊び場） */}, arg3: <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "24%", pointerEvents: "none", background: "radial-gradient(58% 48% at 0% 58%, rgba(0,180,230,0.22), transparent 72%)" }} />, arg4: <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "24%", pointerEvents: "none", background: "radial-gradient(58% 48% at 100% 46%, rgba(0,140,200,0.20), transparent 72%)" }} />, arg5: {/* 底のもや */}, arg6: <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: "32%", pointerEvents: "none", background: "linear-gradient(to top, rgba(0,150,210,0.24), transparent)", filter: "blur(12px)" }} />, arg7: {/* 漂う発光の粒（丸くボケ足のある美しい光の粒） */}, arg8: <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
           {MOTES.map((m, i) => (
             <div key={i} style={{ position: "absolute", left: m.x, top: m.y, pointerEvents: "none" }}>
               {/* 外側の霧散ハロー（大きく柔らかく） */}
@@ -836,9 +828,7 @@ export default function GrapePanel() {
               }} />
             </div>
           ))}
-        </div>
-        {/* 🌠 たまに出現するマイクラの星座イースターエッグ */}
-        {constellation && (
+        </div>, arg9: {/* 🌠 たまに出現するマイクラの星座イースターエッグ */}, arg10: constellation && (
           <div
             key={constellation.id}
             style={{
@@ -885,17 +875,9 @@ export default function GrapePanel() {
               })()}
             </div>
           </div>
-        )}
-        {/* 周辺ビネット（中央へ集中させる） */}
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", boxShadow: "inset 0 0 200px rgba(0,0,0,0.72)" }} />
-
-        {/* タイトル＝GROVE */}
-        <div style={{ position: "absolute", top: 16, left: 20, zIndex: 2, fontWeight: 900, fontSize: 15, color: "#a8eeff", letterSpacing: "0.18em", display: "flex", alignItems: "center", gap: 8, textShadow: "0 1px 6px rgba(0,180,255,0.5)", pointerEvents: "none" }}>
+        ), arg11: {/* 周辺ビネット（中央へ集中させる） */}, arg12: <div style={{ position: "absolute", inset: 0, pointerEvents: "none", boxShadow: "inset 0 0 200px rgba(0,0,0,0.72)" }} />, arg13: {/* タイトル＝GROVE */}, arg14: <div style={{ position: "absolute", top: 16, left: 20, zIndex: 2, fontWeight: 900, fontSize: 15, color: "#a8eeff", letterSpacing: "0.18em", display: "flex", alignItems: "center", gap: 8, textShadow: "0 1px 6px rgba(0,180,255,0.5)", pointerEvents: "none" }}>
           <span style={{ fontSize: 18 }}>🌿</span> GROVE <span style={{ fontSize: 10, fontWeight: 800, opacity: 0.7, letterSpacing: "0.1em" }}>JAVA</span>
-        </div>
-
-        {/* 🔍 ズームコントローラー */}
-        <div style={{
+        </div>, arg15: {/* 🔍 ズームコントローラー */}, arg16: <div style={{
           position: "absolute", top: 16, right: 20, zIndex: 10,
           display: "flex", alignItems: "center", gap: 6,
           background: "rgba(5, 25, 50, 0.75)", backdropFilter: "blur(8px)",
@@ -932,10 +914,7 @@ export default function GrapePanel() {
           >
             ⟲
           </button>
-        </div>
-
-        {/* 🌟 ズーム対象のコンテンツラッパー */}
-        <div style={{
+        </div>, arg17: {/* 🌟 ズーム対象のコンテンツラッパー */}, arg18: <div style={{
           position: "absolute",
           inset: 0,
           transform: `scale(${zoom})`,
@@ -1219,10 +1198,7 @@ export default function GrapePanel() {
               </div>
             );
           })()}
-        </div>
-
-        {/* 閃光（フラッシュ）画面全体 */}
-        {launchPhase === "launch" && (
+        </div>, arg19: {/* 閃光（フラッシュ）画面全体 */}, arg20: launchPhase === "launch" && (
           <div style={{
             position: "absolute",
             inset: 0,
@@ -1231,119 +1207,14 @@ export default function GrapePanel() {
             pointerEvents: "none",
             animation: "flash-overlay 0.8s ease-out forwards",
           }} />
-        )}
-
-        {/* マイクラへ放つ（固定・右下） */}
-        {fruits.length > 0 && (
-          <button type="button" onClick={(e) => { e.stopPropagation(); sendToMc(); }} disabled={sending} style={{
-            position: "absolute", right: 20, bottom: 20, zIndex: 10,
-            padding: "10px 18px", borderRadius: 12, border: "none", cursor: sending ? "default" : "pointer",
-            background: "linear-gradient(135deg, #00c8ff, #0088cc)", color: "#fff", fontWeight: 900, fontSize: 13,
-            boxShadow: "0 4px 16px rgba(0,180,255,0.45), inset 0 1px 0 rgba(255,255,255,0.4)",
-            display: "flex", alignItems: "center", gap: 6, animation: "mc-invite 1.8s ease-in-out infinite",
-          }}>
-            <span style={{ fontSize: 15 }}>⛏️</span> {i18nT(locale, "editor_23343a")}</button>
-        )}
-
-        {/* コード誕生＋写経（大人トーン）。GROVE=JAVA/プロ向けなので tone="adult" */}
-        {reveal && (
+        ), arg21: {/* マイクラへ放つ（固定・右下） */}, arg22: {/* コード誕生＋写経（大人トーン）。GROVE=JAVA/プロ向けなので tone="adult" */}, arg23: reveal && (
           <CodeRevealOverlay
             revealCode={reveal.join("\n")}
             onClose={() => setReveal(null)}
             theme="grove"
             tone="adult"
           />
-        )}
-
-        {/* 種まきラジアル / インライン入力（カーソルの場所に出る） */}
-        {spawn && (
-          <>
-            <div onClick={(e) => { e.stopPropagation(); setSpawn(null); }} style={{ position: "absolute", inset: 0, zIndex: 20 }} />
-            <div onClick={(e) => e.stopPropagation()} style={{
-              position: "absolute", left: spawn.x * zoom, top: spawn.y * zoom, transform: "translate(-50%, 10px)", zIndex: 21,
-              background: "rgba(5, 20, 45, 0.97)", border: "1px solid rgba(0, 200, 255, 0.25)", borderRadius: 14,
-              padding: 10, boxShadow: "0 10px 30px rgba(0,0,0,0.5)", animation: "pop-in 0.18s cubic-bezier(0.34,1.56,0.64,1)",
-              maxWidth: 540, width: "max-content",
-            }}>
-              {spawn.phase === "pick" ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {CAT_ORDER
-                    .filter((cat) => fruits.length === 0 ? cat === "trigger" : cat !== "trigger")
-                    .map((cat) => {
-                      const cs = CAT_STYLE[cat];
-                      const items = ITEMS.filter((it) => it.cat === cat);
-                      return (
-                        <div key={cat} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                          <div style={{ fontSize: 9, fontWeight: 900, color: cs.color, letterSpacing: "0.08em", display: "flex", alignItems: "center", gap: 4 }}>
-                            <span style={{ width: 5, height: 5, borderRadius: "50%", background: cs.color, boxShadow: `0 0 5px ${cs.glow}` }} />
-                            {cs.label.toUpperCase()}
-                          </div>
-                          <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-                            {items.map((it) => (
-                              <button key={it.type} type="button" onClick={() => pickItem(it)} style={{
-                                display: "inline-flex", alignItems: "center", gap: 5, padding: "7px 11px", borderRadius: 11, border: "none", cursor: "pointer",
-                                color: "#fff", fontWeight: 800, fontSize: 11, background: `linear-gradient(160deg, ${cs.glow}, ${cs.color})`,
-                                boxShadow: `0 4px 0 ${shade(cs.color)}, 0 6px 9px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.45)`,
-                                textShadow: "0 1px 1px rgba(0,0,0,0.35)",
-                                transition: "transform 0.12s ease, box-shadow 0.12s ease",
-                              }}
-                              onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; }}
-                              onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = `0 4px 0 ${shade(cs.color)}, 0 6px 9px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.45)`; }}
-                              onMouseDown={(e) => { e.currentTarget.style.transform = "translateY(3px)"; e.currentTarget.style.boxShadow = `0 1px 0 ${shade(cs.color)}, 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.35)`; }}
-                              onMouseUp={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = `0 4px 0 ${shade(cs.color)}, 0 6px 9px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.45)`; }}
-                              >
-                                <ItemGlyph type={it.type} size={13} />{it.label}{it.needsText && <span style={{ fontSize: 9, opacity: 0.8 }}>✎</span>}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-              ) : spawn.item ? (
-                <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 240 }}>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: "#fff", display: "inline-flex", alignItems: "center", gap: 5, background: CAT_STYLE[spawn.item.cat].color, padding: "5px 9px", borderRadius: 8, boxShadow: `0 0 10px ${CAT_STYLE[spawn.item.cat].glow}`, whiteSpace: "nowrap" }}>
-                    <ItemGlyph type={spawn.item.type} size={14} />{spawn.item.label}
-                  </span>
-                  {spawn.item.type === "give" ? (() => {
-                    // アイテム付与＝「アイテム▼」＋「個数▼」に分割。裏で "item ×count" を組み立てるのでパーサ据え置き。
-                    const gm = draft.trim().match(/^([a-zA-Z0-9_:-]+)(?:\s*[xX×\s]\s*(\d+))?/);
-                    const gItem = gm?.[1] || "diamond";
-                    const gCount = gm?.[2] || "1";
-                    const selSt: React.CSSProperties = { fontSize: 13, fontWeight: 700, color: "#fff", padding: "7px 10px", borderRadius: 9, border: `2px solid ${CAT_STYLE[spawn.item.cat].glow}`, outline: "none", background: "rgba(0,0,0,0.35)", cursor: "pointer" };
-                    return (
-                      <>
-                        <select value={gItem} onChange={(e) => setDraft(`${e.target.value} ×${gCount}`)} style={{ ...selSt, flex: 1 }}>
-                          {!GIVE_ITEMS.some((g) => g.id === gItem) && <option value={gItem}>{gItem}</option>}
-                          {GIVE_ITEMS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
-                        </select>
-                        <select value={gCount} onChange={(e) => setDraft(`${gItem} ×${e.target.value}`)} style={selSt} title={i18nT(locale, "editor_7bdd30")}>
-                          {!GIVE_COUNTS.includes(gCount) && <option value={gCount}>{gCount}{i18nT(locale, "editor_9b9b7e")}</option>}
-                          {GIVE_COUNTS.map((n) => <option key={n} value={n}>{n}{i18nT(locale, "editor_9b9b7e")}</option>)}
-                        </select>
-                      </>
-                    );
-                  })() : (
-                    <>
-                      <input ref={inputRef} value={draft} placeholder={spawn.item.placeholder || i18nT(locale, "editor_91acbb")}
-                        list={ITEM_OPTIONS[spawn.item.type] ? `grove-dl-${spawn.item.type}` : undefined}
-                        onChange={(e) => setDraft(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === "Enter") confirmType(); if (e.key === "Escape") setSpawn(null); }}
-                        style={{ flex: 1, fontSize: 14, fontWeight: 700, color: "#fff", padding: "7px 10px", borderRadius: 9, border: `2px solid ${CAT_STYLE[spawn.item.cat].glow}`, outline: "none", background: "rgba(0,0,0,0.3)" }} />
-                      {ITEM_OPTIONS[spawn.item.type] && (
-                        <datalist id={`grove-dl-${spawn.item.type}`}>
-                          {ITEM_OPTIONS[spawn.item.type].map((o) => <option key={o} value={o} />)}
-                        </datalist>
-                      )}
-                    </>
-                  )}
-                  <button type="button" onClick={confirmType} style={{ border: "none", cursor: "pointer", background: CAT_STYLE[spawn.item.cat].color, color: "#fff", fontWeight: 900, fontSize: 12, padding: "7px 11px", borderRadius: 9 }}>OK</button>
-                </div>
-              ) : null}
-            </div>
-          </>
-        )}
-      </div>
+        ), arg24: {/* 種まきラジアル / インライン入力（カーソルの場所に出る） */} })}</div>
     </div>
   );
 }

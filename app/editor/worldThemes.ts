@@ -33,7 +33,7 @@ export interface WorldTheme {
 export const WORLD_THEMES: Record<WorldThemeId, WorldTheme> = {
   land: {
     id: "land",
-    name: t(useEditorStore.getState().locale, "editor_3a5fe5"),
+    get name() { return t(useEditorStore.getState().locale, "editor_3a5fe5"); },
     emoji: "🌳",
     bgGradient: "linear-gradient(to bottom, #bfe3ff 0%, #dff0ff 52%, #f0f8ff 100%)",
     groundColor: "linear-gradient(#5fa845, #4a7d36)",
@@ -50,7 +50,7 @@ export const WORLD_THEMES: Record<WorldThemeId, WorldTheme> = {
   },
   sea: {
     id: "sea",
-    name: t(useEditorStore.getState().locale, "editor_9aa7f8"),
+    get name() { return t(useEditorStore.getState().locale, "editor_9aa7f8"); },
     emoji: "🌊",
     bgGradient: "linear-gradient(to bottom, #1ebbf0 0%, #0a4f9e 60%, #062b59 100%)",
     groundColor: "linear-gradient(#e2cda3, #c2ae84)",

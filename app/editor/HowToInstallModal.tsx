@@ -13,7 +13,7 @@
 import { useEffect, useRef, useState } from "react";
 import { X, Smartphone, Monitor, Sparkles, CheckCircle2, AlertTriangle } from "lucide-react";
 import { useEditorStore } from "./store";
-import { t } from "@/lib/i18n";
+import { t, tNode } from "@/lib/i18n";
 
 type Edition = "bedrock" | "java";
 
@@ -78,8 +78,7 @@ export default function HowToInstallModal({ isOpen, onClose, projectName = "my_a
         </div>
 
         <div className="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
-          {/* ── どっちのマイクラ？（ここが分からないと以降が全部間違う） ── */}
-          <div className="grid grid-cols-2 gap-2 p-1 bg-slate-800 rounded-xl border border-slate-700">
+          {tNode(locale, "editor_frag_1a05c06800a_21", { arg0: {/* ── どっちのマイクラ？（ここが分からないと以降が全部間違う） ── */}, arg1: <div className="grid grid-cols-2 gap-2 p-1 bg-slate-800 rounded-xl border border-slate-700">
             <button
               onClick={() => setEdition("bedrock")}
               className={`py-2.5 rounded-lg font-bold text-xs transition-all ${
@@ -98,143 +97,7 @@ export default function HowToInstallModal({ isOpen, onClose, projectName = "my_a
               {t(locale, "editor_4f382b")}<span className="hidden sm:inline">{t(locale, "editor_c407de")}</span>
               <span className="block font-mono text-[10px] opacity-80">.jar</span>
             </button>
-          </div>
-
-          {/* ══════════ 統合版 ══════════ */}
-          {!isJava && (
-            <>
-              {/* デバイス切り替えタブ */}
-              <div className="grid grid-cols-3 gap-2 p-1 bg-slate-800 rounded-xl border border-slate-700">
-                <button
-                  onClick={() => setDeviceTab("ios")}
-                  className={`flex items-center justify-center gap-1.5 py-2.5 rounded-lg font-bold text-xs transition-all ${
-                    deviceTab === "ios"
-                      ? "bg-emerald-500 text-slate-950 shadow-md scale-105"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  <Smartphone size={14} /> iPhone/iPad
-                </button>
-                <button
-                  onClick={() => setDeviceTab("android")}
-                  className={`flex items-center justify-center gap-1.5 py-2.5 rounded-lg font-bold text-xs transition-all ${
-                    deviceTab === "android"
-                      ? "bg-emerald-500 text-slate-950 shadow-md scale-105"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  <Smartphone size={14} /> Android
-                </button>
-                <button
-                  onClick={() => setDeviceTab("pc")}
-                  className={`flex items-center justify-center gap-1.5 py-2.5 rounded-lg font-bold text-xs transition-all ${
-                    deviceTab === "pc"
-                      ? "bg-emerald-500 text-slate-950 shadow-md scale-105"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  <Monitor size={14} /> {t(locale, "editor_b92760")}</button>
-              </div>
-
-              {/* ステップ案内 */}
-              <div className="space-y-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
-                {deviceTab === "ios" && (
-                  <>
-                    <Step n={1} title={t(locale, "editor_556dcf")}>
-                      {t(locale, "editor_c572de")}<Code>{slug}.mcaddon</Code> {t(locale, "editor_9df7a6")}</Step>
-                    <Step n={2} title={t(locale, "editor_ff2d46")}>
-                      {t(locale, "editor_df25fc")}</Step>
-                    <Step n={3} title={t(locale, "editor_b5102d")}>
-                      {t(locale, "editor_156181")}</Step>
-                  </>
-                )}
-
-                {deviceTab === "android" && (
-                  <>
-                    <Step n={1} title={t(locale, "editor_105128")}>
-                      {t(locale, "editor_a30ffa")}<Code>{slug}.mcaddon</Code> {t(locale, "editor_9df7a6")}</Step>
-                    <Step n={2} title={t(locale, "editor_54fe2a")}>
-                      {t(locale, "editor_7372ff")}</Step>
-                    <Step n={3} title={t(locale, "editor_eae23e")}>
-                      {t(locale, "editor_5e4832")}</Step>
-                  </>
-                )}
-
-                {deviceTab === "pc" && (
-                  <>
-                    <Step n={1} title={t(locale, "editor_2fadfd")}>
-                      {t(locale, "editor_736d6d")}<Code>{slug}.mcaddon</Code> {t(locale, "editor_3d0411")}</Step>
-                    <Step n={2} title={t(locale, "editor_bb7a1a")}>
-                      {t(locale, "editor_e0afb4")}</Step>
-                    <Step n={3} title={t(locale, "editor_ebbfa9")}>
-                      {t(locale, "editor_b53750")}</Step>
-                  </>
-                )}
-              </div>
-
-              {/* アドバイスメモ（実験的機能は統合版だけの話） */}
-              <div className="bg-emerald-950/40 p-3 rounded-xl border border-emerald-800/60 flex items-center gap-2 text-xs text-emerald-200">
-                <Sparkles className="text-yellow-400 flex-shrink-0" size={18} />
-                <span>
-                  {t(locale, "editor_8a2f4d")}</span>
-              </div>
-            </>
-          )}
-
-          {/* ══════════ Java版 ══════════ */}
-          {isJava && (
-            <>
-              {/* ⚠️ 先に言う。スマホの人がここまで読み進めてから
-                     「パソコンだけ」と知るのが一番つらい。 */}
-              <div className="bg-orange-950/50 p-3 rounded-xl border border-orange-700/60 flex items-start gap-2 text-xs text-orange-100">
-                <Monitor className="text-orange-300 flex-shrink-0 mt-0.5" size={18} />
-                <span>
-                  {t(locale, "editor_2e1c2f")}<b className="text-yellow-300">{t(locale, "editor_f6d349")}</b>{t(locale, "editor_ca76c7")}</span>
-              </div>
-
-              <div className="space-y-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
-                <Step n={1} title={t(locale, "editor_3500b0")} java>
-                  {t(locale, "editor_0a6211")}<b className="text-yellow-300">files.minecraftforge.net</b> {t(locale, "editor_0dbdaf")}<b className="text-yellow-300"> 1.20.1</b> {t(locale, "editor_29ef07")}<span className="block mt-1 text-orange-300/90">
-                    {t(locale, "editor_a07385")}</span>
-                </Step>
-                <Step n={2} title={t(locale, "editor_30631a")} java>
-                  {t(locale, "editor_1b5ea6")}<Code java>mods</Code> {t(locale, "editor_8bd353")}<span className="block mt-1">
-                    Windows … <Code java>Win + R</Code> {t(locale, "editor_d35c70")}<Code java>%appdata%\.minecraft\mods</Code>
-                  </span>
-                  <span className="block">
-                    Mac … <Code java>~/Library/Application Support/minecraft/mods</Code>
-                  </span>
-                  <span className="block mt-1 text-slate-400">
-                    {t(locale, "editor_fc4af4")}<Code java>mods</Code> {t(locale, "editor_ebd787")}</span>
-                </Step>
-                <Step n={3} title={t(locale, "editor_0155d2")} java>
-                  {t(locale, "editor_736d6d")}<Code java>{slug}-mod.jar</Code> {t(locale, "editor_73efd8")}<b className="text-yellow-300">{t(locale, "editor_c0380a")}</b>{t(locale, "punct.period")}
-                  <span className="block mt-1 text-orange-300/90">
-                    {t(locale, "editor_07388c")}</span>
-                  {/* ⚠️ 実際に踏んだ落とし穴（2026-08-30）。Forge は .jar のファイル名から
-                      Java のモジュール名を作るので、日本語が入っていると名前が空になり
-                      「Invalid module name」で**MOD読み込みより前に落ちる**。
-                      出るのは意味不明な英語のエラーだけで、利用者には
-                      「MODを入れたらマイクラが壊れた」としか見えない。 */}
-                  <span className="block mt-1 text-orange-300/90">
-                    ⚠️ <b className="text-yellow-300">{t(locale, "editor_e02f49")}</b>
-                    {t(locale, "editor_567000")}</span>
-                </Step>
-                <Step n={4} title={t(locale, "editor_2c2bdb")} java>
-                  {t(locale, "editor_41a6b6")}<b className="text-yellow-300">「forge」</b>{t(locale, "editor_827901")}</Step>
-              </div>
-
-              <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800 flex items-start gap-2 text-xs text-slate-300">
-                <AlertTriangle className="text-amber-400 flex-shrink-0 mt-0.5" size={18} />
-                <span>
-                  {t(locale, "editor_adfcdc")}<b className="text-yellow-300">{t(locale, "editor_dd54b0")}</b>{t(locale, "punct.comma")}
-                  <b className="text-yellow-300">{t(locale, "editor_88ef5a")}</b> {t(locale, "editor_67725f")}</span>
-              </div>
-            </>
-          )}
-
-          {/* 閉じるボタン */}
-          <button
+          </div>, arg2: {/* ══════════ 統合版 ══════════ */}, arg3: {/* ══════════ Java版 ══════════ */}, arg4: {/* 閉じるボタン */}, arg5: <button
             onClick={onClose}
             className={`w-full py-3 text-slate-950 font-black rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all transform active:scale-95 ${
               isJava
@@ -243,8 +106,7 @@ export default function HowToInstallModal({ isOpen, onClose, projectName = "my_a
             }`}
           >
             <CheckCircle2 size={18} />
-            {t(locale, "editor_253421")}</button>
-        </div>
+            {t(locale, "editor_253421")}</button> })}</div>
       </div>
     </div>
   );

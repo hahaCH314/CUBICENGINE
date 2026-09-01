@@ -1,0 +1,6818 @@
+[
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 44,
+    "text": "⟨ SOURCE GENERATED ⟩　あなたのコード",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 45,
+    "text": "あなたが書いたコードが生まれた",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 45,
+    "text": "電脳に放つコードの具現化",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 47,
+    "text": "✍️ お手本を見ながら書き写す",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 48,
+    "text": "✍️ おてほんを見ながら書いてみよう（まちがえてもOK）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 49,
+    "text": "お手本（生成コード）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 49,
+    "text": "👀 おてほん",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 50,
+    "text": "ここに書き写す",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 50,
+    "text": "✍️ ここに打ってみよう",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 52,
+    "text": "お手本を見ながら、同じコードを書き写してください。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 53,
+    "text": "おてほんを見ながら、同じコードを打ってみよう。まちがえても大丈夫！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 54,
+    "text": "✓ 完全一致",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 54,
+    "text": "🎉 かんぺき！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 55,
+    "text": "% 一致",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 55,
+    "text": "% 書けた",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 56,
+    "text": "✓ 完了して閉じる",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 56,
+    "text": "🚀 マイクラへ放つ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 57,
+    "text": "全行一致で完了",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 57,
+    "text": "ぜんぶ書けたら放てる",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 58,
+    "text": "← 戻る",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 58,
+    "text": "← もどる",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 59,
+    "text": "✍️ 自分で書いて確かめる",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 59,
+    "text": "✍️ コード書く練習してみる？",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 60,
+    "text": "とじる",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 60,
+    "text": "マイクラへ放つ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 381,
+    "text": "🟢 これがあなたのコード。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 381,
+    "text": "Minecraftで動きます",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 383,
+    "text": "🟢 マイクラで動く — これ、",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/CodeRevealOverlay.tsx",
+    "line": 383,
+    "text": "あなたが創った",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 19,
+    "text": "利用上の注意 / IMPORTANT — Responsible Use",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 21,
+    "text": "このアドオン/Mod は CUBICENGINE で生成されました。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 23,
+    "text": "【日本語】",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 24,
+    "text": "・利用は自己責任で行ってください。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 25,
+    "text": "・自分が管理するワールド、または明確に許可を得たサーバーでのみ使用してください。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 26,
+    "text": "・他者への迷惑行為（グリーフ・チート・ハラスメント・サーバー妨害等）を目的とした",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 27,
+    "text": "利用を禁止します。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 28,
+    "text": "・本ツールおよび作者・運営は、生成物の内容、および生成物の使用によって生じた",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 29,
+    "text": "いかなる損害・トラブルについても責任を負いません。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 30,
+    "text": "・本ツールおよび生成物は非公式です。Mojang Studios・Microsoft とは一切関係がなく、",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 31,
+    "text": "承認・提携を受けていません。Minecraft は Mojang Studios の商標です。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 49,
+    "text": "// 利用上の注意 / Responsible Use —",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 50,
+    "text": "//   利用は自己責任で。自分が管理する、または許可を得たワールド/サーバーでのみ使用可。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 51,
+    "text": "//   グリーフ・チート・嫌がらせ等の不正/迷惑利用は禁止。作者・運営は一切の責任を負いません。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 52,
+    "text": "//   非公式ツール。Mojang Studios / Microsoft とは無関係。Minecraft は Mojang Studios の商標。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 187,
+    "text": "Minecraftで開いてインポートしてね！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 228,
+    "text": "Minecraftで開いてインポートしてね！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 681,
+    "text": "// 日本語など非ASCIIをソースから正しく読む（Windows既定のMS932でjavacが読むと文字化けする）",
+    "type": "TemplateLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 926,
+    "text": "## ⚠️ 利用上の注意 / Responsible Use",
+    "type": "TemplateLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 932,
+    "text": "## ビルド方法 / Setup",
+    "type": "TemplateLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 933,
+    "text": "必要なのは **JDK 17** だけです（Gradleラッパーは同梱済み）。",
+    "type": "TemplateLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 935,
+    "text": "1. **JDK 17** をインストール（例: https://adoptium.net/ ）",
+    "type": "TemplateLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 936,
+    "text": "2. このフォルダで次を実行（初回は Gradle と Minecraft/Forge を自動DL）:",
+    "type": "TemplateLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 940,
+    "text": "Forge 1.20.1 を導入した Minecraft の `mods/` フォルダに入れる",
+    "type": "TemplateLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 941,
+    "text": "4. Minecraft（Forge 1.20.1）を起動すれば Mod が読み込まれます",
+    "type": "TemplateLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 1016,
+    "text": "⚠️ Java版に出す前に、知っておいてほしいことがあります",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/exporter.ts",
+    "line": 1018,
+    "text": "これ以外はぜんぶ書き出されています。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 17,
+    "text": "メニュー",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 17,
+    "text": "ボタンを縦にならべる",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 18,
+    "text": "入力",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 18,
+    "text": "文字・トグル・スライダー等",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 19,
+    "text": "かくにん",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 19,
+    "text": "はい / いいえ の2択",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 22,
+    "text": "メッセージを送る",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 23,
+    "text": "コマンドを実行",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 24,
+    "text": "なにもしない",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 27,
+    "text": "テキスト",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 29,
+    "text": "スライダー",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 30,
+    "text": "リスト選択",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 58,
+    "text": "フォームを組む",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 72,
+    "text": "タイトル",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 75,
+    "text": "説明文",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 83,
+    "text": "ボタン（",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 84,
+    "text": "＋ 追加",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 91,
+    "text": "ボタンの文字",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 104,
+    "text": "例: say クリア！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 104,
+    "text": "送るメッセージ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 116,
+    "text": "入力欄（",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 117,
+    "text": "＋ 追加",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 132,
+    "text": "ラベル",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 136,
+    "text": "初期: OFF",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 137,
+    "text": "初期: ON",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 151,
+    "text": "選択肢（カンマ区切り）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 162,
+    "text": "はい ボタン",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 164,
+    "text": "いいえ ボタン",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 167,
+    "text": "「はい」を押したとき",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 176,
+    "text": "例: time set day",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 176,
+    "text": "送るメッセージ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 183,
+    "text": "このフォームを使う",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 189,
+    "text": "プレビュー",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 192,
+    "text": "▲ コードをかくす",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 192,
+    "text": "▼ 生成コードを見る",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 196,
+    "text": "※ Bedrockのフォームは自由レイアウト不可。この3型の範囲で作れます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 207,
+    "text": "（タイトル）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 212,
+    "text": "（ボタン）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 218,
+    "text": "はい",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 219,
+    "text": "いいえ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 226,
+    "text": "こうもく",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 252,
+    "text": "上へ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 253,
+    "text": "下へ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/FormBuilder.tsx",
+    "line": 254,
+    "text": "削除",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 22,
+    "text": "トリガー",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 23,
+    "text": "アクション",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 24,
+    "text": "条件分岐",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 25,
+    "text": "値",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 26,
+    "text": "ループ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 33,
+    "text": "プレイヤー参加",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 34,
+    "text": "ブロック破壊",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 35,
+    "text": "チャット受信",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 35,
+    "text": "合言葉",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 36,
+    "text": "アイテム使用",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 37,
+    "text": "被ダメージ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 38,
+    "text": "毎ティック",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 39,
+    "text": "メッセージ送信",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 39,
+    "text": "こんにちは！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 40,
+    "text": "アイテム付与",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 41,
+    "text": "エフェクト付与",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 42,
+    "text": "テレポート",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 43,
+    "text": "タイトル表示",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 43,
+    "text": "クリア！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 44,
+    "text": "サウンド再生",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 45,
+    "text": "コマンド実行",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 46,
+    "text": "条件分岐",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 46,
+    "text": "夜のとき",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 47,
+    "text": "繰り返し",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 47,
+    "text": "3 回",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 48,
+    "text": "数値",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 53,
+    "text": "ダイヤ (diamond)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 54,
+    "text": "鉄インゴット (iron_ingot)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 55,
+    "text": "金インゴット (gold_ingot)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 56,
+    "text": "ネザライト (netherite_ingot)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 57,
+    "text": "エメラルド (emerald)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 58,
+    "text": "金のリンゴ (golden_apple)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 59,
+    "text": "パン (bread)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 60,
+    "text": "ダイヤの剣 (diamond_sword)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 61,
+    "text": "ダイヤのツルハシ (diamond_pickaxe)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 62,
+    "text": "樫の原木 (oak_log)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 64,
+    "text": "エンダーパール (ender_pearl)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 70,
+    "text": "ひらけごま",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 70,
+    "text": "こんにちは",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 70,
+    "text": "スタート",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 70,
+    "text": "たすけて",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 72,
+    "text": "こんにちは！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 72,
+    "text": "ようこそ！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 72,
+    "text": "クリア！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 72,
+    "text": "がんばって！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 72,
+    "text": "レベルアップ！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 75,
+    "text": "クリア！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 75,
+    "text": "スタート！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 75,
+    "text": "ゲームオーバー",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 75,
+    "text": "ようこそ！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 75,
+    "text": "ステージ1",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 78,
+    "text": "夜のとき",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 78,
+    "text": "雨のとき",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 78,
+    "text": "スニーク中",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 79,
+    "text": "3 回",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 79,
+    "text": "5 回",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 79,
+    "text": "10 回",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 79,
+    "text": "100 回",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 731,
+    "text": "Minecraft (.minecraft/mods) が見つかりません。\n先に Minecraft Java版を一度起動して .minecraft を作ってください。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 738,
+    "text": "❌ ビルドに失敗しました：",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 738,
+    "text": "※初回はGradle本体(8.8)のDLに数分かかります。ネット接続とJDK17を確認してください。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 757,
+    "text": "❌ アドオンを書き出せませんでした",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 759,
+    "text": "この文をそのまま作者に伝えてもらえると、原因が分かります。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 928,
+    "text": "表示を元に戻す（100%・中央）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 1243,
+    "text": "マイクラへ放つ ▶",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 1319,
+    "text": "個数",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 1320,
+    "text": "こ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 1321,
+    "text": "こ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 1327,
+    "text": "中身を書く…",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 1540,
+    "text": "// ⚡ あなたが創った MOD — CUBICENGINE GROVE",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 1544,
+    "text": "// 「すること」を足してみよう",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 1552,
+    "text": "こんにちは！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 1556,
+    "text": "クリア！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/GrapePanel.tsx",
+    "line": 1559,
+    "text": "じょうけん",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 62,
+    "text": "マイクラへのあそびかたガイド 🎮",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 66,
+    "text": "ダウンロードした MOD をマイクラに入れよう！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 67,
+    "text": "ダウンロードしたアドオンをマイクラに入れよう！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 88,
+    "text": "🟢 統合版",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 88,
+    "text": "（スマホ・Switch）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 97,
+    "text": "🟠 Java版",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 97,
+    "text": "（パソコン）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 135,
+    "text": "パソコン(Win)",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 143,
+    "text": "ファイルを開く",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 144,
+    "text": "「ファイル」アプリの「ダウンロード」フォルダにある",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 144,
+    "text": "をタップ！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 146,
+    "text": "「Minecraft」を選択",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 147,
+    "text": "共有メニューが表示されたら、「Minecraft」アイコンをえらんで開きます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 149,
+    "text": "ワールドでオンにする！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 150,
+    "text": "マイクラが自動起動してインポートされます。「ワールド設定 ➔ ビヘイビアーパック」でONにすれば完了！✨",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 157,
+    "text": "ダウンロードを開く",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 158,
+    "text": "ブラウザの通知または「ファイル」アプリから",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 158,
+    "text": "をタップ！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 160,
+    "text": "マイクラで開く",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 161,
+    "text": "「このアプリで開く」で「Minecraft」を選びます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 163,
+    "text": "ワールドに適用する！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 164,
+    "text": "ワールド編集画面の「ビヘイビアーパック」でアドオンを有効化して遊ぼう！🎉",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 171,
+    "text": "ファイルをダブルクリック",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 172,
+    "text": "ダウンロードした",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 172,
+    "text": "ファイルをダブルクリックするだけ！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 174,
+    "text": "自動インポート完了",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 175,
+    "text": "Minecraft（統合版）が自動で起動し、上部に「インポート完了」と出ます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 177,
+    "text": "ワールドに追加！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 178,
+    "text": "ワールドの設定から「ビヘイビアーパック」を選んで「有効化」すればすぐに冒険できます！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 188,
+    "text": "ワールドの「ベータ機能（実験的機能）」をONにすると、アドオンがより確実に動くよ！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 202,
+    "text": "Java版は",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 202,
+    "text": "パソコンのマイクラだけ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 202,
+    "text": "で遊べます。\r\n                  スマホ・Switch・Xbox のマイクラ（統合版）には入れられません。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 208,
+    "text": "Forge 1.20.1 を入れる",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 209,
+    "text": "MOD を動かすための土台です。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 209,
+    "text": "から",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 210,
+    "text": "のインストーラーをダウンロードし、\r\n                  「Install client」で入れます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 213,
+    "text": "⚠️ バージョンが 1.20.1 でないと、作った MOD は読み込まれません。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 216,
+    "text": "mods フォルダを開く",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 217,
+    "text": "Forge を入れて一度マイクラを起動すると",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 217,
+    "text": "フォルダができます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 219,
+    "text": "を押して",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 225,
+    "text": "見あたらないときは、自分で",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 225,
+    "text": "という名前のフォルダを作ってOK。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 228,
+    "text": ".jar をそのまま置く",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 229,
+    "text": "ダウンロードした",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 229,
+    "text": "を、その mods フォルダに",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 230,
+    "text": "コピーするだけ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 232,
+    "text": "⚠️ 開いたり、展開（解凍）したりしないこと。ファイルのまま置きます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 240,
+    "text": "名前を日本語に変えないでください。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 241,
+    "text": "「まほうのMOD.jar」のようにすると、マイクラが起動しなくなります。\r\n                    変えたいときは英語と数字だけで。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 245,
+    "text": "Forge で起動する！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 246,
+    "text": "マイクラのランチャーで、遊び方（プロファイル）を",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 247,
+    "text": "に切り替えてプレイ。\r\n                  ワールドに入るとチャットにメッセージが出て、作ったブロックは\r\n                  クリエイティブの持ち物に並びます！🎉",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 256,
+    "text": "何も起きないときは、",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 257,
+    "text": "①ランチャーが「forge」になっているか",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 258,
+    "text": "②置いた場所が本当に mods フォルダか",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 258,
+    "text": "の順に見てね。\r\n                  だいたいこのどちらかです。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/HowToInstallModal.tsx",
+    "line": 275,
+    "text": "わかった！マイクラであそぶ 🎉",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 94,
+    "text": "🚀 ビルド開始...",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 136,
+    "text": "ランチャーは .exe 版のみ利用できます",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 139,
+    "text": "デスクトップアプリ（CUBICENGINE デスクトップ版）を使用してください。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 153,
+    "text": "☕ Java Minecraft ランチャー",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 156,
+    "text": "作成した Mod をワンクリックでビルド・インストール・起動。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 164,
+    "text": "Minecraft 環境を検出",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 167,
+    "text": "Forge Mod をビルド（JDK 17 必要）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 170,
+    "text": "mods/ フォルダへインストール",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 172,
+    "text": "インストール",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 173,
+    "text": "Minecraft ランチャーを起動",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 182,
+    "text": "🔍 環境を検出する",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 189,
+    "text": "Minecraft を探しています...",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 198,
+    "text": "🔎 検出結果",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 200,
+    "text": "Minecraft フォルダ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 201,
+    "text": "❌ 見つかりません",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 203,
+    "text": "mods/ フォルダ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 204,
+    "text": "❌ 見つかりません",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 206,
+    "text": "Minecraft ランチャー",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 207,
+    "text": "✅ 検出",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 207,
+    "text": "⚠️ 見つかりません（手動で起動）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 210,
+    "text": "❌ 未インストール",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 213,
+    "text": "Forge バージョン",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 223,
+    "text": "⚠️ JDK 17 以上が必要です",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 226,
+    "text": "Forge Mod のビルドには Java Development Kit が必要です。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 231,
+    "text": "→ Adoptium から JDK 17 をダウンロード",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 240,
+    "text": "❌ Minecraft Java Edition が見つかりません",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 243,
+    "text": "先に Minecraft Java Edition をインストールして、\n                  一度起動して .minecraft フォルダを作成してください。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 254,
+    "text": "🔨 Modをビルドしてインストール",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 258,
+    "text": "📂 mods/ を開く",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 270,
+    "text": "🔨 ビルドログ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 287,
+    "text": "インストール完了！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 290,
+    "text": "を mods/ フォルダに追加しました。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 294,
+    "text": "🚀 Minecraft を起動",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 298,
+    "text": "📂 mods/ を確認",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 308,
+    "text": "❌ エラーが発生しました",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 315,
+    "text": "Gradle がインストールされていません",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 323,
+    "text": "✅ インストール完了！アプリを再起動してから「Minecraftにインストール」を押してください。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 331,
+    "text": "🪄 Gradle を自動インストール（おまかせ）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 336,
+    "text": "もう一度試す",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LaunchPanel.tsx",
+    "line": 344,
+    "text": "🔄 再検出",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/layout.tsx",
+    "line": 5,
+    "text": "CUBICENGINEstudio のメインエディター画面。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LiveStage.tsx",
+    "line": 154,
+    "text": "タイトル",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LiveStage.tsx",
+    "line": 192,
+    "text": "秒…",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LiveStage.tsx",
+    "line": 196,
+    "text": "🤔 もし「",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LiveStage.tsx",
+    "line": 199,
+    "text": "くりかえし",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LiveStage.tsx",
+    "line": 210,
+    "text": "アイテム",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LiveStage.tsx",
+    "line": 397,
+    "text": "@keyframes ls-bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }\n        @keyframes ls-hop { 0%{transform:translateY(0)} 35%{transform:translateY(-10px) scaleY(1.05)} 70%{transform:translateY(0) scaleY(0.94)} 100%{transform:translateY(0)} }\n        @keyframes ls-sleep { 0%,100%{transform:rotate(-2deg)} 50%{transform:rotate(2deg) translateY(-2px)} }\n        @keyframes ls-pop { 0%{transform:scale(0.4);opacity:0} 60%{transform:scale(1.08)} 100%{transform:scale(1);opacity:1} }\n        @keyframes ls-drop { 0%{transform:translateY(-34px) rotate(-12deg);opacity:0} 60%{opacity:1} 100%{transform:translateY(0) rotate(0)} }\n        @keyframes ls-title { 0%{transform:scale(0.5);opacity:0} 70%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }\n        @keyframes ls-ring { 0%{width:10px;height:10px;opacity:0.8} 100%{width:64px;height:64px;margin-left:-32px;margin-top:-32px;opacity:0} }\n        @keyframes ls-flash { 0%{opacity:0} 40%{opacity:1} 100%{opacity:0} }\n        @keyframes ls-entrance { 0%{transform:translateX(-120px);opacity:0} 100%{transform:translateX(0);opacity:1} }\n        \n        /* アンビエント用アニメ */\n        @keyframes ls-fly-right { 0%{transform:translateX(0)} 100%{transform:translateX(650px)} }\n        @keyframes ls-fly-right-wavy { 0%{transform:translate(0,0)} 25%{transform:translate(160px,-20px)} 50%{transform:translate(320px,15px)} 75%{transform:translate(480px,-10px)} 100%{transform:translate(650px,0)} }\n        @keyframes ls-swim-left { 0%{transform:translateX(0)} 100%{transform:translateX(-650px)} }\n        @keyframes ls-swim-wobble { 0%{transform:translateY(0) rotate(0deg)} 100%{transform:translateY(8px) rotate(-5deg)} }\n        @keyframes ls-float-up { 0%{transform:translateY(0)} 100%{transform:translateY(-300px)} }\n        @keyframes ls-flap { 0%{transform:scaleY(1)} 100%{transform:scaleY(0.2)} }",
+    "type": "TemplateLiteral"
+  },
+  {
+    "file": "app/editor/LiveStage.tsx",
+    "line": 442,
+    "text": "プレビュー",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LiveStage.tsx",
+    "line": 456,
+    "text": "テーマ切替",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LiveStage.tsx",
+    "line": 475,
+    "text": "▲ きっかけ カードから つなげてみて",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LiveStage.tsx",
+    "line": 475,
+    "text": "ここに 作ったものが 動くよ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LiveStage.tsx",
+    "line": 490,
+    "text": "▶ もう一回",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LiveStage.tsx",
+    "line": 500,
+    "text": "出したカードを全部まとめて画面に映す（カードの位置は変わりません）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LiveStage.tsx",
+    "line": 510,
+    "text": "🧲 カードあつまれ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LiveStage.tsx",
+    "line": 521,
+    "text": "📦 置いたカード（",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 39,
+    "text": "値・条件",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 40,
+    "text": "動作",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 41,
+    "text": "動作",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 44,
+    "text": "もしも",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 45,
+    "text": "そうなら",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 46,
+    "text": "ちがうなら",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 78,
+    "text": "きっかけ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 78,
+    "text": "〜したとき",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 79,
+    "text": "すること",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 79,
+    "text": "〜する",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 80,
+    "text": "もっと",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 80,
+    "text": "上級・そのほか",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 85,
+    "text": "きっかけ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 86,
+    "text": "すること",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 87,
+    "text": "みため",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 88,
+    "text": "もしも",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 89,
+    "text": "くりかえし",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 90,
+    "text": "あたい",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 91,
+    "text": "けいさん",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 92,
+    "text": "へんすう",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 98,
+    "text": "スニーク中",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 98,
+    "text": "夜間",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 98,
+    "text": "雨天",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 98,
+    "text": "HPが少ない",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 137,
+    "text": "はじめてのアドオン！🎉",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 177,
+    "text": "ウェルカムMod",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 177,
+    "text": "参加時に歓迎メッセージを送信",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 181,
+    "text": "ようこそ！🎉 Modが動いています！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 187,
+    "text": "HP危険警告",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 187,
+    "text": "HP10以下で赤いメッセージを表示",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 194,
+    "text": "§c§l⚠️ HPが残り少ない！回復して！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 453,
+    "text": "なかみ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 505,
+    "text": "@keyframes holoFlow { from { background-position: 0% 50%; } to { background-position: 300% 50%; } }\n            @keyframes holoSheen { 0% { background-position: 140% 0; } 100% { background-position: -40% 0; } }\n            /* 揃った瞬間の「変身」＝リングがふわっと開く。押した手ごたえを出す */\n            @keyframes kiraAppear {\n              0%   { transform: scale(0.86); opacity: 0; }\n              55%  { transform: scale(1.06); opacity: 1; }\n              100% { transform: scale(1);    opacity: 1; }\n            }\n            @keyframes kiraStarPop {\n              0%   { transform: scale(0) rotate(-30deg); opacity: 0; }\n              60%  { transform: scale(1.35) rotate(8deg); opacity: 1; }\n              100% { transform: scale(1) rotate(0deg);   opacity: 1; }\n            }",
+    "type": "TemplateLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 584,
+    "text": "じゃない",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 608,
+    "text": "くりかえす",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 702,
+    "text": "もしも",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 704,
+    "text": "なら",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 750,
+    "text": "削除",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1249,
+    "text": "▼ ここに置く",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1250,
+    "text": "▼ そうなら",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1251,
+    "text": "▶ ちがうなら",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1252,
+    "text": "◀ ここに入れる",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1254,
+    "text": "▼ ここに接続",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1360,
+    "text": "ランダムに1個追加",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1360,
+    "text": "該当ブロックなし",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1368,
+    "text": "🎲 ランダム",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1372,
+    "text": "検索:",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1372,
+    "text": "件",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1373,
+    "text": "全",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1373,
+    "text": "個",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1520,
+    "text": "該当するブロックなし",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1541,
+    "text": "マイプロジェクト",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1561,
+    "text": "💾 保存しました！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1590,
+    "text": "💾 .cubic で保存しました！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1592,
+    "text": "⚠️ 保存できませんでした",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1604,
+    "text": "💾 .cubic で保存しました！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1614,
+    "text": "❌ 読み込みに失敗しました",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1630,
+    "text": "✕ 閉じる",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1635,
+    "text": "💾 現在の作業を保存",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1643,
+    "text": "プロジェクト名",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1644,
+    "text": "保存",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1651,
+    "text": "📂 保存済みプロジェクト",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1661,
+    "text": "開く",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1662,
+    "text": "削除",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1670,
+    "text": "💾 ファイルに保存(.cubic)",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1671,
+    "text": "📂 ファイルから開く",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1677,
+    "text": "※Androidで読み込めない時は「Files by Google」以外のファイルアプリを使ってね",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1743,
+    "text": "サンプルからはじめる 🐔⚔️🥩",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1744,
+    "text": "えらぶだけ。すぐマイクラで動くアドオンが作れるよ！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1757,
+    "text": "⚡ 3分でおためしアドオン",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1758,
+    "text": "今のカードは入れかわるよ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1787,
+    "text": "これで作る！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1795,
+    "text": "🧩 組み立ての見本",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1796,
+    "text": "今のカードは残したまま足すよ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 1813,
+    "text": "これを足す！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 2232,
+    "text": "前の候補",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 2241,
+    "text": "ここに書く",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 2242,
+    "text": "自分の言葉を書けます。◀▶ で見本も選べます",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 2251,
+    "text": "次の候補",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 2261,
+    "text": "タップで次の候補へ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 2530,
+    "text": "みほん",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 2540,
+    "text": "作品をひらけませんでした",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 2553,
+    "text": "作品をひらきました 🔁",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 2682,
+    "text": "ロジックが完成しました！マイクラへ出力できます！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 2888,
+    "text": "ここには繋げないよ！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 3178,
+    "text": "カードを すてました（↩戻る でもどせます）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 3527,
+    "text": "/* フォントは layout.tsx で next/font 自己ホスト化済み（--font-outfit / --font-nunito）。\n           以前ここにあった fonts.googleapis の @import は実行時に第三者(Google)へ通信し、\n           プライバシーポリシーと矛盾していたため撤去した。 */\n        * {\n          font-family: var(--font-outfit), var(--font-nunito), 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif !important;\n        }\n\n        .slot-btn:hover { filter: brightness(1.08); }\n        .slot-btn:active {\n          transform: translateY(3px);\n          box-shadow: inset 0 2px 3px rgba(0,0,0,0.35), 0 0px 0 rgba(0,0,0,0.3) !important;\n        }\n        .slot-btn--armed:active { transform: none; }\n\n        @keyframes pulse   { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.7;transform:scale(1.15)} }\n        @keyframes swallow { 0%{transform:scale(1)rotate(0deg);opacity:1} 30%{transform:scale(1.15)rotate(6deg);opacity:1} 70%{transform:scale(0.3)rotate(-8deg);opacity:0.6} 100%{transform:scale(0)rotate(0deg);opacity:0} }\n        @keyframes chomp   { 0%{transform:scale(1)} 15%{transform:scale(1.14)} 35%{transform:scale(0.93)} 55%{transform:scale(1.07)} 75%{transform:scale(0.97)} 100%{transform:scale(1)} }\n\n        @keyframes blockSnap {\n          0%  { transform: translateY(-14px) scaleY(0.9); filter: brightness(1.8); }\n          40% { transform: translateY(4px) scaleY(0.93); filter: brightness(1.3); }\n          70% { transform: translateY(-2px) scaleY(1.02); filter: brightness(1.1); }\n          100%{ transform: translateY(0) scaleY(1); filter: brightness(1); }\n        }\n        @keyframes blockAdd {\n          0%   { transform: translateY(-44px); opacity: 0; }\n          30%  { opacity: 1; }\n          100% { transform: translateY(0); opacity: 1; }\n        }\n        @keyframes blockRoll {\n          0%   { transform: translateX(var(--roll-from,0px)) rotate(var(--roll-rot,0deg)); }\n          55%  { transform: translateX(0) rotate(0deg); }\n          70%  { transform: translateX(0) rotate(var(--bounce-rot, 6deg)) scaleY(0.92) scaleX(1.05); }\n          85%  { transform: translateX(0) rotate(calc(var(--bounce-rot, 6deg) * -0.3)) scaleY(1.02) scaleX(0.98); }\n          100% { transform: translateX(0) rotate(0deg) scaleY(1) scaleX(1); }\n        }\n        @keyframes impactRing {\n          0%   { width: 18px; height: 6px; opacity: 0.85; border-width: 4px; }\n          60%  { opacity: 0.5; }\n          100% { width: 180px; height: 30px; opacity: 0; border-width: 1px; }\n        }\n        @keyframes impactFlash {\n          0%   { width: 0; height: 0; opacity: 0.65; }\n          100% { width: 220px; height: 220px; opacity: 0; }\n        }\n        @keyframes confettiBurst {\n          0%   { transform: translate(0,0) rotate(0deg) scale(0.6); opacity: 0; }\n          15%  { opacity: 1; }\n          100% { transform: translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(1); opacity: 0; }\n        }\n        @keyframes blockDelete {\n          0%   { transform: scale(1)    rotate(0deg);  opacity: 1;    filter: brightness(1); }\n          16%  { transform: scale(1.20) rotate(-7deg); opacity: 1;    filter: brightness(1.5); }\n          34%  { transform: scale(0.82) rotate(8deg);  opacity: 0.95; filter: brightness(1.1); }\n          60%  { transform: scale(1.06) rotate(-4deg) translateY(-10px); opacity: 0.65; filter: brightness(0.95); }\n          100% { transform: scale(0)    rotate(40deg)  translateY(28px); opacity: 0;    filter: brightness(0.6); }\n        }\n        @keyframes blockDragHover {\n          0%, 100% { transform: scale(1.06) rotate(-2deg) translateY(-3px); }\n          50%      { transform: scale(1.06) rotate(2deg)  translateY(-5px); }\n        }\n        @keyframes toastSlideDown {\n          0%   { transform: translate(-50%, -22px); opacity: 0; }\n          100% { transform: translate(-50%, 0);     opacity: 1; }\n        }\n        @keyframes slotPulse {\n          0%, 100% { filter: brightness(1.0); }\n          50%      { filter: brightness(1.25); }\n        }\n        @keyframes wireTargetGlow {\n          0%, 100% { filter: drop-shadow(0 0 4px rgba(255,255,255,0.7)) brightness(1.02); }\n          50%      { filter: drop-shadow(0 0 14px rgba(255,255,255,0.95)) brightness(1.15); }\n        }\n        @keyframes connectRipple {\n          0% { transform: scale(0.2); opacity: 1; border-width: 6px; }\n          100% { transform: scale(2.0); opacity: 0; border-width: 1px; }\n        }\n        @keyframes blockPop {\n          0% { transform: scale(1); }\n          30% { transform: scale(1.1); }\n          60% { transform: scale(0.97); }\n          100% { transform: scale(1); }\n        }\n        @keyframes wirePulse {\n          from { stroke-dashoffset: 60; }\n          to { stroke-dashoffset: 0; }\n        }\n        @keyframes particle {\n          0%  {transform:translate(0,0)scale(1);opacity:1}\n          100%{transform:translate(var(--dx),var(--dy))scale(0);opacity:0}\n        }\n        @keyframes snapPulse {\n          0%   { transform: scale(1);    opacity: 1; }\n          100% { transform: scale(1.04); opacity: 0.85; }\n        }\n        @keyframes snapLabelBob {\n          0%   { transform: translateY(0);   }\n          100% { transform: translateY(-3px);}\n        }\n        @keyframes spectrumShift {\n          0%   { background-position: 0% 50%; }\n          100% { background-position: 200% 50%; }\n        }\n        .btn-keycap:hover {\n          transform: translateY(-1px);\n          box-shadow: inset 0 1px 0 rgba(255,255,255,0.95), inset 0 -2px 3px rgba(0,0,0,0.04), 0 3px 0 #c9c3b0, 0 5px 10px rgba(120,100,60,0.18) !important;\n        }\n        .btn-keycap:active {\n          transform: translateY(2px) !important;\n          box-shadow: inset 0 1px 2px rgba(0,0,0,0.08), 0 0 0 #c9c3b0, 0 1px 2px rgba(120,100,60,0.08) !important;\n        }\n        .btn-card {\n          box-shadow: 0 0 0 2.5px var(--card-color), 0 4px 10px rgba(0,0,0,0.15) !important;\n          transition: transform 0.1s ease, box-shadow 0.1s ease !important;\n        }\n        .btn-card:hover {\n          transform: translateY(-2px);\n          box-shadow: 0 0 0 2.5px var(--card-color), 0 8px 20px rgba(0,0,0,0.22) !important;\n        }\n        .btn-card:active {\n          transform: translateY(2px);\n          box-shadow: 0 0 0 2.5px var(--card-color), 0 2px 5px rgba(0,0,0,0.15) !important;\n        }\n        .toy-key {\n          transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s ease !important;\n        }\n        .toy-key:hover { filter: brightness(1.05); }\n        .toy-key:active {\n          transform: translateY(4px) !important;\n          box-shadow: 0 1px 0 var(--leg, #cbd5e1), 0 1px 4px rgba(0,0,0,0.15), inset 0 1px 2px rgba(0,0,0,0.1) !important;\n        }\n        @keyframes fsFlip {\n          0% { transform: translateY(-40%); opacity: 0; }\n          100% { transform: translateY(0); opacity: 1; }\n        }",
+    "type": "TemplateLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 3684,
+    "text": "🔍 検索…",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 3699,
+    "text": "STEP 1: まず えらぶ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 3747,
+    "text": "けんさく結果",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 3760,
+    "text": "みつからなかった…",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 3805,
+    "text": "STEP 3: 中身をセット",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 3826,
+    "text": "手札は2枚まで。先にカードをキャンバスへ出してね",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4067,
+    "text": "🛠️ そうさ早見表",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4076,
+    "text": "キーをえらぶ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4076,
+    "text": "画面の",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4076,
+    "text": "下のキーボード",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4076,
+    "text": "で、カテゴリ（",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4076,
+    "text": "きっかけ・すること…",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4076,
+    "text": "）をえらぶよ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4077,
+    "text": "キーを押す → カードが出る",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4077,
+    "text": "キーを押すと、カードが",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4077,
+    "text": "そのままキャンバスに出る",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4077,
+    "text": "。中身は",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4077,
+    "text": "カードの上で",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4077,
+    "text": "なおせるよ（手札トレイはもう無いよ）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4078,
+    "text": "重ねるだけ！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4078,
+    "text": "カードを 別のカードに",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4078,
+    "text": "かさねると ピタッ！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4078,
+    "text": "と上から順番につながる。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4078,
+    "text": "これだけでプログラムになるよ ✨",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4079,
+    "text": "「もしも」もかさねる",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4079,
+    "text": "もしも",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4079,
+    "text": "カードに 動きのカードを",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4079,
+    "text": "かさねる",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4079,
+    "text": "だけで、条件として組みこまれるよ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4080,
+    "text": "アドオン完成！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4080,
+    "text": "右下の明るい緑の",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4080,
+    "text": "アドオン完成！🎉",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4080,
+    "text": "キーを押すと、コードができあがる",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4081,
+    "text": "ダウンロードしてマイクラへ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4081,
+    "text": "上の",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4081,
+    "text": "🚀 マイクラへ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4081,
+    "text": "タブを開いて",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4081,
+    "text": "⚡ ビルド＆ダウンロード",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4081,
+    "text": "できた",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4081,
+    "text": "をマイクラに読みこめば完成！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4103,
+    "text": "🗑 消す = えらんで",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4103,
+    "text": "📑 コピー =",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4103,
+    "text": "🚫 やめる =",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4115,
+    "text": "📖 はじめての人はこちら（作り方ガイド）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4142,
+    "text": "個",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4146,
+    "text": "クリックで 100% + 画面中央に戻る",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4206,
+    "text": "まだカードがないよ 🃏",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4218,
+    "text": "カードを100%で集めたよ！ 🧲",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4245,
+    "text": "カード",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4257,
+    "text": "ツール",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4309,
+    "text": "🔰 かんたん",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4309,
+    "text": "🎓 ぜんぶ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4376,
+    "text": "もしも",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4376,
+    "text": "なら",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4460,
+    "text": "はなすと\nすてる",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4460,
+    "text": "ここへ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4506,
+    "text": "✕ とじる",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4515,
+    "text": "戻る",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4516,
+    "text": "進む",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4517,
+    "text": "入れ方",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4518,
+    "text": "ガイド",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4519,
+    "text": "クリア",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4519,
+    "text": "キャンバス上のすべてのカードを消去しますか？",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4519,
+    "text": "すべてのカードを消去しました",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4520,
+    "text": "保存",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4521,
+    "text": "サンプル",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4523,
+    "text": "みせる",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4525,
+    "text": "まずカードをおいてね 🃏",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4529,
+    "text": "コード",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4530,
+    "text": "作り方",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4555,
+    "text": "// まず きっかけ カードを置いて繋げよう",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4572,
+    "text": "アドオン完成！🎉",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4584,
+    "text": "// まず きっかけ カードを置いて繋げよう",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4600,
+    "text": "アドオン完成！🎉",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4604,
+    "text": "(カードをつなごう)",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4654,
+    "text": "の中身",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4655,
+    "text": "隠す（カードをダブルタップでも隠せます）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4667,
+    "text": "🏷️ 条件シール",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4669,
+    "text": "いつでも動く",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4669,
+    "text": "このときだけ動く",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4683,
+    "text": "じゃない",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4683,
+    "text": "とき",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4685,
+    "text": "めくる（〜じゃないとき に変える）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4687,
+    "text": "↺ めくる",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4689,
+    "text": "はがす",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4886,
+    "text": "🃏 手札トレイ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4916,
+    "text": "SPAWNしたカードが",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4916,
+    "text": "ここに並ぶよ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 4928,
+    "text": "ドラッグしてキャンバスに置く",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5047,
+    "text": "元に戻す (Ctrl+Z)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5075,
+    "text": "戻る",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5082,
+    "text": "やり直す (Ctrl+Y)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5110,
+    "text": "進む",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5117,
+    "text": "スナップ時のガイド線の表示/非表示",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5152,
+    "text": "ガイド線",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5159,
+    "text": "キャンバス上のすべてのカードを消去しますか？",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5163,
+    "text": "すべてのカードを消去しました",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5166,
+    "text": "すべてのカードを消去する",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5194,
+    "text": "クリア",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5201,
+    "text": "プロジェクトの保存・読み込み",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5236,
+    "text": "保存/読込",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5243,
+    "text": "テンプレートギャラリー",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5278,
+    "text": "サンプル",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5285,
+    "text": "生成コードを表示",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5320,
+    "text": "コード",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5327,
+    "text": "そうさ早見表をひらく（ショートカットなど）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5362,
+    "text": "早見表",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5371,
+    "text": "// まず きっかけ カードを置いて繋げよう",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5421,
+    "text": "アドオン",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/LogicPanel.tsx",
+    "line": 5421,
+    "text": "完成！🎉",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 624,
+    "text": "3Dビューを表示できません",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 626,
+    "text": "この環境では WebGL（3D描画）が無効です。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 627,
+    "text": "ブラウザのハードウェアアクセラレーションを有効にするか、別のブラウザ/PCでお試しください。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 628,
+    "text": "他の機能（ロジック・書き出し等）はそのまま使えます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 704,
+    "text": "草",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 705,
+    "text": "石",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 706,
+    "text": "ダイヤ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 707,
+    "text": "金",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 708,
+    "text": "レッドスト",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 709,
+    "text": "ラピス",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 710,
+    "text": "黒曜石",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 711,
+    "text": "アメシスト",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 879,
+    "text": "アイテム",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 879,
+    "text": "ブロック",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 879,
+    "text": "一覧 (",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 905,
+    "text": "複製",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 910,
+    "text": "削除",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 921,
+    "text": "＋ 新しい",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 921,
+    "text": "アイテム",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 921,
+    "text": "ブロック",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 929,
+    "text": "🧱 本物のブロックにする",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 944,
+    "text": "識別子 (ID)",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 950,
+    "text": "表示名（ゲーム内）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 960,
+    "text": "かたさ（壊れにくさ）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 963,
+    "text": "かたさ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 968,
+    "text": "やわらかい（0・葉っぱ）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 969,
+    "text": "土レベル（0.5）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 970,
+    "text": "石レベル（1.5）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 971,
+    "text": "鉄レベル（3）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 972,
+    "text": "ダイヤレベル（5）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 973,
+    "text": "オブシディアン級（50）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 977,
+    "text": "光レベル（0〜15）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 980,
+    "text": "光レベル",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 987,
+    "text": "（光らない）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 987,
+    "text": "（最大）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 999,
+    "text": "まわりに出る粒子",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1001,
+    "text": "ワールドの「ベータAPI」をONにすると出ます",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1006,
+    "text": "まわりに出る粒子",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1019,
+    "text": "ONにすると、ID・表示名・かたさ・光を設定して「本物のブロック」として書き出せます",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1028,
+    "text": "グループ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1031,
+    "text": "グループ名を入力:",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1039,
+    "text": "新しいグループ作成",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1043,
+    "text": "グループ:",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1051,
+    "text": "プロパティ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1056,
+    "text": "名前",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1069,
+    "text": "📏 おおきさ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1073,
+    "text": "S (小)",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1075,
+    "text": "M (中)",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1077,
+    "text": "L (大)",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1086,
+    "text": "ー ちいさく",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1090,
+    "text": "＋ でかく",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1097,
+    "text": "🔄 むき (まわす)",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1100,
+    "text": "左にまわす ↺",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1102,
+    "text": "右にまわす ↻",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1104,
+    "text": "たおす ⤼",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1110,
+    "text": "📍 うごかす (コントローラー)",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1115,
+    "text": "まえ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1118,
+    "text": "ひだり",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1120,
+    "text": "みぎ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1123,
+    "text": "おく",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1130,
+    "text": "▲ うえにいく",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1133,
+    "text": "▼ したにいく",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1145,
+    "text": "グリッドスナップ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1149,
+    "text": "有効にする",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1166,
+    "text": "📍 場所 (横 / 縦 / 奥)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1170,
+    "text": "📏 大きさ (横 / 縦 / 奥)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1174,
+    "text": "🔄 向き (傾き・度)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1180,
+    "text": "🎨 面の色 (クリックで変更)",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1202,
+    "text": "📤 テクスチャ (PNG画像ドロップ)",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1248,
+    "text": "🗑️ このブロックを削除",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1253,
+    "text": "🧱 パーツがありません",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1255,
+    "text": "「＋ 新しいブロック」ボタンを押すか、プレビュー画面のボタンから最初のパーツを追加してみよう！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1259,
+    "text": "ブロックを選択してください",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1266,
+    "text": "🎨 色・柄 (ワンタッチ)",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1292,
+    "text": "表示設定",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1294,
+    "text": "グリッド表示",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1295,
+    "text": "ワイヤーフレーム",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1316,
+    "text": "--- BEDROCK (岩盤) ---",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1396,
+    "text": "えらぶ (選択)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1402,
+    "text": "おく (クリックで隣に置く)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1408,
+    "text": "ぬる (クリックでぬる)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1414,
+    "text": "こわす (クリックで壊す)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1424,
+    "text": "選択モード",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1430,
+    "text": "ペイント中（Esc で終了）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1430,
+    "text": "ペイントモード",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1434,
+    "text": "立方体を追加",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1435,
+    "text": "複製 (Ctrl+D)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1436,
+    "text": "選択を削除",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1560,
+    "text": "⊞ ブロック",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1579,
+    "text": "✨ アイテム",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1595,
+    "text": "🧱 何も置かれていません",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1598,
+    "text": "「最初のパーツを追加する」ボタンを押すと、3D空間の中心にパーツが置かれます！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1604,
+    "text": "最初のパーツを追加する",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1620,
+    "text": "🧊 3Dプレビュー ・",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1620,
+    "text": "🎨 ぬりモード",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1620,
+    "text": "👆 えらぶモード",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1620,
+    "text": "(ドラッグでまわす)",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1628,
+    "text": "カメラの向きを正面に戻す",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1630,
+    "text": "🏠 視点リセット",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1639,
+    "text": "❓ 操作ガイド",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1660,
+    "text": "❓ 3Dモデルエディタ操作ガイド",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1675,
+    "text": "🖱️ 視点・カメラ操作",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1678,
+    "text": "回転:",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1678,
+    "text": "画面を左クリックしながらドラッグ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1679,
+    "text": "平行移動:",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1679,
+    "text": "右クリックしながらドラッグ、または",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1679,
+    "text": "+ 左ドラッグ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1680,
+    "text": "ズーム:",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1680,
+    "text": "マウスホイールのスクロール",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1687,
+    "text": "🧱 ブロックの組み立て",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1690,
+    "text": "追加:",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1690,
+    "text": "左側ツールの",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1690,
+    "text": "ボタンをクリックします。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1691,
+    "text": "複製:",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1691,
+    "text": "ブロックを選んで",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1691,
+    "text": "（または左ツールの",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1691,
+    "text": "ボタン）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1692,
+    "text": "削除:",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1692,
+    "text": "右パネル最下部の「このブロックを削除」ボタン（または左ツールの",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1692,
+    "text": "ボタン）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1693,
+    "text": "複数選択:",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1693,
+    "text": "キーを押しながら複数のブロックをクリック",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1700,
+    "text": "🎨 色付けとペイント",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1703,
+    "text": "直感ペイント:",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1703,
+    "text": "左側ツールの",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1703,
+    "text": "ボタンでペイントモードへ切り替え。右パネルで色やテクスチャを選び、3Dモデルの面を直接クリックするとペイントできます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1704,
+    "text": "モード解除:",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1704,
+    "text": "もう一度",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1704,
+    "text": "ボタンを押すか、",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1704,
+    "text": "キーで選択モードに戻ります。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1705,
+    "text": "プリセット:",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1705,
+    "text": "「草」や「石」のボタンで、マイクラ定番カラーをワンクリックで適用可能！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1712,
+    "text": "📐 配置のコツ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1715,
+    "text": "右パネルの「",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1715,
+    "text": "グリッドスナップ有効",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1715,
+    "text": "」にチェックを入れると、パーツを",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1715,
+    "text": "や",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1715,
+    "text": "単位でカチカチと規則正しく吸着配置できるようになり、モデル構築がとてもスムーズになります！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ModelPanel.tsx",
+    "line": 1725,
+    "text": "閉じる (Esc)",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 43,
+    "text": "Minecraft (.minecraft/mods) が見つかりません。\n先に Minecraft Java版を一度起動して .minecraft を作ってください。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 50,
+    "text": "❌ ビルドに失敗しました：",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 50,
+    "text": "※初回はGradle本体(8.8)のDLに数分かかります。ネット接続とJDK17を確認してください。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 63,
+    "text": "❌ アドオンを書き出せませんでした",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 65,
+    "text": "この文をそのまま作者に伝えてもらえると、原因が分かります。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 72,
+    "text": "新規プロジェクト",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 73,
+    "text": "開く...",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 75,
+    "text": "保存",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 76,
+    "text": "名前を付けて保存...",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 78,
+    "text": "エクスポート",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 80,
+    "text": "設定",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 83,
+    "text": "元に戻す",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 84,
+    "text": "やり直し",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 86,
+    "text": "切り取り",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 87,
+    "text": "コピー",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 88,
+    "text": "貼り付け",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 90,
+    "text": "すべて選択",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 91,
+    "text": "選択解除",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 94,
+    "text": "ズームイン",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 95,
+    "text": "ズームアウト",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 97,
+    "text": "グリッド表示切替",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 98,
+    "text": "ワイヤーフレーム表示",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 100,
+    "text": "フルスクリーン",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 107,
+    "text": "ファイル",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 108,
+    "text": "編集",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 109,
+    "text": "表示",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 127,
+    "text": "ロジック",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 133,
+    "text": "モデル",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 141,
+    "text": "デベロッパー",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 147,
+    "text": "マイクラへ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 228,
+    "text": "準備完了",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 230,
+    "text": "カード:",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 231,
+    "text": "グリッド: 16×16",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/page.tsx",
+    "line": 365,
+    "text": "ホームへ戻る",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ReferencePanel.tsx",
+    "line": 66,
+    "text": "📋 見本",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ReferencePanel.tsx",
+    "line": 89,
+    "text": "📋 みほん",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ReferencePanel.tsx",
+    "line": 96,
+    "text": "の作品",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ReferencePanel.tsx",
+    "line": 101,
+    "text": "たたむ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ReferencePanel.tsx",
+    "line": 102,
+    "text": "見本をとじる",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ReferencePanel.tsx",
+    "line": 150,
+    "text": "この順にカードをおいてみよう",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 69,
+    "text": "⚠ まず ロジック画面の「アドオン完成！🎉」ボタンを押してください。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 80,
+    "text": "Bedrock / 統合版",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 80,
+    "text": "(デスクトップ)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 85,
+    "text": "$ cubicengine build --install (Java / 本物ビルド)",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 87,
+    "text": "Minecraft (.minecraft/mods) が見つかりません。\n先にMinecraft Java版を一度起動して .minecraft を作ってください。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 101,
+    "text": "▸ manifest.json を生成 …",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 107,
+    "text": "▸ textures / blocks をパック …",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 107,
+    "text": "▸ java sources を生成 …",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 110,
+    "text": "▸ 圧縮中 …",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 114,
+    "text": "✓ 圧縮完了",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 116,
+    "text": "✅ BUILD SUCCESS — 共有メニューを起動しました！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 116,
+    "text": "✅ BUILD SUCCESS — ダウンロード完了！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 139,
+    "text": "ビルド待機中… 「ビルド＆ダウンロード」を押すとここに出力が流れます",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 172,
+    "text": "【重要】",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 172,
+    "text": "私は、他者への迷惑行為（荒らし、サーバー妨害、著作権侵害など）を目的としてこのアドオンを使用しないことに同意し、自己責任でエクスポートします。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 181,
+    "text": "先にロジック画面の「アドオン完成！🎉」ボタンを押してください",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 181,
+    "text": "利用規約に同意してください",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 191,
+    "text": "ビルド中…",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 194,
+    "text": "🔒 まず「アドオン完成！🎉」を押してね",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 196,
+    "text": "⛔ 同意してエクスポートを解錠",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 198,
+    "text": "⚡ ビルド＆エクスポート",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 210,
+    "text": "🚀 マイクラへ送信！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 210,
+    "text": "✅ ダウンロード完了！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 213,
+    "text": "📱 Bedrock（統合版）の入れ方",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 217,
+    "text": "画面下の共有メニューから",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 217,
+    "text": "のアイコンをタップ！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 218,
+    "text": "Minecraft が自動で開いてインポートされます",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 222,
+    "text": "ダウンロードした",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 222,
+    "text": "ファイルを開く",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 223,
+    "text": "Minecraft が自動で開いてインポートされます",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 226,
+    "text": "ワールド設定の「ビヘイビアーパック」を追加 ✅",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 227,
+    "text": "「リソースパック」を追加 ✅（",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 227,
+    "text": "両方必須！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 228,
+    "text": "ワールドに入って",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 228,
+    "text": "緑の起動メッセージ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 228,
+    "text": "が出れば成功！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 231,
+    "text": "⚠️ BPだけ有効ではスクリプトは動きません。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 231,
+    "text": "RPも必ず同時に有効",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 231,
+    "text": "にしてください。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 236,
+    "text": "☕ Java Edition（PC）の入れ方",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 238,
+    "text": "ZIPを解凍",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 239,
+    "text": "Forge を導入：",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 240,
+    "text": "解凍フォルダで",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 241,
+    "text": "の",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 241,
+    "text": "を",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 241,
+    "text": "へ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 242,
+    "text": "Forge プロファイルで起動",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 245,
+    "text": "⚠️ バニラでは動きません。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 245,
+    "text": "Forge 必須",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 250,
+    "text": "わかった！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 373,
+    "text": "マイクラへ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 373,
+    "text": "— ビルド＆ダウンロード",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 384,
+    "text": "アイコン & なまえ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 400,
+    "text": "📁 画像を選ぶ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 404,
+    "text": "↺ もどす",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 406,
+    "text": "128×128 PNG 推奨",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 410,
+    "text": "なまえ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 414,
+    "text": "説明",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 424,
+    "text": "エディター",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 425,
+    "text": "自動保存",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 426,
+    "text": "グリッドスナップ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 427,
+    "text": "テーマ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 428,
+    "text": "エディターの配色テーマ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 429,
+    "text": "🪨 Dark（石）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 430,
+    "text": "🌃 Midnight（紺）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 431,
+    "text": "🕳️ Abyss（漆黒）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 439,
+    "text": "リンク & サポート",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 454,
+    "text": "お問い合わせ: cubicenginestudio@icloud.com",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 462,
+    "text": "つくる先",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 463,
+    "text": "プラットフォーム",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 465,
+    "text": "🟢 Bedrock（統合版）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 476,
+    "text": "どっちのマイクラで遊びますか？",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 508,
+    "text": "遊ぶ人は",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 508,
+    "text": "が必要です。\r\n                  書き出すファイル名にも入るので、渡すときに間違えません。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 515,
+    "text": "MCバージョン",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 517,
+    "text": "1.21.40+ / 1.22〜（最新）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 519,
+    "text": "1.20.x（古い）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 522,
+    "text": "ベータAPI",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 536,
+    "text": "保存できないとき",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 539,
+    "text": "ふつうはこちら",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 540,
+    "text": "スマホで保存できないとき",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 558,
+    "text": "保存したあと、ファイル名の",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 558,
+    "text": "を",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 558,
+    "text": "に変えると\r\n                  マイクラで開けます。中身は同じものです。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 567,
+    "text": "📦 ブロック",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 568,
+    "text": "📝 コード",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 568,
+    "text": "行",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 576,
+    "text": "ビルド出力",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/SettingsPanel.tsx",
+    "line": 582,
+    "text": "📦 出力プレビュー（ライブ）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 74,
+    "text": "ぼくのアドオン",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 107,
+    "text": "作品をみせる",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 114,
+    "text": "リンクを送るだけで、ともだちが",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 114,
+    "text": "マイクラを持っていなくても",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 114,
+    "text": "作品が動くところを見られるよ。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 127,
+    "text": "この作品には",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 127,
+    "text": "の名前がいっしょに入ります。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 129,
+    "text": "まねさせてもらった人の名前は、みせるときに必ずついていくよ。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 135,
+    "text": "作品のなまえ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 137,
+    "text": "ばくはつニワトリ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 140,
+    "text": "つくった人（いれなくてもOK）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 142,
+    "text": "ニックネーム",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 144,
+    "text": "ほんとうの名前は書かないでね。この名前はリンクの中に入るだけで、どこにも保存されないよ。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 158,
+    "text": "🔁 まねして作ってもいい",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 161,
+    "text": "オフなら「見るだけ」。オンにすると相手が中身をひらけるようになり、\r\n              その作品には",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 162,
+    "text": "あなたの名前が残ります",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 169,
+    "text": "✓ コピーした！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 169,
+    "text": "🔗 リンクをコピー",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 173,
+    "text": "📤 おくる",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 186,
+    "text": "📷 目の前のともだちには、これを読んでもらうのが早いよ。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 188,
+    "text": "カメラを向けるだけ。ネットにつながっていなくても渡せる。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/ShareDialog.tsx",
+    "line": 200,
+    "text": "⚠️ 作品が大きすぎてリンクにできませんでした。カードを減らすか、分けて送ってね。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 36,
+    "text": "これはなにができる道具？",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 36,
+    "text": "〜 魔法のMODづくり 〜",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 36,
+    "text": "〜 魔法のアドオンづくり 〜",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 37,
+    "text": "ステップ1：『きっかけ』をえらぶ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 37,
+    "text": "〜 すべてはここから始まる 〜",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 38,
+    "text": "ステップ2：『すること』をピタッ！と重ねる",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 38,
+    "text": "〜 超重要！繋がらないと動かない 〜",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 39,
+    "text": "完成したらマイクラの世界へ！",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 39,
+    "text": "〜 夢の世界で遊びつくそう 〜",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 74,
+    "text": "/* 中の箱が枠を超えないようにする最後の砦。\n             インラインstyleで1つずつ指定すると必ず付け忘れるので、まとめて掛ける。\n             長い英数字(.mcaddon など)が折り返せずに横へ伸びるのも防ぐ。 */\n          .to-body, .to-body * { box-sizing: border-box; max-width: 100%; min-width: 0; }\n          .to-body { overflow-wrap: anywhere; }\n          @keyframes to-fadeIn { 0% { opacity: 0; transform: scale(0.96); } 100% { opacity: 1; transform: scale(1); } }\n          @keyframes to-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }\n          @keyframes to-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }",
+    "type": "TemplateLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 110,
+    "text": "説明をとじます",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 146,
+    "text": "マイクラの拡張MOD",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 146,
+    "text": "マイクラの拡張パック",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 153,
+    "text": "ここはマイクラの世界に新しい遊び方やルールを追加する魔法のパワーアップパック（＝",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 154,
+    "text": "「アドオン」",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 154,
+    "text": "）を、",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 155,
+    "text": "プログラミングのコードを１行も書かずに作れる場所",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 155,
+    "text": "だよ！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 158,
+    "text": "作ったカードの組み合わせが",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 159,
+    "text": "（ジャー）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 159,
+    "text": "（エムシー・アドオン）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 159,
+    "text": "というファイルになり、\r\n                  君のいつものマイクラに読み込むだけで本当に動き出すんだ！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 172,
+    "text": "📘 「アドオン」と「MOD」ってなに？",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 175,
+    "text": "どちらも",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 175,
+    "text": "マイクラを作りかえるもの",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 175,
+    "text": "だよ。名前がちがうのは、",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 176,
+    "text": "遊んでいるマイクラの種類",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 176,
+    "text": "がちがうから。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 188,
+    "text": "🟢 アドオン",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 188,
+    "text": "＝ 統合版（スマホ・Switch・PC）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 189,
+    "text": "いまこっち",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 192,
+    "text": "ふだんスマホやSwitchで遊んでいるならこっち。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 193,
+    "text": "できるファイル …",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 194,
+    "text": "入れ方 …",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 194,
+    "text": "ファイルを開くだけ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 195,
+    "text": "必要なもの …",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 195,
+    "text": "なし",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 204,
+    "text": "＝ Java版（パソコン）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 205,
+    "text": "いまこっち",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 208,
+    "text": "パソコンのJava版で遊んでいるならこっち。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 209,
+    "text": "できるファイル …",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 210,
+    "text": "入れ方 …",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 210,
+    "text": "mods フォルダに置く",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 211,
+    "text": "必要なもの …",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 216,
+    "text": "どっちか分からなくても大丈夫。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 216,
+    "text": "カードの作り方はまったく同じ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 216,
+    "text": "だよ！\r\n                  ちがうのは最後の「マイクラへの入れ方」だけ。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 229,
+    "text": "スタートの条件カード",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 230,
+    "text": "「ブロックを叩いたとき」 など",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 235,
+    "text": "❓ そもそもプログラムってなに？",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 238,
+    "text": "マイクラを動かすルールは、必ず",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 238,
+    "text": "『きっかけ（〜したとき）』",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 238,
+    "text": "と",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 238,
+    "text": "『すること（〜なる）』",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 238,
+    "text": "のセットで出来ています！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 240,
+    "text": "だから、最初は画面下のキーボードから黄色の",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 240,
+    "text": "『きっかけ』",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 240,
+    "text": "カードを選んで、空っぽのキャンバスにポンと置きましょう！すべてはそこから始まります！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 253,
+    "text": "超重要な注意！ カードは『置いただけ』では動かないぞ！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 256,
+    "text": "バラバラに置いてあるカードは、マイクラが気づくことができません。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 265,
+    "text": "❌ 離れてバラバラ (動きません)",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 267,
+    "text": "叩いたとき",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 268,
+    "text": "▲ スキマが空いてる… ▲",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 269,
+    "text": "ダイヤ獲得",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 277,
+    "text": "⭕ きっかけが上・ことが下",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 279,
+    "text": "▼ きっかけ（黄）を上に",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 280,
+    "text": "叩いたとき",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 281,
+    "text": "🔗 接続完了！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 282,
+    "text": "ダイヤ獲得",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 283,
+    "text": "▲ こと（青）を下に",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 295,
+    "text": "『きっかけ（黄カード）』が いちばん上。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 296,
+    "text": "その",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 296,
+    "text": "すぐ下に『こと（青カード）』をピッタリくっつけます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 299,
+    "text": "⚠️ 逆さま（青が上・黄が下）にすると、くっついていても何も起きません。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 301,
+    "text": "上から下へ、順番に実行されます！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 315,
+    "text": "アドオン",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 315,
+    "text": "完成！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 322,
+    "text": "🚀 マイクラへ導入",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 329,
+    "text": "1. カードを正しくつないだら、右下の明るい緑の",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 329,
+    "text": "『MOD完成！🎉』",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 329,
+    "text": "ボタンを押します。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 331,
+    "text": "ファイルがダウンロードされます（待ち時間なし・インストール不要）。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 333,
+    "text": "3. それを",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 333,
+    "text": "mods フォルダ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 333,
+    "text": "に置いて、ランチャーを",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 333,
+    "text": "にして起動！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 336,
+    "text": "⚠️ Java版は",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 336,
+    "text": "パソコンだけ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 336,
+    "text": "が要ります。下のボタンに全部書いてあるよ。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 341,
+    "text": "1. カードを正しくつないだら、右下の明るい緑の",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 341,
+    "text": "『アドオン完成！🎉』",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 341,
+    "text": "ボタンを押します。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 343,
+    "text": "2. 画面の指示にしたがって",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 343,
+    "text": "をダウンロード！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 345,
+    "text": "3. ダブルクリックで開いて、いつものマイクラで遊び込もう！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 359,
+    "text": "🎮 詳しい「Java版への入れ方ガイド（mods フォルダ）」を見る",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 360,
+    "text": "🎮 詳しい「マイクラへの入れ方ガイド（スマホ/PC/Switch対応）」を見る",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 406,
+    "text": "◀ 前へ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 421,
+    "text": "次へ進む ▶",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/TutorialOverlay.tsx",
+    "line": 432,
+    "text": "🌟 さあ、アドオンを作ろう！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/worldThemes.ts",
+    "line": 34,
+    "text": "陸",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/worldThemes.ts",
+    "line": 51,
+    "text": "海",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 39,
+    "text": "スニーク中",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 39,
+    "text": "スニークしてない",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 44,
+    "text": "夜のとき",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 44,
+    "text": "夜じゃないとき",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 49,
+    "text": "雨のとき",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 49,
+    "text": "雨じゃないとき",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 54,
+    "text": "ダッシュ中",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 54,
+    "text": "ダッシュしてない",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 59,
+    "text": "水の中",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 59,
+    "text": "水の中じゃない",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 68,
+    "text": "確率%",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 73,
+    "text": "アイテム",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 164,
+    "text": "🏷️ 条件シール",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 164,
+    "text": "カードにドラッグして貼る",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 181,
+    "text": "🃏 動きのカード",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 181,
+    "text": "シールを貼ると「そのときだけ動く」カードになる",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 205,
+    "text": "かつ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 208,
+    "text": "めくる（〜じゃないとき に変える）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 218,
+    "text": "はがす",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 239,
+    "text": "いつでも動く",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 250,
+    "text": "💻 これで出るコード",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/card-lab/CardLab.tsx",
+    "line": 250,
+    "text": "入れ子が無くても if は作れている",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/card-lab/page.tsx",
+    "line": 6,
+    "text": "カードラボ（試作）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/card-lab/page.tsx",
+    "line": 7,
+    "text": "条件を「シール」でカードに貼る方式の試作。入れ子をやめてカードゲームに寄せる検証用。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/card-lab/page.tsx",
+    "line": 18,
+    "text": "🃏 カードラボ（試作）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/card-lab/page.tsx",
+    "line": 20,
+    "text": "条件を「もしもカードの中に入れる」のをやめて、",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/card-lab/page.tsx",
+    "line": 20,
+    "text": "動きのカードに貼るシール",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/card-lab/page.tsx",
+    "line": 20,
+    "text": "にしたらどうなるかの検証。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/card-lab/page.tsx",
+    "line": 22,
+    "text": "入れ子・差込口・そうなら／ちがうなら が全部消えて、カードゲームの常識だけで組めるかを見る。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/card-lab/page.tsx",
+    "line": 25,
+    "text": "← エディタへ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 74,
+    "text": "デベロッパー",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 79,
+    "text": "上級者向け",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 88,
+    "text": "モブの強さや落とすものを決められます。見た目はバニラのモブを土台にします。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 89,
+    "text": "自分で作った3Dモデルを取り込んで、マイクラで動くモブにします。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 96,
+    "text": "どう作る？",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 98,
+    "text": "🍃 ふつう",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 98,
+    "text": "🧩 前提mod",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 125,
+    "text": "🍃 ふつう",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 127,
+    "text": "遊ぶ人は",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 127,
+    "text": "Forge だけ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 128,
+    "text": "見た目はバニラのモブ。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 129,
+    "text": "強さ・名前・落とすものは反映。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 138,
+    "text": "🧩 前提mod",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 140,
+    "text": "遊ぶ人は",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 141,
+    "text": "作った形とアニメがそのまま出る。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 142,
+    "text": "入れてもらう手間が増えます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 153,
+    "text": "遊ぶ人は GeckoLib を入れる必要があります。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 155,
+    "text": "入れていない人は、マイクラが起動しません。作品を渡すときは\r\n                「GeckoLib も入れてね」と一緒に伝えてください。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 160,
+    "text": "動きの名前は",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 160,
+    "text": "と",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 160,
+    "text": "だけ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 160,
+    "text": "が再生されます。\r\n                Blockbench で別の名前を付けていると、書き出せてもゲームでは棒立ちになります。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 169,
+    "text": "🧟 モブ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 169,
+    "text": "🍎 アイテム",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 176,
+    "text": "アイテムは統合版だけで作れます",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 199,
+    "text": "アイテムは統合版だけで作れます",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 201,
+    "text": "いま Java版（パソコン）を作るモードです。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 202,
+    "text": "Java版で作れるのは",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 202,
+    "text": "モブ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 202,
+    "text": "だけです。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 209,
+    "text": "モブづくりへ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 221,
+    "text": "いまは「🍃 ふつう」なので、取り込んだ形は出ません。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 223,
+    "text": "見た目はバニラのモブ（おとなしい＝村人／襲う＝ゾンビ）になります。\r\n              強さ・名前・落とすものは設定どおりに反映されます。\r\n              形をそのまま出したいときは「🧩 前提mod」を選んでください。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 249,
+    "text": "書き出しに含めます: モブ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 249,
+    "text": "体 ／ アイテム",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 249,
+    "text": "個",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 250,
+    "text": "モデルや絵を読み込むと、ここで設定できます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/DeveloperPanel.tsx",
+    "line": 251,
+    "text": "／　自作AI連携:",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 98,
+    "text": "秒",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 109,
+    "text": "の強さ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 127,
+    "text": "＋ 効果を足す",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 160,
+    "text": "取り消す",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 168,
+    "text": "重ねられる数",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 168,
+    "text": "1〜64（マイクラの上限）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 179,
+    "text": "見た目だけ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 179,
+    "text": "持てる・置ける。それだけ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 180,
+    "text": "食べられる",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 180,
+    "text": "回復量を決められます",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 181,
+    "text": "道具・武器",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 181,
+    "text": "剣・ツルハシ・斧・シャベル・クワ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 182,
+    "text": "防具",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 182,
+    "text": "防御力と、着ている間ずっと効く力",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 211,
+    "text": "道具の種類",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 230,
+    "text": "掘る速さ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 230,
+    "text": "ダイヤ8 ／ 上限なし",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 238,
+    "text": "⚡ 速さ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 238,
+    "text": "＝ 触れた瞬間に壊れます",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 245,
+    "text": "攻撃力",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 245,
+    "text": "木の剣4 ダイヤ7 ／ 上限なし",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 251,
+    "text": "耐久値",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 251,
+    "text": "木59 ダイヤ1561 ／ 0で無限",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 258,
+    "text": "⚡ 耐久値0 ＝",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 258,
+    "text": "絶対に壊れない剣",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 258,
+    "text": "になります",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 263,
+    "text": "⚡ 攻撃力",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 263,
+    "text": "＝ ほぼ何でも一撃です",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 272,
+    "text": "⚔ 特殊効果",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 274,
+    "text": "設定するとスクリプトが作られます（ワールドの「ベータAPI」が要ります）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 280,
+    "text": "殴ると燃やす",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 281,
+    "text": "秒。0で燃やさない",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 291,
+    "text": "殴った相手に起きること",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 292,
+    "text": "毒・衰弱など。複数入れると同時に掛かります",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 299,
+    "text": "持っている間ずっと自分に",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 300,
+    "text": "足を速くする・力を上げるなど。手に持っている間だけ効きます",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 308,
+    "text": "剣は重ねられません。金床での修理はまだできません。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 316,
+    "text": "どこに着るか",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 328,
+    "text": "防御力",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 328,
+    "text": "ダイヤ一式で20 ／ 上限なし",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 334,
+    "text": "耐久値",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 334,
+    "text": "0で無限",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 341,
+    "text": "⚡ 防御力",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 341,
+    "text": "＝ これ1つでダイヤ一式を超えます",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 347,
+    "text": "着ている間ずっと自分に",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 348,
+    "text": "手に何を持っていても効きます",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 358,
+    "text": "⚠️ 着ても体には表示されません（持ち物の絵だけ）。防御力と効果はちゃんと効きます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 371,
+    "text": "✨ 右クリックで技を出す",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 374,
+    "text": "食べ物には付けられません（右クリックが食べる動作に使われるため）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 375,
+    "text": "スクリプトが作られます（ワールドの「ベータAPI」が要ります）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 385,
+    "text": "どんな技",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 401,
+    "text": "威力",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 403,
+    "text": "回復する量",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 403,
+    "text": "飛ぶ勢い",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 403,
+    "text": "ダメージ量",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 403,
+    "text": "／ 上限なし",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 413,
+    "text": "範囲",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 413,
+    "text": "ブロック ／ 上限なし",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 420,
+    "text": "次に使えるまで",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 420,
+    "text": "秒。0で連打できる",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 427,
+    "text": "⚠️ 0だと押しっぱなしで連発されます。1以上にすると使いやすくなります。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 439,
+    "text": "回復する量",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 439,
+    "text": "肉半分＝1 ／ 上限なし",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 445,
+    "text": "腹持ち",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 445,
+    "text": "りんご0.3 肉0.8 ／ 上限なし",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 451,
+    "text": "食べる時間",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 451,
+    "text": "秒。ふつう1.6 ／ 小さいほど速い",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 459,
+    "text": "お腹いっぱいでも食べられる（金のリンゴと同じ）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 470,
+    "text": "クリエイティブの持ち物に出ます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 470,
+    "text": "でも出せます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 507,
+    "text": "アイテムを作る",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 509,
+    "text": "絵を1枚入れるだけで作れます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 509,
+    "text": "のPNGがおすすめです。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 525,
+    "text": "アイテムの絵をここにドロップ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ItemBuilder.tsx",
+    "line": 526,
+    "text": "クリックして選ぶこともできます",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 42,
+    "text": "ダイヤモンド",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 43,
+    "text": "エメラルド",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 44,
+    "text": "金インゴット",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 45,
+    "text": "鉄インゴット",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 46,
+    "text": "骨",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 47,
+    "text": "糸",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 48,
+    "text": "革",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 49,
+    "text": "羽",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 50,
+    "text": "火薬",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 51,
+    "text": "腐った肉",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 52,
+    "text": "リンゴ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 53,
+    "text": "生の牛肉",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 78,
+    "text": "取り消す",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 86,
+    "text": "動き",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 86,
+    "text": "個:",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 86,
+    "text": "（くり返し）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 89,
+    "text": "くり返す動きはマイクラで自動再生されます。プレビューには出ません。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 95,
+    "text": "基本",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 98,
+    "text": "体力",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 98,
+    "text": "ハート半分＝1 ／ 上限なし",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 103,
+    "text": "歩く速さ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 103,
+    "text": "0.25でふつう ／ 上限なし",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 110,
+    "text": "⚡ 速さ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 110,
+    "text": "＝ 走っても逃げきれません",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 115,
+    "text": "⚡ 体力",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 115,
+    "text": "＝ ハート",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 115,
+    "text": "個ぶんのボスです",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 121,
+    "text": "性格",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 124,
+    "text": "おとなしい",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 124,
+    "text": "襲いません。殴られると逃げます",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 125,
+    "text": "プレイヤーを襲う",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 125,
+    "text": "ふつうの敵モブ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 126,
+    "text": "なんでも襲う（戦闘狂）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 126,
+    "text": "プレイヤーも動物も、同じ種類も襲います",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 144,
+    "text": "攻撃力",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 144,
+    "text": "ハート半分＝1 ／ 上限なし",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 152,
+    "text": "⚡ 攻撃力",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 152,
+    "text": "＝ ダイヤ装備でも一撃です",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 157,
+    "text": "⚠️ 同じ種類同士も襲います。2匹以上出すと共食いして1匹になります。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 163,
+    "text": "たおしたとき落とすもの",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 200,
+    "text": "（自分で作ったもの）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 213,
+    "text": "＋ 落とすものを足す",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 238,
+    "text": "🍎 アイテム で作ったものは、ここから直接えらべるようになります。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 244,
+    "text": "スポーンエッグ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 248,
+    "text": "クリエイティブに卵を出す",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 252,
+    "text": "卵の色",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 252,
+    "text": "下地と斑点",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 262,
+    "text": "でき上がりの見た目",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 271,
+    "text": "画像は要りません。色から自動で卵の絵が作られます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 276,
+    "text": "卵を出さない場合、",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 276,
+    "text": "か自然発生でしか出せません。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 282,
+    "text": "自然にわいてくる",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 286,
+    "text": "ワールドに自然発生させる",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 292,
+    "text": "明るさ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 292,
+    "text": "0=真っ暗 15=昼",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 301,
+    "text": "出やすさ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 301,
+    "text": "大きいほど多い ／ 上限なし",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 308,
+    "text": "⚡ 出やすさ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 308,
+    "text": "＝ ワールドがこのモブだらけになります",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 317,
+    "text": "このままだと出力できません",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 324,
+    "text": "準備できています。「🚀 マイクラへ」からアドオンを書き出すと、このモブが入ります。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 325,
+    "text": "ゲーム内では",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobBuilder.tsx",
+    "line": 325,
+    "text": "で呼び出せます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/MobPreview.tsx",
+    "line": 43,
+    "text": "この端末では3D表示ができません",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobPreview.tsx",
+    "line": 108,
+    "text": "⏸ 回転をとめる",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobPreview.tsx",
+    "line": 108,
+    "text": "▶ 回転させる",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/MobPreview.tsx",
+    "line": 111,
+    "text": "ドラッグで回す／ホイールで拡大。ここでの見え方が、そのままマイクラでの見え方です。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 50,
+    "text": "時間内に読み込めませんでした",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 79,
+    "text": "モデルタブに立方体がありません",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 83,
+    "text": "色のテクスチャを作れませんでした",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 90,
+    "text": "面の色をそのまま貼っています。細かい模様を付けたいときは Blockbench を使ってください。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 115,
+    "text": "モデルを取り込む",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 117,
+    "text": "Blockbench で作った",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 117,
+    "text": "を読み込みます。テクスチャは\r\n          「埋め込み」で保存されたものだけ取り込めます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 138,
+    "text": "読み込み中…",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 138,
+    "text": ".bbmodel をここにドロップ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 139,
+    "text": "クリックしてファイルを選ぶこともできます",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 160,
+    "text": "モデルタブで作った形",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 160,
+    "text": "をモブにできます",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 162,
+    "text": "立方体",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 162,
+    "text": "個 ／ 色",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 162,
+    "text": "種。面の色はそのまま貼られます",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 166,
+    "text": "動き",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 182,
+    "text": "モブにする",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 189,
+    "text": "読み込めませんでした",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 198,
+    "text": "読み込めましたが、気をつけてほしい点があります",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 214,
+    "text": "ボーン",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 215,
+    "text": "立方体",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/developer/ModelImport.tsx",
+    "line": 216,
+    "text": "テクスチャ",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/dex/DexClient.tsx",
+    "line": 91,
+    "text": "図鑑アルバムを開いています... 📖",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/dex/DexClient.tsx",
+    "line": 113,
+    "text": "アルバム収集ステータス",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/dex/DexClient.tsx",
+    "line": 120,
+    "text": "% コンプリート)",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/dex/DexClient.tsx",
+    "line": 146,
+    "text": "🎮 【検証・テスト用ヘルパー】 (カードクリックでも個別開放可)",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/dex/DexClient.tsx",
+    "line": 158,
+    "text": "🌟 全132枚を開放",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/dex/DexClient.tsx",
+    "line": 168,
+    "text": "🔒 全てシルエットに戻す",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/dex/DexClient.tsx",
+    "line": 188,
+    "text": "全カテゴリ",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/dex/DexClient.tsx",
+    "line": 216,
+    "text": "全て",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/dex/DexClient.tsx",
+    "line": 217,
+    "text": "獲得済 🌟",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/dex/DexClient.tsx",
+    "line": 218,
+    "text": "未獲得 🔒",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/dex/DexClient.tsx",
+    "line": 266,
+    "text": "獲得:",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/dex/DexClient.tsx",
+    "line": 311,
+    "text": "クリックで【テスト開放】",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/dex/DexClient.tsx",
+    "line": 351,
+    "text": "「未知の力を持ったカードだ…」",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/dex/DexClient.tsx",
+    "line": 362,
+    "text": "クリックで【未獲得状態にリセット】",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/dex/page.tsx",
+    "line": 6,
+    "text": "カード図鑑（全132種）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/dex/page.tsx",
+    "line": 7,
+    "text": "CUBIC ENGINEのブロック（カード）をコンプリート！明るいTCG調の図鑑ページ。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/dex/page.tsx",
+    "line": 21,
+    "text": "CUBIC ENGINE カード図鑑",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/dex/page.tsx",
+    "line": 24,
+    "text": "プログラミングで大活躍するすべてのカードを集めたオフィシャル図鑑アルバムです。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/dex/page.tsx",
+    "line": 26,
+    "text": "使ったことがあるカードは輝いて表示され、まだ見ぬカードは神秘的なシルエットに隠されています！",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/dex/page.tsx",
+    "line": 45,
+    "text": "← エディタへ戻る",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/form-lab/page.tsx",
+    "line": 6,
+    "text": "フォームビルダー（試作）",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/form-lab/page.tsx",
+    "line": 7,
+    "text": "UIをUIで作る試作画面。Bedrockの3フォーム型を組み立ててコード生成。",
+    "type": "StringLiteral"
+  },
+  {
+    "file": "app/editor/form-lab/page.tsx",
+    "line": 18,
+    "text": "🧩 フォームビルダー（試作）",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/form-lab/page.tsx",
+    "line": 20,
+    "text": "「みため」をブロックではなく",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/form-lab/page.tsx",
+    "line": 20,
+    "text": "UIで作る",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/form-lab/page.tsx",
+    "line": 20,
+    "text": "ための試作。組んだ内容が右にプレビュー＆コードで出ます。",
+    "type": "JsxText"
+  },
+  {
+    "file": "app/editor/form-lab/page.tsx",
+    "line": 23,
+    "text": "← エディタへ",
+    "type": "JsxText"
+  }
+]

@@ -7,7 +7,7 @@ import { useEditorStore } from "./store";
 import type { VoxelBlock } from "./store";
 import { McButton } from "../_mc";
 import { BLOCK_PARTICLES } from "../../lib/devtab/blockToScript";
-import { t } from "@/lib/i18n";
+import { t, tNode } from "@/lib/i18n";
 
 /* ═══════════════════════════════════════════
    Three.js Viewport
@@ -625,10 +625,7 @@ function ThreeViewport({paintMode, setPaintMode, mode = "blocks", simple = true,
           <div className="text-3xl mb-3">🧊</div>
           <p className="text-sm font-bold text-white mb-2">{t(locale, "editor_313432")}</p>
           <p className="text-xs text-[#9aa0a6] leading-relaxed">
-            {t(locale, "editor_836df6")}<br />
-            {t(locale, "editor_5931ca")}<br />
-            <span className="text-[#a3e635]">{t(locale, "editor_82c5b2")}</span>
-          </p>
+            {tNode(locale, "editor_frag_1a05c067c42_6", { arg0: <br />, arg1: <br />, arg2: <span className="text-[#a3e635]">{t(locale, "editor_82c5b2")}</span> })}</p>
         </div>
       </div>
     );
@@ -703,14 +700,14 @@ function updateBlockColors(mesh: THREE.Mesh, block: VoxelBlock) {
    テクスチャプリセット
    ═══════════════════════════════════════════ */
 const PRESETS = [
-  { name: t(useEditorStore.getState().locale, "editor_7d3cfe"),       top: "#4ade80", side: "#8B6914", bottom: "#6B4E12" },
-  { name: t(useEditorStore.getState().locale, "editor_87cc01"),       top: "#9ca3af", side: "#78716c", bottom: "#57534e" },
-  { name: t(useEditorStore.getState().locale, "editor_c5359d"),   top: "#67e8f9", side: "#22d3ee", bottom: "#0891b2" },
-  { name: t(useEditorStore.getState().locale, "editor_9c4189"),       top: "#fde047", side: "#eab308", bottom: "#a16207" },
-  { name: t(useEditorStore.getState().locale, "editor_ace4b8"),top: "#f87171", side: "#dc2626", bottom: "#991b1b" },
-  { name: t(useEditorStore.getState().locale, "editor_30d6fb"),   top: "#60a5fa", side: "#2563eb", bottom: "#1e3a8a" },
-  { name: t(useEditorStore.getState().locale, "editor_b5773e"),   top: "#3f3f46", side: "#27272a", bottom: "#18181b" },
-  { name: t(useEditorStore.getState().locale, "editor_169d4e"),top: "#c084fc", side: "#9333ea", bottom: "#6b21a8" },
+  { get name() { return t(useEditorStore.getState().locale, "editor_7d3cfe"); },       top: "#4ade80", side: "#8B6914", bottom: "#6B4E12" },
+  { get name() { return t(useEditorStore.getState().locale, "editor_87cc01"); },       top: "#9ca3af", side: "#78716c", bottom: "#57534e" },
+  { get name() { return t(useEditorStore.getState().locale, "editor_c5359d"); },   top: "#67e8f9", side: "#22d3ee", bottom: "#0891b2" },
+  { get name() { return t(useEditorStore.getState().locale, "editor_9c4189"); },       top: "#fde047", side: "#eab308", bottom: "#a16207" },
+  { get name() { return t(useEditorStore.getState().locale, "editor_ace4b8"); },top: "#f87171", side: "#dc2626", bottom: "#991b1b" },
+  { get name() { return t(useEditorStore.getState().locale, "editor_30d6fb"); },   top: "#60a5fa", side: "#2563eb", bottom: "#1e3a8a" },
+  { get name() { return t(useEditorStore.getState().locale, "editor_b5773e"); },   top: "#3f3f46", side: "#27272a", bottom: "#18181b" },
+  { get name() { return t(useEditorStore.getState().locale, "editor_169d4e"); },top: "#c084fc", side: "#9333ea", bottom: "#6b21a8" },
 ];
 
 /* ═══════════════════════════════════════════
@@ -876,11 +873,9 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
       }}
     >
 
-      {/* ── ブロック一覧（何個でも作れる） ── */}
-      <div>
+      {tNode(locale, "editor_frag_1a05c067c5b_7", { arg0: {/* ── ブロック一覧（何個でも作れる） ── */}, arg1: <div>
         <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2">
-          🧱 {mode === "items" ? t(locale, "editor_1769f6") : t(locale, "editor_847085")}{t(locale, "editor_4d6d7e")}{workingBlocks.length})
-        </div>
+          {tNode(locale, "editor_frag_1a05c067c75_8", { arg0: workingBlocks.length })}</div>
         <div className="flex flex-col gap-1 max-h-48 overflow-y-auto pr-0.5 bg-[#151411] border-2 border-[#1f1e1a] mc-bevel-inset p-1" style={{ borderRadius: "6px" }}>
           {workingBlocks.map((b) => {
             const isSel = selectedIds.includes(b.id);
@@ -921,328 +916,23 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
           onClick={handleAddNew}
           className="mt-2.5 w-full mc-btn mc-btn--sm mc-btn--primary"
         >
-          {t(locale, "editor_9d2c89")}{mode === "items" ? t(locale, "editor_1769f6") : t(locale, "editor_847085")}
-        </button>
-      </div>
-
-      {/* ── 本物のマイクラブロックにする ── */}
-      {sel && mode !== "items" && (
-        <div className="border-t border-border/40 pt-3">
-          <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2 flex items-center justify-between">
-            <span>{t(locale, "editor_23900b")}</span>
-            <button 
-              onClick={() => updateFn(sel.id, { registered: !sel.registered })}
-              className={`font-pixel text-[10px] px-2.5 py-1 border-2 border-[#1f1e1a] rounded transition-all cursor-pointer ${
-                sel.registered 
-                  ? "bg-[#10b981] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]" 
-                  : "bg-surface-active text-muted hover:text-foreground/70"
-              }`}
-            >
-              {sel.registered ? "ON" : "OFF"}
-            </button>
-          </div>
-          {sel.registered ? (
-            <div className="space-y-3 bg-[#151411] rounded-lg p-2.5 border-2 border-[#1f1e1a] mc-bevel-inset">
-              <div>
-                <label className="text-[10px] text-muted font-bold block mb-1">{t(locale, "editor_b276bd")}</label>
-                <div className="text-[11px] font-mono text-cyan-300 px-2.5 py-1.5 bg-[#1a1916] border border-[#2c2c2c] rounded truncate shadow-inner">
-                  {nsSlug}:{sel.name}
-                </div>
-              </div>
-              <div>
-                <label className="text-[10px] text-foreground/80 font-bold block mb-1">{t(locale, "editor_65c3b5")}</label>
-                <input 
-                  value={sel.displayName ?? ""} 
-                  placeholder={sel.name}
-                  onChange={(e) => updateFn(sel.id, { displayName: e.target.value })}
-                  className="w-full px-2.5 py-1.5 bg-[#1a1916] border-2 border-[#2c2c2c] mc-bevel-inset text-xs text-foreground/85 focus:outline-none focus:border-accent/40"
-                  style={{ borderRadius: "4px" }} 
-                />
-              </div>
-              <div>
-                <label className="text-[10px] text-foreground/80 font-bold block mb-1">{t(locale, "editor_0e0907")}</label>
-                <select 
-                  value={sel.hardness ?? 1.5} 
-                  title={t(locale, "editor_8f3444")} 
-                  onChange={(e) => updateFn(sel.id, { hardness: parseFloat(e.target.value) })}
-                  className="w-full px-2 py-1 bg-[#1a1916] border-2 border-[#2c2c2c] mc-bevel-inset text-xs text-foreground/85 focus:outline-none focus:border-accent/40"
-                  style={{ borderRadius: "4px" }}
-                >
-                  <option value={0}>{t(locale, "editor_82203b")}</option>
-                  <option value={0.5}>{t(locale, "editor_0302cd")}</option>
-                  <option value={1.5}>{t(locale, "editor_424f7e")}</option>
-                  <option value={3}>{t(locale, "editor_de7fef")}</option>
-                  <option value={5}>{t(locale, "editor_4070ca")}</option>
-                  <option value={50}>{t(locale, "editor_9adba7")}</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-[10px] text-foreground/80 font-bold block mb-1">{t(locale, "editor_912b45")}</label>
-                <select 
-                  value={sel.lightLevel ?? 0} 
-                  title={t(locale, "editor_7b8a88")} 
-                  onChange={(e) => updateFn(sel.id, { lightLevel: parseInt(e.target.value) })}
-                  className="w-full px-2 py-1 bg-[#1a1916] border-2 border-[#2c2c2c] mc-bevel-inset text-xs text-foreground/85 focus:outline-none"
-                  style={{ borderRadius: "4px" }}
-                >
-                  {Array.from({ length: 16 }, (_, i) => i).map(n => (
-                    <option key={n} value={n}>
-                      {n}{n === 0 ? t(locale, "editor_b55ef2") : n === 15 ? t(locale, "editor_c9e907") : ""}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {/* ⚠️ 粒子はブロックのJSONではなくスクリプトで出す。
-                  minecraft:particle_emitter の書式に確証が無く、間違えると
-                  ブロックごと読み込まれなくなるため（詳しくは lib/devtab/blockToScript.ts）。
-                  そのため**ワールドの「ベータAPI」が要る**。ここに明記しないと
-                  「設定したのに出ない」の原因が分からない */}
-              <div className="col-span-2">
-                <label className="text-[10px] text-foreground/80 font-bold block mb-1">
-                  {t(locale, "editor_687fbc")}<span className="block text-[9px] text-foreground/45 font-normal">
-                    {t(locale, "editor_640f39")}</span>
-                </label>
-                <select
-                  value={sel.particle ?? ""}
-                  title={t(locale, "editor_687fbc")}
-                  onChange={(e) => updateFn(sel.id, { particle: e.target.value })}
-                  className="w-full px-2 py-1 bg-[#1a1916] border-2 border-[#2c2c2c] mc-bevel-inset text-xs text-foreground/85 focus:outline-none"
-                  style={{ borderRadius: "4px" }}
-                >
-                  {BLOCK_PARTICLES.map(p => (
-                    <option key={p.id} value={p.id}>{p.label}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          ) : (
-            <p className="text-[10px] text-muted/65 italic leading-relaxed">
-              {t(locale, "editor_15771d")}</p>
-          )}
-        </div>
-      )}
-
-      {/* ── グループ管理 ── */}
-      {selectedIds.length > 0 && (
-        <div className="border-t border-border/40 pt-3">
-          <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2">{t(locale, "editor_b70a4e")}</div>
-          <button
-            onClick={() => {
-              const name = prompt(t(locale, "editor_fc5866"));
-              if (name) {
-                const groupId = createGroup(name);
-                assignToGroup(selectedIds, groupId);
-              }
-            }}
-            className="mc-btn mc-btn--sm w-full mb-2.5"
-          >
-            {t(locale, "editor_13b70c")}</button>
-          {sel?.groupId && (
-            <div className="px-2.5 py-1.5 bg-[#151411] border-2 border-[#1f1e1a] mc-bevel-inset text-[11px] text-foreground/80" style={{ borderRadius: "4px" }}>
-              {t(locale, "editor_4f4462")}<span className="text-accent font-bold">{groups[sel.groupId]?.name || "？"}</span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ── 選択中ブロック ── */}
-      <div>
+          {tNode(locale, "editor_frag_1a05c067c97_9")}</button>
+      </div>, arg2: {/* ── 本物のマイクラブロックにする ── */}, arg3: {/* ── グループ管理 ── */}, arg4: {/* ── 選択中ブロック ── */}, arg5: <div>
         <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2">{t(locale, "editor_cda34e")}</div>
         {sel ? (
           <div className="space-y-4">
-            {/* 名前 */}
-            <div>
+            {tNode(locale, "editor_frag_1a05c067cb1_10", { arg0: {/* 名前 */}, arg1: <div>
               <label className="text-[11px] text-foreground/90 font-pixel block mb-1">{t(locale, "editor_5b9e23")}</label>
               <input value={sel.name}
                 onChange={(e) => updateFn(sel.id, { name: e.target.value })}
                 className="w-full px-2.5 py-1.5 bg-[#1a1916] border-2 border-[#2c2c2c] mc-bevel-inset text-xs font-mono text-foreground/90 focus:outline-none focus:border-accent/40"
                 style={{ borderRadius: "4px" }}
               />
-            </div>
-
-            {/* ── かんたんモード: 直感コントロール ── */}
-            {simple && (
-              <div className="space-y-4">
-                {/* 📏 おおきさ */}
-                <div>
-                  <label className="text-[11px] text-foreground/90 font-pixel block mb-1.5 font-bold">{t(locale, "editor_43a9fb")}</label>
-                  <div className="flex flex-col gap-1.5">
-                    <div className="flex gap-1.5">
-                      <button onClick={() => updateFn(sel.id, { scale: [0.5, 0.5, 0.5] })}
-                        className="flex-1 py-1 mc-btn mc-btn--sm text-xs font-bold">{t(locale, "editor_678e95")}</button>
-                      <button onClick={() => updateFn(sel.id, { scale: [1, 1, 1] })}
-                        className="flex-1 py-1 mc-btn mc-btn--sm mc-btn--info text-xs font-bold">{t(locale, "editor_8c83d6")}</button>
-                      <button onClick={() => updateFn(sel.id, { scale: [2, 2, 2] })}
-                        className="flex-1 py-1 mc-btn mc-btn--sm mc-btn--grape text-xs font-bold">{t(locale, "editor_ac66a5")}</button>
-                    </div>
-                    <div className="flex gap-1.5">
-                      <button onClick={() => {
-                        const s = sel.scale ?? [1, 1, 1];
-                        const nx = Math.max(0.1, s[0] - 0.1);
-                        const ny = Math.max(0.1, s[1] - 0.1);
-                        const nz = Math.max(0.1, s[2] - 0.1);
-                        updateFn(sel.id, { scale: [nx, ny, nz] });
-                      }} className="flex-1 py-1 mc-btn mc-btn--sm text-xs">{t(locale, "editor_35a09f")}</button>
-                      <button onClick={() => {
-                        const s = sel.scale ?? [1, 1, 1];
-                        updateFn(sel.id, { scale: [s[0] + 0.1, s[1] + 0.1, s[2] + 0.1] });
-                      }} className="flex-1 py-1 mc-btn mc-btn--sm text-xs">{t(locale, "editor_0d9615")}</button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 🔄 むき (まわす) */}
-                <div>
-                  <label className="text-[11px] text-foreground/90 font-pixel block mb-1.5 font-bold">{t(locale, "editor_425db9")}</label>
-                  <div className="flex gap-1.5">
-                    <button onClick={() => { const r = sel.rotation ?? [0, 0, 0]; updateFn(sel.id, { rotation: [r[0], r[1] - 90, r[2]] }); }}
-                      className="flex-1 py-1.5 mc-btn mc-btn--sm text-xs font-bold">{t(locale, "editor_a41fd1")}</button>
-                    <button onClick={() => { const r = sel.rotation ?? [0, 0, 0]; updateFn(sel.id, { rotation: [r[0], r[1] + 90, r[2]] }); }}
-                      className="flex-1 py-1.5 mc-btn mc-btn--sm text-xs font-bold">{t(locale, "editor_0f841c")}</button>
-                    <button onClick={() => { const r = sel.rotation ?? [0, 0, 0]; updateFn(sel.id, { rotation: [r[0] + 90, r[1], r[2]] }); }}
-                      className="flex-1 py-1.5 mc-btn mc-btn--sm text-xs font-bold">{t(locale, "editor_2d9f7b")}</button>
-                  </div>
-                </div>
-
-                {/* 📍 うごかす */}
-                <div>
-                  <label className="text-[11px] text-foreground/90 font-pixel block mb-1.5 font-bold">{t(locale, "editor_872778")}</label>
-                  <div className="flex gap-3 items-center">
-                    {/* 十字キー (平面X-Z) */}
-                    <div className="grid grid-cols-3 grid-rows-3 gap-1 w-[96px] h-[96px] bg-[#151411] border-2 border-[#1f1e1a] rounded p-1 mc-bevel-inset relative shrink-0">
-                      <div />
-                      <button onClick={() => { const p = [...sel.position] as [number, number, number]; p[2] += 1; updateFn(sel.id, { position: p }); }} title={t(locale, "editor_83610a")} className="mc-btn mc-btn--sm p-0 flex items-center justify-center font-bold text-xs">▲</button>
-                      <div />
-
-                      <button onClick={() => { const p = [...sel.position] as [number, number, number]; p[0] -= 1; updateFn(sel.id, { position: p }); }} title={t(locale, "editor_ec442a")} className="mc-btn mc-btn--sm p-0 flex items-center justify-center font-bold text-xs">◀</button>
-                      <div className="bg-[#2a2924] border border-black/20 rounded-sm" />
-                      <button onClick={() => { const p = [...sel.position] as [number, number, number]; p[0] += 1; updateFn(sel.id, { position: p }); }} title={t(locale, "editor_df8376")} className="mc-btn mc-btn--sm p-0 flex items-center justify-center font-bold text-xs">▶</button>
-
-                      <div />
-                      <button onClick={() => { const p = [...sel.position] as [number, number, number]; p[2] -= 1; updateFn(sel.id, { position: p }); }} title={t(locale, "editor_fc7721")} className="mc-btn mc-btn--sm p-0 flex items-center justify-center font-bold text-xs">▼</button>
-                      <div />
-                    </div>
-
-                    {/* 高さボタン (Y) */}
-                    <div className="flex flex-col gap-1.5 flex-1">
-                      <button onClick={() => { const p = [...sel.position] as [number, number, number]; p[1] += 1; updateFn(sel.id, { position: p }); }} className="py-2 mc-btn mc-btn--sm mc-btn--primary text-xs font-bold flex items-center justify-center gap-1">
-                        {t(locale, "editor_adf7fd")}</button>
-                      <button onClick={() => { const p = [...sel.position] as [number, number, number]; p[1] -= 1; updateFn(sel.id, { position: p }); }} className="py-2 mc-btn mc-btn--sm mc-btn--danger text-xs font-bold flex items-center justify-center gap-1">
-                        {t(locale, "editor_60e9ac")}</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ── プロモード: 数値トランスフォーム等 ── */}
-            {!simple && (<>
-            {/* グリッドスナップ */}
-            <div>
-              <label className="text-[11px] text-foreground/90 font-pixel block mb-1">{t(locale, "editor_e81545")}</label>
-              <div className="flex items-center justify-between mb-2">
-                <label className="flex items-center gap-2 cursor-pointer text-xs text-foreground/75 font-pixel">
-                  <input type="checkbox" checked={gridSnapEnabled} onChange={(e) => setGridSnap(e.target.checked, gridSnapSize)} className="cursor-pointer" />
-                  {t(locale, "editor_e4142d")}</label>
-              </div>
-              {gridSnapEnabled && (
-                <select value={gridSnapSize} onChange={(e) => setGridSnap(true, parseFloat(e.target.value))}
-                  className="w-full px-2 py-1.5 bg-[#1a1916] border-2 border-[#2c2c2c] mc-bevel-inset text-xs text-foreground/90 focus:outline-none focus:border-accent/40"
-                  style={{ borderRadius: "4px" }}
-                >
-                  <option value={0.5}>0.5</option>
-                  <option value={1}>1.0</option>
-                  <option value={2}>2.0</option>
-                  <option value={5}>5.0</option>
-                </select>
-              )}
-            </div>
-
-            {/* 位置 */}
-            <Vec3Editor label={t(locale, "editor_a1a2ab")} values={sel.position}
-              onChange={(v) => updateFn(sel.id, { position: v })} snap={gridSnapEnabled} />
-
-            {/* スケール */}
-            <Vec3Editor label={t(locale, "editor_f16898")} values={sel.scale ?? [1,1,1]}
-              onChange={(v) => updateFn(sel.id, { scale: v })} step={0.1} />
-
-            {/* 回転 */}
-            <Vec3Editor label={t(locale, "editor_ce117b")} values={sel.rotation ?? [0,0,0]}
-              onChange={(v) => updateFn(sel.id, { rotation: v })} step={5}
-              colors={["text-orange-400 font-bold","text-yellow-400 font-bold","text-pink-400 font-bold"]} />
-
-            {/* 面カラー - インベントリスロット風 */}
-            <div>
-              <label className="text-[11px] text-[#fbbf24] font-pixel block mb-2">{t(locale, "editor_550770")}</label>
-              <div className="grid grid-cols-3 gap-2">
-                {(["top","bottom","front","back","left","right"] as const).map((face) => (
-                  <div key={face} className="flex flex-col items-center gap-1">
-                    <span className="text-[9px] font-pixel text-foreground/60">{face}</span>
-                    <div className="w-10 h-10 bg-[#151411] border-2 border-[#1f1e1a] mc-bevel-inset relative flex items-center justify-center cursor-pointer group" style={{ borderRadius: "5px" }}>
-                      <div className="w-6 h-6 border border-black/40" style={{ background: sel.faces[face].color, boxShadow: "inset 1px 1px 0 rgba(255,255,255,0.2)" }} />
-                      <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" style={{ borderRadius: "3px" }} />
-                      <input type="color" value={sel.faces[face].color}
-                        onChange={(e) => updateFn(sel.id, {
-                          faces: { ...sel.faces, [face]: { ...sel.faces[face], color: e.target.value } }
-                        })}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* テクスチャアップロード - インベントリスロット風 */}
-            <div>
-              <label className="text-[11px] text-[#fbbf24] font-pixel block mb-2">{t(locale, "editor_b2be9c")}</label>
-              <div className="grid grid-cols-3 gap-2">
-                {(["top","bottom","front","back","left","right"] as const).map((face) => {
-                  const tex = sel.faces[face].texture;
-                  return (
-                    <div key={face} className="flex flex-col items-center gap-1">
-                      <span className="text-[9px] font-pixel text-foreground/60">{face}</span>
-                      <label className="w-10 h-10 bg-[#151411] border-2 border-[#1f1e1a] mc-bevel-inset relative flex items-center justify-center cursor-pointer group" style={{ borderRadius: "5px" }}>
-                        {tex ? (
-                          <img src={tex} alt={face} className="w-7 h-7 object-contain" style={{ imageRendering: "pixelated" }} />
-                        ) : (
-                          <span className="text-[10px] text-foreground/30 font-bold font-pixel">📤</span>
-                        )}
-                        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" style={{ borderRadius: "3px" }} />
-                        <input
-                          type="file"
-                          accept="image/png"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              const reader = new FileReader();
-                              reader.onload = (ev) => {
-                                const dataUrl = ev.target?.result as string;
-                                updateFn(sel.id, {
-                                    faces: { ...sel.faces, [face]: { ...sel.faces[face], texture: dataUrl } }
-                                });
-                              };
-                              reader.readAsDataURL(file);
-                            }
-                          }}
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                        />
-                      </label>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            </>)}
-
-            {/* 削除ボタン */}
-            <button
+            </div>, arg2: {/* ── かんたんモード: 直感コントロール ── */}, arg3: {/* ── プロモード: 数値トランスフォーム等 ── */}, arg4: {/* 削除ボタン */}, arg5: <button
               onClick={() => removeFn(sel.id)}
               className="mt-2 mc-btn mc-btn--sm mc-btn--danger w-full"
             >
-              {t(locale, "editor_ce75ba")}</button>
-          </div>
+              {t(locale, "editor_ce75ba")}</button> })}</div>
         ) : workingBlocks.length === 0 ? (
           <div className="text-center py-6 bg-[#151411] border-2 border-[#1f1e1a] mc-bevel-inset rounded-lg p-3 my-2">
             <p className="text-xs text-[#fbbf24] font-pixel mb-1.5">{t(locale, "editor_20deeb")}</p>
@@ -1252,10 +942,7 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
         ) : (
           <p className="text-xs text-muted/50 italic leading-relaxed text-center font-pixel py-4">{t(locale, "editor_be7d73")}</p>
         )}
-      </div>
-
-      {/* ── テクスチャプリセット ── */}
-      <div className="border-t border-border/40 pt-3">
+      </div>, arg6: {/* ── テクスチャプリセット ── */}, arg7: <div className="border-t border-border/40 pt-3">
         <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2">
           {t(locale, "editor_123aef")}</div>
         <div className="grid grid-cols-2 gap-2">
@@ -1277,38 +964,13 @@ function PropertiesPanel({ mode = "blocks", simple = false }: { mode?: "blocks" 
             </button>
           ))}
         </div>
-      </div>
-
-      {/* ── 表示設定（プロのみ） ── */}
-      {!simple && (
-        <div className="border-t border-border/40 pt-3">
-          <div className="text-[11px] font-bold text-[#fbbf24] font-pixel uppercase tracking-wider mb-2">{t(locale, "editor_2b2e22")}</div>
-          {[
-            { label: t(locale, "editor_4912b2"),         val: showGrid,      set: setShowGrid },
-            { label: t(locale, "editor_d5e689"), val: showWireframe, set: setShowWireframe },
-          ].map(({ label, val, set }) => (
-            <label key={label} className="flex items-center justify-between cursor-pointer mb-2 font-pixel text-xs text-foreground/75">
-              <span>{label}</span>
-              <input
-                type="checkbox"
-                checked={val}
-                onChange={() => set(!val)}
-                className="w-4 h-4 cursor-pointer"
-              />
-            </label>
-          ))}
-        </div>
-      )}
-
-      {/* ── 最下部の岩盤（スクロール終端の遊び心） ── */}
-      <div className="mt-4 pt-4 border-t border-dashed border-[#1f1e1a] flex flex-col items-center justify-center opacity-40 select-none shrink-0 pb-2">
+      </div>, arg8: {/* ── 表示設定（プロのみ） ── */}, arg9: {/* ── 最下部の岩盤（スクロール終端の遊び心） ── */}, arg10: <div className="mt-4 pt-4 border-t border-dashed border-[#1f1e1a] flex flex-col items-center justify-center opacity-40 select-none shrink-0 pb-2">
         <div className="w-8 h-8 bg-[#151411] border-2 border-[#1f1e1a] mc-bevel-inset flex items-center justify-center text-sm filter grayscale" style={{ borderRadius: "4px" }}>
           🧱
         </div>
         <span className="text-[9px] font-pixel mt-1.5 tracking-widest text-muted">
           {t(locale, "editor_d9574b")}</span>
-      </div>
-    </div>
+      </div> })}</div>
   );
 }
 
@@ -1577,55 +1239,19 @@ export default function ModelPanel() {
       <div className="flex h-full flex-1 flex-col sm:flex-row">
         <ToolSidebar paintMode={paintMode} setPaintMode={setPaintMode} mode={mode} simple={simple} activeTool={activeTool} setActiveTool={setActiveTool} />
         <div className="flex-1 relative overflow-hidden bg-[#23211e] min-h-[50%]">
-          <ThreeViewport paintMode={paintMode} setPaintMode={setPaintMode} mode={mode} simple={simple} activeTool={activeTool} />
-          
-          {/* 初回ブロックがないときのお助けチュートリアルダイアログ */}
-          {workingBlocks.length === 0 && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-20">
-              <div className="bg-[#1f1e1a]/95 border-3 border-[#121210] p-4 text-center select-none max-w-xs shadow-2xl rounded-lg pointer-events-auto" style={{ boxShadow: "0 20px 25px -5px rgba(0,0,0,0.5)" }}>
-                <p className="font-pixel text-[13px] text-[#fbbf24] mb-1.5" style={{ textShadow: "1.5px 1.5px 0 rgba(0,0,0,0.8)" }}>
-                  {t(locale, "editor_b3fda4")}</p>
-                <p className="font-pixel text-[10px] text-foreground/85 leading-relaxed mb-3">
-                  {t(locale, "editor_2c8808")}</p>
-                <button
-                  onClick={handleAddNewFirst}
-                  className="mc-btn mc-btn--primary mc-btn--sm w-full py-2 font-bold text-xs"
-                >
-                  {t(locale, "editor_62d02b")}</button>
-              </div>
-            </div>
-          )}
-          
-          {/* ビューポート前面のインナービネットシャドウ（映画風・奥行き感） */}
-          <div className="absolute inset-0 pointer-events-none z-10 shadow-[inset_0_0_80px_rgba(0,0,0,0.65)]" />
-
-          {/* 四隅のHUDブラケット (L字型の角装飾) */}
-          <div className="absolute top-4 left-4 w-4 h-4 border-t-3 border-l-3 border-[#fb7185]/55 pointer-events-none z-10" />
-          <div className="absolute top-4 right-4 w-4 h-4 border-t-3 border-r-3 border-[#fb7185]/55 pointer-events-none z-10" />
-          <div className="absolute bottom-4 left-4 w-4 h-4 border-b-3 border-l-3 border-[#fb7185]/55 pointer-events-none z-10" />
-          <div className="absolute bottom-4 right-4 w-4 h-4 border-b-3 border-r-3 border-[#fb7185]/55 pointer-events-none z-10" />
-
-          <div className="absolute top-3 left-3 px-3 py-1.5 border-2 border-[#1f1e1a] bg-panel text-[10px] text-foreground/85 font-pixel pointer-events-none shadow-lg z-20" style={{ borderRadius: "5px" }}>
-            {t(locale, "editor_9115cf")}{paintMode ? t(locale, "editor_af253c") : t(locale, "editor_333d6b")} {t(locale, "editor_9b8499")}</div>
-
-          {/* カメラの視点リセットボタン */}
-          <button
+          {tNode(locale, "editor_frag_1a05c067cd2_11", { arg0: <ThreeViewport paintMode={paintMode} setPaintMode={setPaintMode} mode={mode} simple={simple} activeTool={activeTool} />, arg1: {/* 初回ブロックがないときのお助けチュートリアルダイアログ */}, arg2: {/* ビューポート前面のインナービネットシャドウ（映画風・奥行き感） */}, arg3: <div className="absolute inset-0 pointer-events-none z-10 shadow-[inset_0_0_80px_rgba(0,0,0,0.65)]" />, arg4: {/* 四隅のHUDブラケット (L字型の角装飾) */}, arg5: <div className="absolute top-4 left-4 w-4 h-4 border-t-3 border-l-3 border-[#fb7185]/55 pointer-events-none z-10" />, arg6: <div className="absolute top-4 right-4 w-4 h-4 border-t-3 border-r-3 border-[#fb7185]/55 pointer-events-none z-10" />, arg7: <div className="absolute bottom-4 left-4 w-4 h-4 border-b-3 border-l-3 border-[#fb7185]/55 pointer-events-none z-10" />, arg8: <div className="absolute bottom-4 right-4 w-4 h-4 border-b-3 border-r-3 border-[#fb7185]/55 pointer-events-none z-10" />, arg9: <div className="absolute top-3 left-3 px-3 py-1.5 border-2 border-[#1f1e1a] bg-panel text-[10px] text-foreground/85 font-pixel pointer-events-none shadow-lg z-20" style={{ borderRadius: "5px" }}>
+            {tNode(locale, "editor_frag_1a05c067cf1_12")}</div>, arg10: {/* カメラの視点リセットボタン */}, arg11: <button
             onClick={() => window.dispatchEvent(new CustomEvent("mmc-reset-camera"))}
             className="absolute bottom-3 right-3 mc-btn mc-btn--sm z-20 flex items-center gap-1 font-pixel"
             style={{ padding: "6px 10px" }}
             title={t(locale, "editor_c3e543")}
           >
-            {t(locale, "editor_daf43e")}</button>
-
-          {/* 操作ガイドボタン */}
-          <button
+            {t(locale, "editor_daf43e")}</button>, arg12: {/* 操作ガイドボタン */}, arg13: <button
             onClick={() => setShowHelp(true)}
             className="absolute top-3 right-3 mc-btn mc-btn--sm z-20"
             style={{ padding: "6px 10px" }}
           >
-            {t(locale, "editor_20d16b")}</button>
-
-          <div className={`absolute bottom-4 left-4 flex items-center gap-2 pointer-events-none ${simple ? "hidden" : ""}`}>
+            {t(locale, "editor_20d16b")}</button>, arg14: <div className={`absolute bottom-4 left-4 flex items-center gap-2 pointer-events-none ${simple ? "hidden" : ""}`}>
             <div className="w-8 h-8 flex items-center justify-center bg-[#151411] border-2 border-[#1f1e1a] mc-bevel-inset text-xs font-pixel text-[#fb7185] font-bold shadow-[0_0_8px_rgba(251,113,133,0.4)]" style={{ textShadow: "1px 1px 0px #5f131a", borderRadius: "4px" }}>
               X
             </div>
@@ -1635,79 +1261,7 @@ export default function ModelPanel() {
             <div className="w-8 h-8 flex items-center justify-center bg-[#151411] border-2 border-[#1f1e1a] mc-bevel-inset text-xs font-pixel text-[#3b82f6] font-bold shadow-[0_0_8px_rgba(59,130,246,0.4)]" style={{ textShadow: "1px 1px 0px #1e3a8a", borderRadius: "4px" }}>
               Z
             </div>
-          </div>
-
-          {/* マイクラ風ヘルプモーダル */}
-          {showHelp && (
-            <div className="absolute inset-0 bg-black/70 z-30 flex items-center justify-center p-6 animate-fade-in-up">
-              <div className="w-full max-w-xl border-3 border-[#1f1e1a] bg-panel flex flex-col max-h-[85%] relative shadow-[0_12px_24px_rgba(0,0,0,0.6)]" style={{ borderRadius: "8px" }}>
-                <div className="mc-panel__title flex justify-between items-center bg-[#1f1e1a] border-b-2 border-[#1f1e1a]">
-                  <span className="font-pixel text-[11px] text-[#fbbf24] flex items-center gap-1.5" style={{ textShadow: "1px 1px 0px rgba(0,0,0,0.7)" }}>
-                    {t(locale, "editor_1db173")}</span>
-                  <button
-                    onClick={() => setShowHelp(false)}
-                    className="mc-btn mc-btn--sm px-2 py-0.5"
-                    style={{ minWidth: "24px", height: "24px", padding: 0 }}
-                  >
-                    ✕
-                  </button>
-                </div>
-                
-                <div className="overflow-y-auto p-4 space-y-4 text-xs font-sans text-foreground/90 scrollbar-thin bg-surface" style={{ borderBottom: "2px solid #1f1e1a" }}>
-                  {/* カメラ操作 */}
-                  <div className="space-y-1.5">
-                    <div className="font-bold text-[#fbbf24] font-pixel border-b border-border/40 pb-1 flex items-center gap-1">
-                      {t(locale, "editor_de8453")}</div>
-                    <ul className="list-disc pl-4 space-y-1 font-pixel text-[11px]">
-                      <li><strong className="text-foreground">{t(locale, "editor_db9c11")}</strong> {t(locale, "editor_d971cf")}</li>
-                      <li><strong className="text-foreground">{t(locale, "editor_7e41cc")}</strong> {t(locale, "editor_93ba33")}<kbd className="px-1.5 py-0.5 bg-[#8c8779] border-2 border-[#1f1e1a] mc-bevel text-white text-[9px] shadow-inner" style={{ borderRadius: "4px" }}>Ctrl</kbd> {t(locale, "editor_46274b")}</li>
-                      <li><strong className="text-foreground">{t(locale, "editor_189971")}</strong> {t(locale, "editor_ae69e0")}</li>
-                    </ul>
-                  </div>
- 
-                  {/* ツール操作 */}
-                  <div className="space-y-1.5">
-                    <div className="font-bold text-[#fbbf24] font-pixel border-b border-border/40 pb-1 flex items-center gap-1">
-                      {t(locale, "editor_8dafe7")}</div>
-                    <ul className="list-disc pl-4 space-y-1 font-pixel text-[11px]">
-                      <li><strong className="text-foreground">{t(locale, "editor_6fa1a8")}</strong> {t(locale, "editor_7829d7")}<span className="font-extrabold text-[#10b981]">＋</span> {t(locale, "editor_d1225f")}</li>
-                      <li><strong className="text-foreground">{t(locale, "editor_588eae")}</strong> {t(locale, "editor_585a55")}<kbd className="px-1.5 py-0.5 bg-[#8c8779] border-2 border-[#1f1e1a] mc-bevel text-white text-[9px] shadow-inner" style={{ borderRadius: "4px" }}>Ctrl</kbd> + <kbd className="px-1.5 py-0.5 bg-[#8c8779] border-2 border-[#1f1e1a] mc-bevel text-white text-[9px] shadow-inner" style={{ borderRadius: "4px" }}>D</kbd>{t(locale, "editor_490bc9")}<span className="text-[#f59e0b]">⧉</span> {t(locale, "editor_7b393e")}</li>
-                      <li><strong className="text-foreground">{t(locale, "editor_7aae2a")}</strong> {t(locale, "editor_b1aac8")}<span className="text-rose-500">🗑</span> {t(locale, "editor_7b393e")}</li>
-                      <li><strong className="text-foreground">{t(locale, "editor_b2750f")}</strong> <kbd className="px-1.5 py-0.5 bg-[#8c8779] border-2 border-[#1f1e1a] mc-bevel text-white text-[9px] shadow-inner" style={{ borderRadius: "4px" }}>Ctrl</kbd> {t(locale, "editor_226c0d")}</li>
-                    </ul>
-                  </div>
- 
-                  {/* ペイントモード */}
-                  <div className="space-y-1.5">
-                    <div className="font-bold text-[#fbbf24] font-pixel border-b border-border/40 pb-1 flex items-center gap-1">
-                      {t(locale, "editor_13788f")}</div>
-                    <ul className="list-disc pl-4 space-y-1 font-pixel text-[11px]">
-                      <li><strong className="text-foreground">{t(locale, "editor_5f1f1c")}</strong> {t(locale, "editor_7829d7")}<span className="text-rose-400">✎</span> {t(locale, "editor_2ec211")}</li>
-                      <li><strong className="text-foreground">{t(locale, "editor_3478fa")}</strong> {t(locale, "editor_57bb4a")}<span className="text-rose-400">✎</span> {t(locale, "editor_955fe7")}<kbd className="px-1.5 py-0.5 bg-[#8c8779] border-2 border-[#1f1e1a] mc-bevel text-white text-[9px] shadow-inner" style={{ borderRadius: "4px" }}>Esc</kbd> {t(locale, "editor_9bd8bd")}</li>
-                      <li><strong className="text-foreground">{t(locale, "editor_7792b9")}</strong> {t(locale, "editor_c21995")}</li>
-                    </ul>
-                  </div>
- 
-                  {/* グリッドスナップ */}
-                  <div className="space-y-1.5">
-                    <div className="font-bold text-[#fbbf24] font-pixel border-b border-border/40 pb-1 flex items-center gap-1">
-                      {t(locale, "editor_513586")}</div>
-                    <p className="pl-1 leading-relaxed font-pixel text-[11px]">
-                      {t(locale, "editor_754181")}<strong className="text-foreground">{t(locale, "editor_7b5eb1")}</strong>{t(locale, "editor_4d29ca")}<span className="text-[#fb7185] font-bold">0.5</span> {t(locale, "editor_3cb21c")}<span className="text-[#fb7185] font-bold">1.0</span> {t(locale, "editor_a859e8")}</p>
-                  </div>
-                </div>
- 
-                <div className="p-3 flex justify-end bg-[#1f1e1a] rounded-b-lg">
-                  <button
-                    onClick={() => setShowHelp(false)}
-                    className="mc-btn mc-btn--primary mc-btn--sm"
-                  >
-                    {t(locale, "editor_9299b2")}</button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+          </div>, arg15: {/* マイクラ風ヘルプモーダル */} })}</div>
         <PropertiesPanel mode={mode} simple={simple} />
       </div>
     </div>

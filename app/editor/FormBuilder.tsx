@@ -16,20 +16,20 @@ import { t } from "@/lib/i18n";
 import { useEditorStore } from "@/app/editor/store";
 
 const KINDS: { key: FormKind; label: string; hint: string }[] = [
-  { key: "menu",    label: t(useEditorStore.getState().locale, "editor_9013ce"), hint: t(useEditorStore.getState().locale, "editor_aca2da") },
-  { key: "input",   label: t(useEditorStore.getState().locale, "editor_97364a"),     hint: t(useEditorStore.getState().locale, "editor_95384e") },
-  { key: "confirm", label: t(useEditorStore.getState().locale, "editor_86dd12"), hint: t(useEditorStore.getState().locale, "editor_6f1d0e") },
+  { key: "menu",    get label() { return t(useEditorStore.getState().locale, "editor_9013ce"); }, get hint() { return t(useEditorStore.getState().locale, "editor_aca2da"); } },
+  { key: "input",   get label() { return t(useEditorStore.getState().locale, "editor_97364a"); },     get hint() { return t(useEditorStore.getState().locale, "editor_95384e"); } },
+  { key: "confirm", get label() { return t(useEditorStore.getState().locale, "editor_86dd12"); }, get hint() { return t(useEditorStore.getState().locale, "editor_6f1d0e"); } },
 ];
 const ACTIONS: { key: ActionType; label: string }[] = [
-  { key: "message", label: t(useEditorStore.getState().locale, "editor_8badc9") },
-  { key: "command", label: t(useEditorStore.getState().locale, "editor_ff25d6") },
-  { key: "none",    label: t(useEditorStore.getState().locale, "editor_1deedd") },
+  { key: "message", get label() { return t(useEditorStore.getState().locale, "editor_8badc9"); } },
+  { key: "command", get label() { return t(useEditorStore.getState().locale, "editor_ff25d6"); } },
+  { key: "none",    get label() { return t(useEditorStore.getState().locale, "editor_1deedd"); } },
 ];
 const FIELD_KINDS: { key: FieldKind; label: string }[] = [
-  { key: "text",     label: t(useEditorStore.getState().locale, "editor_fe9ebd") },
+  { key: "text",     get label() { return t(useEditorStore.getState().locale, "editor_fe9ebd"); } },
   { key: "toggle",   label: "ON/OFF" },
-  { key: "slider",   label: t(useEditorStore.getState().locale, "editor_c95b94") },
-  { key: "dropdown", label: t(useEditorStore.getState().locale, "editor_cbfdcf") },
+  { key: "slider",   get label() { return t(useEditorStore.getState().locale, "editor_c95b94"); } },
+  { key: "dropdown", get label() { return t(useEditorStore.getState().locale, "editor_cbfdcf"); } },
 ];
 
 function move<T>(arr: T[], i: number, d: number): T[] {

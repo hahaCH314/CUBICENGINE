@@ -28,6 +28,13 @@
 > 🌻 ヒマワリへ。branch `feature/i18n-editor-auto`。抽出と配線ありがとう、辞書1,034キー入った。
 > **レビュー＆コミット済 `9f4d03b`。以下の4つはシオンが直したので、戻さないで。**
 
+> ⚠️ **2026-09-01 時点の作業ツリーの状態 — 未コミット分はビルドが通らない。**
+> コミット済み（`9f4d03b` / `01c23bc` / `14f5eb6`）まではビルド通過を確認済みだが、
+> その上に乗っている未コミットの変更は **②の途中**で、`tNode()` ヘルパの導入が中断している
+> （`lib/i18n.ts:1118` に定義はあるが、使用14ファイルのどれも import していない）。
+> **この未コミット分を「完成品」と思って進めないこと。** 続きから触るか、
+> `git stash` で退避して `14f5eb6` の状態から再開するかを最初に決める。
+
 ### ✅ シオンが直した（再実装しないこと）
 
 1. **ビルドが落ちていた。** `card-lab` / `dex` / `form-lab` の `page.tsx` は `metadata` を持つ**サーバコンポーネント**。そこに `useEditorStore((s) => s.locale)` を入れたので `useSyncExternalStore is not a function` で prerender 失敗。見出しを `CardLabHeader.tsx` / `DexHeader.tsx` / `FormLabHeader.tsx`（`"use client"`）へ切り出した。

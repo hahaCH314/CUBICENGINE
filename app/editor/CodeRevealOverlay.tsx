@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { t } from "@/lib/i18n";
+import { t, tNode } from "@/lib/i18n";
 import { useEditorStore } from "@/app/editor/store";
 
 interface CodeRevealOverlayProps {
@@ -381,9 +381,9 @@ export function CodeRevealOverlay({ revealCode, onClose, theme = "workshop", ton
             letterSpacing: "0.05em",
           }}>
             {adult ? (
-              <>{t(locale, "editor_d3ed26")}<span style={{ color: isWorkshop ? "#ffe9c4" : "#adffd0", textDecoration: "underline", textUnderlineOffset: "4px" }}>{t(locale, "editor_5aad0e")}</span>{t(locale, "punct.period")}</>
+              <>{tNode(locale, "editor_frag_1a05c0680d3_40", { arg0: <span style={{ color: isWorkshop ? "#ffe9c4" : "#adffd0", textDecoration: "underline", textUnderlineOffset: "4px" }}>{t(locale, "editor_5aad0e")}</span>, arg1: t(locale, "punct.period") })}</>
             ) : (
-              <>{t(locale, "editor_f75068")}<span style={{ color: isWorkshop ? "#ffe9c4" : "#adffd0", textDecoration: "underline", textUnderlineOffset: "4px" }}>{t(locale, "editor_104967")}</span>{t(locale, "punct.period")}</>
+              <>{tNode(locale, "editor_frag_1a05c0680db_41", { arg0: <span style={{ color: isWorkshop ? "#ffe9c4" : "#adffd0", textDecoration: "underline", textUnderlineOffset: "4px" }}>{t(locale, "editor_104967")}</span>, arg1: t(locale, "punct.period") })}</>
             )}
           </div>
 

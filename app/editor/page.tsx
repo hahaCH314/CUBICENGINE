@@ -107,9 +107,9 @@ function useMenuItems() {
 }
 
 const menuLabels: Record<MenuKey, string> = {
-  file: t(useEditorStore.getState().locale, "editor_1abe2e"),
-  edit: t(useEditorStore.getState().locale, "editor_757886"),
-  view: t(useEditorStore.getState().locale, "editor_3d7dfb"),
+  get file() { return t(useEditorStore.getState().locale, "editor_1abe2e"); },
+  get edit() { return t(useEditorStore.getState().locale, "editor_757886"); },
+  get view() { return t(useEditorStore.getState().locale, "editor_3d7dfb"); },
 };
 
 /* HEX 色を相対的に明るく/暗くする小ヘルパー（タブのベベル色生成用） */
@@ -127,13 +127,13 @@ const darken  = (hex: string) => shiftHex(hex, -60);
 const tabConfig: { key: Tab; label: string; color: string; icon: string }[] = [
   {
     key: "logic",
-    label: t(useEditorStore.getState().locale, "editor_92e35f"),
+    get label() { return t(useEditorStore.getState().locale, "editor_92e35f"); },
     color: "#00ddb5", // SPROUT×GROVE中間色（アクアマリン）
     icon: "🧩",
   },
   {
     key: "model",
-    label: t(useEditorStore.getState().locale, "editor_17850b"),
+    get label() { return t(useEditorStore.getState().locale, "editor_17850b"); },
     color: "#3cd070",
     icon: "📦",
   },
@@ -141,13 +141,13 @@ const tabConfig: { key: Tab; label: string; color: string; icon: string }[] = [
     // 上級者向け。既存のタブより後ろに置く。初めての人の導線（ロジック→モデル→マイクラへ）を
     // 割り込まないようにするため、「マイクラへ」の手前ではなく後ろに並べている
     key: "developer",
-    label: t(useEditorStore.getState().locale, "editor_6af213"),
+    get label() { return t(useEditorStore.getState().locale, "editor_6af213"); },
     color: "#a78bfa",
     icon: "🛠",
   },
   {
     key: "settings",
-    label: t(useEditorStore.getState().locale, "editor_17b3c8"),
+    get label() { return t(useEditorStore.getState().locale, "editor_17b3c8"); },
     color: "#3cd070",
     icon: "🚀",
   },

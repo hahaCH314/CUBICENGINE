@@ -14,7 +14,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { CBlock } from "./_types";
 import { buildShareUrl, toWire } from "../../lib/share";
 import { makeQr, qrToSvg } from "../../lib/qr";
-import { t } from "@/lib/i18n";
+import { t, tNode } from "@/lib/i18n";
 import { useEditorStore } from "@/app/editor/store";
 
 const NAME_KEY = "mmc-share-name";
@@ -105,47 +105,24 @@ export default function ShareDialog({
           boxShadow: "0 24px 60px rgba(0,0,0,0.45)", padding: 20,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+        {tNode(locale, "editor_frag_1a05c067c06_3", { arg0: <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
           <span style={{ fontSize: 26 }}>📣</span>
           <h2 style={{ fontSize: 19, fontWeight: 900, color: "#14532d" }}>{t(locale, "editor_2666b5")}</h2>
           <button onClick={onClose} style={{
             marginLeft: "auto", width: 30, height: 30, borderRadius: 9, cursor: "pointer",
             border: "2px solid #e2e8f0", background: "#f8fafc", color: "#64748b", fontWeight: 900,
           }}>✕</button>
-        </div>
-        <p style={{ fontSize: 12, color: "#64748b", fontWeight: 700, marginBottom: 16, lineHeight: 1.6 }}>
-          {t(locale, "editor_c0298e")}<b>{t(locale, "editor_878b0b")}</b>{t(locale, "editor_97f509")}</p>
-
-        {/* 出典が付くことは本人にも見せる。黙って名前を入れるのは不誠実だし、
-            「ちゃんと元の人の名前が残る」と分かるほうが安心して真似できる。 */}
-        {remixSrc && (
-          <div style={{
-            display: "flex", gap: 8, alignItems: "flex-start",
-            border: "2px solid #fbbf24", background: "#fffbeb", borderRadius: 12,
-            padding: "9px 11px", marginBottom: 14,
-          }}>
-            <span style={{ fontSize: 16 }}>🔁</span>
-            <span style={{ fontSize: 11.5, fontWeight: 800, color: "#92400e", lineHeight: 1.55 }}>
-              {t(locale, "editor_6464ac")}<b>{remixSrc}</b> {t(locale, "editor_f6afad")}<span style={{ display: "block", color: "#b45309", fontWeight: 700, marginTop: 2 }}>
-                {t(locale, "editor_e60017")}</span>
-            </span>
-          </div>
-        )}
-
-        <Field label={t(locale, "editor_794beb")}>
+        </div>, arg1: <p style={{ fontSize: 12, color: "#64748b", fontWeight: 700, marginBottom: 16, lineHeight: 1.6 }}>
+          {tNode(locale, "editor_frag_1a05c067c0a_4", { arg0: <b>{t(locale, "editor_878b0b")}</b> })}</p>, arg2: {/* 出典が付くことは本人にも見せる。黙って名前を入れるのは不誠実だし、
+            「ちゃんと元の人の名前が残る」と分かるほうが安心して真似できる。 */}, arg3: <Field label={t(locale, "editor_794beb")}>
           <input value={title} onChange={e => setTitle(e.target.value)}
             placeholder={t(locale, "editor_faf373")} style={input} />
-        </Field>
-
-        <Field label={t(locale, "editor_95dd38")}>
+        </Field>, arg4: <Field label={t(locale, "editor_95dd38")}>
           <input value={author} onChange={e => setAuthor(e.target.value)}
             placeholder={t(locale, "editor_eb1dfd")} maxLength={20} style={input} />
           <p style={{ fontSize: 10.5, color: "#94a3b8", fontWeight: 700, marginTop: 4, lineHeight: 1.5 }}>
             {t(locale, "editor_d5f6a4")}</p>
-        </Field>
-
-        {/* 丸ごとコピーを許すかどうかは、作った本人が決める */}
-        <label style={{
+        </Field>, arg5: {/* 丸ごとコピーを許すかどうかは、作った本人が決める */}, arg6: <label style={{
           display: "flex", gap: 10, alignItems: "flex-start", cursor: "pointer",
           border: `2px solid ${remix ? "#f59e0b" : "#e2e8f0"}`, borderRadius: 12,
           background: remix ? "#fffbeb" : "#f8fafc", padding: "10px 12px", marginBottom: 16,
@@ -156,12 +133,9 @@ export default function ShareDialog({
             <span style={{ fontSize: 13, fontWeight: 900, color: remix ? "#92400e" : "#475569" }}>
               {t(locale, "editor_0fe713")}</span>
             <span style={{ display: "block", fontSize: 10.5, color: "#94a3b8", fontWeight: 700, marginTop: 3, lineHeight: 1.5 }}>
-              {t(locale, "editor_68414d")}<b>{t(locale, "editor_6a38b7")}</b>{t(locale, "punct.period")}
-            </span>
+              {tNode(locale, "editor_frag_1a05c067c0f_5", { arg0: <b>{t(locale, "editor_6a38b7")}</b>, arg1: t(locale, "punct.period") })}</span>
           </span>
-        </label>
-
-        <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+        </label>, arg7: <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
           <button onClick={copy} disabled={!url || tooBig} style={{ ...btn, flex: 1, opacity: url && !tooBig ? 1 : 0.5 }}>
             {copied ? t(locale, "editor_64cd3f") : t(locale, "editor_f1e1d8")}
           </button>
@@ -169,32 +143,13 @@ export default function ShareDialog({
             <button onClick={send} disabled={!url || tooBig} style={{ ...btn, background: "linear-gradient(135deg,#93c5fd,#3b82f6)", boxShadow: "0 4px 0 #1d4ed8", color: "#fff", opacity: url && !tooBig ? 1 : 0.5 }}>
               {t(locale, "editor_943259")}</button>
           )}
-        </div>
-
-        {/* 目の前の友達に渡すならこれが最短。画面を見せるだけで済む。 */}
-        {qr && (
-          <div style={{ display: "flex", gap: 12, alignItems: "center", margin: "4px 0 12px" }}>
-            <div
-              style={{ width: 116, height: 116, flexShrink: 0, borderRadius: 10, overflow: "hidden", border: "2px solid #e2e8f0" }}
-              dangerouslySetInnerHTML={{ __html: qr }}
-            />
-            <p style={{ fontSize: 11.5, fontWeight: 800, color: "#475569", lineHeight: 1.6 }}>
-              {t(locale, "editor_5e1292")}<span style={{ display: "block", color: "#94a3b8", fontWeight: 700, marginTop: 3 }}>
-                {t(locale, "editor_d0f320")}</span>
-            </p>
-          </div>
-        )}
-
-        <input id="share-url" readOnly value={url}
+        </div>, arg8: {/* 目の前の友達に渡すならこれが最短。画面を見せるだけで済む。 */}, arg9: <input id="share-url" readOnly value={url}
           onFocus={e => e.currentTarget.select()}
-          style={{ ...input, fontSize: 10.5, color: "#64748b", fontFamily: "monospace" }} />
-
-        <p style={{ fontSize: 10.5, color: "#94a3b8", fontWeight: 700, marginTop: 10, lineHeight: 1.6 }}>
+          style={{ ...input, fontSize: 10.5, color: "#64748b", fontFamily: "monospace" }} />, arg10: <p style={{ fontSize: 10.5, color: "#94a3b8", fontWeight: 700, marginTop: 10, lineHeight: 1.6 }}>
           {tooBig
             ? t(locale, "editor_513485")
-            : `この作品はリンクの中（${url.length} 文字）に入っています。サーバーには何も送られません。`}
-        </p>
-      </div>
+            : t(locale, "editor_link_note").replace("{len}", String(url.length))}
+        </p> })}</div>
     </div>
   );
 }

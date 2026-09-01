@@ -24,7 +24,7 @@ import ConfettiEffect from "../_mc/ConfettiEffect";
 import { ITEM_NAMES } from "../../data/itemNames";
 import { blockH, getStackHeight, getDepth, getPos, getFamily, detach, attach, dist, findSnap } from "../../lib/blockGraph";
 import { escStr, escId, gf, sanitizeVarName, genChain, genBlock, genExpr, genCond, genTrigger, buildCode } from "../../lib/codegen";
-import { t } from "@/lib/i18n";
+import { t, tNode } from "@/lib/i18n";
 
 let _uid = 6000;
 const uid = () => `b${Date.now().toString(36)}${Math.random().toString(36).substring(2, 6)}`;
@@ -38,14 +38,14 @@ const SLOT_ACCEPT: Record<string, Category[]> = {
   else: ["action", "ifelse", "loop", "ui", "variable"],  // ちがうなら：動作
 };
 const SLOT_BADGE: Record<string, { icon: string; label: string; color: string }> = {
-  inner: { icon: "💎", label: t(useEditorStore.getState().locale, "editor_766eaf"), color: "#9b59b6" },
-  then: { icon: "⚡", label: t(useEditorStore.getState().locale, "editor_cdb6ce"), color: "#2ecc71" },
-  else: { icon: "⚡", label: t(useEditorStore.getState().locale, "editor_cdb6ce"), color: "#ff7f50" },
+  inner: { icon: "💎", get label() { return t(useEditorStore.getState().locale, "editor_766eaf"); }, color: "#9b59b6" },
+  then: { icon: "⚡", get label() { return t(useEditorStore.getState().locale, "editor_cdb6ce"); }, color: "#2ecc71" },
+  else: { icon: "⚡", get label() { return t(useEditorStore.getState().locale, "editor_cdb6ce"); }, color: "#ff7f50" },
 };
 const SLOT_HEAD: Record<string, { glyph: string; jp: string }> = {
-  inner: { glyph: "⬦", jp: t(useEditorStore.getState().locale, "editor_d023e0") },
-  then: { glyph: "✓", jp: t(useEditorStore.getState().locale, "editor_47336f") },
-  else: { glyph: "✗", jp: t(useEditorStore.getState().locale, "editor_545035") },
+  inner: { glyph: "⬦", get jp() { return t(useEditorStore.getState().locale, "editor_d023e0"); } },
+  then: { glyph: "✓", get jp() { return t(useEditorStore.getState().locale, "editor_47336f"); } },
+  else: { glyph: "✗", get jp() { return t(useEditorStore.getState().locale, "editor_545035"); } },
 };
 
 /* ══════════════════════════════════════════════════════════
@@ -77,21 +77,21 @@ const STICKER_TYPES = [
 ];
 
 const FRIENDLY_GROUPS: FriendlyGroup[] = [
-  { key: "when", label: t(useEditorStore.getState().locale, "editor_dc7aac"), sub: t(useEditorStore.getState().locale, "editor_73ce3a"),   icon: "Zap",      cats: ["trigger"],                                     bg: "#facc15", top: "#fef9c3", side: "#ca8a04", text: "#451a03" },
-  { key: "do",   label: t(useEditorStore.getState().locale, "editor_5b87f2"), sub: t(useEditorStore.getState().locale, "editor_ccbc57"),       icon: "Wand2",    cats: ["action", "ui"],                                bg: "#38bdf8", top: "#e0f2fe", side: "#0284c7", text: "#0c4a6e" },
-  { key: "more", label: t(useEditorStore.getState().locale, "editor_7a740e"),   sub: t(useEditorStore.getState().locale, "editor_117964"), icon: "Sparkles", cats: ["ifelse", "loop", "value", "calc", "variable"], bg: "#a855f7", top: "#f3e8ff", side: "#9333ea", text: "#4c1d95" },
+  { key: "when", get label() { return t(useEditorStore.getState().locale, "editor_dc7aac"); }, get sub() { return t(useEditorStore.getState().locale, "editor_73ce3a"); },   icon: "Zap",      cats: ["trigger"],                                     bg: "#facc15", top: "#fef9c3", side: "#ca8a04", text: "#451a03" },
+  { key: "do",   get label() { return t(useEditorStore.getState().locale, "editor_5b87f2"); }, get sub() { return t(useEditorStore.getState().locale, "editor_ccbc57"); },       icon: "Wand2",    cats: ["action", "ui"],                                bg: "#38bdf8", top: "#e0f2fe", side: "#0284c7", text: "#0c4a6e" },
+  { key: "more", get label() { return t(useEditorStore.getState().locale, "editor_7a740e"); },   get sub() { return t(useEditorStore.getState().locale, "editor_117964"); }, icon: "Sparkles", cats: ["ifelse", "loop", "value", "calc", "variable"], bg: "#a855f7", top: "#f3e8ff", side: "#9333ea", text: "#4c1d95" },
 ];
 
 /* 下部キーボード：カテゴリを8つに直割り（カードを“打つ”ための入力キー） */
 const KEYBOARD_CATS: { cat: Category; label: string; icon: string }[] = [
-  { cat: "trigger",  label: t(useEditorStore.getState().locale, "editor_dc7aac"),   icon: "Zap" },
-  { cat: "action",   label: t(useEditorStore.getState().locale, "editor_5b87f2"),   icon: "Wand2" },
-  { cat: "ui",       label: t(useEditorStore.getState().locale, "editor_3f8946"),     icon: "LayoutGrid" },
-  { cat: "ifelse",   label: t(useEditorStore.getState().locale, "editor_d023e0"),     icon: "Split" },
-  { cat: "loop",     label: t(useEditorStore.getState().locale, "editor_fab78e"), icon: "Repeat" },
-  { cat: "value",    label: t(useEditorStore.getState().locale, "editor_5dda34"),     icon: "Hash" },
-  { cat: "calc",     label: t(useEditorStore.getState().locale, "editor_9206bf"),   icon: "Plus" },
-  { cat: "variable", label: t(useEditorStore.getState().locale, "editor_a72736"),   icon: "Package" },
+  { cat: "trigger",  get label() { return t(useEditorStore.getState().locale, "editor_dc7aac"); },   icon: "Zap" },
+  { cat: "action",   get label() { return t(useEditorStore.getState().locale, "editor_5b87f2"); },   icon: "Wand2" },
+  { cat: "ui",       get label() { return t(useEditorStore.getState().locale, "editor_3f8946"); },     icon: "LayoutGrid" },
+  { cat: "ifelse",   get label() { return t(useEditorStore.getState().locale, "editor_d023e0"); },     icon: "Split" },
+  { cat: "loop",     get label() { return t(useEditorStore.getState().locale, "editor_fab78e"); }, icon: "Repeat" },
+  { cat: "value",    get label() { return t(useEditorStore.getState().locale, "editor_5dda34"); },     icon: "Hash" },
+  { cat: "calc",     get label() { return t(useEditorStore.getState().locale, "editor_9206bf"); },   icon: "Plus" },
+  { cat: "variable", get label() { return t(useEditorStore.getState().locale, "editor_a72736"); },   icon: "Package" },
 ];
 
 /* 条件分岐は「もしも」カテゴリでキーボード上から条件を選ぶ＝タップでその条件入りco_ifが出る */
@@ -176,7 +176,7 @@ interface PresetProject {
 
 const PRESET_PROJECTS: PresetProject[] = [
   {
-    name: t(useEditorStore.getState().locale, "editor_841c91"), emoji: "UserPlus", desc: t(useEditorStore.getState().locale, "editor_893e69"),
+    get name() { return t(useEditorStore.getState().locale, "editor_841c91"); }, emoji: "UserPlus", get desc() { return t(useEditorStore.getState().locale, "editor_893e69"); },
     create: () => {
         const locale = useEditorStore((s) => s.locale);
       const a = spawnBlock(T("ev_join"), 100, 600);
@@ -187,7 +187,7 @@ const PRESET_PROJECTS: PresetProject[] = [
     },
   },
   {
-    name: t(useEditorStore.getState().locale, "editor_9d3439"), emoji: "HeartPulse", desc: t(useEditorStore.getState().locale, "editor_8455ff"),
+    get name() { return t(useEditorStore.getState().locale, "editor_9d3439"); }, emoji: "HeartPulse", get desc() { return t(useEditorStore.getState().locale, "editor_8455ff"); },
     create: () => {
         const locale = useEditorStore((s) => s.locale);
       const a = spawnBlock(T("ev_hurt"), 80, 600);
@@ -503,11 +503,22 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
             : `drop-shadow(0 0 8px ${cat.bg}66) drop-shadow(0 4px 8px rgba(0,0,0,0.3))`,
       transition: "opacity 0.25s ease, filter 0.15s, transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1)",
     }}>
-      {/* ✨キラキラカード＝ホログラム箔（ビックリマンシール風の虹プリズム＋流れる光沢）。
-          ※箔のテカリ(一般的な視覚効果)のみ。特定キャラ/デザインは使わない。 */}
-      {isKira && (
+      {tNode(locale, "editor_frag_1a05c067d4a_13", { arg0: {/* ✨キラキラカード＝ホログラム箔（ビックリマンシール風の虹プリズム＋流れる光沢）。
+          ※箔のテカリ(一般的な視覚効果)のみ。特定キャラ/デザインは使わない。 */}, arg1: isKira && (
         <>
-          <style>{t(locale, "editor_6f242a")}</style>
+          <style>{`@keyframes holoFlow { from { background-position: 0% 50%; } to { background-position: 300% 50%; } }
+            @keyframes holoSheen { 0% { background-position: 140% 0; } 100% { background-position: -40% 0; } }
+            /* 揃った瞬間の「変身」＝リングがふわっと開く。押した手ごたえを出す */
+            @keyframes kiraAppear {
+              0%   { transform: scale(0.86); opacity: 0; }
+              55%  { transform: scale(1.06); opacity: 1; }
+              100% { transform: scale(1);    opacity: 1; }
+            }
+            @keyframes kiraStarPop {
+              0%   { transform: scale(0) rotate(-30deg); opacity: 0; }
+              60%  { transform: scale(1.35) rotate(8deg); opacity: 1; }
+              100% { transform: scale(1) rotate(0deg);   opacity: 1; }
+            }`}</style>
           {/* 外周の虹リング */}
           <div style={{
             position: "absolute", left: leftOffset - 4, top: -4, width: cardW + 8, height: cardH + 8,
@@ -544,65 +555,10 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
             animation: "kiraStarPop 0.5s cubic-bezier(0.2,1.5,0.35,1) 0.1s both",
           }}>✨</div>
         </>
-      )}
-
-      {/* 貼られた条件シール＝カードの上に重なる帯。
+      ), arg2: {/* 貼られた条件シール＝カードの上に重なる帯。
           「このカードは、この条件のときだけ動く」を、入れ子や差込口ではなく
-          カード自身の見た目で示す。複数枚なら上から順に「かつ」。 */}
-      {(b.stickers?.length ?? 0) > 0 && (
-        <div style={{
-          position: "absolute", left: leftOffset, top: -9 - (b.stickers!.length - 1) * 15,
-          width: cardW, zIndex: 14, pointerEvents: "none",
-          display: "flex", flexDirection: "column", gap: 2,
-        }}>
-          {b.stickers!.map(s => {
-            const st = TEMPLATES.find(t => t.type === s.type);
-            const SIcon = (LucideIcons as any)[st?.emoji ?? ""] || LucideIcons.HelpCircle;
-            return (
-              <div key={s.id} style={{
-                display: "flex", alignItems: "center", gap: 3,
-                padding: "1.5px 5px", borderRadius: 7,
-                // めくった状態(〜じゃないとき)は色を変える＝一目で反転が分かる
-                background: s.neg ? "#fb923c" : "#ec4899",
-                border: "1.5px solid #1e293b",
-                boxShadow: "0 2px 0 rgba(0,0,0,0.25)",
-                color: "#fff", fontSize: 8, fontWeight: 900, whiteSpace: "nowrap", overflow: "hidden",
-              }}>
-                <SIcon size={9} color="#fff" strokeWidth={3} />
-                <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
-                  {/* 「スニーク中か」→「スニーク中のとき」。確認の言い方(〜か)のままだと
-                      カードに印刷された文として読めないので、語尾だけ整える */}
-                  {(st?.label ?? s.type).replace(/か$/, "")}{s.neg ? t(locale, "editor_d8a16b") : ""}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
-      {/* くりかえしカード＝中身を上方向に「囲む」オリジナル枠（このアプリのループ色／点線／🔁）。
-          ※ Scratch等のトレードドレス(オレンジ/パズル凹凸/特定の矢印)は使わない。 */}
-      {isLoop && (
-        <div style={{
-          position: "absolute",
-          left: leftOffset - 9,
-          top: -(thenH + 8),
-          width: cardW + 18,
-          height: thenH + cardH + 14,
-          borderRadius: 20,
-          border: `3px dashed ${cat.bg}`,
-          background: `${cat.bg}14`,
-          boxShadow: `inset 0 0 0 2px rgba(255,255,255,0.45)`,
-          zIndex: 0,
-          pointerEvents: "none",
-        }}>
-          <div style={{ position: "absolute", left: 9, top: 5, fontSize: 10, fontWeight: 900, color: cat.bg, display: "flex", alignItems: "center", gap: 3 }}>
-            <span>🔁</span><span>{t(locale, "editor_9e64d8")}</span>
-          </div>
-          <div style={{ position: "absolute", right: 10, bottom: 5, fontSize: 15, fontWeight: 900, color: cat.bg, transform: "scaleX(-1)" }}>↻</div>
-        </div>
-      )}
-      {/* メインカードノード（ポケカ風：白ベースカード ＋ カテゴリカラーの細い外枠フチ） */}
-      <div style={{
+          カード自身の見た目で示す。複数枚なら上から順に「かつ」。 */}, arg3: {/* くりかえしカード＝中身を上方向に「囲む」オリジナル枠（このアプリのループ色／点線／🔁）。
+          ※ Scratch等のトレードドレス(オレンジ/パズル凹凸/特定の矢印)は使わない。 */}, arg4: {/* メインカードノード（ポケカ風：白ベースカード ＋ カテゴリカラーの細い外枠フチ） */}, arg5: <div style={{
         position: "absolute",
         left: leftOffset, top: 0, width: cardW, height: cardH,
         background: "#ffffff", // 白いカードベース
@@ -690,9 +646,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
               lineHeight: 1.3, width: "94%", wordBreak: "break-word", display: "block",
               zIndex: 2, marginBottom: 2, marginTop: "auto",
             }}>
-              {t(locale, "editor_d023e0")}<br />
-              <b style={{ color: cat.bg, fontSize: 10 }}>{b.fields.find(f => f.id === "cond")?.value || "？"}</b><br />
-              {t(locale, "editor_11f721")}</span>
+              {tNode(locale, "editor_frag_1a05c067d79_14", { arg0: <br />, arg1: <b style={{ color: cat.bg, fontSize: 10 }}>{b.fields.find(f => f.id === "cond")?.value || "？"}</b>, arg2: <br /> })}</span>
           ) : (
             <span style={{
               fontSize: b.label.length > 7 ? 8.5 : 9.5,
@@ -711,10 +665,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
             </span>
           )}
         </div>
-      </div>
-
-      {/* スロットポート（条件分岐などの場合、下部にはみ出して表示） */}
-      {(isCond || isLoop) && (
+      </div>, arg6: {/* スロットポート（条件分岐などの場合、下部にはみ出して表示） */}, arg7: (isCond || isLoop) && (
         <div style={{
           position: "absolute",
           top: cardH + 4, // カード下端のすぐ下に自動追従
@@ -727,36 +678,7 @@ function ToyCubeBlock({ b, pos, pal, cyber, selected, snapSlot, isEating, isSnap
           {isCond && renderSlotButton("then")}
           {isLoop && renderSlotButton("then")}
         </div>
-      )}
-
-      {/* 削除ボタン */}
-      {!isEating && selected && (
-        <button
-          onPointerDown={e => {
-            e.stopPropagation();
-            e.preventDefault();
-            onDelete(b.id);
-          }}
-          title={t(locale, "editor_c6577c")}
-          style={{
-            position: "absolute",
-            top: -12,
-            right: leftOffset - 11, // カードの右上端に合わせる（サイズ拡大に伴い微調整）
-            width: 32, height: 32, borderRadius: "50%",
-            background: "#e74c3c", border: `2px solid #fff`,
-            color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
-            cursor: "pointer", zIndex: 30,
-            boxShadow: "0 2px 6px rgba(0,0,0,0.35)",
-            transition: "transform 0.1s",
-            touchAction: "none", // タッチで確実に拾う(スクロール等に奪われない)
-          }}
-          onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
-          onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
-        >
-          <LucideIcons.X size={17} strokeWidth={3} />
-        </button>
-      )}
-    </div>
+      ), arg8: {/* 削除ボタン */} })}</div>
   );
 }
 
@@ -1360,8 +1282,8 @@ function BlockTray({
           {t(locale, "editor_c8762a")}</McButton>
         <span style={{ fontSize: 9, color: "#c8c4b8", fontWeight: 600, textAlign: "center", lineHeight: 1.1 }}>
           {searching
-            ? <>{t(locale, "editor_5782f0")}<strong style={{ color: "#f9a8d4" }}>{filtered.length}</strong> {t(locale, "editor_f7edf5")}</>
-            : <>{t(locale, "editor_1e5142")}<strong style={{ color: "#f5f0e1" }}>{filtered.length}</strong> {t(locale, "editor_087637")}</>}
+            ? <>{tNode(locale, "editor_frag_1a05c067da1_15", { arg0: <strong style={{ color: "#f9a8d4" }}>{filtered.length}</strong> })}</>
+            : <>{tNode(locale, "editor_frag_1a05c067dda_16", { arg0: <strong style={{ color: "#f5f0e1" }}>{filtered.length}</strong> })}</>}
         </span>
       </div>
 
@@ -1753,7 +1675,7 @@ function TemplateGallery({ onSelect, onReplace, hasBlocks, onClose }: {
             <div
               key={tmpl.id}
               onClick={() => {
-                if (hasBlocks && !window.confirm(`今おいてあるカードは消えて、「${tmpl.name}」に入れかわります。いい？`)) return;
+                if (hasBlocks && !window.confirm(t(useEditorStore.getState().locale, "editor_confirm_replace_template").replace("{name}", tmpl.name))) return;
                 onReplace(buildPresetBlocks(tmpl), tmpl.name);
                 onClose();
               }}
@@ -2219,8 +2141,7 @@ function FieldSlot({ label, fieldId, value, options, onChange }: {
         /* ✏️ 特別な欄：自分の言葉を書くところ。
            見た目も少し変えて「ここは書ける」と分かるようにする */
         <div style={{ display: "flex", alignItems: "stretch", gap: 4, height: 34 }}>
-          {hasOpts && <button onClick={() => go(-1)} style={fsArrow} title={t(locale, "editor_4ac203")}>◀</button>}
-          <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
+          {tNode(locale, "editor_frag_1a05c067e18_17", { arg0: <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
             <span style={{
               position: "absolute", left: 6, top: "50%", transform: "translateY(-50%)",
               fontSize: 11, pointerEvents: "none", opacity: 0.75,
@@ -2237,9 +2158,7 @@ function FieldSlot({ label, fieldId, value, options, onChange }: {
                 fontWeight: 900, fontSize: 12, textAlign: "center",
                 boxShadow: "inset 0 1px 3px rgba(0,0,0,0.06)",
               }} />
-          </div>
-          {hasOpts && <button onClick={() => go(1)} style={fsArrow} title={t(locale, "editor_44aea1")}>▶</button>}
-        </div>
+          </div> })}</div>
       ) : hasOpts ? (
         /* ふつうの欄：候補から選ぶだけ。
            ⚠️ ここを打てるようにしない。ブロック名の打ち間違いは
@@ -2532,7 +2451,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
       const who = (work.a || work.src || "").trim();
       // 作りかけを黙って消さない
       if (live.current.blocks.length &&
-        !window.confirm(`いま作っているカードは消えます。${who ? `${who}の` : ""}作品をひらく？`)) return;
+        !window.confirm(t(useEditorStore.getState().locale, "editor_confirm_open_work").replace("{who}", who ? `${who}の` : ""))) return;
       const opened = fromWire(work);
       setBlocks(opened);
       // 盤面を丸ごと入れ替えたので、視点も持ってきた作品に合わせる
@@ -3515,7 +3434,141 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
 
   return (
     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "row", overflow: "hidden", background: "#f0f9ff" }}>
-        <style>{t(locale, "editor_a750e9")}</style>
+        <style>{`/* フォントは layout.tsx で next/font 自己ホスト化済み（--font-outfit / --font-nunito）。
+           以前ここにあった fonts.googleapis の @import は実行時に第三者(Google)へ通信し、
+           プライバシーポリシーと矛盾していたため撤去した。 */
+        * {
+          font-family: var(--font-outfit), var(--font-nunito), 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif !important;
+        }
+
+        .slot-btn:hover { filter: brightness(1.08); }
+        .slot-btn:active {
+          transform: translateY(3px);
+          box-shadow: inset 0 2px 3px rgba(0,0,0,0.35), 0 0px 0 rgba(0,0,0,0.3) !important;
+        }
+        .slot-btn--armed:active { transform: none; }
+
+        @keyframes pulse   { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.7;transform:scale(1.15)} }
+        @keyframes swallow { 0%{transform:scale(1)rotate(0deg);opacity:1} 30%{transform:scale(1.15)rotate(6deg);opacity:1} 70%{transform:scale(0.3)rotate(-8deg);opacity:0.6} 100%{transform:scale(0)rotate(0deg);opacity:0} }
+        @keyframes chomp   { 0%{transform:scale(1)} 15%{transform:scale(1.14)} 35%{transform:scale(0.93)} 55%{transform:scale(1.07)} 75%{transform:scale(0.97)} 100%{transform:scale(1)} }
+
+        @keyframes blockSnap {
+          0%  { transform: translateY(-14px) scaleY(0.9); filter: brightness(1.8); }
+          40% { transform: translateY(4px) scaleY(0.93); filter: brightness(1.3); }
+          70% { transform: translateY(-2px) scaleY(1.02); filter: brightness(1.1); }
+          100%{ transform: translateY(0) scaleY(1); filter: brightness(1); }
+        }
+        @keyframes blockAdd {
+          0%   { transform: translateY(-44px); opacity: 0; }
+          30%  { opacity: 1; }
+          100% { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes blockRoll {
+          0%   { transform: translateX(var(--roll-from,0px)) rotate(var(--roll-rot,0deg)); }
+          55%  { transform: translateX(0) rotate(0deg); }
+          70%  { transform: translateX(0) rotate(var(--bounce-rot, 6deg)) scaleY(0.92) scaleX(1.05); }
+          85%  { transform: translateX(0) rotate(calc(var(--bounce-rot, 6deg) * -0.3)) scaleY(1.02) scaleX(0.98); }
+          100% { transform: translateX(0) rotate(0deg) scaleY(1) scaleX(1); }
+        }
+        @keyframes impactRing {
+          0%   { width: 18px; height: 6px; opacity: 0.85; border-width: 4px; }
+          60%  { opacity: 0.5; }
+          100% { width: 180px; height: 30px; opacity: 0; border-width: 1px; }
+        }
+        @keyframes impactFlash {
+          0%   { width: 0; height: 0; opacity: 0.65; }
+          100% { width: 220px; height: 220px; opacity: 0; }
+        }
+        @keyframes confettiBurst {
+          0%   { transform: translate(0,0) rotate(0deg) scale(0.6); opacity: 0; }
+          15%  { opacity: 1; }
+          100% { transform: translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(1); opacity: 0; }
+        }
+        @keyframes blockDelete {
+          0%   { transform: scale(1)    rotate(0deg);  opacity: 1;    filter: brightness(1); }
+          16%  { transform: scale(1.20) rotate(-7deg); opacity: 1;    filter: brightness(1.5); }
+          34%  { transform: scale(0.82) rotate(8deg);  opacity: 0.95; filter: brightness(1.1); }
+          60%  { transform: scale(1.06) rotate(-4deg) translateY(-10px); opacity: 0.65; filter: brightness(0.95); }
+          100% { transform: scale(0)    rotate(40deg)  translateY(28px); opacity: 0;    filter: brightness(0.6); }
+        }
+        @keyframes blockDragHover {
+          0%, 100% { transform: scale(1.06) rotate(-2deg) translateY(-3px); }
+          50%      { transform: scale(1.06) rotate(2deg)  translateY(-5px); }
+        }
+        @keyframes toastSlideDown {
+          0%   { transform: translate(-50%, -22px); opacity: 0; }
+          100% { transform: translate(-50%, 0);     opacity: 1; }
+        }
+        @keyframes slotPulse {
+          0%, 100% { filter: brightness(1.0); }
+          50%      { filter: brightness(1.25); }
+        }
+        @keyframes wireTargetGlow {
+          0%, 100% { filter: drop-shadow(0 0 4px rgba(255,255,255,0.7)) brightness(1.02); }
+          50%      { filter: drop-shadow(0 0 14px rgba(255,255,255,0.95)) brightness(1.15); }
+        }
+        @keyframes connectRipple {
+          0% { transform: scale(0.2); opacity: 1; border-width: 6px; }
+          100% { transform: scale(2.0); opacity: 0; border-width: 1px; }
+        }
+        @keyframes blockPop {
+          0% { transform: scale(1); }
+          30% { transform: scale(1.1); }
+          60% { transform: scale(0.97); }
+          100% { transform: scale(1); }
+        }
+        @keyframes wirePulse {
+          from { stroke-dashoffset: 60; }
+          to { stroke-dashoffset: 0; }
+        }
+        @keyframes particle {
+          0%  {transform:translate(0,0)scale(1);opacity:1}
+          100%{transform:translate(var(--dx),var(--dy))scale(0);opacity:0}
+        }
+        @keyframes snapPulse {
+          0%   { transform: scale(1);    opacity: 1; }
+          100% { transform: scale(1.04); opacity: 0.85; }
+        }
+        @keyframes snapLabelBob {
+          0%   { transform: translateY(0);   }
+          100% { transform: translateY(-3px);}
+        }
+        @keyframes spectrumShift {
+          0%   { background-position: 0% 50%; }
+          100% { background-position: 200% 50%; }
+        }
+        .btn-keycap:hover {
+          transform: translateY(-1px);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.95), inset 0 -2px 3px rgba(0,0,0,0.04), 0 3px 0 #c9c3b0, 0 5px 10px rgba(120,100,60,0.18) !important;
+        }
+        .btn-keycap:active {
+          transform: translateY(2px) !important;
+          box-shadow: inset 0 1px 2px rgba(0,0,0,0.08), 0 0 0 #c9c3b0, 0 1px 2px rgba(120,100,60,0.08) !important;
+        }
+        .btn-card {
+          box-shadow: 0 0 0 2.5px var(--card-color), 0 4px 10px rgba(0,0,0,0.15) !important;
+          transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+        }
+        .btn-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 0 0 2.5px var(--card-color), 0 8px 20px rgba(0,0,0,0.22) !important;
+        }
+        .btn-card:active {
+          transform: translateY(2px);
+          box-shadow: 0 0 0 2.5px var(--card-color), 0 2px 5px rgba(0,0,0,0.15) !important;
+        }
+        .toy-key {
+          transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s ease !important;
+        }
+        .toy-key:hover { filter: brightness(1.05); }
+        .toy-key:active {
+          transform: translateY(4px) !important;
+          box-shadow: 0 1px 0 var(--leg, #cbd5e1), 0 1px 4px rgba(0,0,0,0.15), inset 0 1px 2px rgba(0,0,0,0.1) !important;
+        }
+        @keyframes fsFlip {
+          0% { transform: translateY(-40%); opacity: 0; }
+          100% { transform: translateY(0); opacity: 1; }
+        }`}</style>
 
         {/* ========================================================
           【左】スロットリール（カテゴリ＆アイテム選択）
@@ -3737,10 +3790,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
           【中央】プレイ面（ソリティア風キャンバス）
           ======================================================== */}
         <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
-          <ThemeBackdrop theme="workshop" zoom={zoom} pan={pan} />
-
-          {/* 操作キャンバス復元（カード描画＋ドラッグ/接続。背景はWorkshopBackdropを透過。色はヒマワリが後で） */}
-          <div ref={containerRef} onPointerDown={handleBgDown}
+          {tNode(locale, "editor_frag_1a05c067e70_18", { arg0: <ThemeBackdrop theme="workshop" zoom={zoom} pan={pan} />, arg1: {/* 操作キャンバス復元（カード描画＋ドラッグ/接続。背景はWorkshopBackdropを透過。色はヒマワリが後で） */}, arg2: <div ref={containerRef} onPointerDown={handleBgDown}
             style={{ position: "absolute", inset: 0, cursor: "grab", background: "transparent", zIndex: 1, touchAction: "none" }}>
             {blocks.length > 0 && (
               <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 6, pointerEvents: "none" }}>
@@ -3867,15 +3917,13 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 </>
               )}
             </div>
-          </div>
-          {showProjects && (
+          </div>, arg3: showProjects && (
             <ProjectPanel
               blocks={blocks}
               onLoad={b => { const m = migrateBlocks(b); setBlocks(m); focusOnBlocks(m); }}
               onClose={() => setShowProjects(false)}
             />
-          )}
-          {showTemplates && (
+          ), arg4: showTemplates && (
             <TemplateGallery
               onSelect={b => { setBlocks(prev => [...prev, ...b]); }}
               onReplace={(b, name) => {
@@ -3888,90 +3936,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               hasBlocks={blocks.length > 0}
               onClose={() => setShowTemplates(false)}
             />
-          )}
-
-          {showHelp && (
-            <div
-              onClick={() => setShowHelp(false)}
-              style={{
-                position: "absolute", inset: 0, zIndex: 50,
-                background: "rgba(15,23,42,0.5)", backdropFilter: "blur(3px)",
-                display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
-              }}
-            >
-              <div
-                onClick={e => e.stopPropagation()}
-                style={{
-                  width: "min(440px, 92%)", maxHeight: "86%", overflowY: "auto",
-                  background: "#ffffff", borderRadius: 20,
-                  boxShadow: "0 24px 70px rgba(0,0,0,0.4)",
-                  border: "1px solid rgba(148,163,184,0.25)",
-                }}
-              >
-                <div style={{
-                  padding: "16px 22px",
-                  display: "flex", justifyContent: "space-between", alignItems: "center",
-                  borderBottom: "1px solid rgba(148,163,184,0.15)",
-                }}>
-                  {/* ❓作り方(TutorialOverlay)＝はじめての人への道案内、
-                      こちら＝操作の早見表。同じ「作り方」だと入口が2つあるように見えるので
-                      名前で役割を分ける。ショートカット一覧はこちらにしかない情報。 */}
-                  <span style={{ fontSize: 16, fontWeight: 900, letterSpacing: "0.06em", color: "#334155" }}>{t(locale, "editor_6605de")}</span>
-                  <button onClick={() => setShowHelp(false)} style={{
-                    width: 28, height: 28, borderRadius: 8, border: "none",
-                    background: "rgba(0,0,0,0.05)", color: "#64748b", cursor: "pointer",
-                    fontSize: 15, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center",
-                  }}>✕</button>
-                </div>
-                <div style={{ padding: "16px 22px 22px" }}>
-                  {[
-                    { icon: "🎹", title: t(locale, "editor_ccf01d"), t: <>{t(locale, "editor_8f661b")}<b>{t(locale, "editor_cb727e")}</b> {t(locale, "editor_6d973f")}<b>{t(locale, "editor_1990b8")}</b>{t(locale, "editor_2091ac")}</> },
-                    { icon: "⬇️", title: t(locale, "editor_1b3f74"), t: <>{t(locale, "editor_f39f07")}<b>{t(locale, "editor_7d4af7")}</b>{t(locale, "editor_077475")}<b>{t(locale, "editor_08ca7c")}</b> {t(locale, "editor_26fcee")}</> },
-                    { icon: "🃏", title: t(locale, "editor_5f5b08"), t: <>{t(locale, "editor_a94df2")}<b>{t(locale, "editor_d590e8")}</b> {t(locale, "editor_d431fd")}<br />{t(locale, "editor_cfb7b7")}</> },
-                    { icon: "❓", title: t(locale, "editor_5e6b34"), t: <><b>{t(locale, "editor_d023e0")}</b> {t(locale, "editor_77fea4")}<b>{t(locale, "editor_651c74")}</b> {t(locale, "editor_f4b4d8")}</> },
-                    { icon: "🎉", title: t(locale, "editor_058e2e"), t: <>{t(locale, "editor_4f1fe3")}<b style={{ color: "#16a34a" }}>{t(locale, "editor_a85b20")}</b> {t(locale, "editor_750fea")}</> },
-                    { icon: "🚀", title: t(locale, "editor_3e2709"), t: <>{t(locale, "editor_440e02")}<b>{t(locale, "editor_ec4ba0")}</b> {t(locale, "editor_b33622")}<b style={{ color: "#16a34a" }}>{t(locale, "editor_2f9a6c")}</b>{t(locale, "punct.period")}<br />{t(locale, "editor_620533")}<b>.mcaddon</b> {t(locale, "editor_05133b")}</> },
-                  ].map((s, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 13, marginBottom: 16 }}>
-                      <span style={{
-                        flexShrink: 0, width: 38, height: 38, borderRadius: 12,
-                        background: "linear-gradient(160deg, #f8fafc, #eef2ff)",
-                        border: "1px solid rgba(148,163,184,0.3)",
-                        boxShadow: "0 2px 5px rgba(15,23,42,0.08)",
-                        fontSize: 20,
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                      }}>{s.icon}</span>
-                      <div style={{ paddingTop: 1 }}>
-                        <div style={{ fontSize: 13.5, fontWeight: 900, color: "#1e293b", marginBottom: 2 }}>{s.title}</div>
-                        <div style={{ fontSize: 12.5, color: "#475569", fontWeight: 500, lineHeight: 1.55 }}>{s.t}</div>
-                      </div>
-                    </div>
-                  ))}
-                  {/* ショートカット（ちいさく） */}
-                  <div style={{
-                    marginTop: 4, paddingTop: 12, borderTop: "1px dashed rgba(148,163,184,0.4)",
-                    fontSize: 11.5, color: "#64748b", fontWeight: 600, lineHeight: 1.8,
-                  }}>
-                    {t(locale, "editor_669ea9")}<b>×</b> / <b>Delete</b>　　{t(locale, "editor_e58cfa")}<b>Ctrl+D</b>　　{t(locale, "editor_82b2d8")}<b>Esc</b>
-                  </div>
-                  {/* 早見表だけ見つけて「そもそもの作り方」に辿り着けない人が出ないよう、
-                      ここからチュートリアルへ行けるようにする（逆側の導線は ❓作り方）。 */}
-                  <button
-                    onClick={() => { setShowHelp(false); setShowTutorial(true); }}
-                    style={{
-                      marginTop: 12, width: "100%", padding: "9px 0", borderRadius: 10,
-                      border: "2px solid #f59e0b", background: "#fffbeb", color: "#92400e",
-                      fontSize: 12, fontWeight: 900, cursor: "pointer",
-                    }}
-                  >
-                    {t(locale, "editor_912c61")}</button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 統計インジケーター（スリム版） */}
-          <div style={{
+          ), arg5: {/* 統計インジケーター（スリム版） */}, arg6: <div style={{
             position: "absolute", top: 8, left: 8, zIndex: 20,
             display: "flex", gap: 5
           }}>
@@ -4009,10 +3974,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               <span style={{ fontFamily: "monospace", letterSpacing: "0.02em", color: "#eab308" }}>{Math.round(zoom / BASE_ZOOM * 100)}%</span>
             </button>
 
-          </div>
-
-          {/* トースト通知 */}
-          {toast && (
+          </div>, arg7: {/* トースト通知 */}, arg8: toast && (
             <div style={{
               position: "absolute", top: 14, left: "50%", transform: "translateX(-50%)",
               zIndex: 100,
@@ -4035,227 +3997,18 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
               </span>
               {toast.message}
             </div>
-          )}
-
-          {/* コード誕生演出 */}
-          {reveal && (
+          ), arg9: {/* コード誕生演出 */}, arg10: reveal && (
             <CodeRevealOverlay
               revealCode={reveal.join("\n")}
               onClose={() => { setReveal(null); onExportReady?.(); }}
               theme="workshop"
             />
-          )}
-
-          {!isMobile && (
-            <LiveStage
-              blocks={blocks}
-              // PCは右端に道具リモコン(右12＋幅152)が立つので、その分＋余白を空けて重なりを避ける。
-              // スマホのリモコンは開いたときだけ出るドロワーなので、ずらさない。
-              rightOffset={isMobile ? 20 : 176}
-              onGather={() => {
-                const { blocks: bl, } = live.current;
-                if (!bl.length) { showToast(t(locale, "editor_7386a7"), "warning"); return; }
-                const rect = containerRef.current?.getBoundingClientRect();
-                if (!rect) return;
-                const z = getDefaultZoom(); // 100%
-                // カード全体のバウンディングボックスの中心を、キーボードの上の見える範囲の中央へ
-                const ps = bl.map(b => { const p = getPos(b.id, bl); return { x1: p.x, y1: p.y, x2: p.x + BW, y2: p.y + blockH(b) }; });
-                const cx = (Math.min(...ps.map(p => p.x1)) + Math.max(...ps.map(p => p.x2))) / 2;
-                const cy = (Math.min(...ps.map(p => p.y1)) + Math.max(...ps.map(p => p.y2))) / 2;
-                const kb = (document.querySelector('[data-keyboard="1"]') as HTMLElement | null)?.getBoundingClientRect();
-                const availH = kb ? (kb.top - rect.top) : rect.height;
-                setZoom(z);
-                setPan({ x: rect.width / 2 - cx * z, y: availH / 2 - cy * z });
-                playAddSound(); showToast(t(locale, "editor_97d47f"), "success");
-              }}
-            />
-          )}
-
-          {/* たまに横切る影／落ちてくる光の雫（アンビエント装飾）。スマホでは負荷源になるので出さない。 */}
-          {!isMobile && (
+          ), arg11: {/* たまに横切る影／落ちてくる光の雫（アンビエント装飾）。スマホでは負荷源になるので出さない。 */}, arg12: !isMobile && (
             <>
               <WanderingShadow />
               <FallingWisp />
             </>
-          )}
-
-          {/* モバイル用 FAB：カードと道具を独立に開く2ボタン（同時に出さない＝重ならない） */}
-          {isMobile && !showMobileConsole && !showMobileTools && (
-            <div style={{ position: "absolute", bottom: 20, right: 20, display: "flex", gap: 10, alignItems: "center", zIndex: 43 }}>
-              {/* カードがメイン＝左に大きく。ツールは右に控えめ。 */}
-              <button
-                onClick={openMobileCards}
-                style={{
-                  padding: "14px 24px", borderRadius: 999,
-                  background: "linear-gradient(135deg,#bef264,#22c55e)", border: "3px solid #1e293b",
-                  boxShadow: "0 6px 16px rgba(0,0,0,0.25), 0 4px 0 #15803d, inset 0 2px 4px rgba(255,255,255,0.4)",
-                  color: "#1e293b", fontSize: 17, fontWeight: 900,
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer",
-                }}
-              >
-                <span style={{ fontSize: 22 }}>➕</span> {t(locale, "editor_c8bf9a")}</button>
-              <button
-                onClick={openMobileTools}
-                style={{
-                  padding: "11px 16px", borderRadius: 999,
-                  background: "linear-gradient(135deg,#e2e8f0,#cbd5e1)", border: "3px solid #1e293b",
-                  boxShadow: "0 6px 16px rgba(0,0,0,0.25), 0 3px 0 #64748b, inset 0 2px 4px rgba(255,255,255,0.5)",
-                  color: "#1e293b", fontSize: 14, fontWeight: 900,
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: 6, cursor: "pointer",
-                }}
-              >
-                <span style={{ fontSize: 17 }}>🔧</span> {t(locale, "editor_3f20fe")}</button>
-            </div>
-          )}
-
-          {/* ⌨️ 下部キーボード：カードを“打つ”入力面（左右パネルを統合） */}
-          {(!isMobile || showMobileConsole) && (
-            <div data-keyboard="1" style={{
-              position: "absolute", left: isMobile ? 4 : 12, bottom: isMobile ? 4 : 12,
-              // 右端は道具リモコン(幅152)の分だけ空ける。リモコンは独立パネルになったので、
-              // この箱の中身(カードのパレット)は横幅をめいっぱい使える。
-              right: isMobile ? 4 : 176,
-              height: isMobile ? 140 : 178,
-              display: "flex", gap: isMobile ? 6 : 12,
-              padding: isMobile ? 8 : 12, boxSizing: "border-box",
-              background: "#cfeede",
-              border: isMobile ? "2px solid #8bc79e" : "4px solid #8bc79e",
-              borderRadius: isMobile ? 12 : 18,
-              boxShadow: "inset 0 2px 0 rgba(255,255,255,0.6), 0 10px 24px rgba(0,0,0,0.18)",
-              pointerEvents: "auto",
-              zIndex: 42,
-            }}>
-              {isMobile && showMobileConsole && (
-                <button
-                  onClick={() => setShowMobileConsole(false)}
-                  style={{
-                    position: "absolute", top: -16, right: 10, width: 34, height: 34, borderRadius: 17,
-                    background: "#ef4444", border: "2px solid #1e293b", color: "#fff",
-                    fontWeight: "bold", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                    boxShadow: "0 3px 0 #991b1b, 0 3px 6px rgba(0,0,0,0.2)"
-                  }}
-                >✕</button>
-              )}
-            {/* 左：プリミティブ（カテゴリ＋アイテムキー） */}
-            <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: isMobile ? 4 : 8 }}>
-              {/* カテゴリタブ列 */}
-              <div className="scrollbar-hide" style={{ display: "flex", gap: 6, flexWrap: isMobile ? "nowrap" : "wrap", overflowX: isMobile ? "auto" : "visible" }}>
-                  {/* 初心者モードの切替。カードは132種あり、はじめての人には多すぎて選べない。
-                      最初は12種だけ見せ、物足りなくなったら自分で開ける。
-                      ⚠️ 置き場所はここ（スマホでも必ず見える下部パレットの先頭）。
-                         上の STEP1 側に置いたら、閉じている領域の中で 0x0 になって
-                         スマホからは存在に気づけなかった。 */}
-                  <button
-                    onClick={toggleSimple}
-                    className="shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full"
-                    style={{
-                      background: simpleMode ? "rgba(250,204,21,0.18)" : "rgba(167,139,250,0.18)",
-                      border: `1px solid ${simpleMode ? "rgba(250,204,21,0.55)" : "rgba(167,139,250,0.55)"}`,
-                      color: simpleMode ? "#facc15" : "#a78bfa",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {simpleMode ? t(locale, "editor_0c4c70") : t(locale, "editor_a8a79f")}
-                  </button>
-                {KEYBOARD_CATS.map(kc => {
-                  const c = CAT[kc.cat];
-                  const TIcon = (LucideIcons as any)[kc.icon] || LucideIcons.HelpCircle;
-                  const on = kbCat === kc.cat;
-                  return (
-                    <button key={kc.cat} className="toy-key shrink-0"
-                      onClick={() => { setKbCat(kc.cat); playClickSound(); }}
-                      style={{
-                        display: "flex", alignItems: "center", gap: 5, height: isMobile ? 30 : 34, padding: isMobile ? "0 8px" : "0 11px",
-                        borderRadius: 9, border: "2.5px solid #1e293b", cursor: "pointer",
-                        background: on ? `linear-gradient(135deg,${c.top},${c.bg})` : `linear-gradient(135deg,#ffffff,${c.top})`,
-                        color: c.text,
-                        boxShadow: on
-                          ? `0 3px 0 ${c.side}, 0 0 9px ${c.bg}aa, 0 3px 7px rgba(0,0,0,0.14)`
-                          : `0 3px 0 ${c.side}, 0 2px 5px rgba(0,0,0,0.07)`,
-                        transform: on ? "translateY(-1px)" : "translateY(0)",
-                        fontWeight: 900, fontSize: 12, whiteSpace: "nowrap",
-                      }}>
-                      <TIcon size={15} color={on ? c.text : c.bg} strokeWidth={2.6} />
-                      {kc.label}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* 計算のサブタブ（けいさん選択時のみ・スクロール回避） */}
-              {kbCat === "calc" && (
-                <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-                  {CALC_SUBTABS.map(s => {
-                    const on = kbCalcSub === s.key;
-                    const SIcon = (LucideIcons as any)[s.icon] || LucideIcons.HelpCircle;
-                    return (
-                      <button key={s.key} className="toy-key"
-                        onClick={() => { setKbCalcSub(s.key); playClickSound(); }}
-                        style={{
-                          display: "flex", alignItems: "center", gap: 4, height: 26, padding: "0 9px",
-                          borderRadius: 999, border: "2px solid #1e293b", cursor: "pointer",
-                          background: on ? "linear-gradient(135deg,#fde68a,#fbbf24)" : "#ffffff",
-                          color: on ? "#7c2d12" : "#64748b", fontWeight: 800, fontSize: 10.5, whiteSpace: "nowrap",
-                          boxShadow: on ? "0 2px 0 #d97706" : "0 2px 0 #e2e8f0",
-                        }}>
-                        <SIcon size={12} strokeWidth={2.6} /> {s.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* アイテムキー：押すと即カードがキャンバスへ */}
-              <div style={{ flex: 1, display: "flex", flexWrap: "wrap", gap: 6, alignContent: "flex-start", overflowY: "auto", padding: 8, background: "rgba(255,255,255,0.5)", border: "2px solid #b9e0c8", borderRadius: 12, boxShadow: "inset 0 2px 5px rgba(0,0,0,0.05)" }}>
-                {kbCat === "ifelse" ? (
-                  /* 条件分岐：条件をキーボードで選ぶ＝タップでその条件入り「もしも〜なら」が出る */
-                  CO_IF_CONDS.map(cond => {
-                    const c = CAT["ifelse"];
-                    return (
-                      <button key={cond} className="toy-key" title={`もしも ${cond} なら`}
-                        onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); spawnToCanvas(CO_IF_TMPL, { cond }, r.left + r.width / 2); }}
-                        style={{
-                          display: "flex", alignItems: "center", gap: 6, height: 38, padding: "0 12px",
-                          borderRadius: 9, border: "2.5px solid #1e293b", cursor: "pointer",
-                          background: `linear-gradient(135deg,#fde7ff,${c.top})`,
-                          boxShadow: `0 3px 0 ${c.side}, 0 3px 6px rgba(0,0,0,0.1)`,
-                          fontWeight: 900, fontSize: 11.5, color: c.text, whiteSpace: "nowrap",
-                        }}>
-                        <span style={{ fontSize: 13 }}>{COND_EMOJI[cond] || "🔀"}</span>
-                        {t(locale, "editor_d023e0")}<b style={{ color: c.side }}>{cond}</b>{t(locale, "editor_11f721")}<span style={{ marginLeft: 1 }}>✨</span>
-                      </button>
-                    );
-                  })
-                ) : kbItems.map(tmpl => {
-                  const c = CAT[tmpl.category];
-                  const TIcon = (LucideIcons as any)[tmpl.emoji] || LucideIcons.HelpCircle;
-                  const sparkle = tmpl.type === "co_if" || tmpl.type === "ct_rep";
-                  return (
-                    <button key={tmpl.type} className="toy-key" title={`${tmpl.label}：${tmpl.sublabel}`}
-                      onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); spawnToCanvas(tmpl, undefined, r.left + r.width / 2); }}
-                      style={{
-                        display: "flex", alignItems: "center", gap: 6, height: 38, padding: "0 10px 0 8px",
-                        borderRadius: 9, border: "2.5px solid #1e293b", cursor: "pointer",
-                        background: "linear-gradient(135deg,#ffffff,#eef1f5)",
-                        boxShadow: `0 3px 0 ${c.side}99, 0 3px 6px rgba(0,0,0,0.08)`,
-                        fontWeight: 900, fontSize: 11.5, color: "#1e293b", whiteSpace: "nowrap",
-                      }}>
-                      <span style={{ width: 22, height: 22, borderRadius: 6, background: c.bg, border: "2px solid #1e293b", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        <TIcon size={13} color="#fff" strokeWidth={2.6} />
-                      </span>
-                      {tmpl.label}
-                      {sparkle && <span style={{ marginLeft: 2 }}>✨</span>}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-          </div>
-          )}
-
-          {/* 📋 見本（もらった作品を横に置いて、見ながら作れるように） */}
-          {reference && (
+          ), arg13: {/* モバイル用 FAB：カードと道具を独立に開く2ボタン（同時に出さない＝重ならない） */}, arg14: {/* ⌨️ 下部キーボード：カードを“打つ”入力面（左右パネルを統合） */}, arg15: {/* 📋 見本（もらった作品を横に置いて、見ながら作れるように） */}, arg16: reference && (
             <ReferencePanel
               blocks={reference.blocks}
               title={reference.title}
@@ -4267,311 +4020,22 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 history.replaceState(null, "", window.location.pathname + window.location.search);
               }}
             />
-          )}
-
-          {/* 📖 はじめての人向けチュートリアル（初回は自動・以後は ❓作り方 から） */}
-          {showTutorial && <TutorialOverlay onClose={closeTutorial} />}
-
-          {/* 📣 作品をみせる（リンクを作る。データはリンクの中だけ） */}
-          {showShare && (
+          ), arg17: {/* 📖 はじめての人向けチュートリアル（初回は自動・以後は ❓作り方 から） */}, arg18: showTutorial && <TutorialOverlay onClose={closeTutorial} />, arg19: {/* 📣 作品をみせる（リンクを作る。データはリンクの中だけ） */}, arg20: showShare && (
             <ShareDialog
               blocks={blocks}
               projectName={useEditorStore.getState().projectName}
               remixSrc={remixSrc}
               onClose={() => setShowShare(false)}
             />
-          )}
-
-          {/* 🗑️ ゴミ箱：カードを掴んでいる間だけ現れる。
+          ), arg21: {/* 🗑️ ゴミ箱：カードを掴んでいる間だけ現れる。
               常設しないのは、いつも置いてあると盤面の邪魔になるうえ、
               触る用事が無いときに誤って触れてしまうため。必要な瞬間だけ出す。
-              置き場所は左下＝右側の据え置き（プレビュー／立て札／リモコン）と競合しない。 */}
-          {draggingId && (
-            <div data-trash="1" style={{
-              position: "absolute", left: 20, bottom: isMobile ? 160 : 206, zIndex: 46,
-              width: 96, height: 96, borderRadius: 20,
-              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2,
-              background: trashHot ? "linear-gradient(#fecaca,#f87171)" : "linear-gradient(#ffffff,#e9eef3)",
-              border: `4px solid ${trashHot ? "#b91c1c" : "#94a3b8"}`,
-              boxShadow: trashHot
-                ? "0 0 0 6px rgba(248,113,113,0.35), 0 10px 22px rgba(0,0,0,0.3)"
-                : "0 6px 16px rgba(0,0,0,0.22)",
-              transform: trashHot ? "scale(1.12)" : "scale(1)",
-              transition: "all 0.14s cubic-bezier(0.2,0.9,0.3,1)",
-              pointerEvents: "none", // 判定は座標で行う。ドラッグ中のポインタを奪わせない
-              animation: "blockPop 0.18s cubic-bezier(0.2,0.8,0.2,1)",
-            }}>
-              <span style={{ fontSize: 34, lineHeight: 1 }}>{trashHot ? "🗑️" : "🗑"}</span>
-              <span style={{
-                fontSize: 10, fontWeight: 900, lineHeight: 1.2, textAlign: "center",
-                color: trashHot ? "#7f1d1d" : "#64748b", whiteSpace: "pre-line",
-              }}>
-                {trashHot ? t(locale, "editor_419cbf") : t(locale, "editor_c99b08")}
-              </span>
-            </div>
-          )}
-
-          {/* 🎛️ 道具リモコン
+              置き場所は左下＝右側の据え置き（プレビュー／立て札／リモコン）と競合しない。 */}, arg22: {/* 🎛️ 道具リモコン
               下部キーボードの中に4列で押し込むと 42px 角までしか取れず、アイコンもラベルも
               潰れていた。そこでキーボードから切り離した独立パネルにして縦1列に並べる。
               キーボード(高さ178)より背が高く、上へはみ出して立つ＝リモコンらしい佇まい。
               スマホでは右から出し入れするドロワーになり、画面が低い端末では中身だけ
-              スクロールする（下がはみ出して押せない、という事故を防ぐ）。 */}
-          {(!isMobile || showMobileTools) && (
-            <div data-noplace="1" style={{
-              position: isMobile ? "fixed" : "absolute",
-              right: isMobile ? 8 : 12,
-              bottom: isMobile ? 8 : 12,
-              width: isMobile ? 154 : 152,
-              // スマホは上の「アドオン完成」ボタン(top:92)とぶつからない高さに抑える
-              // PCはプレビュー(上端20＋高さ約290)の下から始める＝プレビューを右端いっぱいに
-              // 使わせたまま重ならない。溢れる分はボタン列だけがスクロールする。
-              maxHeight: isMobile ? "calc(100dvh - 200px)" : "calc(100% - 330px)",
-              display: "flex", flexDirection: "column", gap: 7,
-              padding: "9px 9px 10px", boxSizing: "border-box",
-              background: "linear-gradient(#dff3e6,#cfeede)",
-              border: "4px solid #8bc79e", borderRadius: 20,
-              boxShadow: "inset 0 2px 0 rgba(255,255,255,0.7), 0 10px 24px rgba(0,0,0,0.22)",
-              zIndex: isMobile ? 60 : 44, pointerEvents: "auto",
-              // スマホは開いたときに初めてマウントされるので transition では動かない。
-              // 画面外に置きっぱなしにすると横スクロールを生む端末があるため、出現アニメで見せる。
-              animation: isMobile ? "remote-slide-in 0.28s cubic-bezier(0.2,0.9,0.3,1) both" : undefined,
-            }}>
-              {/* リモコンの頭：ランプ3つ（ただの飾り＝機械っぽさとかわいさを出す） */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 5, flexShrink: 0 }}>
-                {["#ef4444", "#facc15", "#4ade80"].map(c => (
-                  <span key={c} style={{
-                    width: 7, height: 7, borderRadius: "50%", background: c,
-                    border: "1.5px solid #1e293b", boxShadow: `0 0 6px ${c}aa`,
-                  }} />
-                ))}
-              </div>
-
-              {isMobile && (
-                <button onClick={() => setShowMobileTools(false)} style={{
-                  height: 30, flexShrink: 0, borderRadius: 9, border: "2.5px solid #1e293b",
-                  background: "#ef4444", color: "#fff", fontSize: 12, fontWeight: 900,
-                  cursor: "pointer", boxShadow: "0 3px 0 #991b1b",
-                }}>{t(locale, "editor_f5644f")}</button>
-              )}
-
-              {/* ボタン本体：縦1列。アイコンとラベルを横に並べ、文字を読める大きさに戻す */}
-              <div className="scrollbar-hide" style={{
-                display: "flex", flexDirection: "column", gap: 6,
-                overflowY: "auto", minHeight: 0,
-              }}>
-                {[
-                  { emoji: "↩", label: t(locale, "editor_4a622f"), on: false, fn: () => undo() },
-                  { emoji: "↪", label: t(locale, "editor_b2b811"), on: false, fn: () => redo() },
-                  { emoji: "📖", label: t(locale, "editor_67d80d"), on: showInstallGuide, fn: () => setShowInstallGuide(v => !v) },
-                  { emoji: "🎯", label: t(locale, "editor_b93138"), on: showSnapGuide, fn: () => setShowSnapGuide(v => !v) },
-                  { emoji: "🗑️", label: t(locale, "editor_deba64"), on: false, fn: () => { if (window.confirm(t(locale, "editor_d17502"))) { setBlocks([]); setSelected(null); playDeleteSound(); showToast(t(locale, "editor_e74a18"), "warning"); } } },
-                  { emoji: "💾", label: t(locale, "editor_be5fbb"), on: showProjects, fn: () => setShowProjects(v => !v) },
-                  { emoji: "🎮", label: t(locale, "editor_dd5b69"), on: showTemplates, fn: () => setShowTemplates(v => !v) },
-                  {
-                    emoji: "📣", label: t(locale, "editor_a25149"), on: showShare, fn: () => {
-                      // カードが1枚も無いと、開いた相手の画面で何も動かない
-                      if (!blocks.length) { showToast(t(locale, "editor_db5816"), "warning"); return; }
-                      setShowShare(v => !v);
-                    }
-                  },
-                  { emoji: "💻", label: t(locale, "editor_50ee82"), on: showCode, fn: () => setShowCode(v => !v) },
-                  { emoji: "❓", label: t(locale, "editor_dedf94"), on: showTutorial, fn: () => setShowTutorial(v => !v) },
-                ].map(tk => (
-                  <button key={tk.label} className="toy-key" title={tk.label} onClick={tk.fn}
-                    style={{
-                      display: "flex", alignItems: "center", gap: 8, flexShrink: 0,
-                      height: 38, padding: "0 10px", borderRadius: 11,
-                      border: "2.5px solid #1e293b", cursor: "pointer",
-                      background: tk.on ? "linear-gradient(135deg,#c7f9cc,#80ed99)" : "linear-gradient(135deg,#ffffff,#e9eef3)",
-                      boxShadow: tk.on ? "0 3px 0 #38b000" : "0 3px 0 #cbd5e1",
-                      color: tk.on ? "#004b23" : "#475569",
-                    }}>
-                    <span style={{ fontSize: 16, lineHeight: 1, width: 18, textAlign: "center", flexShrink: 0 }}>{tk.emoji}</span>
-                    <span style={{ fontSize: 12, fontWeight: 900, letterSpacing: "0.02em", whiteSpace: "nowrap" }}>{tk.label}</span>
-                  </button>
-                ))}
-              </div>
-
-              {/* いちばん大きいキー＝リモコンの電源ボタンの位置。
-                  スマホは別途 fixed の独立ボタンを出しているのでここには置かない。 */}
-              {!isMobile && (
-                <button disabled={!isLogicValid}
-                  onClick={() => {
-                    playSuccessSound();
-                    setTriggerConfetti(true);
-                    setShowInstallGuide(true);
-                    const lines = (genCode || t(locale, "editor_e06732")).split("\n");
-                    setReveal(lines);
-                    setExportArmed(true);
-                  }}
-                  style={{
-                    height: 46, flexShrink: 0, borderRadius: 13, border: "3px solid #1e293b",
-                    cursor: isLogicValid ? "pointer" : "not-allowed",
-                    background: isLogicValid
-                      ? "linear-gradient(135deg,#bef264 0%, #4ade80 55%, #22c55e 100%)"
-                      : "linear-gradient(135deg,#d9f99d 0%, #a3e635 100%)",
-                    boxShadow: isLogicValid
-                      ? "0 4px 0 #15803d, 0 5px 14px rgba(74,222,128,0.5)"
-                      : "0 3px 0 #84cc16, 0 3px 8px rgba(132,204,22,0.25)",
-                    color: isLogicValid ? "#052e16" : "#3f6212",
-                    fontWeight: 900, fontSize: 13, letterSpacing: "0.03em", lineHeight: 1.25,
-                    opacity: isLogicValid ? 1 : 0.85,
-                  }}>
-                  {t(locale, "editor_a85b20")}</button>
-              )}
-            </div>
-          )}
-
-          {/* スマホ：アドオン完成を独立ボタンで常時表示（ツールメニューに埋めない） */}
-          {isMobile && (
-            <div style={{ position: "fixed", top: 92, right: 12, zIndex: 55, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2 }}>
-              <button disabled={!isLogicValid}
-                onClick={() => {
-                  playSuccessSound();
-                  const lines = (genCode || t(locale, "editor_e06732")).split("\n");
-                  setReveal(lines);
-                  setExportArmed(true);
-                }}
-                style={{
-                  height: 40, padding: "0 18px", borderRadius: 999, border: "3px solid #1e293b",
-                  cursor: isLogicValid ? "pointer" : "not-allowed",
-                  background: isLogicValid
-                    ? "linear-gradient(135deg,#bef264 0%, #4ade80 55%, #22c55e 100%)"
-                    : "linear-gradient(135deg,#e5e7eb,#cbd5e1)",
-                  boxShadow: isLogicValid
-                    ? "0 4px 0 #15803d, 0 5px 14px rgba(74,222,128,0.5)"
-                    : "0 3px 0 #94a3b8",
-                  color: isLogicValid ? "#052e16" : "#64748b", fontWeight: 900, fontSize: 14,
-                  letterSpacing: "0.03em", whiteSpace: "nowrap",
-                }}>
-                {t(locale, "editor_a85b20")}</button>
-              {!isLogicValid && (
-                <span className="font-pixel text-[10px] text-[#ef4444] font-bold" style={{ textShadow: "1px 1px 0px white, -1px -1px 0px white, 1px -1px 0px white, -1px 1px 0px white" }}>
-                  {t(locale, "editor_d7a278")}</span>
-              )}
-            </div>
-          )}
-
-          {/* ✏️ 選んだカードの中身エディタ（直接配置式＝旧STEP3の代わり。条件もここで変える） */}
-          {(() => {
-            const sb = selected ? blocks.find(b => b.id === selected) : null;
-            // co_if(条件分岐)はキーボードで条件を選ぶ方式なので中身エディタは出さない
-            if (!sb || sb.type === "co_if") return null;
-            // 条件シールは「きっかけ」以外のカードに貼れる（きっかけはチェーンの外側で
-            // 別扱いのため、生成器がシールを読まない）。中身が無いカードでも
-            // シールは貼れるので、fields が空でもパネルは開く。
-            const canSticker = sb.category !== "trigger";
-            if (sb.fields.length === 0 && !canSticker) return null;
-            if (editorCollapsed) return null; // ダブルタップ/×で隠した状態
-            // ドラッグ中は出さない。掴んだ時点で setSelected が走るので、そのままだと
-            // 運んでいる間ずっとパネルが付いてきて、盤面もゴミ箱も隠れて邪魔になる。
-            // 置いた瞬間に出れば「置いた→直す」の流れとしてちょうどいい。
-            if (draggingId) return null;
-            const c = CAT[sb.category];
-            const EIcon = (LucideIcons as any)[sb.emoji] || LucideIcons.HelpCircle;
-            const sbPos = getPos(sb.id, blocks);
-            // ⚠️ getPos は world 座標。編集パネルは transform レイヤーの外（pan/zoom 未適用の
-            //    オーバーレイ層＝HUD/完成ボタンと同じ絶対座標系）にあるので、そのまま world 座標を
-            //    使うと pan/zoom した瞬間カードから飛ぶ。screen 座標に変換してカードに追従させる。
-            const anchorX = sbPos.x * zoom + pan.x;
-            const anchorY = sbPos.y * zoom + pan.y;
-            const PANEL_W = 234;
-            const vw = typeof window !== "undefined" ? window.innerWidth : 360;
-            const vh = typeof window !== "undefined" ? window.innerHeight : 640;
-            // カード中央にパネルを寄せ、左右は画面内へクランプ（端カードでも見切れない）
-            let panelX = anchorX + (BW * zoom) / 2 - PANEL_W / 2;
-            panelX = Math.max(8, Math.min(panelX, vw - PANEL_W - 8));
-            // カードのすぐ下に開き、上下も画面内へクランプ（maxHeight+スクロールで残りは吸収）
-            let panelY = anchorY + BH * zoom + 10;
-            panelY = Math.max(8, Math.min(panelY, vh - 120));
-            return (
-              <div data-card-editor="1" style={{
-                position: "absolute", top: panelY, left: panelX, zIndex: 1001, width: PANEL_W, maxHeight: "52%", overflowY: "auto",
-                background: "#ffffff", border: `3px solid ${c.bg}`, borderRadius: 16,
-                boxShadow: `0 12px 28px rgba(0,0,0,0.2), 0 0 0 2px ${c.bg}40`, padding: 12,
-                display: "flex", flexDirection: "column", gap: 9,
-                animation: "blockPop 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)",
-              }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 7, paddingBottom: 6, borderBottom: "2px solid #f1f5f9" }}>
-                  <span style={{ width: 24, height: 24, borderRadius: 7, background: c.bg, border: "2px solid #1e293b", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <EIcon size={14} color="#fff" strokeWidth={2.6} />
-                  </span>
-                  <span style={{ fontSize: 12.5, fontWeight: 900, color: "#1e293b" }}>{sb.label} {t(locale, "editor_55bb3a")}</span>
-                  <button onClick={() => setEditorCollapsed(true)} title={t(locale, "editor_18f530")}
-                    style={{ marginLeft: "auto", width: 22, height: 22, borderRadius: 6, border: "1.5px solid #e2e8f0", background: "#f8fafc", color: "#64748b", fontSize: 12, fontWeight: 900, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>✕</button>
-                </div>
-                {sb.fields.map(f => (
-                  <FieldSlot key={f.id} label={f.label} value={f.value} fieldId={f.id} options={f.options}
-                    onChange={v => handleFieldChange(sb.id, f.id, v)} />
-                ))}
-
-                {/* ── 条件シール ── */}
-                {canSticker && (
-                  <div style={{ borderTop: "2px dashed #f1f5f9", paddingTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
-                    <div style={{ fontSize: 11, fontWeight: 900, color: "#be185d" }}>
-                      {t(locale, "editor_facea2")}<span style={{ marginLeft: 5, fontWeight: 700, color: "#94a3b8", fontSize: 9.5 }}>
-                        {(sb.stickers?.length ?? 0) === 0 ? t(locale, "editor_680cfb") : t(locale, "editor_deab52")}
-                      </span>
-                    </div>
-
-                    {(sb.stickers ?? []).map(s => {
-                      const st = TEMPLATES.find(t => t.type === s.type);
-                      return (
-                        <div key={s.id} style={{
-                          border: `2px solid ${s.neg ? "#fb923c" : "#ec4899"}`, borderRadius: 9,
-                          background: s.neg ? "#fff7ed" : "#fdf2f8", padding: "5px 6px",
-                          display: "flex", flexDirection: "column", gap: 5,
-                        }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                            <span style={{ flex: 1, fontSize: 10.5, fontWeight: 900, color: s.neg ? "#9a3412" : "#9d174d" }}>
-                              {(st?.label ?? s.type).replace(/か$/, "")}{s.neg ? t(locale, "editor_d8a16b") : ""}{t(locale, "editor_a1d536")}</span>
-                            <button onClick={() => flipSticker(sb.id, s.id)} title={t(locale, "editor_437328")}
-                              style={{ border: "1.5px solid #cbd5e1", background: "#fff", borderRadius: 6, fontSize: 9.5, fontWeight: 900, padding: "2px 6px", cursor: "pointer", color: "#475569" }}>
-                              {t(locale, "editor_d7a749")}</button>
-                            <button onClick={() => removeSticker(sb.id, s.id)} title={t(locale, "editor_1e35e4")}
-                              style={{ border: "none", background: "rgba(0,0,0,0.08)", borderRadius: "50%", width: 18, height: 18, fontSize: 10, fontWeight: 900, cursor: "pointer", color: "#475569" }}>
-                              ✕
-                            </button>
-                          </div>
-                          {/* しきい値やアイテム名など、その条件のパラメータ */}
-                          {s.fields.map(f => (
-                            <FieldSlot key={f.id} label={f.label} value={f.value} fieldId={f.id} options={f.options}
-                              onChange={v => setStickerField(sb.id, s.id, f.id, v)} />
-                          ))}
-                        </div>
-                      );
-                    })}
-
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-                      {STICKER_TYPES
-                        .filter(t => !(sb.stickers ?? []).some(s => s.type === t))
-                        .map(t => {
-                          const st = TEMPLATES.find(x => x.type === t);
-                          if (!st) return null;
-                          const SIcon = (LucideIcons as any)[st.emoji] || LucideIcons.HelpCircle;
-                          return (
-                            <button key={t} onClick={() => addSticker(sb.id, t)} title={st.sublabel}
-                              style={{
-                                display: "inline-flex", alignItems: "center", gap: 3,
-                                border: "2px solid #ec4899", borderRadius: 999, background: "#fff",
-                                padding: "3px 8px", fontSize: 9.5, fontWeight: 900, color: "#9d174d",
-                                cursor: "pointer", boxShadow: "0 2px 0 #db2777",
-                              }}>
-                              <SIcon size={10} color="#db2777" strokeWidth={3} />
-                              {st.label.replace(/か$/, "")}
-                            </button>
-                          );
-                        })}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })()}
-
-          {/* コードプレビュー */}
-          {showCode && (
+              スクロールする（下がはみ出して押せない、という事故を防ぐ）。 */}, arg23: {/* スマホ：アドオン完成を独立ボタンで常時表示（ツールメニューに埋めない） */}, arg24: {/* ✏️ 選んだカードの中身エディタ（直接配置式＝旧STEP3の代わり。条件もここで変える） */}, arg25: {/* コードプレビュー */}, arg26: showCode && (
             <div className="mc-panel" style={{ position: "absolute", bottom: 10, left: 8, right: 8, zIndex: 45, maxHeight: 240, background: "#ffffff", display: "flex", flexDirection: "column", border: "2px solid #cbd5e1", boxShadow: "0 8px 32px rgba(0,0,0,0.1)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 14px", borderBottom: "2px solid #e2e8f0" }}>
                 <span className="font-pixel text-[11px] text-[#0ea5e9] font-bold">⚡ GENERATED CODE</span>
@@ -4581,16 +4045,10 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 {genCode}
               </pre>
             </div>
-          )}
-
-          {/* スナップインジケーター */}
-          {snapHint && showSnapGuide && (
+          ), arg27: {/* スナップインジケーター */}, arg28: snapHint && showSnapGuide && (
             <SnapIndicator x={snapHint.pos.x} y={snapHint.pos.y} zoom={zoom} slot={snapHint.slot}
               color={snapHint.slot === "inner" ? "#8b5cf6" : snapHint.slot === "then" ? "#10b981" : snapHint.slot === "else" ? "#f97316" : "#0ea5e9"} />
-          )}
-
-          {/* パーティクル */}
-          {particles.map(p => {
+          ), arg29: {/* パーティクル */}, arg30: particles.map(p => {
             if (p.type === "ripple") {
               return (
                 <div key={p.id} style={{
@@ -4626,10 +4084,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 })}
               </div>
             );
-          })}
-
-          {/* 衝撃リング */}
-          {impacts.map(p => (
+          }), arg31: {/* 衝撃リング */}, arg32: impacts.map(p => (
             <div key={p.id} style={{ position: "absolute", left: p.x, top: p.y, pointerEvents: "none", zIndex: 199 }}>
               <div style={{
                 position: "absolute", left: "50%", top: "50%",
@@ -4647,10 +4102,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 animation: "impactFlash 0.5s ease-out forwards",
               }} />
             </div>
-          ))}
-
-          {/* 紙吹雪 */}
-          {confetti.map(c => (
+          )), arg33: {/* 紙吹雪 */}, arg34: confetti.map(c => (
             <div key={c.id} style={{ position: "absolute", left: c.x, top: c.y, pointerEvents: "none", zIndex: 201 }}>
               {Array.from({ length: 14 }).map((_, i) => {
                 const ang = (i / 14) * 360 + (i * 17) % 30;
@@ -4675,10 +4127,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 );
               })}
             </div>
-          ))}
-
-          {/* 右ペイン：コントロールパネル */}
-          <div data-right-panel="1" style={{
+          )), arg35: {/* 右ペイン：コントロールパネル */}, arg36: <div data-right-panel="1" style={{
             position: "absolute",
             top: 10,
             right: 10,
@@ -4756,7 +4205,7 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 }}>
                   <span style={{ fontSize: 24 }}>✨</span>
                   <span style={{ fontSize: 9, fontWeight: 900, textAlign: "center", lineHeight: 1.3 }}>
-                    {t(locale, "editor_c2ad41")}<br />{t(locale, "editor_9b94cb")}</span>
+                    {tNode(locale, "editor_frag_1a05c067edd_19", { arg0: <br /> })}</span>
                 </div>
               ) : (
                 tray.map((it) => {
@@ -5260,10 +4709,9 @@ export default function LogicPanel({ onExportReady }: { onExportReady?: () => vo
                 }
               }}
             >
-              <span>{t(locale, "editor_b6e715")}<br />{t(locale, "editor_5d353b")}</span>
+              <span>{tNode(locale, "editor_frag_1a05c067f53_20", { arg0: <br /> })}</span>
             </button>
-          </div>
-        </div>
+          </div> })}</div>
 
         {/* キラキラ紙吹雪・レベルアップ演出 */}
         <ConfettiEffect trigger={triggerConfetti} onComplete={() => setTriggerConfetti(false)} />
