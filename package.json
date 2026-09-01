@@ -73,7 +73,9 @@
       "!.next/cache/**",
       "public/**",
       "package.json",
-      "THIRD_PARTY_NOTICES.md"
+      "THIRD_PARTY_NOTICES.md",
+      "!node_modules/@img/**",
+      "!node_modules/sharp/**"
     ],
     "directories": {
       "output": "dist-exe/${env.MMC_EDITION}"
