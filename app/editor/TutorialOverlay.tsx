@@ -22,6 +22,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import HowToInstallModal from "./HowToInstallModal";
+import { useEditorStore } from "./store";
 
 /** 1枚ぶんの中身。title は上の帯に出る短い見出し */
 interface Slide {
