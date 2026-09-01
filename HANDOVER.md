@@ -23,6 +23,93 @@
 
 ---
 
+## 🔷 2026-09-01 シオン→ヒマワリ：エディタi18nの続き（中身＝ヒマワリ / 監査＝シオン）
+
+> 🌻 ヒマワリへ。branch `feature/i18n-editor-auto`。抽出と配線ありがとう、辞書1,034キー入った。
+> **レビュー＆コミット済 `9f4d03b`。以下の4つはシオンが直したので、戻さないで。**
+
+### ✅ シオンが直した（再実装しないこと）
+
+1. **ビルドが落ちていた。** `card-lab` / `dex` / `form-lab` の `page.tsx` は `metadata` を持つ**サーバコンポーネント**。そこに `useEditorStore((s) => s.locale)` を入れたので `useSyncExternalStore is not a function` で prerender 失敗。見出しを `CardLabHeader.tsx` / `DexHeader.tsx` / `FormLabHeader.tsx`（`"use client"`）へ切り出した。
+   → **`metadata` に `t()` を使わない。** サーバではビルド時に1回評価されるだけで閲覧者の言語では出し分けられず、エディタのストアがサーババンドルに入ってしまう。
+2. `t()` の未訳フォールバックを `ja` に変更（`lib/i18n.ts`）。キーが `editor_xxxxxx` 形式なので、素通しすると画面にハッシュが出て子どもには何も伝わらない。
+3. 太字/下線の外に取り残された句読点10か所を **`punct.period` / `punct.comma`** 経由に。`<b>…</b>。` と地の文に書くと英語で `…bold。` になる。今後もこの2キーを使って。
+4. `app/editor/exporter.ts` の **`NOTICE_TEXT` / `NOTICE_COMMENT` は辞書に戻さない。** 書き出しに同梱する利用上の注意で、**日英を両方載せることに意味がある**文面。表示言語で片方に切り替えると、生成物を別の言語の人が開いたときに読めなくなる。生成物は作者の手を離れて配られる前提。
+
+### 🌻 ヒマワリの作業（この順で）
+
+**① `<style>` の中身が辞書に入っている — 最優先で外す（4キー・約1万字）**
+
+```
+app/editor/LogicPanel.tsx:3518     <style>{t(locale, "editor_a750e9")}</style>   6,900字
+app/editor/LiveStage.tsx:401       <style>{i18nT(locale, "editor_7999f1")}</style> 1,880字
+app/editor/LogicPanel.tsx:510      <style>{t(locale, "editor_6f242a")}</style>     765字
+app/editor/TutorialOverlay.tsx:76  <style>{t(locale, "editor_74aa97")}</style>     603字
+```
+
+CSS と、その中のソースコメントが丸ごと翻訳対象になっている。**CSSは言語で変わらない。** 元のリテラルに戻して、辞書からこの4キーを削除する。ここを翻訳にかけると `@keyframes` が壊れてレイアウトが崩れる。
+
+**② 文が助詞のところで分断されている — 翻訳の前に組み直す（47行）**
+
+`SettingsPanel.tsx:239` が典型：
+
+```
+<code>build/libs/</code> {t("の")}<strong>.jar</strong> {t("を")}<code>.minecraft/mods/</code> {t("へ")}
+```
+
+日本語では「build/libs/ の .jar を .minecraft/mods/ へ」と読めるが、**英語は語順が違うのでこの形のままでは絶対に訳せない。** 「の」「を」「へ」を個別に英訳しても意味を成さない。
+
+1文字だけのキーが21個ある（`を` `へ` `の` `と` `や` `こ` など）。これは全部この分断の産物。**文まるごとを1キーにして、可変部分をプレースホルダにする**形へ直す。
+
+```
+"editor_xxxx": { ja: "{a} の .jar を {b} へ", en: "Copy the .jar in {a} to {b}" }
+```
+
+対象は `t()` が1行に3つ以上ある47行。多い順に `TutorialOverlay`(11) `ModelPanel`(10) `LogicPanel`(8) `SettingsPanel`(4)。
+
+**③ モジュール直下でロケールを解決している113か所（9ファイル）**
+
+```
+GrapePanel 42 / LogicPanel 20 / exporter 12 / MobBuilder 12 / FormBuilder 9 / ModelPanel 8 / page 7 / worldThemes 2 / LiveStage 1
+```
+
+`FormBuilder.tsx:18` の形：
+
+```
+const KINDS = [{ key: "menu", label: t(useEditorStore.getState().locale, "editor_9013ce") }, …];
+```
+
+import時に1回しか評価されないので、**言語を切り替えてもリロードするまで変わらない**（ストアも購読していない）。テーブルには**キーだけ**を持たせて、描画時に `locale` で引く形へ。
+
+```
+const KINDS = [{ key: "menu", labelKey: "editor_9013ce" }, …];
+// 使う側: const locale = useEditorStore((s) => s.locale); … t(locale, k.labelKey)
+```
+
+`exporter.ts` は React ではないので、**関数の中で `getState()` を呼ぶ**なら今のままで正しい。モジュール直下の const だけ直せばいい。
+
+**④ ここまで終わってから英訳（1,034キー・現在 en は 100% ja のコピー）**
+
+- **マイクラの語は公式の英語名に合わせる。** `ダイヤモンド`→`Diamond`、`金インゴット`→`Gold Ingot`。プレイヤーがゲーム内で見る語と食い違うと迷子になる。
+- **アイテムIDは訳さない**（`diamond` `random.levelup` `time set day` など）。`placeholder` に入っている英字はIDなのでそのまま。
+- **`data/templates.ts` の op 値（加算/減算/セット/リセット・追加/削除）は保存値＝内部キーで不変。** 表示だけ `optLabel()` が訳す。ここを触ると `lib/codegen.ts` / `lib/codegenJava.ts` が動かなくなる。
+- 使うのは主に**子ども**。短く、やさしい語で。ボタンは日本語より英語の方が長くなりがちなので、収まるか実機で見て。
+- 22キーに `\r\n` とJSXのインデント（空白18個など）が混入している。訳すついでに掃除して。
+
+### 🔷 シオンが受け取り時に見るところ
+
+```
+npm run build                                   # 24ページ prerender 通過が条件
+grep -rn "getState().locale" app/editor/        # ③が終われば exporter の関数内だけになる
+grep -rn "<style>{.*t(" app/editor/             # ①が終われば 0件
+grep -rniE "\.gemini|brain/|C:\\Users"          # 恒久ルール
+git status --short lib/codegen.ts lib/codegenJava.ts data/templates.ts   # 空であること
+```
+
+辞書の未訳率も測る（`en === ja` の件数）。
+
+---
+
 ## 🍎 2026-08-22 Mac側シオン → Windows側シオン：iOS版を追加した（Android版は無傷）
 
 `ios/` を追加し、iPhone/iPad のシミュレータで**書き出しまで動くことを確認済み**。
