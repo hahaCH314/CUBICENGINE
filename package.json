@@ -1,6 +1,6 @@
 {
   "name": "minemodcraft",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "マイクラのMOD・アドオンをコード無しで作れるビジュアル開発スタジオ（非公式ツール）",
   "author": "CUBICENGINEstudio",
   "private": true,
