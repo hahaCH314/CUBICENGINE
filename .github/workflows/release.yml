@@ -194,6 +194,10 @@ jobs:
             # しかもエラーが出ないので、動かしても気づけないことがある。
             'FileSystemWriteVirtualization>disabled' = 'MODの書き込み先が横流しされない設定'
             'RegistryWriteVirtualization>disabled'   = 'レジストリ書き込みの横流し防止'
+            # ⚠️ 上の設定は、この許可の宣言が無いと**インストール自体ができない**。
+            #    makeappx は通ってしまうので、入れてみるまで気づけない（0x80073CF0）。
+            #    2026-09-03、設定だけ入れて許可を忘れ、この検査も素通りさせた。
+            'Name="unvirtualizedResources"'         = '仮想化オフを使うための許可'
             # Partner Center に登録した ID と1文字でも違うとアップロードが弾かれる。
             'Name="CUBICENGINEstudio.CUBICENGINEGROVE"' = 'Partner Center の Identity Name'
             'CN=87788BE5-5897-4593-8CAD-DA1FF10A252C'   = 'Partner Center の Publisher'
@@ -208,6 +212,15 @@ jobs:
             }
           }
           if ($failed) { exit 1 }
+
+          # 手元検証用のビルド（MMC_APPX_TEST=1）が紛れ込んでいないか。
+          # あれは Publisher に「署名なしで入れてよい」印を足したもので、
+          # Partner Center の Publisher と一致しないため提出しても弾かれる。
+          # 見た目もファイル名も本番と区別がつかないので、ここで止める。
+          if ($xml -match 'OID\.2\.25\.311729368913984317654407730594956997722') {
+            Write-Host "::error::手元検証用(MMC_APPX_TEST=1)のパッケージです。提出できません"
+            exit 1
+          }
 
           # MaxVersionTested が MinVersion より古いと makeappx は通っても
           # Partner Center 側で弾かれる。数値で比較する。

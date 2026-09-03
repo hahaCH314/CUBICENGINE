@@ -31,9 +31,29 @@ function compareVersions(a, b) {
   return 0;
 }
 
+// 署名なしのパッケージを Add-AppxPackage -AllowUnsigned で入れるには、
+// Publisher の末尾にこの OID が要る。付いていないと 0x80073D2C
+// 「発行元が未署名の名前空間にありません」で弾かれ、**手元で一度も試せない。**
+// 逆にこれが付いたものは Store に出せない（Partner Center の Publisher と一致しないため）。
+const UNSIGNED_TEST_OID = 'OID.2.25.311729368913984317654407730594956997722=1';
+
 module.exports = async function appxManifestCreated(manifestPath) {
   const original = fs.readFileSync(manifestPath, 'utf8');
   let manifest = original;
+
+  // 0) MMC_APPX_TEST=1 のときだけ、手元で動作確認できる形にする。
+  //    ⚠️ これで作ったパッケージは **絶対に Partner Center へ出さないこと。**
+  //       発行元が本番と違うので受け付けられないし、仮に通っても別アプリ扱いになる。
+  //    中身（仮想化の設定・同梱ファイル）は本番と同じなので、
+  //    「起動するか」「.minecraft に本当に書けるか」の確認はこれで足りる。
+  if (process.env.MMC_APPX_TEST === '1') {
+    manifest = manifest.replace(
+      /(Publisher=')([^']+)(')/,
+      (match, head, publisher, tail) =>
+        publisher.includes(UNSIGNED_TEST_OID) ? match : `${head}${publisher}, ${UNSIGNED_TEST_OID}${tail}`
+    );
+    console.log('[appx-manifest] ⚠️ 試験用ビルド（署名なしで入れられる発行元）。配布・提出しないこと');
+  }
 
   // 1) desktop6 名前空間を宣言する。
   //    あわせて IgnorableNamespaces に入れる。electron-builder が同梱する makeappx は古く、
@@ -71,7 +91,23 @@ module.exports = async function appxManifestCreated(manifestPath) {
     );
   }
 
-  // 3) desktop6 を使うので MinVersion を引き上げる。
+  // 3) 仮想化を切るには unvirtualizedResources 機能の宣言が要る。
+  //    ⚠️ これが無いと、パッケージ自体は作れてしまうが **インストールできない**。
+  //       Windows が 0x80073CF0 で弾く：
+  //       「指定された要素または属性または属性値には "unvirtualizedResources" 機能が必要です」
+  //       makeappx は通るので、実際に入れてみるまで気づけない（2026-09-03 に踏んだ）。
+  if (!manifest.includes('unvirtualizedResources')) {
+    const anchor = '<rescap:Capability Name="runFullTrust"/>';
+    if (!manifest.includes(anchor)) {
+      throw new Error('AppxManifest に runFullTrust の宣言が見つかりません。');
+    }
+    manifest = manifest.replace(
+      anchor,
+      `${anchor}\n    <rescap:Capability Name="unvirtualizedResources"/>`
+    );
+  }
+
+  // 4) desktop6 を使うので MinVersion を引き上げる。
   //    MaxVersionTested は electron-builder の既定が 10.0.14316.0 と古く、
   //    そのままだと MaxVersionTested < MinVersion の矛盾で makeappx が pack に失敗するので併せて上げる。
   const minVersionPattern = /(<TargetDeviceFamily\b[^>]*\bMinVersion=")([^"]+)(")/;
