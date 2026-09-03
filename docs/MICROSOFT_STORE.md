@@ -24,16 +24,60 @@ MSIX 枠なら **Microsoft 側が署名してくれるので証明書代がか�
 これらは `package.json` の `build.appx` に入っている。**1文字でも違うと Partner Center が
 アップロードを弾く**ので、変更するときは Partner Center の「製品ID」画面からコピペすること。
 
+## いまどこまで進んだか（2026-09-03 時点）
+
+- ✅ `.appx` が CI で作れる（release.yml / 実行 #11 が成功）
+- ✅ **MSIX として実際にインストールでき、起動し、書き込みが本物の `%APPDATA%` に届くことを CI で確認済み**
+- ⬜ **Partner Center へのアップロード（次にやること）**
+- ⬜ 審査（`unvirtualizedResources` の説明を求められる。文面は下記）
+- ⬜ 実機の Minecraft で MOD が読めるかの確認（なっとうサイダーさん）
+
+### 次にやること
+
+1. https://github.com/hahaCH314/CUBICENGINE/actions を開く
+2. 「リリース用インストーラのビルド」の成功した実行を開く
+3. 画面上部の **Artifacts の数字**をクリック → `CUBICENGINE-grove-store-package` をダウンロード
+4. zip を展開すると `GROVE_editor.appx` が入っている。それを Partner Center へ
+5. 「申請オプション」で制限付き機能の説明を書く（下記をそのまま貼れる）
+
+### 制限付き機能の説明（審査で求められる）
+
+`unvirtualizedResources` は制限付き機能なので、提出時に用途の説明が要る。
+説明が不十分だと却下されうる。以下をそのまま使える。
+
+> 本アプリは Minecraft Java版の MOD を作成するツールです。生成した .jar ファイルを
+> `%APPDATA%\.minecraft\mods` に保存しますが、このファイルを読み込むのは Minecraft という
+> 別のアプリケーションです。
+>
+> ファイルシステムの仮想化が有効だと、保存先がパッケージ内のコンテナに隔離され、
+> Minecraft から参照できなくなります。その結果、保存は成功したように見えて MOD が
+> 読み込まれない状態となり、本アプリの中核機能が成立しません。
+>
+> このため `unvirtualizedResources` が必要です。用途は上記のフォルダへの読み書きに限られます。
+
+### 却下されたら
+
+`.appx` を諦め、MSI/EXE 枠（インストーラを自前で置き URL を登録する形）に切り替えることになる。
+ただしそちらは**有料のコード署名証明書が必須**。無料・無広告の方針と天秤にかけて判断すること。
+ストアに出せなくても、GitHub Releases からの配布は動いている。
+
 ## ビルド手順
+
+> ## ⚠️ 手元で作ったものは提出しない
+> 提出する `.appx` は **CI で作る**。理由は [docs/RELEASE.md](RELEASE.md)。
+> 手元ビルドは自分で動作確認する用。
+
+CI（GitHub の Actions 画面 →「リリース用インストーラのビルド」→ Run workflow）で作る。
+署名は不要（Microsoft が行う）。証明書代はかからない。
+
+手元で試したいときだけ:
 
 ```bash
 npm run appx:assets      # タイル画像を public/icon-512.png から生成（初回・アイコン変更時のみ）
-npm run build:grove:appx # .appx を作る
+npm run build:grove:appx # .appx を作る（未コミットの変更があると止まる）
 ```
 
 出力: `dist-exe/grove/GROVE_editor.appx`
-
-これを Partner Center の「パッケージ」でアップロードする。署名は不要（Microsoft が行う）。
 
 ## AppData 仮想化を切っている理由（重要）
 
