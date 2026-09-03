@@ -18,10 +18,16 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
-      # npm install ではなく npm ci。package-lock.json どおりに入れるので、
-      # 手元と同じものが入る（install は状況次第で別の版を入れることがある）。
+      # ⚠️ npm install を使わないこと（3ジョブとも npm ci に統一・2026-09-04）。
+      #   ・install は解決結果を package-lock.json に書き戻すため、作業ツリーが汚れる。
+      #     配布物ビルド前の「未コミットの変更が無いか」検査がそれで落ちた。
+      #   ・そして書き戻るということは、**ロックファイルと違う版が入っていた**ということ。
+      #     どの版で作られた配布物なのか言えなくなる。ci なら必ずロックどおりに入る。
+      #
+      # Node は 22。Capacitor CLI が >=22 を要求するため（20 のままだと Android が
+      # 「The Capacitor CLI requires NodeJS >=22.0.0」で必ず落ちる）。release.yml も 22。
       - name: Install Dependencies
         run: npm ci
 
@@ -143,10 +149,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build Windows Apps (Sprout & Grove)
         run: npm run build:all:win
@@ -175,7 +181,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Setup Java JDK
         uses: actions/setup-java@v4
@@ -187,7 +193,7 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Sync Capacitor Android
         run: npm run android:build
