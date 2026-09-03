@@ -88,6 +88,18 @@ Example mod description.
     ordering="NONE"
     side="BOTH"
 
+# GeckoLib（前提modモードのモブを描くのに使う）。
+# ⚠️ これは **dev で gradlew runClient するとき用**。配布される .jar の設定ファイルは
+#    exporter が書き直す（前提modモードのときだけ geckolib を要求する）。
+#    ここに書いておかないと、dev 実行時に GeckoLib が読まれず
+#    CubicGeoEntity のクラス読み込みで NoClassDefFoundError になる。
+[[dependencies.${mod_id}]]
+    modId="geckolib"
+    type="required"
+    versionRange="[4.9,)"
+    ordering="AFTER"
+    side="BOTH"
+
 # Features are specific properties of the game environment, that you may want to declare you require. This example declares
 # that your mod requires GL version 3.2 or higher. Other features will be added. They are side aware so declaring this won't
 # stop your mod loading on the server for example.

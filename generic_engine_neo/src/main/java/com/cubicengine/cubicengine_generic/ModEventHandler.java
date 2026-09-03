@@ -7,7 +7,7 @@ package com.cubicengine.cubicengine_generic;
 
 // ============================================================
 //  CUBICENGINE Studio — 自動生成コード (GROVE / Java)
-//  Forge 1.20.1 (47.x) / Java 17
+//  NeoForge 1.21.1 / Java 21
 //  このファイルは積み木グラフから生成されています。
 // ============================================================
 
@@ -28,19 +28,18 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.event.ServerChatEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.event.ServerChatEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 
-@Mod.EventBusSubscriber(modid = cubicenginegenericMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = cubicenginegenericMod.MOD_ID)
 public class ModEventHandler {
 
     @SubscribeEvent
@@ -58,56 +57,72 @@ public class ModEventHandler {
     }
 
     @SubscribeEvent
-    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase == TickEvent.Phase.END && event.player instanceof ServerPlayer player) {
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
             // To prevent lag, you might want to execute this less frequently, but for now we execute every tick.
             LogicInterpreter.onTrigger("tick", player, null);
         }
     }
 
+    /**
+     * その生き物が「どのCUBICモブか」を答える。無関係な生き物なら null。
+     *
+     * ⚠️ 名乗り方が2通りあるのは、土台が2通りあるから。
+     *    ・geoモブ  … 専用の EntityType なので、自分の id を最初から持っている
+     *    ・バニラ土台 … ブタやゾンビそのものなので、湧かせた側がNBTに書いて覚えさせる
+     *    geoモブにNBTを要求すると、バニラのスポーンエッグはタグを書かないので
+     *    **設定した体力も名前もドロップも丸ごと素通りする**（実際そうなっていた）。
+     */
+    private static String resolveMobId(LivingEntity living) {
+        if (living instanceof CubicGeoEntity geo) {
+            return geo.getMobId();
+        }
+        CompoundTag tag = living.getPersistentData();
+        return tag.contains("CubicMobId") ? tag.getString("CubicMobId") : null;
+    }
+
     @SubscribeEvent
     public static void onEntityJoin(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof LivingEntity living && !event.getLevel().isClientSide()) {
-            CompoundTag tag = living.getPersistentData();
-            if (tag.contains("CubicMobId") && tag.getBoolean("CubicMobNeedsInit")) {
-                String mobId = tag.getString("CubicMobId");
-                JsonObject mobJson = DynamicRegistry.MOBS_MAP.get(mobId);
-                
-                if (mobJson != null) {
-                    // Update Name
-                    if (mobJson.has("displayName")) {
-                        living.setCustomName(Component.literal(mobJson.get("displayName").getAsString()));
-                        living.setCustomNameVisible(true);
-                    }
-                    
-                    // Update Health
-                    if (mobJson.has("health")) {
-                        AttributeInstance healthAttr = living.getAttribute(Attributes.MAX_HEALTH);
-                        if (healthAttr != null) {
-                            healthAttr.setBaseValue(mobJson.get("health").getAsDouble());
-                            living.setHealth((float) mobJson.get("health").getAsDouble());
-                        }
-                    }
-                    
-                    // Update Attack Damage
-                    if (mobJson.has("attackDamage")) {
-                        AttributeInstance attackAttr = living.getAttribute(Attributes.ATTACK_DAMAGE);
-                        if (attackAttr != null) {
-                            attackAttr.setBaseValue(mobJson.get("attackDamage").getAsDouble());
-                        }
-                    }
-                    
-                    // Update Movement Speed
-                    if (mobJson.has("movementSpeed")) {
-                        AttributeInstance speedAttr = living.getAttribute(Attributes.MOVEMENT_SPEED);
-                        if (speedAttr != null) {
-                            speedAttr.setBaseValue(mobJson.get("movementSpeed").getAsDouble());
-                        }
+            String mobId = resolveMobId(living);
+            if (mobId == null) return;
+            JsonObject mobJson = DynamicRegistry.MOBS_MAP.get(mobId);
+            if (mobJson == null) return;
+
+            // ここから下は「設計図に書いてある値」を当てるだけなので、
+            // 読み込みのたびに何度やっても同じ結果になる。
+            // むしろ毎回当てることで、設定を変えて出し直したとき
+            // 既に湧いているモブにも新しい値が届く。
+            if (mobJson.has("displayName")) {
+                living.setCustomName(Component.literal(mobJson.get("displayName").getAsString()));
+                living.setCustomNameVisible(true);
+            }
+
+            if (mobJson.has("health")) {
+                AttributeInstance healthAttr = living.getAttribute(Attributes.MAX_HEALTH);
+                if (healthAttr != null) {
+                    healthAttr.setBaseValue(mobJson.get("health").getAsDouble());
+                    // ⚠️ 実際の体力を満タンにするのは**新しく湧いたときだけ**。
+                    //    ここを毎回やると、ワールドを読み込むたびに全快する
+                    //    ＝瀕死のモブが復活し続ける。loadedFromDisk がその区別。
+                    if (!event.loadedFromDisk()) {
+                        living.setHealth((float) mobJson.get("health").getAsDouble());
                     }
                 }
-                
-                // Clear the init flag so we don't apply base values again when the entity is loaded from disk
-                tag.putBoolean("CubicMobNeedsInit", false);
+            }
+
+            if (mobJson.has("attackDamage")) {
+                AttributeInstance attackAttr = living.getAttribute(Attributes.ATTACK_DAMAGE);
+                if (attackAttr != null) {
+                    attackAttr.setBaseValue(mobJson.get("attackDamage").getAsDouble());
+                }
+            }
+
+            if (mobJson.has("movementSpeed")) {
+                AttributeInstance speedAttr = living.getAttribute(Attributes.MOVEMENT_SPEED);
+                if (speedAttr != null) {
+                    speedAttr.setBaseValue(mobJson.get("movementSpeed").getAsDouble());
+                }
             }
         }
     }
@@ -116,16 +131,15 @@ public class ModEventHandler {
     public static void onLivingDrops(LivingDropsEvent event) {
         LivingEntity living = event.getEntity();
         if (living.level().isClientSide()) return;
-        
-        CompoundTag tag = living.getPersistentData();
-        if (tag.contains("CubicMobId")) {
-            String mobId = tag.getString("CubicMobId");
+
+        String mobId = resolveMobId(living);
+        if (mobId != null) {
             JsonObject mobJson = DynamicRegistry.MOBS_MAP.get(mobId);
-            
+
             if (mobJson != null && mobJson.has("drops")) {
                 // Clear vanilla drops
                 event.getDrops().clear();
-                
+
                 // Add custom drops
                 com.google.gson.JsonArray drops = mobJson.getAsJsonArray("drops");
                 for (com.google.gson.JsonElement e : drops) {
@@ -133,10 +147,10 @@ public class ModEventHandler {
                     String itemStr = drop.get("item").getAsString();
                     int min = drop.get("min").getAsInt();
                     int max = drop.get("max").getAsInt();
-                    
+
                     int count = min + living.getRandom().nextInt(Math.max(1, max - min + 1));
                     if (count > 0) {
-                        net.minecraft.world.item.Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemStr));
+                        net.minecraft.world.item.Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemStr));
                         if (item != null && item != net.minecraft.world.item.Items.AIR) {
                             ItemStack stack = new ItemStack(item, count);
                             event.getDrops().add(new ItemEntity(living.level(), living.getX(), living.getY(), living.getZ(), stack));
@@ -151,7 +165,7 @@ public class ModEventHandler {
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
         if (event.getPlayer() instanceof ServerPlayer player) {
             JsonObject ctx = new JsonObject();
-            ctx.addProperty("block", ForgeRegistries.BLOCKS.getKey(event.getState().getBlock()).toString());
+            ctx.addProperty("block", BuiltInRegistries.BLOCK.getKey(event.getState().getBlock()).toString());
             LogicInterpreter.onTrigger("break", player, ctx);
         }
     }
@@ -160,7 +174,7 @@ public class ModEventHandler {
     public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             JsonObject ctx = new JsonObject();
-            ctx.addProperty("block", ForgeRegistries.BLOCKS.getKey(event.getPlacedBlock().getBlock()).toString());
+            ctx.addProperty("block", BuiltInRegistries.BLOCK.getKey(event.getPlacedBlock().getBlock()).toString());
             LogicInterpreter.onTrigger("place", player, ctx);
         }
     }
@@ -169,7 +183,7 @@ public class ModEventHandler {
     public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             JsonObject ctx = new JsonObject();
-            ctx.addProperty("item", ForgeRegistries.ITEMS.getKey(event.getItemStack().getItem()).toString());
+            ctx.addProperty("item", BuiltInRegistries.ITEM.getKey(event.getItemStack().getItem()).toString());
             LogicInterpreter.onTrigger("useItem", player, ctx);
         }
     }
@@ -178,13 +192,16 @@ public class ModEventHandler {
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             JsonObject ctx = new JsonObject();
-            ctx.addProperty("item", ForgeRegistries.ITEMS.getKey(event.getItemStack().getItem()).toString());
+            ctx.addProperty("item", BuiltInRegistries.ITEM.getKey(event.getItemStack().getItem()).toString());
             LogicInterpreter.onTrigger("useItem", player, ctx);
         }
     }
 
+    // ⚠️ Post ではなく Pre。Forge の LivingHurtEvent は体力が減る**前**に鳴っていた。
+    //    Post にすると hpBelow や playerHp が減った後の値になり、
+    //    同じルールが違うタイミングで動く（気づけるのは遊んだ人だけ）。
     @SubscribeEvent
-    public static void onHurt(LivingHurtEvent event) {
+    public static void onHurt(LivingDamageEvent.Pre event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             LogicInterpreter.onTrigger("hurt", player, null);
         }

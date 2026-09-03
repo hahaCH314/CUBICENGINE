@@ -1049,7 +1049,7 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
     //    **実際に効くのはこちら**。値は必ず target から出すこと。
     zip.file(target.metaPath, [
       `modLoader="javafml"`,
-      `loaderVersion="${target.loaderRange}"`,
+      `loaderVersion="${target.fmlRange}"`,
       `license="MIT"`,
       ``,
       `[[mods]]`,
@@ -1099,6 +1099,8 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
     //    ズレたぶんは紫と黒の四角になり、名前も翻訳キーのまま出る。
     //    マイクラは何も言わないので、気づけるのは遊んだ人だけになる。
     const langEntries: Record<string, string> = {};
+    // スポーンエッグだけは言語ごとに接尾辞が変わるので、別に持っておく
+    const spawnEggNames: { key: string; name: string }[] = [];
     for (const { ce, src } of blockPairs) {
       const bn = ce.id;
       zip.file(`assets/${modId}/blockstates/${bn}.json`, JSON.stringify({ variants: { "": { model: `${modId}:block/${bn}` } } }, null, 2));
@@ -1138,8 +1140,12 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
       const color = src.behavior?.spawnEgg?.baseColor || "#ffffff";
       const tex = await createColoredTexture(color);
       zip.file(`assets/${modId}/textures/item/${inm}.png`, tex);
-      // "モブ名 スポーンエッグ" などの名前にする
-      langEntries[`item.${modId}.${inm}`] = `${ce.displayName} スポーンエッグ`;
+      // "モブ名 スポーンエッグ" などの名前にする。
+      // ⚠️ 利用者が付けた名前(displayName)はどの言語でもそのまま出す。
+      //    でも「スポーンエッグ」は**エンジンが勝手に足している言葉**なので、
+      //    ここだけは言語に合わせる。en_us に日本語を混ぜると、
+      //    英語で遊んでいる人に "Dragon スポーンエッグ" と出てしまう。
+      spawnEggNames.push({ key: `item.${modId}.${inm}`, name: ce.displayName });
       // エンティティ自体の名前。geo モードでは体力バーなどに出る
       langEntries[`entity.${modId}.${ce.id}`] = ce.displayName;
     }
@@ -1198,10 +1204,19 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
       }
     }
 
-    zip.file(`assets/${modId}/lang/en_us.json`, JSON.stringify(langEntries, null, 2));
+    // ⚠️ en_us と ja_jp の中身は**スポーンエッグの接尾辞だけ**が違う。
+    //    ブロック・アイテム・モブの名前は利用者が付けたものなので、
+    //    どちらの言語でもそのまま出す（勝手に英訳しない）。
+    const langEn = { ...langEntries };
+    const langJa = { ...langEntries };
+    for (const { key, name } of spawnEggNames) {
+      langEn[key] = `${name} Spawn Egg`;
+      langJa[key] = `${name} スポーンエッグ`;
+    }
+    zip.file(`assets/${modId}/lang/en_us.json`, JSON.stringify(langEn, null, 2));
     // 日本語環境でも同じ名前が出るようにする。en_us だけだと
     // 日本語設定のマイクラでは翻訳キーがそのまま表示される
-    zip.file(`assets/${modId}/lang/ja_jp.json`, JSON.stringify(langEntries, null, 2));
+    zip.file(`assets/${modId}/lang/ja_jp.json`, JSON.stringify(langJa, null, 2));
 
     const compression = (state.compress ? "DEFLATE" : "STORE") as "DEFLATE" | "STORE";
     const compressionOptions = state.compress ? { level: 6 } : undefined;

@@ -10,10 +10,10 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class CubicGeoEntity extends PathfinderMob implements GeoEntity {
@@ -51,7 +51,7 @@ public class CubicGeoEntity extends PathfinderMob implements GeoEntity {
             } else {
                 event.getController().setAnimation(RawAnimation.begin().thenLoop("animation." + getMobId() + ".idle"));
             }
-            return software.bernie.geckolib.core.object.PlayState.CONTINUE;
+            return software.bernie.geckolib.animation.PlayState.CONTINUE;
         }));
     }
 

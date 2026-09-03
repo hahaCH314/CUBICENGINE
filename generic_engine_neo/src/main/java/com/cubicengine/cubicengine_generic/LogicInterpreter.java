@@ -12,7 +12,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Scoreboard;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -80,7 +80,7 @@ public class LogicInterpreter {
                 case "hasTag":
                     return player.getTags().contains(cond.get("tag").getAsString());
                 case "hasItem":
-                    Item want = ForgeRegistries.ITEMS.getValue(new ResourceLocation(cond.get("item").getAsString()));
+                    Item want = BuiltInRegistries.ITEM.get(ResourceLocation.parse(cond.get("item").getAsString()));
                     if (want != null) {
                         for (ItemStack s : player.getInventory().items) {
                             if (!s.isEmpty() && s.is(want)) return true;
@@ -144,8 +144,8 @@ public class LogicInterpreter {
                     String effect = action.get("effect").getAsString();
                     int sec = action.get("seconds").getAsInt();
                     int amp = action.get("amplifier").getAsInt();
-                    MobEffect eff = ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(effect));
-                    if (eff != null) player.addEffect(new MobEffectInstance(eff, sec * 20, amp));
+                    MobEffect eff = BuiltInRegistries.MOB_EFFECT.get(ResourceLocation.parse(effect));
+                    if (eff != null) player.addEffect(new MobEffectInstance(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(eff), sec * 20, amp));
                     break;
                 case "sound":
                     String sound = action.get("sound").getAsString();
@@ -209,7 +209,7 @@ public class LogicInterpreter {
                     try {
                         Scoreboard sb = player.getScoreboard();
                         Objective o = sb.getObjective(val.get("arg").getAsString());
-                        if (o != null) return String.valueOf(sb.getOrCreatePlayerScore(player.getScoreboardName(), o).getScore());
+                        if (o != null) return String.valueOf(sb.getOrCreatePlayerScore(player, o).get());
                     } catch (Exception e) {}
                     return "0";
                 }
