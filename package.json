@@ -85,7 +85,14 @@
       "artifactName": "${env.MMC_EDITION_UPPER}_editor.${ext}"
     },
     "mac": {
-      "target": "dmg",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        }
+      ],
       "artifactName": "${env.MMC_EDITION_UPPER}_editor.${ext}"
     }
   }
