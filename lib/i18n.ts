@@ -75,6 +75,12 @@ export const DICT: Record<string, Entry> = {
   // 「壊れている」と受け取られて終わる。Windows の「詳細情報→実行」と同じ扱いで先に伝える。
   // Intel と Apple Silicon の両方で動く(universal)ので、機種を選ばせない。
   "dl.groveMacNote":  { ja: "約448MB・Mac用（Intel / Apple シリコン 両対応）\nはじめて開くときは、アイコンを右クリック →「開く」を選んでください", en: "About 448MB, for Mac (works on both Intel and Apple silicon).\nThe first time, right-click the icon and choose \"Open\"." },
+  // ⚠️ v0.1.5 の Mac 版に限った不具合の告知。作った .jar をマイクラのフォルダへ
+  //    自動で入れられない（Windows のパスを見ていたため。修正は v0.1.6）。
+  //    落とした人はエラーも出ずに「マイクラが見つかりません」と言われるだけで、
+  //    自分の環境が悪いと思ってしまう。直った版を出すまでの間、手で入れれば
+  //    使えることをここで伝える。**v0.1.6 を配ったらこのキーごと消すこと。**
+  "dl.groveMacBug":   { ja: "⚠️ いまの Mac 版は、作った MOD をマイクラのフォルダへ自動で入れられません（修正版を準備中）。\n書き出した .jar を、自分で ~/Library/Application Support/minecraft/mods に入れれば遊べます。", en: "⚠️ The current Mac build can't copy your MOD into the Minecraft folder automatically (a fix is on the way).\nMove the exported .jar into ~/Library/Application Support/minecraft/mods yourself and it works." },
   "dl.scanned":       { ja: "🛡 配布している Windows 版ファイルの検査結果", en: "🛡 Scan report for the Windows file we distribute" },
   "dl.scanLink":      { ja: "検査結果を見る", en: "View the scan result" },
   "dl.win":           { ja: "💻 Windows版 (.exe)", en: "💻 Windows (.exe)" },

@@ -828,6 +828,13 @@ export default function HomePage() {
             <p className="text-[11px] text-muted/70 font-sans text-center leading-relaxed whitespace-pre-line">
               {t(locale, "dl.groveMacNote")}
             </p>
+            {/* ⚠️ v0.1.5 の Mac 版だけの不具合の告知。マイクラのフォルダを Windows の
+                パスで探していたため、Mac では必ず「見つかりません」になる。修正は v0.1.6。
+                いま落とす人が「自分のせいだ」と思わないよう、手で入れる道を先に示す。
+                **v0.1.6 を配ったら、この段落と dl.groveMacBug を消すこと。** */}
+            <p className="text-[11px] font-sans text-center leading-relaxed whitespace-pre-line max-w-md" style={{ color: "#fca5a5" }}>
+              {t(locale, "dl.groveMacBug")}
+            </p>
           </div>
         )}
 
