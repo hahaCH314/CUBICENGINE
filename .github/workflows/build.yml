@@ -1,10 +1,17 @@
 ﻿name: Build Desktop and Mobile Apps
 
+# ⚠️ ブランチ名で検査の有無が変わらないようにすること。
+#    以前は push の対象が main と feature/* だけだった。そのため fix/... や chore/... で
+#    作業すると**検査が一度も走らないまま main に入れられる**状態だった（2026-09-04 に判明）。
+#    せっかく検査を足しても、名前を変えるだけで抜けられては意味がない。
+#
+#    いまは「main への push」と「Pull request」で走る。PR はブランチ名に関係なく効くので、
+#    **main に入る前には必ず1回通る**。feature/* の毎 push で走らせるより実行回数も減る。
 on:
   push:
     branches:
       - main
-      - feature/*
+  pull_request:
   workflow_dispatch:
 
 jobs:
