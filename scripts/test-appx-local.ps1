@@ -66,9 +66,9 @@ try {
   if ($LASTEXITCODE -ne 0) { Fail "署名に失敗しました（終了コード $LASTEXITCODE）" }
 
   # 署名した証明書を「信頼された発行元」として登録する（ここに管理者権限が要る）
-  Import-Certificate -FilePath (Join-Path $work 'test.cer' | ForEach-Object {
-    Export-Certificate -Cert $cert -FilePath $_ | Out-Null; $_
-  }) -CertStoreLocation 'Cert:\LocalMachine\TrustedPeople' | Out-Null
+  $cer = Join-Path $work 'test.cer'
+  Export-Certificate -Cert $cert -FilePath $cer | Out-Null
+  Import-Certificate -FilePath $cer -CertStoreLocation 'Cert:\LocalMachine\TrustedPeople' | Out-Null
   Write-Host "  署名 OK"
 
   # ── 2. インストール ────────────────────────────────────────
@@ -82,7 +82,8 @@ try {
   # ── 3. 起動して画面が返るか ────────────────────────────────
   # ここが本丸。v0.1.0 は「ファイルは落ちるのに起動した瞬間に落ちる」だった。
   Step "起動して画面が返るか"
-  $before = Get-Process -Name 'CubicEngine' -ErrorAction SilentlyContinue
+  # パッケージ版として起動する。exe を直接叩くと箱の外で動いてしまい、
+  # 確かめたい「箱の中での書き込み先」が分からなくなる。
   Start-Process "shell:appsFolder\$($pkg.PackageFamilyName)!$appId"
 
   $ok = $false
