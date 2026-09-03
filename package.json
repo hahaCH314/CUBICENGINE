@@ -15,10 +15,10 @@
     "electron:build": "next build && electron-builder --win",
     "check:clean": "node scripts/check-clean-tree.js",
     "check:modid": "node scripts/check-engine-modid.js",
-    "build:sprout:win": "npm run check:clean && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT next build && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT electron-builder --win --config.appId=com.cubicengine.sprout --config.extraMetadata.mmcEdition=sprout --publish never",
-    "build:sprout:mac": "npm run check:clean && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT next build && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT electron-builder --mac --config.appId=com.cubicengine.sprout --config.extraMetadata.mmcEdition=sprout --publish never",
-    "build:grove:win": "npm run check:clean && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE next build && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE electron-builder --win --config.appId=com.cubicengine.grove --config.extraMetadata.mmcEdition=grove --publish never",
-    "build:grove:mac": "npm run check:clean && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE next build && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE electron-builder --mac --config.appId=com.cubicengine.grove --config.extraMetadata.mmcEdition=grove --publish never",
+    "build:sprout:win": "npm run check:clean && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT next build && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT electron-builder --win --publish never --config.appId=com.cubicengine.sprout --config.extraMetadata.mmcEdition=sprout",
+    "build:sprout:mac": "npm run check:clean && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT next build && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT electron-builder --mac --publish never --config.appId=com.cubicengine.sprout --config.extraMetadata.mmcEdition=sprout",
+    "build:grove:win": "npm run check:clean && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE next build && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE electron-builder --win --publish never --config.appId=com.cubicengine.grove --config.extraMetadata.mmcEdition=grove",
+    "build:grove:mac": "npm run check:clean && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE next build && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE electron-builder --mac --publish never --config.appId=com.cubicengine.grove --config.extraMetadata.mmcEdition=grove",
     "appx:assets": "powershell -ExecutionPolicy Bypass -File scripts/make-appx-assets.ps1",
     "build:grove:appx": "npm run check:clean && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE next build && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE electron-builder --win appx --config.appId=com.cubicengine.grove --config.extraMetadata.mmcEdition=grove --publish never",
     "build:all:win": "npm run build:sprout:win && npm run build:grove:win",
@@ -79,7 +79,8 @@
       "package.json",
       "THIRD_PARTY_NOTICES.md",
       "!node_modules/@img/**",
-      "!node_modules/sharp/**"
+      "!node_modules/sharp/**",
+      "!node_modules/@next/swc-*/**"
     ],
     "directories": {
       "output": "dist-exe/${env.MMC_EDITION}"
@@ -97,8 +98,7 @@
           ]
         }
       ],
-      "artifactName": "${env.MMC_EDITION_UPPER}_editor.${ext}",
-      "x64ArchFiles": "**/next-swc.darwin-*.node"
+      "artifactName": "${env.MMC_EDITION_UPPER}_editor.${ext}"
     },
     "appxManifestCreated": "./scripts/appx-manifest.js",
     "appx": {
