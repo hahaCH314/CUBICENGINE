@@ -1,13 +1,13 @@
 name: リリース用インストーラのビルド
 
-# 手元の Windows では Application Control ポリシーが signtool.exe の起動をブロックし、
-# NSIS の工程が spawn UNKNOWN で落ちる。ランナーにはその制約が無いので、
-# インストーラの生成はここで行う。
+# 📖 経緯と過去の事故はすべて docs/RELEASE.md に集約している。
+#    検査を消す・変える前に必ず読むこと。同じ話をここには書かない（2か所に分かれると片方しか読まれない）。
 #
-# v0.1.0 は手作業でビルドされ、壊れたまま公開されていた（2026-08-10 に判明）。
-#   ・exe が素の electron.exe より 169,984 バイト小さく、起動時に即死（0x80000003）
-#   ・Next 16 の cwd 問題で、起動できても全リクエストが 500
-# どちらもサイズ検査だけでは気づけない。だから最後に**実際に起動して 200 が返るか**まで見る。
+# 要点だけ:
+#   ・配布物は手元で作らない。手元の Windows は Application Control ポリシーが
+#     signtool.exe をブロックし、NSIS の工程が壊れた exe を黙って吐く。
+#   ・v0.1.0 は手作業ビルドで壊れたまま公開された（2026-08-10 判明）。
+#   ・サイズ検査だけでは気づけない。だから最後に**実際に起動して 200 が返るか**まで見る。
 on:
   push:
     tags:
@@ -47,6 +47,32 @@ jobs:
       - name: 依存をインストール
         run: npm ci
 
+      # build/ は .gitignore で除外されている（生成物なのでコミットしない方針）。
+      # つまりランナーには存在しない。ここで作らないと、アイコン未設定のまま
+      # ビルドが通ってしまい、**Electron の既定アイコンとプレースホルダーのタイル画像**で
+      # ストアに並ぶことになる。警告は出るがビルドは成功するので気づけない。
+      # public/icon-512.png から作るので、アイコンを差し替えれば自動で追従する。
+      - name: アイコンとストア用タイル画像を作る
+        shell: pwsh
+        run: |
+          # System.Drawing を使うので Windows PowerShell(5.1) で実行する
+          powershell.exe -ExecutionPolicy Bypass -File scripts/make-win-icon.ps1
+          if ($LASTEXITCODE -ne 0) { Write-Host "::error::アイコンの生成に失敗"; exit 1 }
+          powershell.exe -ExecutionPolicy Bypass -File scripts/make-appx-assets.ps1
+          if ($LASTEXITCODE -ne 0) { Write-Host "::error::タイル画像の生成に失敗"; exit 1 }
+
+          # 生成できたか確認する。無いまま進むと既定アイコンで固まる。
+          foreach ($f in @(
+            "build/icon.ico",
+            "build/appx/StoreLogo.png",
+            "build/appx/Square44x44Logo.png",
+            "build/appx/Square150x150Logo.png",
+            "build/appx/Wide310x150Logo.png"
+          )) {
+            if (-not (Test-Path $f)) { Write-Host "::error::$f が生成されていない"; exit 1 }
+          }
+          Write-Host "アイコンとタイル画像 OK"
+
       # これを飛ばすと .next が存在しないまま梱包され、起動しても何も出ない
       - name: 画面をビルド
         run: npm run build
@@ -54,12 +80,24 @@ jobs:
       - name: インストーラをビルド
         run: npx electron-builder --win nsis --x64 --publish never
 
+      - name: Microsoft Store 用パッケージをビルド（Java版のみ）
+        # package.json の build.appx に入っている ID は Partner Center で
+        # **GROVE 用に予約したもの**。統合版(sprout)でこれを使うと、別アプリの
+        # 名前を名乗るパッケージができてしまう。だから grove のときだけ作る。
+        # 署名はしない（Store 側が署名するため。証明書は不要）。
+        if: env.MMC_EDITION == 'grove'
+        run: npx electron-builder --win appx --x64 --publish never
+
       # ─── ここから検査。1つでも落ちたら公開しない ───────────────────────
 
       - name: 実行ファイルが壊れていないか
         # v0.1.0 の実害。electron-builder が exe を書き換える工程で壊れると、
         # 素の electron.exe よりサイズが縮み、起動した瞬間に 0x80000003 で落ちる。
-        # アイコンを設定していない今の構成では、両者は完全に同じサイズになるはず。
+        #
+        # ⚠️ 2026-09-03 に判定を変更。build/icon.ico を追加してアイコンを焼き込むように
+        #    したため、**素の electron.exe と同じサイズにはならなくなった**（その分だけ増える）。
+        #    以前の「1バイトでも違えばエラー」のままだと、正常なビルドが必ず落ちる。
+        #    見るべきは「増えたか減ったか」。**縮んでいたら壊れている**（v0.1.0 は -169,984 バイト）。
         shell: pwsh
         run: |
           $built = "dist-exe/$env:MMC_EDITION/win-unpacked/CubicEngine.exe"
@@ -67,9 +105,15 @@ jobs:
           if (-not (Test-Path $built)) { Write-Host "::error::$built が無い"; exit 1 }
           $b = (Get-Item $built).Length
           $s = (Get-Item $stock).Length
-          Write-Host "ビルド後: $b / 素のElectron: $s / 差: $($b - $s)"
-          if ($b -ne $s) {
-            Write-Host "::error::exe のサイズが素の Electron と違う。書き換え工程で壊れた可能性がある（v0.1.0 と同じ症状）"
+          $diff = $b - $s
+          Write-Host "ビルド後: $b / 素のElectron: $s / 差: $diff"
+          if ($diff -lt 0) {
+            Write-Host "::error::exe が素の Electron より小さい。書き換え工程で壊れている（v0.1.0 と同じ症状）"
+            exit 1
+          }
+          # アイコンを足しただけで数MBも増えることはない。増えすぎも異常とみなす。
+          if ($diff -gt 5000000) {
+            Write-Host "::error::exe が想定より大きい（差 $diff バイト）。書き換え工程を確認すること"
             exit 1
           }
 
@@ -122,11 +166,74 @@ jobs:
           # 失敗すると数百KBのスタブが残る
           if ($exe.Length -lt 100000000) { Write-Host "::error::インストーラが小さすぎる。途中で失敗している"; exit 1 }
 
+      - name: Store 用パッケージを検査（Java版のみ）
+        # Partner Center は中身が違っていても「形式が正しければ」受け取ってしまう。
+        # 弾かれるのは審査に回ってから＝数日無駄になる。だからここで中身を見る。
+        if: env.MMC_EDITION == 'grove'
+        shell: pwsh
+        run: |
+          $appx = Get-ChildItem "dist-exe/$env:MMC_EDITION/*_editor.appx" -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $appx) { Write-Host "::error::.appx が出力されていない"; exit 1 }
+          Write-Host "パッケージ: $($appx.Name) / $($appx.Length) バイト"
+          if ($appx.Length -lt 100000000) { Write-Host "::error::.appx が小さすぎる。途中で失敗している"; exit 1 }
+
+          # .appx は zip。中の AppxManifest.xml を取り出して中身を確かめる。
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zip = [System.IO.Compression.ZipFile]::OpenRead($appx.FullName)
+          try {
+            $entry = $zip.Entries | Where-Object { $_.FullName -eq 'AppxManifest.xml' }
+            if (-not $entry) { Write-Host "::error::AppxManifest.xml が入っていない"; exit 1 }
+            $reader = New-Object System.IO.StreamReader($entry.Open())
+            $xml = $reader.ReadToEnd()
+            $reader.Close()
+          } finally { $zip.Dispose() }
+
+          $required = @{
+            # ここが抜けると Windows が %APPDATA% への書き込みを別の場所へ横流しする。
+            # jar は保存できたように見えるのに Minecraft からは見えない＝一番怖い壊れ方。
+            # しかもエラーが出ないので、動かしても気づけないことがある。
+            'FileSystemWriteVirtualization>disabled' = 'MODの書き込み先が横流しされない設定'
+            'RegistryWriteVirtualization>disabled'   = 'レジストリ書き込みの横流し防止'
+            # Partner Center に登録した ID と1文字でも違うとアップロードが弾かれる。
+            'Name="CUBICENGINEstudio.CUBICENGINEGROVE"' = 'Partner Center の Identity Name'
+            'CN=87788BE5-5897-4593-8CAD-DA1FF10A252C'   = 'Partner Center の Publisher'
+          }
+          $failed = $false
+          foreach ($k in $required.Keys) {
+            if ($xml -match [regex]::Escape($k)) {
+              Write-Host "OK  $($required[$k])"
+            } else {
+              Write-Host "::error::マニフェストに $k が無い（$($required[$k])）"
+              $failed = $true
+            }
+          }
+          if ($failed) { exit 1 }
+
+          # MaxVersionTested が MinVersion より古いと makeappx は通っても
+          # Partner Center 側で弾かれる。数値で比較する。
+          $min = [version]([regex]::Match($xml, 'MinVersion="([^"]+)"').Groups[1].Value)
+          $max = [version]([regex]::Match($xml, 'MaxVersionTested="([^"]+)"').Groups[1].Value)
+          Write-Host "MinVersion: $min / MaxVersionTested: $max"
+          if ($max -lt $min) {
+            Write-Host "::error::MaxVersionTested($max) が MinVersion($min) より古い"
+            exit 1
+          }
+
       - name: アーティファクトとして保存
         uses: actions/upload-artifact@v4
         with:
           name: CUBICENGINE-${{ env.MMC_EDITION }}-installer
           path: dist-exe/${{ env.MMC_EDITION }}/*_editor.exe
+          retention-days: 30
+
+      - name: Store 用パッケージを保存（Java版のみ）
+        # Releases には添付しない。Partner Center へ手で上げるものなので、
+        # 一般の人が間違って .appx を掴んでしまうと（署名が無いため）入れられない。
+        if: env.MMC_EDITION == 'grove'
+        uses: actions/upload-artifact@v4
+        with:
+          name: CUBICENGINE-${{ env.MMC_EDITION }}-store-package
+          path: dist-exe/${{ env.MMC_EDITION }}/*_editor.appx
           retention-days: 30
 
       - name: Releases に添付（タグを打った場合のみ）
