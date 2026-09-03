@@ -75,6 +75,7 @@
       "next.config.ts",
       "lib/**",
       "!.next/cache/**",
+      "!.next/dev/**",
       "public/**",
       "package.json",
       "THIRD_PARTY_NOTICES.md",
