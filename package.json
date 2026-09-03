@@ -14,6 +14,7 @@
     "desktop": "next build && electron .",
     "electron:build": "next build && electron-builder --win",
     "check:clean": "node scripts/check-clean-tree.js",
+    "check:modid": "node scripts/check-engine-modid.js",
     "build:sprout:win": "npm run check:clean && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT next build && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT electron-builder --win --config.appId=com.cubicengine.sprout --config.extraMetadata.mmcEdition=sprout",
     "build:sprout:mac": "npm run check:clean && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT next build && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT electron-builder --mac --config.appId=com.cubicengine.sprout --config.extraMetadata.mmcEdition=sprout",
     "build:grove:win": "npm run check:clean && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE next build && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE electron-builder --win --config.appId=com.cubicengine.grove --config.extraMetadata.mmcEdition=grove",

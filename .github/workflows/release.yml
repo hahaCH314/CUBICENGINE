@@ -73,6 +73,13 @@ jobs:
           }
           Write-Host "アイコンとタイル画像 OK"
 
+      # 同梱の base-mod*.jar と spec.ts の ENGINE_MOD_ID がズレていないか。
+      # ズレると MOD は**起動するのに何も動かない**（エラーもログも出ない）。
+      # 遊んでみて「何も起きない」で気づくしかないので、機械で止める。
+      # 詳細は scripts/check-engine-modid.js のコメント。
+      - name: エンジンの modId が一致しているか
+        run: npm run check:modid
+
       # これを飛ばすと .next が存在しないまま梱包され、起動しても何も出ない
       - name: 画面をビルド
         run: npm run build
