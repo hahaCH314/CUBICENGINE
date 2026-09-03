@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- Electron を hardened runtime で動かすために要る最小限の許可。
+       これが無いと、署名は通っても起動した瞬間に落ちる（Chromium の JIT が弾かれる）。
+       ⚠️ 減らすときは必ず実機で起動確認をすること。署名の成否では分からない。 -->
+
+  <!-- V8 が機械語を生成して実行する（Chromium の中核。無いと起動しない） -->
+  <key>com.apple.security.cs.allow-jit</key>
+  <true/>
+
+  <!-- 上と同じ理由。古い経路の JIT 用 -->
+  <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+  <true/>
+
+  <!-- Electron が子プロセスへ環境変数を渡して起動するために要る -->
+  <key>com.apple.security.cs.allow-dyld-environment-variables</key>
+  <true/>
+
+  <!-- 同梱の .node（ネイティブモジュール）を読み込むために要る。
+       これらは Electron 本体とは別に署名されるため、検証を緩めないと読めない -->
+  <key>com.apple.security.cs.disable-library-validation</key>
+  <true/>
+</dict>
+</plist>
