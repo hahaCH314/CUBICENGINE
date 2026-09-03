@@ -187,7 +187,9 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '17'
+          # Capacitor 8 の capacitor-android は Java 21 でコンパイルされる。
+          # 17 のままだと `error: invalid source release: 21` で必ず落ちる。
+          java-version: '21'
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
