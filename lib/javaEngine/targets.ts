@@ -35,6 +35,12 @@ export interface JavaTarget {
   /** 設定ファイルに書くローダー本体の modId */
   loaderModId: string;
   loaderRange: string;
+  /** mods.toml の loaderVersion。
+   *  ⚠️ これは**ローダー本体の版ではなく javafml（言語プロバイダ）の版**。
+   *     Forge 1.20.1 はたまたま両方 47.x で一致するが、NeoForge は別物
+   *     （ローダー 21.1.x に対し javafml は 4.x）。loaderRange を流用すると
+   *     「Missing language javafml version」で**起動時に弾かれる**。 */
+  fmlRange: string;
   mcRange: string;
   /** pack.mcmeta に書く番号 */
   packFormat: number;
@@ -61,6 +67,7 @@ export const JAVA_TARGETS: Record<JavaTargetId, JavaTarget> = {
     metaPath: "META-INF/mods.toml",
     loaderModId: "forge",
     loaderRange: "[47,)",
+    fmlRange: "[47,)",
     mcRange: "[1.20.1,1.21)",
     packFormat: 15,
     geckolibRange: "[4.8.4,)",
@@ -78,6 +85,8 @@ export const JAVA_TARGETS: Record<JavaTargetId, JavaTarget> = {
     metaPath: "META-INF/neoforge.mods.toml",
     loaderModId: "neoforge",
     loaderRange: "[21.1,)",
+    // javafml は 4.x。NeoForge 公式 MDK と同じく下限のみ緩く見る
+    fmlRange: "[1,)",
     mcRange: "[1.21.1,1.21.2)",
     // ⚠️ 1.21.1 は assets が 34、data が 48 と番号が分かれている。
     //    いまは assets しか出していないので 34。Create 連携などで
