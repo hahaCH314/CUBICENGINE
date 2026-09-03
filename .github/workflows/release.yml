@@ -301,10 +301,23 @@ jobs:
           # 一番大事な確認。アプリは起動時に userData へ boot-state.json を書く。
           # それが本物の %APPDATA% に出れば仮想化オフが効いている。
           # 箱の中(LocalCache)に出るなら、MOD は Minecraft に永遠に届かない。
-          $real       = Join-Path $env:APPDATA 'CubicEngine\boot-state.json'
-          $redirected = Join-Path $env:LOCALAPPDATA "Packages\$($pkg.PackageFamilyName)\LocalCache\Roaming\CubicEngine\boot-state.json"
-          Write-Host "本物  : $real  -> $(Test-Path $real)"
-          Write-Host "箱の中: $redirected -> $(Test-Path $redirected)"
+          #
+          # ⚠️ フォルダ名を決め打ちしないこと。userData は Electron の app.getName() で
+          #    決まり、同梱の package.json に productName が無いので name（minemodcraft）が
+          #    使われる。2026-09-03、CubicEngine 決め打ちで探して「どこにも無い」と
+          #    誤判定した。名前が変わっても壊れないよう、探して見つける。
+          $realRoot  = $env:APPDATA
+          $boxRoot   = Join-Path $env:LOCALAPPDATA "Packages\$($pkg.PackageFamilyName)\LocalCache\Roaming"
+          $realHit = Get-ChildItem $realRoot -Recurse -Depth 2 -Filter 'boot-state.json' -ErrorAction SilentlyContinue | Select-Object -First 1
+          $boxHit  = if (Test-Path $boxRoot) {
+            Get-ChildItem $boxRoot -Recurse -Depth 2 -Filter 'boot-state.json' -ErrorAction SilentlyContinue | Select-Object -First 1
+          } else { $null }
+          Write-Host "本物の %APPDATA% : $(if ($realHit) { $realHit.FullName } else { '見つからず' })"
+          Write-Host "箱の中           : $(if ($boxHit)  { $boxHit.FullName }  else { '見つからず' })"
+
+          # 判定に使う。以降の Test-Path が使えるよう、見つかった場所を変数に入れる。
+          $real       = if ($realHit) { $realHit.FullName } else { Join-Path $realRoot '__not_found__' }
+          $redirected = if ($boxHit)  { $boxHit.FullName }  else { Join-Path $boxRoot  '__not_found__' }
 
           Get-Process -Name 'CubicEngine' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
           Get-AppxPackage -Name $pkgName | Remove-AppxPackage
