@@ -17,6 +17,12 @@ const nextConfig: NextConfig = {
   ...(isAndroid
     ? { output: "export" as const, trailingSlash: true, images: { unoptimized: true } }
     : {}),
+  // MMC_TARGET をブラウザ側のコードからも読めるようにする。
+  // ⚠️ "use client" のファイルでは、NEXT_PUBLIC_ で始まらない環境変数はバンドルに
+  //    埋め込まれず undefined になる。ここで明示的に渡さないと、クライアント側の
+  //    `process.env.MMC_TARGET === "android"` は**常に false** になり、
+  //    スマホ版だけ隠したい要素が隠れない。
+  env: { MMC_TARGET: process.env.MMC_TARGET ?? "" },
   // 開発中にトンネル(cloudflared 等)経由で動作確認/共有するため、dev リソースへの
   // クロスオリジン要求を許可する。ワイルドカードでサブドメインも許可（毎回URLが変わるため）。
   // 本番(next build)には影響しない dev 専用設定。

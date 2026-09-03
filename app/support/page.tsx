@@ -2,11 +2,19 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Compass, Gem, Sparkles } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "開発を応援する",
-  description:
-    "CUBICENGINE は無料です。気に入ったら任意の寄付で開発を応援できます（無圧力・コア機能はずっと無料）。",
-};
+// スマホアプリ版(Android/iOS)かどうか。iOS も ios:build で MMC_TARGET=android を立てる。
+// スマホ版は「寄付の導線を消した状態」でストア審査を通っている。次の更新でも同じ審査を
+// 受けるので、アプリ版では寄付の入口を復活させてはいけない。
+// Web版とデスクトップ版は対象外＝これまでどおり寄付ページを出す。
+const IS_MOBILE_APP = process.env.MMC_TARGET === "android";
+
+export const metadata: Metadata = IS_MOBILE_APP
+  ? { title: "CUBICENGINE", robots: { index: false, follow: false } }
+  : {
+      title: "開発を応援する",
+      description:
+        "CUBICENGINE は無料です。気に入ったら任意の寄付で開発を応援できます（無圧力・コア機能はずっと無料）。",
+    };
 
 // 寄付リンク：Ko-fi / Buy Me a Coffee 等のURLを用意できたら、ここに入れるだけで有効化されます。
 // ※アカウント名義・受け取りは保護者（CUBICENGINEstudio）が担当します。
@@ -24,6 +32,23 @@ function L({ children, className = "" }: { children: React.ReactNode; className?
 }
 
 export default function SupportPage() {
+  // スマホアプリ版では寄付の内容を一切出さない。
+  // 静的エクスポート(out/)ではルート自体を消せないため、中身を入口へのリンクだけにする。
+  // ※外部サイトへ誘導する文言も置かない。「アプリ外で寄付できる」と読める案内自体が
+  //   審査で問題になりうるため、寄付に触れない。
+  if (IS_MOBILE_APP) {
+    return (
+      <main className="relative min-h-dvh bg-white text-gray-800 flex flex-col items-center justify-center px-5 py-14">
+        <Link
+          href="/"
+          className="underline underline-offset-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          ホームへ戻る
+        </Link>
+      </main>
+    );
+  }
+
   return (
     // 白背景・中央寄せ。PCは1画面に収まるが、スマホは縦に長く収まらないので
     // スクロール可能にする（固定h-dvh+overflow-hiddenだと寄付ボタンが画面外に切れて押せなかった）。

@@ -11,6 +11,13 @@ import LaserBlast from "./LaserBlast";
 import CubeParticles from "./CubeParticles";
 import ForestLineArt from "./ForestLineArt";
 
+// スマホアプリ版(Android/iOS)かどうか。iOS も ios:build で MMC_TARGET=android を
+// 立てているので、この一つで両方を判定できる。
+// Web版とデスクトップ版(Electron)は false のまま＝これまでどおり。
+// ⚠️ この値は next.config.ts の env: {} 経由で埋め込んでいる。そこを消すと
+//    "use client" のこのファイルでは常に undefined になり、判定が効かなくなる。
+const IS_MOBILE_APP = process.env.MMC_TARGET === "android";
+
 // 子どもでも読みやすいよう、意味のかたまり単位で改行する（かたまりの途中では折り返さない）
 // ※スマホ(狭い画面)では、かたまりが画面幅を超えて横にはみ出すのを防ぐため折り返しを許可。
 //   sm(640px)以上ではこれまで通り nowrap で作者が意図したきれいな改行を保つ。
@@ -246,14 +253,14 @@ const RELEASES_READY = false;
 // ⚠️ GitHub Releases に GROVE_editor.exe を公開してから true にすること。
 // 2026-07-30: v0.1.0 として公開済み。DLリンクの疎通も確認済み。
 //
-// 2026-08-10 に false へ戻した。**配布中の v0.1.0 が壊れているため。**
-//   ・exe が素の electron.exe より約170KB小さく、起動した瞬間に 0x80000003 で落ちる
-//   ・仮に起動できても Next 16 の cwd 問題で全リクエストが 500（d65675ad で修正済み）
-// 疎通確認（リンクが200を返すか）は通ってしまうので、それだけでは気づけない。
+// 2026-08-10 に false へ戻した。配布中の v0.1.0 が壊れていたため。
+// 📖 何がどう壊れていたかは docs/RELEASE.md に集約した。ここには書かない。
+//    （症状をここに、原因を release.yml に、と分けて書いた結果、
+//      片方しか読まれず「原因は記録されていない」と誤判断された。2026-09-03）
 //
 // ⚠️ true に戻す前に必ず: タグを打って CI でビルドし直し、
 //    Releases の .exe を実際にインストールして起動するところまで確認すること。
-//    CI には「実際に起動して 127.0.0.1:3200 が 200 を返すか」の検査を入れてある。
+//    手元でビルドしたものを配らない（理由は docs/RELEASE.md）。
 const GROVE_EXE_READY = true;
 
 // 配布中の GROVE_editor.exe の SHA-256。GitHub Releases が公表している digest と
@@ -815,6 +822,10 @@ export default function HomePage() {
 
         {/* ★応援と作者紹介の独立カードエリア */}
         <div className="flex flex-col md:flex-row gap-8 justify-center items-stretch max-w-4xl mx-auto mt-16 mb-12 px-4 w-full">
+          {/* 左カード：応援（寄付）。スマホアプリ版では出さない。
+              ストア審査（外部への寄付リンク）で引っかかったため。
+              Web版とデスクトップ版はこれまでどおり表示する。 */}
+          {!IS_MOBILE_APP && (
           <div
             style={{
               padding: "36px 32px",
@@ -953,6 +964,7 @@ export default function HomePage() {
               </p>
             </div>
           </div>
+          )}
 
           {/* 右カード：作者紹介（コンパクトに写真＋自己紹介） */}
           <div
