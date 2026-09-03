@@ -1,0 +1,177 @@
+﻿name: Build Desktop and Mobile Apps
+
+on:
+  push:
+    branches:
+      - main
+      - feature/*
+  workflow_dispatch:
+
+jobs:
+  build-mac:
+    name: Build Mac (macOS)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # npm install ではなく npm ci。package-lock.json どおりに入れるので、
+      # 手元と同じものが入る（install は状況次第で別の版を入れることがある）。
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Mac Apps (Sprout & Grove)
+        run: npm run build:all:mac
+
+      # ─── ここから検査。Windows 側(release.yml)と同じ考え方 ────────────
+      # 📖 なぜ検査するかは docs/RELEASE.md。
+      #    v0.1.0 は「ファイルは落ちてくるのに起動した瞬間に落ちる」状態で公開された。
+      #    サイトでは Mac 版も配っているのに、Mac 側は作って置くだけで
+      #    一度も確かめていなかった（2026-09-03 に追加）。
+
+      - name: 中身が入っているか（GROVE）
+        run: |
+          set -e
+          APP=$(ls -d dist-exe/grove/mac*/*.app 2>/dev/null | head -1)
+          if [ -z "$APP" ]; then echo "::error::.app が出来ていない"; exit 1; fi
+          echo "アプリ: $APP"
+          # asar: false なので resources/app は素のディレクトリ。
+          # .next が丸ごと抜けていても Electron 本体だけで数百MBあり、サイズでは気づけない。
+          for f in "Contents/Resources/app/.next/BUILD_ID" \
+                   "Contents/Resources/app/electron/main.js" \
+                   "Contents/Resources/app/package.json"; do
+            if [ ! -e "$APP/$f" ]; then echo "::error::$f が入っていない"; exit 1; fi
+          done
+          echo "同梱ファイル数: $(find "$APP/Contents/Resources/app" -type f | wc -l)"
+
+      - name: どの CPU 向けに作られたか
+        # サイトでは「Intel / Apple シリコン 両対応」と書いて配っている。
+        # electron-builder は既定でランナーと同じ CPU 向けにしか作らないので、
+        # 本当に両対応なのかここで見えるようにする（arm64 だけなら Intel Mac では動かない）。
+        run: |
+          APP=$(ls -d dist-exe/grove/mac*/*.app | head -1)
+          BIN="$APP/Contents/MacOS/$(basename "$APP" .app)"
+          echo "対応CPU: $(lipo -archs "$BIN" 2>/dev/null || echo '判定できず')"
+
+      - name: 実際に起動して画面が返るか（GROVE）
+        # ここが本丸。中身が揃っていても起動するとは限らない。
+        run: |
+          APP=$(ls -d dist-exe/grove/mac*/*.app | head -1)
+          BIN="$APP/Contents/MacOS/$(basename "$APP" .app)"
+          "$BIN" &
+          PID=$!
+          ok=0
+          for i in $(seq 1 36); do
+            sleep 5
+            if ! kill -0 "$PID" 2>/dev/null; then
+              echo "::error::起動直後に落ちた"
+              exit 1
+            fi
+            if curl -fsS --max-time 10 http://127.0.0.1:3200/ > /dev/null 2>&1; then
+              ok=1; break
+            fi
+          done
+          kill "$PID" 2>/dev/null || true
+          if [ "$ok" -ne 1 ]; then echo "::error::3分待っても 200 を返さなかった"; exit 1; fi
+          echo "起動確認 OK（HTTP 200）"
+
+      - name: dmg が出来ているか
+        run: |
+          ls -la dist-exe/grove/ || true
+          DMG=$(ls dist-exe/grove/*.dmg 2>/dev/null | head -1)
+          if [ -z "$DMG" ]; then echo "::error::dmg が出力されていない"; exit 1; fi
+          SIZE=$(stat -f%z "$DMG")
+          echo "dmg: $DMG / $SIZE バイト"
+          # 失敗すると数百KBのかけらが残る
+          if [ "$SIZE" -lt 100000000 ]; then echo "::error::dmg が小さすぎる。途中で失敗している"; exit 1; fi
+
+      - name: Upload Mac Artifacts (Sprout)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cubicengine-mac-sprout
+          path: dist-exe/sprout/*.dmg
+          if-no-files-found: ignore
+
+      - name: Upload Mac Artifacts (Grove)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cubicengine-mac-grove
+          path: dist-exe/grove/*.dmg
+          if-no-files-found: ignore
+
+  build-win:
+    name: Build Windows (Windows)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Windows Apps (Sprout & Grove)
+        run: npm run build:all:win
+
+      - name: Upload Windows Artifacts (Sprout)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cubicengine-win-sprout
+          path: dist-exe/sprout/*.exe
+          if-no-files-found: ignore
+
+      - name: Upload Windows Artifacts (Grove)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cubicengine-win-grove
+          path: dist-exe/grove/*.exe
+          if-no-files-found: ignore
+
+  build-android:
+    name: Build Android APK (Ubuntu)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Sync Capacitor Android
+        run: npm run android:build
+        
+      - name: Build Android APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+        
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: cubicengine-android-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: ignore
