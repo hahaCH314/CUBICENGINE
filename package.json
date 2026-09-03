@@ -1,7 +1,7 @@
 {
   "name": "minemodcraft",
   "version": "0.1.5",
-  "description": "Minecraft Mod/Addon ビジュアル開発スタジオ",
+  "description": "マイクラのMOD・アドオンをコード無しで作れるビジュアル開発スタジオ（非公式ツール）",
   "author": "CUBICENGINEstudio",
   "private": true,
   "main": "electron/main.js",
@@ -13,17 +13,20 @@
     "electron:dev": "cross-env ELECTRON_DEV=true electron .",
     "desktop": "next build && electron .",
     "electron:build": "next build && electron-builder --win",
-    "build:sprout:win": "cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT next build && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT electron-builder --win --config.appId=com.cubicengine.sprout --config.extraMetadata.mmcEdition=sprout",
-    "build:sprout:mac": "cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT next build && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT electron-builder --mac --config.appId=com.cubicengine.sprout --config.extraMetadata.mmcEdition=sprout",
-    "build:grove:win": "cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE next build && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE electron-builder --win --config.appId=com.cubicengine.grove --config.extraMetadata.mmcEdition=grove",
-    "build:grove:mac": "cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE next build && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE electron-builder --mac --config.appId=com.cubicengine.grove --config.extraMetadata.mmcEdition=grove",
+    "check:clean": "node scripts/check-clean-tree.js",
+    "build:sprout:win": "npm run check:clean && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT next build && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT electron-builder --win --config.appId=com.cubicengine.sprout --config.extraMetadata.mmcEdition=sprout",
+    "build:sprout:mac": "npm run check:clean && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT next build && cross-env MMC_EDITION=sprout MMC_EDITION_UPPER=SPROUT electron-builder --mac --config.appId=com.cubicengine.sprout --config.extraMetadata.mmcEdition=sprout",
+    "build:grove:win": "npm run check:clean && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE next build && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE electron-builder --win --config.appId=com.cubicengine.grove --config.extraMetadata.mmcEdition=grove",
+    "build:grove:mac": "npm run check:clean && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE next build && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE electron-builder --mac --config.appId=com.cubicengine.grove --config.extraMetadata.mmcEdition=grove",
+    "appx:assets": "powershell -ExecutionPolicy Bypass -File scripts/make-appx-assets.ps1",
+    "build:grove:appx": "npm run check:clean && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE next build && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE electron-builder --win appx --config.appId=com.cubicengine.grove --config.extraMetadata.mmcEdition=grove",
     "build:all:win": "npm run build:sprout:win && npm run build:grove:win",
     "build:all:mac": "npm run build:sprout:mac && npm run build:grove:mac",
     "build:all": "npm run build:all:win && npm run build:all:mac",
     "verify:store": "node scripts/verify-store-build.mjs",
     "android:build": "cross-env MMC_TARGET=android NEXT_PUBLIC_MMC_STORE=1 next build && npm run verify:store && cap sync android",
     "android:apk": "npm run android:build && cd android && gradlew.bat assembleDebug",
-    "android:aab": "npm run android:build && cd android && gradlew.bat bundleRelease",
+    "android:aab": "npm run check:clean && npm run android:build && cd android && gradlew.bat bundleRelease",
     "android:open": "cap open android",
     "ios:build": "cross-env MMC_TARGET=android NEXT_PUBLIC_MMC_STORE=1 next build && npm run verify:store && cap sync ios",
     "ios:open": "cap open ios"
@@ -94,6 +97,20 @@
         }
       ],
       "artifactName": "${env.MMC_EDITION_UPPER}_editor.${ext}"
+    },
+    "appxManifestCreated": "./scripts/appx-manifest.js",
+    "appx": {
+      "identityName": "CUBICENGINEstudio.CUBICENGINEGROVE",
+      "publisher": "CN=87788BE5-5897-4593-8CAD-DA1FF10A252C",
+      "publisherDisplayName": "CUBICENGINEstudio",
+      "applicationId": "CUBICENGINEGROVE",
+      "displayName": "CUBICENGINE GROVE",
+      "backgroundColor": "#0a0a0c",
+      "languages": [
+        "ja-JP",
+        "en-US"
+      ],
+      "showNameOnTiles": true
     }
   }
 }
