@@ -32,7 +32,7 @@ jobs:
       # 📖 なぜ検査するかは docs/RELEASE.md。
       #    v0.1.0 は「ファイルは落ちてくるのに起動した瞬間に落ちる」状態で公開された。
       #    サイトでは Mac 版も配っているのに、Mac 側は作って置くだけで
-      #    一度も確かめていなかった（2026-09-03 に追加）。
+      #    一度も確かめていなかった（2026-09-04 に追加）。
 
       - name: 中身が入っているか（GROVE）
         run: |
@@ -49,21 +49,50 @@ jobs:
           done
           echo "同梱ファイル数: $(find "$APP/Contents/Resources/app" -type f | wc -l)"
 
-      - name: どの CPU 向けに作られたか
+      - name: Intel と Apple シリコンの両方が入っているか
         # サイトでは「Intel / Apple シリコン 両対応」と書いて配っている。
-        # electron-builder は既定でランナーと同じ CPU 向けにしか作らないので、
-        # 本当に両対応なのかここで見えるようにする（arm64 だけなら Intel Mac では動かない）。
+        # electron-builder は既定でランナーと同じ CPU 向けにしか作らないため、
+        # package.json の build.mac.arch に universal を指定している。それが効いているか見る。
+        #
+        # ⚠️ 「起動して 200 が返るか」ではこれを捕まえられない。
+        #    ランナーは arm64 なので、arm64 専用ビルドでも普通に 200 を返す。
+        #    Intel Mac が動かないことは、Intel Mac で動かすまで表に出ない。
+        #    だから CPU の中身を直接見る（Mac側シオンの指摘・2026-09-04）。
+        #
+        # ⚠️ ボリューム名やフォルダ名が "-arm64" でも中身が universal のことがある。
+        #    名前で判断しないこと。
         run: |
+          set -e
           APP=$(ls -d dist-exe/grove/mac*/*.app | head -1)
           BIN="$APP/Contents/MacOS/$(basename "$APP" .app)"
-          echo "対応CPU: $(lipo -archs "$BIN" 2>/dev/null || echo '判定できず')"
+          FW="$APP/Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework"
+
+          for target in "$BIN" "$FW"; do
+            if [ ! -e "$target" ]; then echo "::error::$target が無い"; exit 1; fi
+            ARCHS=$(lipo -archs "$target")
+            echo "$(basename "$target"): $ARCHS"
+            # 本体だけ universal でも、Electron 本体が片方だけなら Intel Mac では動かない
+            case "$ARCHS" in
+              *x86_64*arm64*|*arm64*x86_64*) ;;
+              *) echo "::error::$(basename "$target") が両対応ではない（$ARCHS）。Intel Mac で起動できません"; exit 1 ;;
+            esac
+          done
+          echo "Intel / Apple シリコン 両対応 OK"
 
       - name: 実際に起動して画面が返るか（GROVE）
         # ここが本丸。中身が揃っていても起動するとは限らない。
+        #
+        # ⚠️ ELECTRON_RUN_AS_NODE を必ず外して起動すること。
+        #    これが立っていると Electron は GUI を出さずただの Node として動き、
+        #    **終了コード0・出力なし・0秒で即終了**する。クラッシュログも残らないので
+        #    「壊れたビルド」にしか見えない。2026-09-01、Mac 側でこれにより
+        #    正常な 0.1.5 を不良と誤診し、署名の付け直しまで行った。
+        #    ランナーでは通常立っていないが、立っていても壊れないようにしておく。
         run: |
           APP=$(ls -d dist-exe/grove/mac*/*.app | head -1)
           BIN="$APP/Contents/MacOS/$(basename "$APP" .app)"
-          "$BIN" &
+          env | grep -i electron || echo "(ELECTRON_* の環境変数なし)"
+          env -u ELECTRON_RUN_AS_NODE "$BIN" &
           PID=$!
           ok=0
           for i in $(seq 1 36); do

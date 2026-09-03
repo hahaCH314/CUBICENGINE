@@ -24,11 +24,11 @@ MSIX 枠なら **Microsoft 側が署名してくれるので証明書代がか�
 これらは `package.json` の `build.appx` に入っている。**1文字でも違うと Partner Center が
 アップロードを弾く**ので、変更するときは Partner Center の「製品ID」画面からコピペすること。
 
-## いまどこまで進んだか（2026-09-03 時点）
+## いまどこまで進んだか（2026-09-04 時点）
 
 - ✅ `.appx` が CI で作れる（release.yml / 実行 #11 が成功）
 - ✅ **MSIX として実際にインストールでき、起動し、書き込みが本物の `%APPDATA%` に届くことを CI で確認済み**
-- ✅ Partner Center へアップロードし、**Submission 1 を提出済み**（2026-09-03）
+- ✅ Partner Center へアップロードし、**Submission 1 を提出済み**（2026-09-04）
 - ⬜ 審査結果待ち（数時間〜3営業日）
 - ⬜ `unvirtualizedResources` の説明を求められたら返す（文面は下記）
 - ⬜ 実機の Minecraft で MOD が読めるかの確認（なっとうサイダーさん）
