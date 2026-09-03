@@ -251,13 +251,58 @@ app.on('activate', () => { if (!mainWindow) app.whenReady().then(() => {}); });
 
 // ━━━ Minecraft IPC ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+// Java版マイクラの置き場所。OSごとに違う。
+// ⚠️ ここを Windows 決め打ちにしていたため、Mac版では**永遠に見つからず**、
+//    「マイクラのフォルダへ自動で入れる」機能が黙って使えなかった（2026-09-03 修正）。
+//    エラーは出ない。「マイクラが見つかりません」と出るだけなので、
+//    使う側は「入れてないのかな」と思ってしまう。
+function minecraftDirFor(platform, home) {
+  switch (platform) {
+    case 'win32':  return path.join(home, 'AppData', 'Roaming', '.minecraft');
+    // Mac は先頭のドットが付かない。Finder では「ライブラリ」と表示される。
+    case 'darwin': return path.join(home, 'Library', 'Application Support', 'minecraft');
+    default:       return path.join(home, '.minecraft');  // Linux
+  }
+}
+
+// ランチャーの実体。見つからなければ公式のダウンロードページを開く（mc:launch）。
+function launcherCandidatesFor(platform, home) {
+  if (platform === 'win32') {
+    return [
+      'C:\\Program Files (x86)\\Minecraft Launcher\\MinecraftLauncher.exe',
+      'C:\\Program Files\\Minecraft Launcher\\MinecraftLauncher.exe',
+      path.join(home, 'AppData', 'Roaming', 'Microsoft', 'Windows',
+        'Start Menu', 'Programs', 'Minecraft Launcher', 'Minecraft Launcher.exe'),
+      path.join('C:\\XboxGames\\Minecraft Launcher\\Content\\Minecraft Launcher.exe'),
+    ];
+  }
+  if (platform === 'darwin') {
+    // .app はフォルダなので existsSync で判定でき、shell.openPath でそのまま起動する
+    return [
+      '/Applications/Minecraft.app',
+      path.join(home, 'Applications', 'Minecraft.app'),
+    ];
+  }
+  return [];
+}
+
+// 作業用の一時フォルダを置く場所。Windows の挙動は変えない。
+// ⚠️ Mac で AppData/Local を使うと、ホームに見慣れない AppData フォルダが作られる。
+function localWorkRootFor(platform, home) {
+  switch (platform) {
+    case 'win32':  return path.join(home, 'AppData', 'Local');
+    case 'darwin': return path.join(home, 'Library', 'Caches');
+    default:       return os.tmpdir();
+  }
+}
+
 ipcMain.handle('mc:detect', async () => {
   const result = {
     minecraftDir: null, modsDir: null, launcherPath: null,
     hasJava: false, javaVersion: null, forgeVersions: [],
   };
 
-  const mcDir = path.join(os.homedir(), 'AppData', 'Roaming', '.minecraft');
+  const mcDir = minecraftDirFor(process.platform, os.homedir());
   if (fs.existsSync(mcDir)) {
     result.minecraftDir = mcDir;
     const modsDir = path.join(mcDir, 'mods');
@@ -270,13 +315,7 @@ ipcMain.handle('mc:detect', async () => {
     }
   }
 
-  const candidates = [
-    'C:\\Program Files (x86)\\Minecraft Launcher\\MinecraftLauncher.exe',
-    'C:\\Program Files\\Minecraft Launcher\\MinecraftLauncher.exe',
-    path.join(os.homedir(), 'AppData', 'Roaming', 'Microsoft', 'Windows',
-      'Start Menu', 'Programs', 'Minecraft Launcher', 'Minecraft Launcher.exe'),
-    path.join('C:\\XboxGames\\Minecraft Launcher\\Content\\Minecraft Launcher.exe'),
-  ];
+  const candidates = launcherCandidatesFor(process.platform, os.homedir());
   for (const c of candidates) { if (fs.existsSync(c)) { result.launcherPath = c; break; } }
 
   try {
@@ -298,7 +337,10 @@ ipcMain.handle('mc:buildAndInstall', async (event, { files, modsDir, tmpDirOverr
   const isWin = process.platform === 'win32';
 
   // ── ② プロジェクトファイルを書き出す ──
-  const tmpDir = tmpDirOverride || path.join(os.homedir(), 'AppData', 'Local', 'minemodcraft-build-' + Date.now());
+  const tmpDir = tmpDirOverride || path.join(
+    localWorkRootFor(process.platform, os.homedir()),
+    'minemodcraft-build-' + Date.now()
+  );
   fs.mkdirSync(tmpDir, { recursive: true });
 
   // 書き出し先は必ず tmpDir の内側に収める。exporter 側でも名前を sanitize 済みだが、
@@ -349,9 +391,10 @@ ipcMain.handle('mc:buildAndInstall', async (event, { files, modsDir, tmpDirOverr
           `Gradle ビルドが失敗しました（終了コード ${code}）。\n\n` +
           `プロジェクトフォルダを開きました:\n${tmpDir}\n\n` +
           `手動ビルド方法:\n` +
-          `1. コマンドプロンプトで上記フォルダへ移動\n` +
-          `2. gradlew build --no-daemon を実行\n` +
-          `3. build/libs/ の .jar を .minecraft/mods/ へコピー`
+          `1. ${isWin ? 'コマンドプロンプト' : 'ターミナル'}で上記フォルダへ移動\n` +
+          `2. ${isWin ? 'gradlew build --no-daemon' : './gradlew build --no-daemon'} を実行\n` +
+          `3. build/libs/ の .jar を下記へコピー\n` +
+          `   ${path.join(minecraftDirFor(process.platform, os.homedir()), 'mods')}`
         ));
         return;
       }
