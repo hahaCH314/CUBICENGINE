@@ -10,6 +10,81 @@ const os      = require('os');
 const { exec, spawn } = require('child_process');
 const { createRequire } = require('module');
 
+/* ═══════════════════════════════════════════
+   新しい版のお知らせ
+   ═══════════════════════════════════════════
+   サイトから .exe / .dmg を入れた人には、これまで**更新を知る方法が無かった**。
+   新しい版を出しても、本人がサイトを見に来ない限り古いまま。
+   実害の例: Mac のマイクラ検出の修正(2026-09-04)は、既存ユーザーには届かない。
+
+   ⚠️ 自動更新（ダウンロードして入れ替え）はここではやらない。
+      macOS は署名されたアプリでないと自動更新できず（Apple の仕様。回避不可）、
+      署名には Apple Developer Program が要る。Windows だけ自動更新にすると
+      両OSで挙動が食い違い、説明も分岐する。まずは両方で動く「知らせるだけ」にする。
+
+   ⚠️ Microsoft Store 版では**絶対に出さないこと**。Store 版は Windows が自動更新するので
+      不要なうえ、ストアアプリから外部のダウンロードページへ誘導するのは審査に触れる。
+      判定は process.windowsStore（Electron が Store パッケージ実行時に true にする）。 */
+const UPDATE_FEED = 'https://api.github.com/repos/hahaCH314/CUBICENGINE/releases/latest';
+const DOWNLOAD_PAGE = 'https://cubicengine.vercel.app/';
+
+/** "v0.1.5" / "0.1.5" を [0,1,5] にする。数字以外は 0 として扱う。 */
+function parseVersion(v) {
+  return String(v || '').replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0);
+}
+
+/** a が b より新しければ true */
+function isNewer(a, b) {
+  const pa = parseVersion(a), pb = parseVersion(b);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const d = (pa[i] || 0) - (pb[i] || 0);
+    if (d !== 0) return d > 0;
+  }
+  return false;
+}
+
+function fetchLatestTag() {
+  return new Promise(resolve => {
+    const req = https.get(UPDATE_FEED, {
+      headers: { 'User-Agent': 'CUBICENGINE', 'Accept': 'application/vnd.github+json' },
+      timeout: 8000,
+    }, res => {
+      if (res.statusCode !== 200) { res.resume(); return resolve(null); }
+      let body = '';
+      res.on('data', c => body += c);
+      res.on('end', () => {
+        try { resolve(JSON.parse(body).tag_name || null); } catch { resolve(null); }
+      });
+    });
+    // 通信できないときは黙って諦める。起動を妨げないこと。
+    req.on('error', () => resolve(null));
+    req.on('timeout', () => { req.destroy(); resolve(null); });
+  });
+}
+
+async function notifyIfUpdateAvailable(win) {
+  if (isDev) return;
+  if (process.windowsStore) return;  // Store 版は Windows が自動更新する
+
+  const latest = await fetchLatestTag();
+  if (!latest) return;
+  const current = app.getVersion();
+  if (!isNewer(latest, current)) return;
+
+  const { response } = await dialog.showMessageBox(win, {
+    type: 'info',
+    buttons: ['ダウンロードページを開く', 'あとで'],
+    defaultId: 0,
+    cancelId: 1,
+    title: '新しいバージョンがあります',
+    message: `新しいバージョン ${latest} が出ています`,
+    detail: `いまお使いのバージョン: ${current}\n\n`
+          + 'ダウンロードページから新しいものを入れると、追加された機能や\n'
+          + '直された不具合が使えるようになります。',
+  });
+  if (response === 0) shell.openExternal(DOWNLOAD_PAGE);
+}
+
 /** HTTP/HTTPS リダイレクト対応ダウンロード */
 function downloadFile(fileUrl, dest, onProgress) {
   return new Promise((resolve, reject) => {
@@ -231,6 +306,11 @@ app.whenReady().then(async () => {
     await win.loadURL(`http://127.0.0.1:${PORT}${startPath}`);
     // ここまで来たら起動成功。次回の自己修復判定に使う。
     markBootOk();
+
+    // 起動が終わってから新しい版を確認する。
+    // ⚠️ await しないこと。通信が遅い/落ちているときに起動を待たせない。
+    //    失敗しても黙って諦める作りにしてある（notifyIfUpdateAvailable 参照）。
+    setTimeout(() => { notifyIfUpdateAvailable(win).catch(() => {}); }, 3000);
   } catch (err) {
     console.error('[MineModCraft] Error:', err);
     dialog.showErrorBox(
