@@ -43,6 +43,11 @@ public class DynamicRegistry {
             e.printStackTrace();
         }
 
+        // ルールをトリガー種別ごとに仕分けておく。ここで1回やっておけば、
+        // 毎ティック呼ばれる LogicInterpreter.onTrigger が Map を引くだけで済む。
+        // 詳細は LogicInterpreter の索引まわりのコメント。
+        LogicInterpreter.buildIndex();
+
         if (modData != null) {
             if (modData.has("spec")) {
                 int spec = modData.get("spec").getAsInt();

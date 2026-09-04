@@ -14,23 +14,63 @@ import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.core.registries.BuiltInRegistries;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class LogicInterpreter {
 
+    /* ═══════════════════════════════════════════
+       トリガー種別ごとの索引
+       ═══════════════════════════════════════════
+       ⚠️ ここは **毎ティック・全プレイヤー分**呼ばれる。1秒に20回×人数。
+          以前は呼ばれるたびに全ルールを線形に走査し、そのつど JSON を
+          getAsJsonObject / getAsString で触っていた。
+          「毎ティック」のカードを1枚も置いていない作品でも、全ルールを舐めていた。
+
+          この MOD は 300〜400 個の MOD と同居する環境に入る。そこで TPS を落とすと
+          「犯人探し」で真っ先に抜かれる。作品が悪いのではなく土台が悪い、という形で
+          評価されてしまうので、ここは軽くしておく。
+
+          modData は起動時に一度だけ読まれる（DynamicRegistry.init）ので、
+          そのタイミングで種別ごとに仕分けておけば、以降は Map を1回引くだけで済む。
+          該当ルールが無ければ **その場で戻る**（これが一番効く）。 */
+    private static Map<String, List<JsonObject>> rulesByTrigger = null;
+
+    /** modData を読み込んだ後に呼ぶ。索引を作り直す。 */
+    public static void buildIndex() {
+        Map<String, List<JsonObject>> index = new HashMap<>();
+        if (DynamicRegistry.modData != null && DynamicRegistry.modData.has("rules")) {
+            JsonArray rules = DynamicRegistry.modData.getAsJsonArray("rules");
+            for (JsonElement ruleElem : rules) {
+                if (!ruleElem.isJsonObject()) continue;
+                JsonObject rule = ruleElem.getAsJsonObject();
+                if (!rule.has("trigger")) continue;
+                JsonObject trigger = rule.getAsJsonObject("trigger");
+                if (!trigger.has("type")) continue;
+                index.computeIfAbsent(trigger.get("type").getAsString(), k -> new ArrayList<>()).add(rule);
+            }
+        }
+        rulesByTrigger = index;
+    }
+
     public static void onTrigger(String triggerType, ServerPlayer player, JsonObject context) {
-        if (DynamicRegistry.modData == null || !DynamicRegistry.modData.has("rules")) return;
-        
-        JsonArray rules = DynamicRegistry.modData.getAsJsonArray("rules");
-        for (JsonElement ruleElem : rules) {
-            JsonObject rule = ruleElem.getAsJsonObject();
-            if (!rule.has("trigger")) continue;
-            
+        // 索引がまだ無ければ作る（buildIndex の呼び忘れでも壊れないように）
+        if (rulesByTrigger == null) buildIndex();
+
+        // ★ この種別のルールが1つも無ければ、ここで終わり。
+        //   「毎ティック」を使っていない作品では、毎回ここで抜ける。
+        List<JsonObject> rules = rulesByTrigger.getOrDefault(triggerType, Collections.emptyList());
+        if (rules.isEmpty()) return;
+
+        for (JsonObject rule : rules) {
             JsonObject trigger = rule.getAsJsonObject("trigger");
-            String tType = trigger.get("type").getAsString();
-            if (!tType.equals(triggerType)) continue;
-            
+            String tType = triggerType;
+
             // Check trigger conditions (e.g. break block id)
             if (tType.equals("break") || tType.equals("place")) {
                 if (trigger.has("block") && context != null && context.has("block")) {
