@@ -270,14 +270,14 @@ const GROVE_EXE_READY = true;
 // リンクも同一性の検証もこれで足りる。
 // ⚠️ 新しいリリースを出したらここも更新すること。古いままだと、いま配っている
 //    ファイルとは別物の検査結果へ誘導してしまう。
-// 2026-09-01 更新: v0.1.5 のもの。GitHub API の digest と、実際に
+// 2026-09-04 更新: v0.1.6 のもの。GitHub API の digest と、実際に
 // releases/latest/download から落とした実物の SHA-256 が一致することを確認済み。
 // （v0.1.5 の exe は 2026-09-01 に公開。それまで v0.1.3 のハッシュが残っており、
 //   配布物とは別物の検査結果へリンクしている状態だった。）
 // ⚠️ タグを打ち直したら必ずここも更新すること。古いままだと、いま配っている
 //    ファイルとは**別物の検査結果**へ「これは安全です」と誘導することになる。
 const GROVE_EXE_SHA256 =
-  "4539fbb2c35596f313c64c2328b89dd352821fef20a7e49d87a9153d2189e524";
+  "4f7aecb94c8337270641129fc715de87f28f2e0673b9675dd0f46d31a950919d";
 
 // SPROUT(統合版)を一時的にメンテナンス中（false）にするフラグ。
 const SPROUT_READY = true;
@@ -827,13 +827,6 @@ export default function HomePage() {
             </a>
             <p className="text-[11px] text-muted/70 font-sans text-center leading-relaxed whitespace-pre-line">
               {t(locale, "dl.groveMacNote")}
-            </p>
-            {/* ⚠️ v0.1.5 の Mac 版だけの不具合の告知。マイクラのフォルダを Windows の
-                パスで探していたため、Mac では必ず「見つかりません」になる。修正は v0.1.6。
-                いま落とす人が「自分のせいだ」と思わないよう、手で入れる道を先に示す。
-                **v0.1.6 を配ったら、この段落と dl.groveMacBug を消すこと。** */}
-            <p className="text-[11px] font-sans text-center leading-relaxed whitespace-pre-line max-w-md" style={{ color: "#fca5a5" }}>
-              {t(locale, "dl.groveMacBug")}
             </p>
           </div>
         )}

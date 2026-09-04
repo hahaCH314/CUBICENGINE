@@ -63,24 +63,18 @@ export const DICT: Record<string, Entry> = {
   "dl.groveMac":      { ja: "Java版をダウンロード（Mac）", en: "Download for Java Edition (Mac)" },
   // 504MB あるので、押す前にサイズが分かるようにする（うっかり通信量を使わせない）。
   // 署名なしインストーラなので Windows の警告も先に伝えておく＝初見で怖がらせない。
-  "dl.groveNote":     { ja: "ブラウザだけで .jar を作れます。パソコン版は mods へ自動で入れたい人向けです\n約171MB・Windows用／「詳細情報」→「実行」で進めます", en: "You can build the .jar in your browser. The desktop app just installs it into mods for you.\nAbout 171MB, Windows only. Choose \"More info\" → \"Run\" if Windows warns you." },
+  "dl.groveNote":     { ja: "ブラウザだけで .jar を作れます。パソコン版は mods へ自動で入れたい人向けです\n約162MB・Windows用／「詳細情報」→「実行」で進めます", en: "You can build the .jar in your browser. The desktop app just installs it into mods for you.\nAbout 162MB, Windows only. Choose \"More info\" → \"Run\" if Windows warns you." },
   // 署名なしなので Windows の警告は必ず出る。「怪しいから出ている」のではないことを、
   // 第三者(VirusTotal)の検査結果へのリンクで裏づける。数字は撮った時点のものなので
   // 日付を添える。リンク先は常に最新なので、古くなっても嘘にはならない。
   // SHA-256 はあえて出さない。この製品を使うのは主に子どもで、64桁の文字列は
   // 意味が伝わらず不安を増やすだけ。必要な人はリンク先のURLに入っている。
-  // Mac 版は署名(Developer ID)を持っていないため、初回は必ず
-  //   「開発元を確認できないため開けません」
-  // と出て**そのままでは起動できない**。右クリック→「開く」の手順を知らないと
-  // 「壊れている」と受け取られて終わる。Windows の「詳細情報→実行」と同じ扱いで先に伝える。
+  // Mac 版は 2026-09-04 (v0.1.6) から Developer ID で署名し、Apple の公証を通している。
+  // それまでは「開発元を確認できないため開けません」が必ず出て、右クリック→「開く」を
+  // 知らない人には壊れて見えていた。**公証を通したのでその案内は消した。**
+  // ⚠️ 署名なしで出し直すと警告が復活する。そのときは案内も戻すこと。
   // Intel と Apple Silicon の両方で動く(universal)ので、機種を選ばせない。
-  "dl.groveMacNote":  { ja: "約448MB・Mac用（Intel / Apple シリコン 両対応）\nはじめて開くときは、アイコンを右クリック →「開く」を選んでください", en: "About 448MB, for Mac (works on both Intel and Apple silicon).\nThe first time, right-click the icon and choose \"Open\"." },
-  // ⚠️ v0.1.5 の Mac 版に限った不具合の告知。作った .jar をマイクラのフォルダへ
-  //    自動で入れられない（Windows のパスを見ていたため。修正は v0.1.6）。
-  //    落とした人はエラーも出ずに「マイクラが見つかりません」と言われるだけで、
-  //    自分の環境が悪いと思ってしまう。直った版を出すまでの間、手で入れれば
-  //    使えることをここで伝える。**v0.1.6 を配ったらこのキーごと消すこと。**
-  "dl.groveMacBug":   { ja: "⚠️ いまの Mac 版は、作った MOD をマイクラのフォルダへ自動で入れられません（修正版を準備中）。\n書き出した .jar を、自分で ~/Library/Application Support/minecraft/mods に入れれば遊べます。", en: "⚠️ The current Mac build can't copy your MOD into the Minecraft folder automatically (a fix is on the way).\nMove the exported .jar into ~/Library/Application Support/minecraft/mods yourself and it works." },
+  "dl.groveMacNote":  { ja: "約304MB・Mac用（Intel / Apple シリコン 両対応）\nApple の確認（公証）を通しているので、そのまま開けます", en: "About 304MB, for Mac (works on both Intel and Apple silicon).\nNotarized by Apple, so it opens without a warning." },
   "dl.scanned":       { ja: "🛡 配布している Windows 版ファイルの検査結果", en: "🛡 Scan report for the Windows file we distribute" },
   "dl.scanLink":      { ja: "検査結果を見る", en: "View the scan result" },
   "dl.win":           { ja: "💻 Windows版 (.exe)", en: "💻 Windows (.exe)" },
