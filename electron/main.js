@@ -1,6 +1,6 @@
 'use strict';
 
-const { app, BrowserWindow, shell, Menu, dialog, ipcMain, session } = require('electron');
+const { app, BrowserWindow, shell, Menu, dialog, ipcMain, session, protocol } = require('electron');
 const path    = require('path');
 const http    = require('http');
 const https   = require('https');
@@ -180,6 +180,57 @@ function waitForServer(port, timeout = 90000) {
 
 // ━━━ Next.js 起動（インプロセス） ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // output:standalone は JS バンドルの配信構造が変わり Electron でクリックが効かなくなるため使わない
+/* ═══════════════════════════════════════════
+   画面の読み込み（サーバーを使わない）
+   ═══════════════════════════════════════════
+   out/ に書き出した静的ファイルを app:// という独自の名前で読む。
+   ⚠️ file:// を直接使わないこと。ページ内の絶対パス(/_next/... )が
+      ドライブのルートを指してしまい、何も読めなくなる。
+      app:// なら out/ を基準にできる。
+
+   これでサーバーが要らなくなる＝ポートの奪い合いも、プロキシも、
+   ファイアウォールも関係なくなる。2026-09-04 の起動不能はそこが原因だった。 */
+const APP_SCHEME = 'app';
+protocol.registerSchemesAsPrivileged([
+  { scheme: APP_SCHEME, privileges: { standard: true, secure: true, supportFetchAPI: true } },
+]);
+
+/** out/ を app:// で読めるようにする。呼ぶのは app.whenReady() の後。 */
+function registerAppProtocol(outDir) {
+  protocol.handle(APP_SCHEME, async (request) => {
+    const { pathname } = new URL(request.url);
+    let rel = decodeURIComponent(pathname);
+    if (rel.endsWith('/')) rel += 'index.html';
+    if (rel === '' || rel === '/') rel = '/index.html';
+
+    // ⚠️ out/ の外へ出さない。`..` を含むURLで任意のファイルを読まれるのを防ぐ。
+    const full = path.resolve(outDir, '.' + rel);
+    if (!full.startsWith(path.resolve(outDir) + path.sep)) {
+      return new Response('forbidden', { status: 403 });
+    }
+    // 拡張子が無いパスは trailingSlash 付きのディレクトリとして解決する
+    const target = fs.existsSync(full) && fs.statSync(full).isDirectory()
+      ? path.join(full, 'index.html')
+      : full;
+    try {
+      return new Response(fs.readFileSync(target), { headers: { 'content-type': mimeOf(target) } });
+    } catch {
+      return new Response('not found', { status: 404 });
+    }
+  });
+}
+
+function mimeOf(p) {
+  const e = path.extname(p).toLowerCase();
+  return {
+    '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
+    '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8',
+    '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.svg': 'image/svg+xml',
+    '.webp': 'image/webp', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.woff': 'font/woff',
+    '.mp3': 'audio/mpeg', '.jar': 'application/java-archive', '.txt': 'text/plain; charset=utf-8',
+  }[e] || 'application/octet-stream';
+}
+
 async function startNextServer(appRoot, sendStatus) {
   // ⚠️ Next 16 は dir を **カレントディレクトリ基準** で解決する。絶対パスを渡しても
   //    cwd と連結されるため、cwd を合わせないと全リクエストが 500 になる。
@@ -308,6 +359,24 @@ app.whenReady().then(async () => {
       `document.querySelector('.status') && (document.querySelector('.status').textContent = ${JSON.stringify(msg)})`
     ).catch(() => {});
   };
+
+  // ── サーバーを使わない道を優先する ──
+  // out/ が同梱されていれば、静的ファイルを app:// で直接読む。
+  // ポートもプロキシもファイアウォールも関係なくなる（2026-09-04 の起動不能対策）。
+  const outDir = path.join(appRoot, 'out');
+  if (fs.existsSync(path.join(outDir, 'index.html'))) {
+    try {
+      log('画面を読み込んでいます...');
+      registerAppProtocol(outDir);
+      await win.loadURL(`${APP_SCHEME}://local${startPath.startsWith('/') ? startPath : '/' + startPath}`);
+      markBootOk();
+      setTimeout(() => { notifyIfUpdateAvailable(win).catch(() => {}); }, 3000);
+      return;
+    } catch (err) {
+      // ここで失敗しても、下のサーバー方式を試す（out/ が壊れている場合の保険）
+      console.error('[MineModCraft] 静的読み込みに失敗。サーバー方式を試します:', err);
+    }
+  }
 
   try {
     log('Next.js を初期化中...');
