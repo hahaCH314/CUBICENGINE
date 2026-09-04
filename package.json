@@ -80,8 +80,7 @@
       "package.json",
       "THIRD_PARTY_NOTICES.md",
       "!node_modules/@img/**",
-      "!node_modules/sharp/**",
-      "!node_modules/@next/swc-*/**"
+      "!node_modules/sharp/**"
     ],
     "directories": {
       "output": "dist-exe/${env.MMC_EDITION}"
@@ -101,6 +100,7 @@
       ],
       "artifactName": "${env.MMC_EDITION_UPPER}_editor.${ext}",
       "icon": "electron/icon.png",
+      "x64ArchFiles": "**/next-swc.darwin-*.node",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "electron/entitlements.mac.plist",
