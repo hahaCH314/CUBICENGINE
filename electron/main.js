@@ -301,9 +301,39 @@ app.whenReady().then(async () => {
   try {
     log('Next.js を初期化中...');
     await startNextServer(appRoot, log);
+
+    // ⚠️ listen できた＝すぐ応答できる、ではない。
+    //    以前はここから即 loadURL していたので、まだ応答できない一瞬に当たると
+    //    ERR_FAILED で落ち、そのまま「サーバー起動エラー」を出して終わっていた。
+    //    waitForServer は前からあったのに**一度も呼ばれていなかった**（2026-09-04 に判明）。
+    log('サーバーの応答を待っています...');
+    try {
+      await waitForServer(PORT, 60000);
+    } catch (e) {
+      // 応答が無くても、この後の loadURL で改めて試す。ここで諦めない。
+      console.warn('[MineModCraft] waitForServer:', e.message);
+    }
+
+    // ⚠️ 1回の失敗で諦めないこと。
+    //    ERR_FAILED は「繋がらなかった」だけで、原因も継続性も分からない。
+    //    環境によっては最初の1回だけ弾かれる（実際にその報告があった）。
+    //    間隔を空けて数回試し、それでも駄目なときだけエラーにする。
     log('準備完了！');
-    // アプリに切り替え（フェードなし、直接ナビ）
-    await win.loadURL(`http://127.0.0.1:${PORT}${startPath}`);
+    let lastErr = null;
+    for (let i = 1; i <= 5; i++) {
+      try {
+        await win.loadURL(`http://127.0.0.1:${PORT}${startPath}`);
+        lastErr = null;
+        break;
+      } catch (e) {
+        lastErr = e;
+        console.warn(`[MineModCraft] 画面の読み込みに失敗 (${i}/5):`, e.message);
+        log(`つながらないので、もう一度試します… (${i}/5)`);
+        await new Promise(r => setTimeout(r, 1000 * i));  // 1秒, 2秒, 3秒… と間隔を広げる
+      }
+    }
+    if (lastErr) throw lastErr;
+
     // ここまで来たら起動成功。次回の自己修復判定に使う。
     markBootOk();
 
@@ -313,11 +343,20 @@ app.whenReady().then(async () => {
     setTimeout(() => { notifyIfUpdateAvailable(win).catch(() => {}); }, 3000);
   } catch (err) {
     console.error('[MineModCraft] Error:', err);
+    // ⚠️ 「もう一度起動してください」だけでは、直らなかった人がそこで詰む。
+    //    実際に起きた（2026-09-04）。何を試せばいいかと、**待たずに作れる道**を必ず出す。
     dialog.showErrorBox(
-      'サーバー起動エラー',
-      `起動に失敗しました:\n${err.message}\n\n`
-      + `もう一度アプリを起動すると、別の方法で立ち上げ直します。\n`
-      + `それでも直らないときは、この画面を撮って知らせてください。\n\n`
+      'アプリを開けませんでした',
+      `${err.message}\n\n`
+      + `── 試せること ──\n`
+      + `1. もう一度アプリを起動する（別の方法で立ち上げ直します）\n`
+      + `2. セキュリティソフトの除外に、このフォルダを入れる:\n`
+      + `   ${path.dirname(appRoot)}\n`
+      + `3. パソコンを再起動する\n\n`
+      + `── 待てないときは ──\n`
+      + `ブラウザでも同じものが作れます（インストール不要・すぐ使えます）:\n`
+      + `${DOWNLOAD_PAGE}editor?mode=grape\n\n`
+      + `直らないときは、この画面を撮って知らせてください。\n`
       + `appRoot: ${appRoot}\nGPU分離なし: ${SAFE_GPU}`
     );
     app.quit();
