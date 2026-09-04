@@ -40,6 +40,30 @@ xcrun notarytool store-credentials "CUBICENGINE" \
 これで以後は `--keychain-profile "CUBICENGINE"` だけで公証を投げられる。
 **パスワードは二度と入力しないし、コマンドにも残らない。**
 
+## ⚠️ 順序を間違えないこと
+
+**アプリに公証を貼ってから dmg を作る。** 逆にすると、dmg には貼られるがアプリには
+貼られず、dmg から取り出したアプリはオフラインで検証できなくなる。
+また **dmg 自体も署名しないと `spctl` は `no usable signature` で弾く。**
+
+```
+① アプリを署名（ビルド時）
+② 公証に出す        … アプリを含む dmg か zip を送る
+③ アプリに貼る       … xcrun stapler staple <app>
+④ dmg を作り直す     … electron-builder --prepackaged（飾りを保つため手作りしない）
+⑤ dmg を署名        … codesign --sign "Developer ID Application: ..." --timestamp
+⑥ もう一度公証に出す  … 署名した dmg を送る
+⑦ dmg に貼る        … xcrun stapler staple <dmg>
+```
+
+## ⚠️ 公証の前に、署名済みの実物で起動確認をすること
+
+2026-09-04、署名したら起動しなくなった。原因は swc を同梱から外していたこと。
+**署名すると .app が読み取り専用になるため、それまで隠れていた「アプリ内に
+書き込もうとする」不具合が表に出る。** CI は書ける場所に置くので捕まらない。
+
+公証は1往復に数分かかる。**壊れた物を公証に出す前に、必ず起動して 200 を見ること。**
+
 ## 出し方
 
 ```bash
