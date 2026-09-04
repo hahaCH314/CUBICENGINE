@@ -80,9 +80,13 @@ jobs:
       - name: エンジンの modId が一致しているか
         run: npm run check:modid
 
-      # これを飛ばすと .next が存在しないまま梱包され、起動しても何も出ない
+      # これを飛ばすと画面が存在しないまま梱包され、起動しても何も出ない。
+      # ⚠️ MMC_TARGET=desktop を必ず付けること。無いと静的な out/ が作られず、
+      #    サーバー方式のままの .next だけが出来る（2026-09-04、付け忘れて CI が落ちた）。
       - name: 画面をビルド
         run: npm run build
+        env:
+          MMC_TARGET: desktop
 
       - name: インストーラをビルド
         run: npx electron-builder --win nsis --x64 --publish never
