@@ -126,41 +126,67 @@ jobs:
 
       - name: 画面が同梱されているか
         # asar: false なので resources/app は素のディレクトリ。
-        # .next が丸ごと抜けていても Electron 本体だけで 180MB あるため、
+        # 画面が丸ごと抜けていても Electron 本体だけで 180MB あるため、
         # サイズ検査では気づけない。
+        #
+        # ⚠️ 2026-09-04、見る場所を out/ に変更。サーバー方式をやめ、静的な out/ を
+        #    app:// で直接読むようにしたため、.next ではなく out/ が本体になった。
         shell: pwsh
         run: |
           $app = "dist-exe/$env:MMC_EDITION/win-unpacked/resources/app"
-          foreach ($f in @("$app/.next/BUILD_ID", "$app/electron/main.js", "$app/package.json")) {
+          foreach ($f in @("$app/out/index.html", "$app/out/editor/index.html", "$app/electron/main.js", "$app/package.json")) {
             if (-not (Test-Path $f)) { Write-Host "::error::$f が入っていない"; exit 1 }
           }
           $n = (Get-ChildItem $app -Recurse -File).Count
           Write-Host "同梱ファイル数: $n"
           if ($n -lt 1000) { Write-Host "::error::同梱ファイルが少なすぎる"; exit 1 }
 
-      - name: 実際に起動して画面が返るか
+      - name: 実際に起動して画面が出るか
         # ここが本丸。v0.1.0 は「起動はするが全リクエストが 500」だった。
-        # 中身の有無を見るだけでは通ってしまうので、実際に叩いて 200 を確かめる。
+        # 中身の有無を見るだけでは通ってしまうので、**実際に画面を出せたか**を確かめる。
+        #
+        # ⚠️ 2026-09-04、判定方法を変更。
+        #    以前は 127.0.0.1:3200 に HTTP で問い合わせていたが、アプリが中で
+        #    サーバーを立てるのをやめた（out/ を app:// で直接読む方式にした）ため、
+        #    ポートは開かなくなった。**開かないのが正常**になった。
+        #    代わりに、画面を読み込めたときだけアプリが書く boot-state.json を見る。
+        #      pending:true  … 起動途中で終わった（＝失敗）
+        #      pending:false … 画面まで到達した（＝成功。markBootOk が呼ばれた）
+        #
+        # ⚠️ ELECTRON_RUN_AS_NODE を必ず外すこと。立っていると Electron は GUI を
+        #    出さずただの Node として動き、出力も残さず即終了する。「壊れたビルド」に
+        #    しか見えない。Mac 側が 2026-09-01 にこれで正常なビルドを不良と誤診し、
+        #    Windows 側も 2026-09-04 に同じ罠で測定を無駄にした。
         shell: pwsh
         run: |
           $exe = "dist-exe/$env:MMC_EDITION/win-unpacked/CubicEngine.exe"
-          $p = Start-Process -FilePath $exe -PassThru
+          $state = "$env:APPDATA\minemodcraft\boot-state.json"
+          Remove-Item $state -Force -ErrorAction SilentlyContinue
+          Get-ChildItem env: | Where-Object { $_.Name -like "ELECTRON*" } | ForEach-Object { "環境変数: $($_.Name)=$($_.Value)" }
+
+          $si = New-Object System.Diagnostics.ProcessStartInfo
+          $si.FileName = (Resolve-Path $exe)
+          $si.UseShellExecute = $false
+          $si.EnvironmentVariables.Remove("ELECTRON_RUN_AS_NODE") | Out-Null
+          $p = [System.Diagnostics.Process]::Start($si)
+
           $deadline = (Get-Date).AddMinutes(3)
           $ok = $false
           while ((Get-Date) -lt $deadline) {
             Start-Sleep -Seconds 5
-            if (-not (Get-Process -Id $p.Id -ErrorAction SilentlyContinue)) {
-              Write-Host "::error::起動直後に落ちた（終了コード $($p.ExitCode)）"
-              exit 1
+            if ($p.HasExited) { Write-Host "::error::起動直後に落ちた（終了コード $($p.ExitCode)）"; exit 1 }
+            if (Test-Path $state) {
+              $s = Get-Content $state -Raw
+              if ($s -match '"pending"\s*:\s*false') { $ok = $true; break }
             }
-            try {
-              $r = Invoke-WebRequest "http://127.0.0.1:3200/" -UseBasicParsing -TimeoutSec 10
-              if ($r.StatusCode -eq 200) { $ok = $true; break }
-            } catch { }
           }
-          Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue
-          if (-not $ok) { Write-Host "::error::3分待っても 200 を返さなかった"; exit 1 }
-          Write-Host "起動確認 OK（HTTP 200）"
+          if (-not $p.HasExited) { $p.Kill() }
+          if (-not $ok) {
+            Write-Host "::error::3分待っても画面を出せなかった（boot-state が pending:false にならない）"
+            if (Test-Path $state) { Write-Host "  boot-state: $(Get-Content $state -Raw)" }
+            exit 1
+          }
+          Write-Host "起動確認 OK（画面の読み込みに成功）"
 
       - name: インストーラの出力を確認
         shell: pwsh
@@ -293,17 +319,21 @@ jobs:
           Write-Host "インストール OK: $($pkg.PackageFullName)"
 
           # 箱の中のアプリとして起動する（exe を直接叩くと箱の外で動いてしまう）
+          # ⚠️ 判定は boot-state.json（pending:false = 画面を出せた）。
+          #    サーバーを立てない方式にしたので 3200 は開かない。詳細は上の起動検査のコメント。
+          $state = "$env:APPDATA\minemodcraft\boot-state.json"
+          Remove-Item $state -Force -ErrorAction SilentlyContinue
           Start-Process "shell:appsFolder\$($pkg.PackageFamilyName)!$appId"
           $ok = $false
           $deadline = (Get-Date).AddMinutes(3)
           while ((Get-Date) -lt $deadline) {
             Start-Sleep -Seconds 5
             try {
-              if ((Invoke-WebRequest 'http://127.0.0.1:3200/' -UseBasicParsing -TimeoutSec 10).StatusCode -eq 200) { $ok = $true; break }
+              if ((Test-Path $state) -and ((Get-Content $state -Raw) -match '"pending"\s*:\s*false')) { $ok = $true; break }
             } catch { }
           }
-          if (-not $ok) { Write-Host "::error::MSIX版が3分待っても画面を返さなかった"; exit 1 }
-          Write-Host "起動 OK（HTTP 200）"
+          if (-not $ok) { Write-Host "::error::MSIX版が3分待っても画面を出せなかった"; exit 1 }
+          Write-Host "起動 OK（画面の読み込みに成功）"
 
           # 一番大事な確認。アプリは起動時に userData へ boot-state.json を書く。
           # それが本物の %APPDATA% に出れば仮想化オフが効いている。
