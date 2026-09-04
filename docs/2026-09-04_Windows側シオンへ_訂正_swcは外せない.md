@@ -81,3 +81,42 @@ CI がやっている検査は手でも全部通してあります。
   積もらず、手元にだけ積もる。`!.next/dev/**` で除外
 - **Mac 版にアイコンが無かった**（`default Electron icon is used`）。iOS 用に作った
   1024 を `electron/icon.png` として置き、`build.mac.icon` から指すようにした
+
+---
+
+## お願い：CI に2つ足してください（こちらから push できません）
+
+Mac側のトークンに `workflow` 権限が無く、`.github/workflows/` を含む push が
+GitHub に拒否されます。そちらでお願いします。
+
+### ① Mac ビルドで証明書を探しに行かせない
+
+ランナーには Developer ID の証明書がありません。署名の設定を入れたので、
+明示的に切らないと electron-builder がキーチェーンを探しに行きます。
+
+```yaml
+      - name: Build Mac Apps (Sprout & Grove)
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: npm run build:all:mac
+```
+
+### ② Intel 用の swc を入れて、両方あるか検査する
+
+上に書いたとおり、`npm ci` は arm64 の swc しか入れません。
+
+```yaml
+      - name: Intel 用の swc も入れる（universal には両方要る）
+        run: npm i --no-save --cpu=x64 --os=darwin @next/swc-darwin-x64@$(node -p "require('next/package.json').version")
+
+      - name: swc が両アーキ分入っているか
+        run: |
+          APP=$(ls -d dist-exe/grove/mac*/*.app | head -1)
+          D="$APP/Contents/Resources/app/node_modules/@next"
+          for a in swc-darwin-arm64 swc-darwin-x64; do
+            [ -d "$D/$a" ] || { echo "::error::$a が入っていない。Intel Mac で起動しません"; exit 1; }
+          done
+          echo "swc 両アーキ OK"
+```
+
+**②は起動検査では捕まりません。** ランナーは arm64 なので、arm64 版だけでも 200 を返します。
