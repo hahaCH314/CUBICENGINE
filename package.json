@@ -20,7 +20,7 @@
     "build:grove:win": "npm run check:clean && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE next build && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE electron-builder --win --publish never --config.appId=com.cubicengine.grove --config.extraMetadata.mmcEdition=grove",
     "build:grove:mac": "npm run check:clean && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE next build && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE electron-builder --mac --publish never --config.appId=com.cubicengine.grove --config.extraMetadata.mmcEdition=grove",
     "appx:assets": "powershell -ExecutionPolicy Bypass -File scripts/make-appx-assets.ps1",
-    "build:grove:appx": "npm run check:clean && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE next build && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE electron-builder --win appx --config.appId=com.cubicengine.grove --config.extraMetadata.mmcEdition=grove",
+    "build:grove:appx": "npm run check:clean && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE next build && cross-env MMC_EDITION=grove MMC_EDITION_UPPER=GROVE electron-builder --win appx --config.appId=com.cubicengine.grove --config.extraMetadata.mmcEdition=grove --publish never",
     "build:all:win": "npm run build:sprout:win && npm run build:grove:win",
     "build:all:mac": "npm run build:sprout:mac && npm run build:grove:mac",
     "build:all": "npm run build:all:win && npm run build:all:mac",

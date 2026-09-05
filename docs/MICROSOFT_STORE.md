@@ -20,6 +20,7 @@ MSIX 枠なら **Microsoft 側が署名してくれるので証明書代がか�
 | Package/Properties/PublisherDisplayName | `CUBICENGINEstudio` |
 | Package Family Name | `CUBICENGINEstudio.CUBICENGINEGROVE_qq2gprqqqfz3m` |
 | Microsoft Store ID | `9N4J0Q0KPP7W` |
+| 審査状況を見るページ | https://partner.microsoft.com/ja-jp/dashboard/products/9N4J0Q0KPP7W/overview |
 
 これらは `package.json` の `build.appx` に入っている。**1文字でも違うと Partner Center が
 アップロードを弾く**ので、変更するときは Partner Center の「製品ID」画面からコピペすること。
