@@ -31,7 +31,7 @@ $pkgName   = 'CUBICENGINEstudio.CUBICENGINEGROVE'
 $work    = Join-Path $env:TEMP 'cubicengine-appx-test'
 $signed  = Join-Path $work 'signed.appx'
 $pfx     = Join-Path $work 'test.pfx'
-$pfxPass = 'cubicengine-throwaway'
+$pfxPass = [System.Guid]::NewGuid().ToString('N')
 
 function Fail($msg) { Write-Host "`n  ✗ $msg" -ForegroundColor Red; exit 1 }
 function Step($msg) { Write-Host "`n[$msg]" -ForegroundColor Cyan }

@@ -55,7 +55,9 @@ jobs:
           echo "アプリ: $APP"
           # asar: false なので resources/app は素のディレクトリ。
           # .next が丸ごと抜けていても Electron 本体だけで数百MBあり、サイズでは気づけない。
-          for f in "Contents/Resources/app/.next/BUILD_ID" \
+          # ⚠️ 2026-09-04、見る場所を out/ に変更（サーバー方式をやめたため）
+          for f in "Contents/Resources/app/out/index.html" \
+                   "Contents/Resources/app/out/editor/index.html" \
                    "Contents/Resources/app/electron/main.js" \
                    "Contents/Resources/app/package.json"; do
             if [ ! -e "$APP/$f" ]; then echo "::error::$f が入っていない"; exit 1; fi
@@ -104,6 +106,12 @@ jobs:
         run: |
           APP=$(ls -d dist-exe/grove/mac*/*.app | head -1)
           BIN="$APP/Contents/MacOS/$(basename "$APP" .app)"
+          # ⚠️ 2026-09-04、判定を boot-state.json に変更。
+          #    サーバーを立てるのをやめた（out/ を app:// で直接読む）ので
+          #    3200 は開かない。**開かないのが正常。**
+          #      pending:false … 画面まで到達した（markBootOk が呼ばれた）＝成功
+          STATE="$HOME/Library/Application Support/minemodcraft/boot-state.json"
+          rm -f "$STATE"
           env | grep -i electron || echo "(ELECTRON_* の環境変数なし)"
           env -u ELECTRON_RUN_AS_NODE "$BIN" &
           PID=$!
@@ -114,13 +122,17 @@ jobs:
               echo "::error::起動直後に落ちた"
               exit 1
             fi
-            if curl -fsS --max-time 10 http://127.0.0.1:3200/ > /dev/null 2>&1; then
+            if [ -f "$STATE" ] && grep -q '"pending":false' "$STATE"; then
               ok=1; break
             fi
           done
           kill "$PID" 2>/dev/null || true
-          if [ "$ok" -ne 1 ]; then echo "::error::3分待っても 200 を返さなかった"; exit 1; fi
-          echo "起動確認 OK（HTTP 200）"
+          if [ "$ok" -ne 1 ]; then
+            echo "::error::3分待っても画面を出せなかった"
+            [ -f "$STATE" ] && echo "  boot-state: $(cat "$STATE")"
+            exit 1
+          fi
+          echo "起動確認 OK（画面の読み込みに成功）"
 
       - name: dmg が出来ているか
         run: |

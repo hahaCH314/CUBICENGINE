@@ -13,8 +13,20 @@ const CSP = buildCsp("web");
 //    解決できないので、/editor/index.html になるディレクトリ形式で出す。
 const isAndroid = process.env.MMC_TARGET === "android";
 
+// デスクトップ(Electron)も静的エクスポートで書き出す。
+// ⚠️ 以前はアプリの中で Next.js のサーバーを立て、127.0.0.1:3200 を読んでいた。
+//    そのせいで「外に出ない通信」なのに、環境の影響を丸ごと受けていた:
+//      ・前回の残骸がポートを掴んでいると、二度と起動できない（実際に4プロセス残っていた）
+//      ・プロキシの自動検出やセキュリティソフトに巻き込まれる
+//      ・サーバーが立ち上がらないと ERR_FAILED で終わり、原因が利用者に分からない
+//    2026-09-04、これで起動できなくなった報告が出た。
+//    スマホ版は最初からサーバー無しで動いている。**同じやり方に揃える。**
+//    Next.js のサーバー一式を同梱しなくてよくなるので、容量も起動時間も減る。
+const isDesktop = process.env.MMC_TARGET === "desktop";
+const isStatic  = isAndroid || isDesktop;
+
 const nextConfig: NextConfig = {
-  ...(isAndroid
+  ...(isStatic
     ? { output: "export" as const, trailingSlash: true, images: { unoptimized: true } }
     : {}),
   // 開発中にトンネル(cloudflared 等)経由で動作確認/共有するため、dev リソースへの
@@ -38,9 +50,9 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
-  // 静的エクスポート(Android版)ではサーバーが居ないので headers() は無視される。
-  // 付けたまま build すると「使えない設定」として警告が出るだけなので android では外す。
-  ...(isAndroid ? {} : {
+  // 静的エクスポート(Android版・デスクトップ版)ではサーバーが居ないので headers() は無視される。
+  // 付けたまま build すると「使えない設定」として警告が出るだけなので外す。
+  ...(isStatic ? {} : {
   async headers() {
     return [
       {

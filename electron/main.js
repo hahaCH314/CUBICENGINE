@@ -1,6 +1,6 @@
 'use strict';
 
-const { app, BrowserWindow, shell, Menu, dialog, ipcMain, session } = require('electron');
+const { app, BrowserWindow, shell, Menu, dialog, ipcMain, session, protocol } = require('electron');
 const path    = require('path');
 const http    = require('http');
 const https   = require('https');
@@ -146,6 +146,17 @@ if (SAFE_GPU) {
   console.log('[MineModCraft] 前回の起動に失敗しているため、GPUを分離せずに起動します');
 }
 writeBoot({ ..._boot, pending: true });
+
+// ━━━ 自分自身への接続にプロキシを通さない ━━━━━━━━━━━━━━━━━━━━━━━━
+// このアプリは中で Next.js を立てて 127.0.0.1:3200 を読み込む。**外に出ない通信**。
+// ところが Chromium は「プロキシの自動検出(WPAD)」が有効だと、起動直後に
+// ネットワーク上のプロキシを探しに行き、その解決が終わるまで接続を保留する。
+// 環境によっては、そこで最初の1回が ERR_FAILED で弾かれる。
+//   → 画面は一瞬で消え、「サーバー起動エラー」だけが出る（2026-09-04 に報告あり）
+//
+// ⚠️ プロキシ自体を無効にはしないこと。会社や学校のプロキシ越しに
+//    使っている人の更新確認まで切れてしまう。**loopback だけ除外する。**
+app.commandLine.appendSwitch('proxy-bypass-list', '<local>;127.0.0.1;localhost;[::1]');
 /** 画面が出たら「起動できた」と記録する。ここまで来れば次回は普通に起動してよい。 */
 const markBootOk = () => writeBoot({ safeGpu: SAFE_GPU, pending: false });
 
@@ -169,6 +180,57 @@ function waitForServer(port, timeout = 90000) {
 
 // ━━━ Next.js 起動（インプロセス） ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // output:standalone は JS バンドルの配信構造が変わり Electron でクリックが効かなくなるため使わない
+/* ═══════════════════════════════════════════
+   画面の読み込み（サーバーを使わない）
+   ═══════════════════════════════════════════
+   out/ に書き出した静的ファイルを app:// という独自の名前で読む。
+   ⚠️ file:// を直接使わないこと。ページ内の絶対パス(/_next/... )が
+      ドライブのルートを指してしまい、何も読めなくなる。
+      app:// なら out/ を基準にできる。
+
+   これでサーバーが要らなくなる＝ポートの奪い合いも、プロキシも、
+   ファイアウォールも関係なくなる。2026-09-04 の起動不能はそこが原因だった。 */
+const APP_SCHEME = 'app';
+protocol.registerSchemesAsPrivileged([
+  { scheme: APP_SCHEME, privileges: { standard: true, secure: true, supportFetchAPI: true } },
+]);
+
+/** out/ を app:// で読めるようにする。呼ぶのは app.whenReady() の後。 */
+function registerAppProtocol(outDir) {
+  protocol.handle(APP_SCHEME, async (request) => {
+    const { pathname } = new URL(request.url);
+    let rel = decodeURIComponent(pathname);
+    if (rel.endsWith('/')) rel += 'index.html';
+    if (rel === '' || rel === '/') rel = '/index.html';
+
+    // ⚠️ out/ の外へ出さない。`..` を含むURLで任意のファイルを読まれるのを防ぐ。
+    const full = path.resolve(outDir, '.' + rel);
+    if (!full.startsWith(path.resolve(outDir) + path.sep)) {
+      return new Response('forbidden', { status: 403 });
+    }
+    // 拡張子が無いパスは trailingSlash 付きのディレクトリとして解決する
+    const target = fs.existsSync(full) && fs.statSync(full).isDirectory()
+      ? path.join(full, 'index.html')
+      : full;
+    try {
+      return new Response(fs.readFileSync(target), { headers: { 'content-type': mimeOf(target) } });
+    } catch {
+      return new Response('not found', { status: 404 });
+    }
+  });
+}
+
+function mimeOf(p) {
+  const e = path.extname(p).toLowerCase();
+  return {
+    '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
+    '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8',
+    '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.svg': 'image/svg+xml',
+    '.webp': 'image/webp', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.woff': 'font/woff',
+    '.mp3': 'audio/mpeg', '.jar': 'application/java-archive', '.txt': 'text/plain; charset=utf-8',
+  }[e] || 'application/octet-stream';
+}
+
 async function startNextServer(appRoot, sendStatus) {
   // ⚠️ Next 16 は dir を **カレントディレクトリ基準** で解決する。絶対パスを渡しても
   //    cwd と連結されるため、cwd を合わせないと全リクエストが 500 になる。
@@ -298,12 +360,60 @@ app.whenReady().then(async () => {
     ).catch(() => {});
   };
 
+  // ── サーバーを使わない道を優先する ──
+  // out/ が同梱されていれば、静的ファイルを app:// で直接読む。
+  // ポートもプロキシもファイアウォールも関係なくなる（2026-09-04 の起動不能対策）。
+  const outDir = path.join(appRoot, 'out');
+  if (fs.existsSync(path.join(outDir, 'index.html'))) {
+    try {
+      log('画面を読み込んでいます...');
+      registerAppProtocol(outDir);
+      await win.loadURL(`${APP_SCHEME}://local${startPath.startsWith('/') ? startPath : '/' + startPath}`);
+      markBootOk();
+      setTimeout(() => { notifyIfUpdateAvailable(win).catch(() => {}); }, 3000);
+      return;
+    } catch (err) {
+      // ここで失敗しても、下のサーバー方式を試す（out/ が壊れている場合の保険）
+      console.error('[MineModCraft] 静的読み込みに失敗。サーバー方式を試します:', err);
+    }
+  }
+
   try {
     log('Next.js を初期化中...');
     await startNextServer(appRoot, log);
+
+    // ⚠️ listen できた＝すぐ応答できる、ではない。
+    //    以前はここから即 loadURL していたので、まだ応答できない一瞬に当たると
+    //    ERR_FAILED で落ち、そのまま「サーバー起動エラー」を出して終わっていた。
+    //    waitForServer は前からあったのに**一度も呼ばれていなかった**（2026-09-04 に判明）。
+    log('サーバーの応答を待っています...');
+    try {
+      await waitForServer(PORT, 60000);
+    } catch (e) {
+      // 応答が無くても、この後の loadURL で改めて試す。ここで諦めない。
+      console.warn('[MineModCraft] waitForServer:', e.message);
+    }
+
+    // ⚠️ 1回の失敗で諦めないこと。
+    //    ERR_FAILED は「繋がらなかった」だけで、原因も継続性も分からない。
+    //    環境によっては最初の1回だけ弾かれる（実際にその報告があった）。
+    //    間隔を空けて数回試し、それでも駄目なときだけエラーにする。
     log('準備完了！');
-    // アプリに切り替え（フェードなし、直接ナビ）
-    await win.loadURL(`http://127.0.0.1:${PORT}${startPath}`);
+    let lastErr = null;
+    for (let i = 1; i <= 5; i++) {
+      try {
+        await win.loadURL(`http://127.0.0.1:${PORT}${startPath}`);
+        lastErr = null;
+        break;
+      } catch (e) {
+        lastErr = e;
+        console.warn(`[MineModCraft] 画面の読み込みに失敗 (${i}/5):`, e.message);
+        log(`つながらないので、もう一度試します… (${i}/5)`);
+        await new Promise(r => setTimeout(r, 1000 * i));  // 1秒, 2秒, 3秒… と間隔を広げる
+      }
+    }
+    if (lastErr) throw lastErr;
+
     // ここまで来たら起動成功。次回の自己修復判定に使う。
     markBootOk();
 
@@ -313,11 +423,20 @@ app.whenReady().then(async () => {
     setTimeout(() => { notifyIfUpdateAvailable(win).catch(() => {}); }, 3000);
   } catch (err) {
     console.error('[MineModCraft] Error:', err);
+    // ⚠️ 「もう一度起動してください」だけでは、直らなかった人がそこで詰む。
+    //    実際に起きた（2026-09-04）。何を試せばいいかと、**待たずに作れる道**を必ず出す。
     dialog.showErrorBox(
-      'サーバー起動エラー',
-      `起動に失敗しました:\n${err.message}\n\n`
-      + `もう一度アプリを起動すると、別の方法で立ち上げ直します。\n`
-      + `それでも直らないときは、この画面を撮って知らせてください。\n\n`
+      'アプリを開けませんでした',
+      `${err.message}\n\n`
+      + `── 試せること ──\n`
+      + `1. もう一度アプリを起動する（別の方法で立ち上げ直します）\n`
+      + `2. セキュリティソフトの除外に、このフォルダを入れる:\n`
+      + `   ${path.dirname(appRoot)}\n`
+      + `3. パソコンを再起動する\n\n`
+      + `── 待てないときは ──\n`
+      + `ブラウザでも同じものが作れます（インストール不要・すぐ使えます）:\n`
+      + `${DOWNLOAD_PAGE}editor?mode=grape\n\n`
+      + `直らないときは、この画面を撮って知らせてください。\n`
       + `appRoot: ${appRoot}\nGPU分離なし: ${SAFE_GPU}`
     );
     app.quit();
