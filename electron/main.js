@@ -124,28 +124,39 @@ let mainWindow = null;
 process.env.MMC_USER_DATA = app.getPath('userData');
 
 // ━━━ 起動の自己修復 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// ElectronはGPU処理を子プロセスに分離するが、環境によってはその子プロセスを
+// ⚠️ 2026-09-05、実機で切り分けた結果 **原因は GPU ではなくサンドボックス**だった。
+//    以前このコメントは「GPU が原因」と書いていたが、症状が似ていただけ。実測:
+//      --disable-gpu / --disable-gpu-compositing / --in-process-gpu → 直らない
+//      --no-sandbox → **直った**
+//    失敗するたびに一段ずつ緩め、成功した段を覚える（段0=通常 / 段1=GPU分離なし / 段2=+サンドボックスなし）。
+//    ⚠️ 段2 は Chromium の防御を1枚外す。最初から使わないこと。読むのは同梱の out/ だけなので
+//       ブラウザで任意サイトを開く場合より影響は小さいが、それでも最後の手段。
+//
+// Electronは処理を子プロセスに分離するが、環境によってはその子プロセスを
 // 作れない（セキュリティソフトがインストール先からのプロセス生成を止める等）。
 // その場合 Chromium は7回リトライしたのち "GPU process isn't usable. Goodbye." で
 // 本体ごと終了する＝ユーザーには「一瞬ウィンドウが出て消えた」としか見えず、
 // 理由がどこにも残らない。実際 %LOCALAPPDATA%\Programs から起動した環境で発生した。
 //
-// 対策: 前回の起動が「画面を出す前に終わっていた」ら、今回はGPUを分離せずに起動する。
-// 一度それで起動できた端末はその設定を覚える（毎回失敗→成功を繰り返さないため）。
-// 問題の無い端末は通常どおり分離したまま＝全員の性能を落とさない。
+// 問題の無い端末は段0のまま＝全員の性能を落とさない。
 const BOOT_STATE = path.join(app.getPath('userData'), 'boot-state.json');
 const readBoot = () => { try { return JSON.parse(fs.readFileSync(BOOT_STATE, 'utf8')); } catch { return {}; } };
 const writeBoot = (v) => {
   try { fs.mkdirSync(path.dirname(BOOT_STATE), { recursive: true }); fs.writeFileSync(BOOT_STATE, JSON.stringify(v)); } catch {}
 };
 const _boot = readBoot();
-// pending=前回は起動途中で落ちた / safeGpu=この端末では分離しないと動かないと確定済み
-const SAFE_GPU = _boot.safeGpu === true || _boot.pending === true;
-if (SAFE_GPU) {
-  app.commandLine.appendSwitch('in-process-gpu');
-  console.log('[MineModCraft] 前回の起動に失敗しているため、GPUを分離せずに起動します');
-}
-writeBoot({ ..._boot, pending: true });
+const MAX_LEVEL = 2;
+
+// 前回が「画面を出す前に終わっていた」なら一段上げる。成功していればその段を維持。
+// safeGpu は古い形式。true なら段1から始める（更新した人が最初からやり直さないように）。
+const _prevLevel = typeof _boot.level === 'number' ? _boot.level : (_boot.safeGpu === true ? 1 : 0);
+const BOOT_LEVEL = Math.min(_boot.pending === true ? _prevLevel + 1 : _prevLevel, MAX_LEVEL);
+
+if (BOOT_LEVEL >= 1) app.commandLine.appendSwitch('in-process-gpu');
+if (BOOT_LEVEL >= 2) app.commandLine.appendSwitch('no-sandbox');
+if (BOOT_LEVEL > 0) console.log(`[MineModCraft] 前回の起動に失敗しているため、安全側の設定で起動します（段${BOOT_LEVEL}）`);
+
+writeBoot({ ..._boot, level: BOOT_LEVEL, pending: true });
 
 // ━━━ 自分自身への接続にプロキシを通さない ━━━━━━━━━━━━━━━━━━━━━━━━
 // このアプリは中で Next.js を立てて 127.0.0.1:3200 を読み込む。**外に出ない通信**。
@@ -158,7 +169,7 @@ writeBoot({ ..._boot, pending: true });
 //    使っている人の更新確認まで切れてしまう。**loopback だけ除外する。**
 app.commandLine.appendSwitch('proxy-bypass-list', '<local>;127.0.0.1;localhost;[::1]');
 /** 画面が出たら「起動できた」と記録する。ここまで来れば次回は普通に起動してよい。 */
-const markBootOk = () => writeBoot({ safeGpu: SAFE_GPU, pending: false });
+const markBootOk = () => writeBoot({ level: BOOT_LEVEL, pending: false });
 
 // 握りつぶすと原因が分からなくなるので、拾えなかった例外は必ず出す
 process.on('unhandledRejection', (e) => console.error('[MineModCraft] unhandledRejection:', e));
@@ -437,7 +448,7 @@ app.whenReady().then(async () => {
       + `ブラウザでも同じものが作れます（インストール不要・すぐ使えます）:\n`
       + `${DOWNLOAD_PAGE}editor?mode=grape\n\n`
       + `直らないときは、この画面を撮って知らせてください。\n`
-      + `appRoot: ${appRoot}\nGPU分離なし: ${SAFE_GPU}`
+      + `appRoot: ${appRoot}\n起動レベル: ${BOOT_LEVEL}（0=通常 1=GPU分離なし 2=サンドボックスなし）`
     );
     app.quit();
   }
