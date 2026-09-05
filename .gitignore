@@ -63,9 +63,12 @@ repro_dev.log
 /git_check.js
 /find_history.js
 
-# Java版 base-mod.jar のビルド作業場（126MB。成果物の .jar だけ public/ に置く）
-# ⚠️ ここを追跡すると Gradle のキャッシュごと GitHub に入る
-generic_engine/
+# Java版 base-mod.jar のビルド作業場。
+# ⚠️ 以前はフォルダごと除外していた（Gradle のキャッシュ125MBを入れないため）。
+#    しかしそれだと **エンジンのソースまで一緒に消える**。いま主力で配っている
+#    Forge 1.20.1 版の心臓部が、このPCの中にしか無い状態だった（2026-09-04 に判明）。
+#    generic_engine/.gitignore が build/ .gradle/ bin/ out/ を除外しているので、
+#    フォルダごと外しても入るのは src だけ（60KB）。NeoForge 版と同じ扱いに揃える。
 extractMdk.ts
 
 # Java エンジンの検証で出る一時ファイル
