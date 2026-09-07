@@ -262,8 +262,118 @@ function stickerExprJava(s: Sticker, blocks: CBlock[]): string {
   return s.neg ? `(!(${e}))` : `(${e})`;
 }
 
+/* ═══════════════════════════════════════════
+   ローダー方言（Forge 1.20.1 / NeoForge 1.21.1）
+   ──────────────────────────────────────────
+   ⚠️ 同じ「積み木」から、**import もイベントの型名も違う** Java を出す。
+      値で吸収できる違いではないので、違うところだけをこの表に集める。
+      ここ以外に `net.minecraftforge` / `net.neoforged` を書かないこと。
+
+   ⚠️ NeoForge 側の対応は generic_engine_neo（実際にコンパイルが通っている
+      エンジン本体）から写した。推測で足さないこと。1.21 でマイクラ本体の
+      API も動いている（ForgeRegistries→BuiltInRegistries、
+      getOrCreatePlayerScore の引数と戻り値）。
+   ═══════════════════════════════════════════ */
+export type JavaLoader = "forge" | "neoforge";
+
+interface JavaDialect {
+  /** ファイル冒頭の見出しコメント */
+  header: string;
+  imports: string[];
+  /** クラスに付ける注釈（modId は呼ぶ側が差し込む） */
+  eventBusSubscriber: (modIdExpr: string) => string;
+  /** 毎ティック：メソッドの引数の型と、サーバーを取り出すまでの行 */
+  tickEventType: string;
+  tickServerLines: string[];
+  /** ダメージを受けたとき */
+  hurtEventType: string;
+  /** ブロック／アイテムの登録名を引く式 */
+  blockKey: (expr: string) => string;
+  itemKey: (expr: string) => string;
+  /** ヘルパ _item の中身（id 文字列 → Item） */
+  itemLookup: string[];
+  /** ヘルパ _score の中身（スコアボードの値を読む） */
+  scoreLookup: string[];
+}
+
+const DIALECTS: Record<JavaLoader, JavaDialect> = {
+  forge: {
+    header: "//  Forge 1.20.1 (47.x) / Java 17",
+    imports: [
+      "import net.minecraftforge.eventbus.api.SubscribeEvent;",
+      "import net.minecraftforge.fml.common.Mod;",
+      "import net.minecraftforge.event.entity.player.PlayerEvent;",
+      "import net.minecraftforge.event.entity.player.PlayerInteractEvent;",
+      "import net.minecraftforge.event.entity.living.LivingHurtEvent;",
+      "import net.minecraftforge.event.level.BlockEvent;",
+      "import net.minecraftforge.event.ServerChatEvent;",
+      "import net.minecraftforge.event.TickEvent;",
+      "import net.minecraftforge.server.ServerLifecycleHooks;",
+      "import net.minecraftforge.registries.ForgeRegistries;",
+    ],
+    eventBusSubscriber: (modIdExpr) => `@Mod.EventBusSubscriber(modid = ${modIdExpr})`,
+    tickEventType: "TickEvent.ServerTickEvent",
+    tickServerLines: [
+      "        if (event.phase != TickEvent.Phase.END) return;",
+      "        var _server = ServerLifecycleHooks.getCurrentServer();",
+    ],
+    hurtEventType: "LivingHurtEvent",
+    blockKey: (e) => `ForgeRegistries.BLOCKS.getKey(${e})`,
+    itemKey: (e) => `ForgeRegistries.ITEMS.getKey(${e})`,
+    itemLookup: [
+      "            ResourceLocation rl = ResourceLocation.tryParse(id);",
+      "            if (rl == null) return Items.AIR;",
+      "            Item it = ForgeRegistries.ITEMS.getValue(rl);",
+      "            return it != null ? it : Items.AIR;",
+    ],
+    scoreLookup: [
+      "            return sb.getOrCreatePlayerScore(p.getScoreboardName(), o).getScore();",
+    ],
+  },
+  neoforge: {
+    header: "//  NeoForge 1.21.1 / Java 21",
+    imports: [
+      "import net.neoforged.bus.api.SubscribeEvent;",
+      "import net.neoforged.fml.common.EventBusSubscriber;",
+      "import net.neoforged.neoforge.event.entity.player.PlayerEvent;",
+      "import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;",
+      // ⚠️ Post ではなく Pre。Forge の LivingHurtEvent は体力が減る**前**に鳴る。
+      //    Post にすると「体力が n 以下なら」が減った後の値で判定され、
+      //    同じ作品が Forge と NeoForge で違う動きをする（遊んだ人しか気づけない）。
+      "import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;",
+      "import net.neoforged.neoforge.event.level.BlockEvent;",
+      "import net.neoforged.neoforge.event.ServerChatEvent;",
+      "import net.neoforged.neoforge.event.tick.ServerTickEvent;",
+      // ⚠️ ForgeRegistries は無い。マイクラ本体のレジストリを直接引く
+      "import net.minecraft.core.registries.BuiltInRegistries;",
+    ],
+    eventBusSubscriber: (modIdExpr) => `@EventBusSubscriber(modid = ${modIdExpr})`,
+    // ⚠️ TickEvent.Phase は無い。Pre / Post が別クラスに分かれた。
+    //    サーバーは ServerLifecycleHooks を経由せず event から取れる。
+    tickEventType: "ServerTickEvent.Post",
+    tickServerLines: [
+      "        var _server = event.getServer();",
+    ],
+    hurtEventType: "LivingDamageEvent.Pre",
+    blockKey: (e) => `BuiltInRegistries.BLOCK.getKey(${e})`,
+    itemKey: (e) => `BuiltInRegistries.ITEM.getKey(${e})`,
+    itemLookup: [
+      "            ResourceLocation rl = ResourceLocation.tryParse(id);",
+      "            if (rl == null) return Items.AIR;",
+      "            Item it = BuiltInRegistries.ITEM.get(rl);",
+      "            return it != null ? it : Items.AIR;",
+    ],
+    // ⚠️ 1.20.5 で引数が名前(String)から ScoreHolder に、戻り値が
+    //    ScoreAccess に変わった。getScore() は無く get()。
+    scoreLookup: [
+      "            return sb.getOrCreatePlayerScore(p, o).get();",
+    ],
+  },
+};
+
 /* ─────────────── きっかけ → @SubscribeEvent メソッド ─────────────── */
-function genTriggerJava(b: CBlock, blocks: CBlock[], idx: number): string {
+function genTriggerJava(b: CBlock, blocks: CBlock[], idx: number, loader: JavaLoader = "forge"): string {
+  const d = DIALECTS[loader];
   const f = (id: string, fb = "") => gf(b, id, fb);
   const m = `handler${idx}`;
   // ev_tick 以外は player(ServerPlayer) を確定させてから body(8スペース)
@@ -286,7 +396,7 @@ function genTriggerJava(b: CBlock, blocks: CBlock[], idx: number): string {
         `    @SubscribeEvent`,
         `    public static void ${m}(BlockEvent.BreakEvent event) {`,
         `        if (!(event.getPlayer() instanceof ServerPlayer player)) return;`,
-        `        ResourceLocation _bid = ForgeRegistries.BLOCKS.getKey(event.getState().getBlock());`,
+        `        ResourceLocation _bid = ${d.blockKey("event.getState().getBlock()")};`,
         `        if (_bid == null || !_bid.toString().equals("${nsIdJava(f("block","minecraft:stone"))}")) return;`,
         body8,
         `    }`,
@@ -297,7 +407,7 @@ function genTriggerJava(b: CBlock, blocks: CBlock[], idx: number): string {
         `    @SubscribeEvent`,
         `    public static void ${m}(PlayerInteractEvent.RightClickItem event) {`,
         `        if (!(event.getEntity() instanceof ServerPlayer player)) return;`,
-        `        ResourceLocation _iid = ForgeRegistries.ITEMS.getKey(event.getItemStack().getItem());`,
+        `        ResourceLocation _iid = ${d.itemKey("event.getItemStack().getItem()")};`,
         `        if (_iid == null || !_iid.toString().equals("${nsIdJava(f("item","minecraft:diamond"))}")) return;`,
         body8,
         `    }`,
@@ -307,9 +417,8 @@ function genTriggerJava(b: CBlock, blocks: CBlock[], idx: number): string {
       return [
         head("⏰", "毎ティック"),
         `    @SubscribeEvent`,
-        `    public static void ${m}(TickEvent.ServerTickEvent event) {`,
-        `        if (event.phase != TickEvent.Phase.END) return;`,
-        `        var _server = ServerLifecycleHooks.getCurrentServer();`,
+        `    public static void ${m}(${d.tickEventType} event) {`,
+        ...d.tickServerLines,
         `        if (_server == null) return;`,
         `        for (ServerPlayer player : _server.getPlayerList().getPlayers()) {`,
         body12,
@@ -333,7 +442,7 @@ function genTriggerJava(b: CBlock, blocks: CBlock[], idx: number): string {
       return [
         head("💥", "ダメージをうけたとき"),
         `    @SubscribeEvent`,
-        `    public static void ${m}(LivingHurtEvent event) {`,
+        `    public static void ${m}(${d.hurtEventType} event) {`,
         `        if (!(event.getEntity() instanceof ServerPlayer player)) return;`,
         body8,
         `    }`,
@@ -355,17 +464,8 @@ function genTriggerJava(b: CBlock, blocks: CBlock[], idx: number): string {
 /* ═══════════════════════════════════════════
    公開: ModEventHandler.java の中身を丸ごと生成
    ═══════════════════════════════════════════ */
-const JAVA_IMPORTS = [
-  "import net.minecraftforge.eventbus.api.SubscribeEvent;",
-  "import net.minecraftforge.fml.common.Mod;",
-  "import net.minecraftforge.event.entity.player.PlayerEvent;",
-  "import net.minecraftforge.event.entity.player.PlayerInteractEvent;",
-  "import net.minecraftforge.event.entity.living.LivingHurtEvent;",
-  "import net.minecraftforge.event.level.BlockEvent;",
-  "import net.minecraftforge.event.ServerChatEvent;",
-  "import net.minecraftforge.event.TickEvent;",
-  "import net.minecraftforge.server.ServerLifecycleHooks;",
-  "import net.minecraftforge.registries.ForgeRegistries;",
+// ⚠️ ローダーに依らない分だけ。ローダーごとの import は DIALECTS 側にある。
+const JAVA_IMPORTS_COMMON = [
   "import net.minecraft.server.level.ServerPlayer;",
   "import net.minecraft.network.chat.Component;",
   "import net.minecraft.resources.ResourceLocation;",
@@ -378,7 +478,7 @@ const JAVA_IMPORTS = [
   "import org.apache.logging.log4j.Logger;",
 ];
 
-const JAVA_HELPERS = `    // ─────────── ヘルパー ───────────
+const javaHelpers = (d: JavaDialect) => `    // ─────────── ヘルパー ───────────
     /** プレイヤー視点・権限レベル4でコマンド実行（@s が本人に解決される） */
     private static void _cmd(ServerPlayer p, String command) {
         try {
@@ -391,10 +491,7 @@ const JAVA_HELPERS = `    // ─────────── ヘルパー ─�
     }
     private static Item _item(String id) {
         try {
-            ResourceLocation rl = ResourceLocation.tryParse(id);
-            if (rl == null) return Items.AIR;
-            Item it = ForgeRegistries.ITEMS.getValue(rl);
-            return it != null ? it : Items.AIR;
+${d.itemLookup.join("\n")}
         } catch (Exception e) { return Items.AIR; }
     }
     private static boolean _hasItem(ServerPlayer p, String id) {
@@ -407,7 +504,7 @@ const JAVA_HELPERS = `    // ─────────── ヘルパー ─�
             Scoreboard sb = p.getScoreboard();
             Objective o = sb.getObjective(obj);
             if (o == null) return 0;
-            return sb.getOrCreatePlayerScore(p.getScoreboardName(), o).getScore();
+${d.scoreLookup.join("\n")}
         } catch (Exception e) { return 0; }
     }
     private static double _num(String s) {
@@ -424,6 +521,9 @@ export interface JavaGenContext {
   pkg: string;
   className: string;
   projectName: string;
+  /** どのローダー向けに出すか。⚠️ 省略時は Forge（既定の出し先）。
+   *  出し先の表 lib/javaEngine/targets.ts の loader をそのまま渡すこと。 */
+  loader?: JavaLoader;
 }
 
 /** ルート（親を持たない）から trigger だけ拾う */
@@ -450,9 +550,11 @@ function collectVarFields(blocks: CBlock[]): string[] {
  * blocks が空/トリガー無しでも、起動確認ハンドラだけは出力する（=最低限動く）。
  */
 export function buildJavaModEventHandler(blocks: CBlock[], ctx: JavaGenContext): string {
+  const loader = ctx.loader ?? "forge";
+  const d = DIALECTS[loader];
   const triggers = collectTriggers(blocks);
   const varFields = collectVarFields(blocks);
-  const handlers = triggers.map((t, i) => genTriggerJava(t, blocks, i)).join("\n\n");
+  const handlers = triggers.map((t, i) => genTriggerJava(t, blocks, i, loader)).join("\n\n");
 
   const startup = [
     `    // ✅ 起動確認（参加時に1回お知らせ）`,
@@ -470,13 +572,14 @@ export function buildJavaModEventHandler(blocks: CBlock[], ctx: JavaGenContext):
     ``,
     `// ============================================================`,
     `//  CUBICENGINE Studio — 自動生成コード (GROVE / Java)`,
-    `//  Forge 1.20.1 (47.x) / Java 17`,
+    d.header,
     `//  このファイルは積み木グラフから生成されています。`,
     `// ============================================================`,
     ``,
-    ...JAVA_IMPORTS,
+    ...JAVA_IMPORTS_COMMON,
+    ...d.imports,
     ``,
-    `@Mod.EventBusSubscriber(modid = ${ctx.className}Mod.MOD_ID)`,
+    d.eventBusSubscriber(`${ctx.className}Mod.MOD_ID`),
     `public class ModEventHandler {`,
     `    private static final Logger LOGGER = LogManager.getLogger();`,
     ``,
@@ -484,7 +587,7 @@ export function buildJavaModEventHandler(blocks: CBlock[], ctx: JavaGenContext):
     startup,
     ...(handlers ? [``, handlers] : []),
     ``,
-    JAVA_HELPERS,
+    javaHelpers(d),
     `}`,
     ``,
   ].join("\n");

@@ -15,6 +15,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useEditorStore } from "./store";
 import { buildJavaFileList } from "./exporter";
+// ⚠️ 要る JDK も MOD の名前も出し先で変わる。直書きしないこと
+import { getJavaTarget } from "../../lib/javaEngine/targets";
 
 /* ══════════════════════════════════════════════════════════
    型定義
@@ -70,6 +72,8 @@ function Step({ n, label, done, active }: { n: number; label: string; done: bool
 
 export default function LaunchPanel() {
   const projectName = useEditorStore(s => s.projectName);
+  // 🎯 出し先。要る JDK もローダー名もここから出す
+  const jt = getJavaTarget(useEditorStore(s => s.javaTarget));
   // store state は buildAndLaunch 内で直接取得する
 
   const [phase,    setPhase]    = useState<Phase>("idle");
@@ -176,7 +180,7 @@ export default function LaunchPanel() {
           <Step n={1} label="Minecraft 環境を検出"
             done={phase !== "idle" && phase !== "detecting"}
             active={phase === "detecting"} />
-          <Step n={2} label="Forge Mod をビルド（JDK 17 必要）"
+          <Step n={2} label={`${jt.label} Mod をビルド（JDK ${jt.mdk.javaVersion} 必要）`}
             done={phase === "done"}
             active={phase === "building"} />
           <Step n={3} label="mods/ フォルダへインストール"
@@ -232,15 +236,15 @@ export default function LaunchPanel() {
             {!status.hasJava && (
               <div style={{ ...card, background: "#fff3e0", border: "2px solid #ffcc80" }}>
                 <div style={{ fontWeight: 700, color: "#e67e22", marginBottom: 6 }}>
-                  ⚠️ JDK 17 以上が必要です
+                  ⚠️ JDK {jt.mdk.javaVersion} 以上が必要です
                 </div>
                 <div style={{ fontSize: 12, color: "#888", marginBottom: 10 }}>
-                  Forge Mod のビルドには Java Development Kit が必要です。
+                  {jt.label} Mod のビルドには Java Development Kit が必要です。
                 </div>
                 <a href="https://adoptium.net"
                   onClick={e => { e.preventDefault(); (window as any).electronAPI && shell_open("https://adoptium.net"); }}
                   style={{ fontSize: 12, color: "#6c5ce7", fontWeight: 700 }}>
-                  → Adoptium から JDK 17 をダウンロード
+                  → Adoptium から JDK {jt.mdk.javaVersion} をダウンロード
                 </a>
               </div>
             )}

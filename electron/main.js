@@ -532,7 +532,11 @@ ipcMain.handle('mc:buildAndInstall', async (event, { files, modsDir, tmpDirOverr
   const send = msg => { event.sender.send('mc:buildLog', msg); console.log('[Build]', msg); };
 
   // ── ① 生成物に gradle wrapper(gradlew) を同梱しているので、システムGradleは不要。
-  //     JDK17 だけあれば ./gradlew が Gradle 本体(8.8)を自動DLしてビルドする（自己完結）。
+  //     JDK さえあれば ./gradlew が Gradle 本体を自動DLしてビルドする（自己完結）。
+  //     ⚠️ 要る JDK も Gradle の版も**出し先ごとに違う**（Forge 1.20.1 は JDK17 /
+  //        Gradle 8.8、NeoForge 1.21.1 は JDK21 / Gradle 9.2.1）。ここは受け取った
+  //        ファイルをそのまま書いて gradlew を叩くだけなので、どちらでも変わらない。
+  //        版を決めているのは lib/javaEngine/targets.ts と exporter の buildJavaZip。
   const isWin = process.platform === 'win32';
 
   // ── ② プロジェクトファイルを書き出す ──

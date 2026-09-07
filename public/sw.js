@@ -9,7 +9,8 @@
 // ⚠️ 新しいビルドを配るたびに必ずこの版番号を上げる（activate で旧キャッシュを一掃するトリガー）。
 // v4: fetch ハンドラが undefined を返しうるバグを直したので、旧キャッシュを一掃する
 // v5: /base-mod.jar を network-first に変えたので、焼き付いた古いエンジンを一掃する
-const CACHE_NAME = 'cubicengine-v5'
+// v6: /base-mod-neo.jar が v5 の間 stale-while-revalidate に落ちていたので、一掃する
+const CACHE_NAME = 'cubicengine-v6'
 
 // ⚠️ **名前が変わらないのに中身が変わるもの。** ここは network-first にする。
 //    下の stale-while-revalidate は「ビルドごとにファイル名が変わる」前提なので、
@@ -21,7 +22,13 @@ const CACHE_NAME = 'cubicengine-v5'
 //    TS 側が spec 2、渡されるエンジンが spec 1 になるため、
 //    **全ユーザーがワールド参加のたびに警告を見て、モブが無視される**状態になる。
 //    マイクラもブラウザも何も言わないので、気づく手段が無い。
-const ALWAYS_FRESH = ['/base-mod.jar']
+//
+//    ⚠️ **エンジンを増やしたら必ずここにも足す。** 出し先の表
+//    (lib/javaEngine/targets.ts) に engineUrl を1行足しただけでは、
+//    その .jar は下の stale-while-revalidate に落ちて上と同じ事故になる。
+//    exporter の cache:"no-cache" は Service Worker には効かない
+//    （SW が先に応答するので、そもそもネットワークまで行かない）。
+const ALWAYS_FRESH = ['/base-mod.jar', '/base-mod-neo.jar']
 // 実在するものだけ。存在しないURL(例: 削除した /icon.svg)を入れると addAll が丸ごと reject し、
 // install 自体が失敗 → 新SWが有効化されず旧キャッシュが永久に残る（特にiOSで顕著だった事故）。
 const STATIC_ASSETS = [

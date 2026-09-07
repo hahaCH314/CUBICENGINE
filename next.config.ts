@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 // CSP の中身は lib/csp.ts に集約（Android版は layout.tsx が <meta> で埋め込むため、
 // 2箇所に同じ内容を書くと片方だけ直して食い違う事故が起きる）。
 import { buildCsp } from "./lib/csp";
+// Java版エンジンの URL は出し先の表が唯一の出どころ（lib/javaEngine/targets.ts）。
+// ここに直接 "/base-mod.jar" と書くと、出し先を増やしたときに**片方だけ直る**。
+// 実際、NeoForge 用の /base-mod-neo.jar を足したときに、この Cache-Control と
+// public/sw.js の ALWAYS_FRESH の両方が取り残された（2026-09-07 の監査で発覚）。
+import { JAVA_TARGET_LIST } from "./lib/javaEngine/targets";
 
 const CSP = buildCsp("web");
 
@@ -73,16 +78,17 @@ const nextConfig: NextConfig = {
           { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
         ],
       },
-      {
-        // ⚠️ Java版エンジン。**ファイル名が変わらないのに中身が変わる**唯一のファイル。
-        //    差し替えたのに古いものが配られると、TS 側の SPEC_VERSION とズレて
-        //    「全ユーザーが参加のたびに警告を見て、モブが無視される」状態になる。
-        //    no-cache＝毎回サーバーに確認する（変わっていなければ 304 なので軽い）。
-        source: "/base-mod.jar",
+      // ⚠️ Java版エンジン。**ファイル名が変わらないのに中身が変わる**ファイル。
+      //    差し替えたのに古いものが配られると、TS 側の SPEC_VERSION とズレて
+      //    「全ユーザーが参加のたびに警告を見て、モブが無視される」状態になる。
+      //    no-cache＝毎回サーバーに確認する（変わっていなければ 304 なので軽い）。
+      //    出し先の表から作るので、行を1つ足せばここは自動で付いてくる。
+      ...JAVA_TARGET_LIST.map((t) => ({
+        source: t.engineUrl,
         headers: [
           { key: "Cache-Control", value: "no-cache, must-revalidate" },
         ],
-      },
+      })),
     ];
   },
   }),

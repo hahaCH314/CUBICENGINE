@@ -24,6 +24,7 @@
 
 # はじめに読むもの
 
+- Java版の出し先（Forge / NeoForge）を増やす・触る → [docs/監査_2026-09-07.md](docs/監査_2026-09-07.md)（必ず通る場所の一覧が末尾にある）
 - Microsoft Store へ出すなら → [docs/MICROSOFT_STORE.md](docs/MICROSOFT_STORE.md)
 - 直近の作業の引き継ぎ → [HANDOVER.md](HANDOVER.md)（長いので、必要な節だけ）
 - 何を守るべきか（負け筋） → [docs/WIN_STRATEGY.md](docs/WIN_STRATEGY.md)

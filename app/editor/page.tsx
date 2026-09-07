@@ -5,6 +5,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useEditorStore } from "./store";
 import { exportProject, buildJavaFileList } from "./exporter";
+import { getJavaTarget } from "../../lib/javaEngine/targets";
 import { McButton } from "../_mc";
 import { IS_STORE_BUILD } from "../../lib/build";
 import ThemeSongControl from "./ThemeSongControl";
@@ -54,9 +55,13 @@ function useMenuItems() {
         }
         const files = await buildJavaFileList(state, state.generatedJsCode || "");
         const res = await api.buildAndInstall({ files, modsDir: det.modsDir, projectName: state.projectName });
-        alert(`✅ ${res.jarName} を mods に導入しました！\nForge 1.20.1 でマイクラを起動して確認してください。`);
+        // ⚠️ 案内はビルドした出し先に合わせる。固定文だと NeoForge を選んだ人に
+        //    「Forge で起動して」と言ってしまう（監査 1 の続き）。
+        const jt = getJavaTarget(state.javaTarget);
+        alert(`✅ ${res.jarName} を mods に導入しました！\n${jt.requires} でマイクラを起動して確認してください。`);
       } catch (e: any) {
-        alert("❌ ビルドに失敗しました：\n" + (e?.message || e) + "\n\n※初回はGradle本体(8.8)のDLに数分かかります。ネット接続とJDK17を確認してください。");
+        const jt = getJavaTarget(useEditorStore.getState().javaTarget);
+        alert("❌ ビルドに失敗しました：\n" + (e?.message || e) + `\n\n※初回はGradle本体(${jt.mdk.gradleVersion})のDLに数分かかります。ネット接続とJDK${jt.mdk.javaVersion}を確認してください。`);
       }
       return;
     }
