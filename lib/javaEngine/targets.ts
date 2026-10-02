@@ -47,6 +47,38 @@ export interface JavaTarget {
   /** GeckoLib（前提modモードのときだけ書く）のバージョン範囲 */
   geckolibRange: string;
   /**
+   * 依存を「必須」と書くときの1行。
+   * ⚠️ Forge は `mandatory=true`、NeoForge は `type="required"` と**キーから違う**。
+   *    NeoForge は知らないキーを黙って捨て、type の既定が required なので
+   *    `mandatory=true` を書いても**いまは**動く。たまたま動いているだけなので、
+   *    正しい方を書く（NeoForge が既定を変えた日に静かに壊れる種類）。
+   */
+  requiredLine: string;
+  /**
+   * どちらのローダーか。
+   * ⚠️ ソース一式（MDK）を書き出すとき、import・イベントの型名・注釈が
+   *    **丸ごと**入れ替わる。値で分けられる違いではないので、生成側で分岐する
+   *    ための印。lib/codegenJava.ts と exporter の buildJavaZip が見る。
+   */
+  loader: "forge" | "neoforge";
+  /**
+   * ソース一式（MDK）を書き出すときだけ使う値。
+   * ⚠️ 完成済み .jar を作る「注入方式」には一切関係ない。
+   *    こちらは**遊ぶ人の PC で gradle がコンパイルする**経路なので、要る値が別。
+   */
+  mdk: {
+    /** 生成プロジェクトが要求する JDK。⚠️ 1.21 から Mojang が配るのは 21 */
+    javaVersion: number;
+    /** gradle wrapper が落とす Gradle 本体の版。
+     *  ⚠️ 同梱している gradlew / gradle-wrapper.jar は「本体を落として起動する」
+     *     だけなので版に依らない。落とす本体の版だけをここで変える。 */
+    gradleVersion: string;
+    /** build.gradle に書くローダー本体の版（範囲ではなく1点） */
+    loaderVersion: string;
+    /** マッピングやローダーの版に添える、マイクラ本体の版（範囲ではなく1点） */
+    mcVersion: string;
+  };
+  /**
    * エンジンの .jar が実在して遊べる状態か。
    * ⚠️ false のあいだは**選ばせない**。選べるのに壊れた .jar が出るのは、
    *    このプロジェクトで一番高くつく形（押せるのに何も起きない）。
@@ -71,6 +103,15 @@ export const JAVA_TARGETS: Record<JavaTargetId, JavaTarget> = {
     mcRange: "[1.20.1,1.21)",
     packFormat: 15,
     geckolibRange: "[4.8.4,)",
+    requiredLine: "    mandatory=true",
+    loader: "forge",
+    mdk: {
+      javaVersion: 17,
+      // 同梱ラッパーの gradle-wrapper.properties が指していた版。ここが唯一の出どころ
+      gradleVersion: "8.8",
+      loaderVersion: "1.20.1-47.3.0",
+      mcVersion: "1.20.1",
+    },
     ready: true,
   },
   neoforge_1211: {
@@ -93,8 +134,27 @@ export const JAVA_TARGETS: Record<JavaTargetId, JavaTarget> = {
     //    data/ にレシピを入れ始めたら、1つの数字で足りるか実機で確かめること
     packFormat: 34,
     geckolibRange: "[4.9,)",
-    ready: false,
-    notReadyReason: "エンジンを作っているところです（もうすぐ）",
+    requiredLine: '    type="required"',
+    loader: "neoforge",
+    mdk: {
+      // ⚠️ 17 ではビルドが通らない。NeoForge 1.21.1 は 21 で組まれている
+      javaVersion: 21,
+      // ⚠️ ModDevGradle は Gradle 8.8 では動かない。generic_engine_neo と同じ版に揃える
+      gradleVersion: "9.2.1",
+      loaderVersion: "21.1.248",
+      mcVersion: "1.21.1",
+    },
+    // ✅ 2026-09-09、**実機で動いた**。
+    //    PrismLauncher の 1.21.1 インスタンスに `gapple-neoforge1211-mod.jar` を入れて起動し、
+    //    積み木で組んだ「あげる」が実際に走った（金のリンゴ64個がプレイヤーの持ち物に入った）。
+    //    ＝ MOD の読み込み・きっかけの発火・アクションの実行まで通っている。
+    //
+    //    経緯: 2026-09-05 に「鍵をかけたままでは選べず、選べないと試せない」（鶏と卵）ため
+    //    先に開けた。その仮置きが 2026-09-09 に裏付けられた形。
+    //
+    //    ⚠️ まだ見ていないもの: ブロックの登録・クリエイティブタブ・モブ（geo 含む）。
+    //       ここを触ったときは、Forge 側だけでなく**こちらも実機で見ること**。
+    ready: true,
   },
 };
 

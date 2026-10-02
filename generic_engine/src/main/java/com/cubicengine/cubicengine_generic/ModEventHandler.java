@@ -75,8 +75,12 @@ public class ModEventHandler {
      *    **設定した体力も名前もドロップも丸ごと素通りする**（実際そうなっていた）。
      */
     private static String resolveMobId(LivingEntity living) {
-        if (living instanceof CubicGeoEntity geo) {
-            return geo.getMobId();
+        // ⚠️ GeckoLib は「geo モブがある作品」にしか入っていない。
+        //    ここで直接 CubicGeoEntity を書くと、GeckoLib を入れていない人の
+        //    ワールドが生成中に落ちる。詳細は GeoSupport のコメント。
+        if (DynamicRegistry.hasGeoMobs) {
+            String geoId = GeoSupport.mobIdOf(living);
+            if (geoId != null) return geoId;
         }
         CompoundTag tag = living.getPersistentData();
         return tag.contains("CubicMobId") ? tag.getString("CubicMobId") : null;

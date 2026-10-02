@@ -67,6 +67,7 @@ public class LogicInterpreter {
         List<JsonObject> rules = rulesByTrigger.getOrDefault(triggerType, Collections.emptyList());
         if (rules.isEmpty()) return;
 
+        for (JsonObject rule : rules) {
             JsonObject trigger = rule.getAsJsonObject("trigger");
             String tType = triggerType;
             

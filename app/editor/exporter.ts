@@ -652,10 +652,17 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
 }
 
 /* ═══════════════════════════════════════════
-   Java Edition Export (Forge 1.20.1-47.3.0)
+   Java Edition Export（ソース一式 = MDK）
    ═══════════════════════════════════════════ */
-// Forge MDK 一式を JSZip に構築（Web/デスクトップ共通の“本物”生成）。
+// MDK 一式を JSZip に構築（Web/デスクトップ共通の“本物”生成）。
 // exportJava(Webダウンロード) と buildJavaFileList(Electronビルド) の両方がこれを使う。
+//
+// ⚠️ こちらは**遊ぶ人の PC で gradle がコンパイルする**経路。
+//    完成済み .jar を作る exportJava の注入方式とは別物で、要る値もまるごと違う。
+//    2026-09-07 まで、この関数は state.javaTarget を**一切見ずに** Forge 1.20.1 を
+//    決め打ちしていた。NeoForge を選んだ人に Forge の mod を渡して
+//    「Forge 1.20.1 で起動してね」と案内する状態だった（監査で発覚）。
+//    ⚠️ 出し先を増やしたら、ここも必ず通ること。
 async function buildJavaZip(state: EditorState, jsCode: string): Promise<JSZip> {
   const zip = new JSZip();
   const name = sanitizeSlug(state.projectName);
@@ -663,36 +670,74 @@ async function buildJavaZip(state: EditorState, jsCode: string): Promise<JSZip> 
   const modId = sanitizeModId(name);
   const pkg = `com.cubicengine.${modId}`;
   const pkgPath = `com/cubicengine/${modId}`;
+  // 🎯 出し先。⚠️ 遊べない出し先が選ばれていても getJavaTarget が既定へ落とす。
+  const target = getJavaTarget(state.javaTarget);
+  const isNeo = target.loader === "neoforge";
 
   // ─── build.gradle ───
+  // ⚠️ 使うプラグインからして違う。Forge は ForgeGradle、NeoForge は ModDevGradle。
+  //    版の数字は出し先の表(targets.ts)から出す。プラグイン自身の版だけは
+  //    ここにしか出てこないので直書き。
+  // 生成物にもそのまま入れる説明。⚠️ 消すと、日本語のブロック名を付けた作品が
+  // Windows の javac（既定 MS932）で文字化けしてビルドに失敗する。
+  const encodingLines = [
+    `// 日本語など非ASCIIをソースから正しく読む（Windows既定のMS932でjavacが読むと文字化けする）`,
+    `tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }`,
+  ];
   zip.file(
     "build.gradle",
-    [
-      `plugins {`,
-      `    id 'net.minecraftforge.gradle' version '6.0.+'`,
-      `}`,
-      ``,
-      `version = '1.0.0'`,
-      `group = '${pkg}'`,
-      `archivesBaseName = '${modId}'`,
-      ``,
-      `java.toolchain.languageVersion = JavaLanguageVersion.of(17)`,
-      ``,
-      `// 日本語など非ASCIIをソースから正しく読む（Windows既定のMS932でjavacが読むと文字化けする）`,
-      `tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }`,
-      ``,
-      `minecraft {`,
-      `    mappings channel: 'official', version: '1.20.1'`,
-      `    runs {`,
-      `        client { workingDirectory project.file('run') }`,
-      `        server { workingDirectory project.file('run') }`,
-      `    }`,
-      `}`,
-      ``,
-      `dependencies {`,
-      `    minecraft 'net.minecraftforge:forge:1.20.1-47.3.0'`,
-      `}`,
-    ].join("\n"),
+    (isNeo
+      ? [
+          `plugins {`,
+          `    id 'net.neoforged.moddev' version '2.0.144'`,
+          `}`,
+          ``,
+          `version = '1.0.0'`,
+          `group = '${pkg}'`,
+          `base { archivesName = '${modId}' }`,
+          ``,
+          `// ⚠️ ${target.label} は Java ${target.mdk.javaVersion} で組まれている。17 に下げると通らない。`,
+          `java.toolchain.languageVersion = JavaLanguageVersion.of(${target.mdk.javaVersion})`,
+          ``,
+          ...encodingLines,
+          ``,
+          `neoForge {`,
+          `    version = '${target.mdk.loaderVersion}'`,
+          `    runs {`,
+          `        client { client() }`,
+          `        server { server() }`,
+          `    }`,
+          `    mods {`,
+          `        "${modId}" { sourceSet(sourceSets.main) }`,
+          `    }`,
+          `}`,
+        ]
+      : [
+          `plugins {`,
+          `    id 'net.minecraftforge.gradle' version '6.0.+'`,
+          `}`,
+          ``,
+          `version = '1.0.0'`,
+          `group = '${pkg}'`,
+          `archivesBaseName = '${modId}'`,
+          ``,
+          `java.toolchain.languageVersion = JavaLanguageVersion.of(${target.mdk.javaVersion})`,
+          ``,
+          ...encodingLines,
+          ``,
+          `minecraft {`,
+          `    mappings channel: 'official', version: '${target.mdk.mcVersion}'`,
+          `    runs {`,
+          `        client { workingDirectory project.file('run') }`,
+          `        server { workingDirectory project.file('run') }`,
+          `    }`,
+          `}`,
+          ``,
+          `dependencies {`,
+          `    minecraft 'net.minecraftforge:forge:${target.mdk.loaderVersion}'`,
+          `}`,
+        ]
+    ).join("\n"),
   );
 
   // ─── gradle.properties ───
@@ -711,9 +756,21 @@ async function buildJavaZip(state: EditorState, jsCode: string): Promise<JSZip> 
       `pluginManagement {`,
       `    repositories {`,
       `        gradlePluginPortal()`,
-      `        maven { url = 'https://maven.minecraftforge.net/' }`,
+      ...(isNeo ? [] : [`        maven { url = 'https://maven.minecraftforge.net/' }`]),
       `    }`,
       `}`,
+      // ⚠️ NeoForge は JDK 21 を要求する。foojay を入れておくと、遊ぶ人が 21 を
+      //    持っていなくても gradle が勝手に取ってくる。無いと「JDK が見つからない」で
+      //    止まり、子どもには原因が分からない。
+      ...(isNeo
+        ? [
+            ``,
+            `plugins {`,
+            `    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'`,
+            `}`,
+            ``,
+          ]
+        : []),
       `rootProject.name = '${modId}'`,
     ].join("\n"),
   );
@@ -726,9 +783,24 @@ async function buildJavaZip(state: EditorState, jsCode: string): Promise<JSZip> 
     GRADLEW_SH_B64,
     GRADLEW_BAT_B64,
     GRADLE_WRAPPER_JAR_B64,
-    GRADLE_WRAPPER_PROPERTIES_B64,
   } = await import("../../lib/gradleWrapper");
-  zip.file("gradle/wrapper/gradle-wrapper.properties", GRADLE_WRAPPER_PROPERTIES_B64, { base64: true });
+  // ⚠️ gradle-wrapper.properties だけは同梱の base64 を使わない。
+  //    ここに書いた版の Gradle 本体を落としてくるファイルで、
+  //    Forge は 8.8、NeoForge の ModDevGradle は 8.8 では動かない。
+  //    gradlew / gradle-wrapper.jar は「本体を落として起動する」だけなので
+  //    版に依らず使い回せる（＝ここだけ出し先ごとに書き換えればよい）。
+  zip.file(
+    "gradle/wrapper/gradle-wrapper.properties",
+    [
+      `distributionBase=GRADLE_USER_HOME`,
+      `distributionPath=wrapper/dists`,
+      `distributionUrl=https\\://services.gradle.org/distributions/gradle-${target.mdk.gradleVersion}-bin.zip`,
+      `networkTimeout=10000`,
+      `zipStoreBase=GRADLE_USER_HOME`,
+      `zipStorePath=wrapper/dists`,
+      ``,
+    ].join("\n"),
+  );
   zip.file("gradle/wrapper/gradle-wrapper.jar", GRADLE_WRAPPER_JAR_B64, { base64: true });
   zip.file("gradlew", GRADLEW_SH_B64, { base64: true, unixPermissions: 0o755 });
   zip.file("gradlew.bat", GRADLEW_BAT_B64, { base64: true });
@@ -741,10 +813,18 @@ async function buildJavaZip(state: EditorState, jsCode: string): Promise<JSZip> 
     [
       `package ${pkg};`,
       ``,
-      `import net.minecraftforge.common.MinecraftForge;`,
-      `import net.minecraftforge.fml.common.Mod;`,
-      `import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;`,
-      `import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;`,
+      ...(isNeo
+        ? [
+            `import net.neoforged.bus.api.IEventBus;`,
+            `import net.neoforged.fml.common.Mod;`,
+            `import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;`,
+          ]
+        : [
+            `import net.minecraftforge.common.MinecraftForge;`,
+            `import net.minecraftforge.fml.common.Mod;`,
+            `import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;`,
+            `import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;`,
+          ]),
       `import org.apache.logging.log4j.LogManager;`,
       `import org.apache.logging.log4j.Logger;`,
       ``,
@@ -753,12 +833,29 @@ async function buildJavaZip(state: EditorState, jsCode: string): Promise<JSZip> 
       `    public static final String MOD_ID = "${modId}";`,
       `    private static final Logger LOGGER = LogManager.getLogger();`,
       ``,
-      `    public ${className}Mod() {`,
-      `        var bus = FMLJavaModLoadingContext.get().getModEventBus();`,
-      `        bus.addListener(this::setup);`,
-      `        ModBlocks.register(bus);`,
-      `        ModItems.register(bus);`,
-      `        MinecraftForge.EVENT_BUS.register(this);`,
+      // ⚠️ NeoForge は MOD のイベントバスを**コンストラクタの引数で渡してくる**。
+      //    Forge のように FMLJavaModLoadingContext から取る書き方は無い。
+      ...(isNeo
+        ? [
+            `    public ${className}Mod(IEventBus bus) {`,
+            `        bus.addListener(this::setup);`,
+            `        ModBlocks.register(bus);`,
+            `        ModItems.register(bus);`,
+            // ⚠️ NeoForge.EVENT_BUS.register(this) は**書いてはいけない**。
+            //    このクラスに @SubscribeEvent メソッドは1つも無く、NeoForge の
+            //    バスはその場合 IllegalArgumentException を投げる（Forge は黙って
+            //    無視していた）。例外はコンストラクタから出て MOD 読み込みごと
+            //    失敗する＝ゲームが起動しない。ゲーム側イベントは
+            //    ModEventHandler が @EventBusSubscriber で拾っている。
+          ]
+        : [
+            `    public ${className}Mod() {`,
+            `        var bus = FMLJavaModLoadingContext.get().getModEventBus();`,
+            `        bus.addListener(this::setup);`,
+            `        ModBlocks.register(bus);`,
+            `        ModItems.register(bus);`,
+            `        MinecraftForge.EVENT_BUS.register(this);`,
+          ]),
       `        LOGGER.info("[${escJava(state.projectName)}] Mod initialized!");`,
       `    }`,
       ``,
@@ -777,19 +874,30 @@ async function buildJavaZip(state: EditorState, jsCode: string): Promise<JSZip> 
       ``,
       `import net.minecraft.world.level.block.Block;`,
       `import net.minecraft.world.level.block.state.BlockBehaviour;`,
-      `import net.minecraftforge.registries.DeferredRegister;`,
-      `import net.minecraftforge.registries.ForgeRegistries;`,
-      `import net.minecraftforge.registries.RegistryObject;`,
-      `import net.minecraftforge.eventbus.api.IEventBus;`,
+      // ⚠️ NeoForge に ForgeRegistries / RegistryObject は無い。
+      //    レジストリはマイクラ本体の BuiltInRegistries、入れ物は DeferredHolder。
+      ...(isNeo
+        ? [
+            `import net.minecraft.core.registries.BuiltInRegistries;`,
+            `import net.neoforged.neoforge.registries.DeferredRegister;`,
+            `import net.neoforged.neoforge.registries.DeferredHolder;`,
+            `import net.neoforged.bus.api.IEventBus;`,
+          ]
+        : [
+            `import net.minecraftforge.registries.DeferredRegister;`,
+            `import net.minecraftforge.registries.ForgeRegistries;`,
+            `import net.minecraftforge.registries.RegistryObject;`,
+            `import net.minecraftforge.eventbus.api.IEventBus;`,
+          ]),
       ``,
       `public class ModBlocks {`,
       `    public static final DeferredRegister<Block> BLOCKS =`,
-      `        DeferredRegister.create(ForgeRegistries.BLOCKS, ${className}Mod.MOD_ID);`,
+      `        DeferredRegister.create(${isNeo ? "BuiltInRegistries.BLOCK" : "ForgeRegistries.BLOCKS"}, ${className}Mod.MOD_ID);`,
       ``,
       ...state.blocks.map((b) => {
         const bn = sanitizeBlockName(b.name);
         return [
-          `    public static final RegistryObject<Block> ${bn.toUpperCase()} =`,
+          `    public static final ${isNeo ? "DeferredHolder<Block, Block>" : "RegistryObject<Block>"} ${bn.toUpperCase()} =`,
           `        BLOCKS.register("${escJava(bn)}",`,
           `            () -> new Block(BlockBehaviour.Properties.of()`,
           `                .strength(3.0f).requiresCorrectToolForDrops()));`,
@@ -811,19 +919,28 @@ async function buildJavaZip(state: EditorState, jsCode: string): Promise<JSZip> 
       ``,
       `import net.minecraft.world.item.BlockItem;`,
       `import net.minecraft.world.item.Item;`,
-      `import net.minecraftforge.registries.DeferredRegister;`,
-      `import net.minecraftforge.registries.ForgeRegistries;`,
-      `import net.minecraftforge.registries.RegistryObject;`,
-      `import net.minecraftforge.eventbus.api.IEventBus;`,
+      ...(isNeo
+        ? [
+            `import net.minecraft.core.registries.BuiltInRegistries;`,
+            `import net.neoforged.neoforge.registries.DeferredRegister;`,
+            `import net.neoforged.neoforge.registries.DeferredHolder;`,
+            `import net.neoforged.bus.api.IEventBus;`,
+          ]
+        : [
+            `import net.minecraftforge.registries.DeferredRegister;`,
+            `import net.minecraftforge.registries.ForgeRegistries;`,
+            `import net.minecraftforge.registries.RegistryObject;`,
+            `import net.minecraftforge.eventbus.api.IEventBus;`,
+          ]),
       ``,
       `public class ModItems {`,
       `    public static final DeferredRegister<Item> ITEMS =`,
-      `        DeferredRegister.create(ForgeRegistries.ITEMS, ${className}Mod.MOD_ID);`,
+      `        DeferredRegister.create(${isNeo ? "BuiltInRegistries.ITEM" : "ForgeRegistries.ITEMS"}, ${className}Mod.MOD_ID);`,
       ``,
       ...state.blocks.map((b) => {
         const bn = sanitizeBlockName(b.name);
         return [
-          `    public static final RegistryObject<Item> ${bn.toUpperCase()}_ITEM =`,
+          `    public static final ${isNeo ? "DeferredHolder<Item, Item>" : "RegistryObject<Item>"} ${bn.toUpperCase()}_ITEM =`,
           `        ITEMS.register("${escJava(bn)}",`,
           `            () -> new BlockItem(ModBlocks.${bn.toUpperCase()}.get(),`,
           `                new Item.Properties()));`,
@@ -848,18 +965,24 @@ async function buildJavaZip(state: EditorState, jsCode: string): Promise<JSZip> 
       pkg,
       className,
       projectName: state.projectName,
+      // ⚠️ import もイベントの型名も丸ごと変わる。渡し忘れると Forge 用の
+      //    ソースが NeoForge プロジェクトに入り、コンパイルで落ちる。
+      loader: target.loader,
     }),
   );
 
   // ─── mods.toml ───
   const resources = zip.folder("src/main/resources")!;
-  const metaInf = resources.folder("META-INF")!;
 
-  metaInf.file(
-    "mods.toml",
+  // ⚠️ ファイル名からして違う（Forge は mods.toml、NeoForge は neoforge.mods.toml）。
+  //    名前を間違えるとマイクラは MOD として認識せず、**何も言わずに無視する**。
+  //    値は全部 target から出す。ここに数字を直書きしないこと。
+  // target.metaPath は "META-INF/..." を含む完全なパス。分解せずそのまま渡す
+  resources.file(
+    target.metaPath,
     [
       `modLoader="javafml"`,
-      `loaderVersion="[47,)"`,
+      `loaderVersion="${target.fmlRange}"`,
       `license="MIT"`,
       ``,
       `[[mods]]`,
@@ -869,16 +992,16 @@ async function buildJavaZip(state: EditorState, jsCode: string): Promise<JSZip> 
       `description='''${escComment(state.projectName)} — Generated by CUBICENGINE'''`,
       ``,
       `[[dependencies.${modId}]]`,
-      `    modId="forge"`,
-      `    mandatory=true`,
-      `    versionRange="[47,)"`,
+      `    modId="${target.loaderModId}"`,
+      target.requiredLine,
+      `    versionRange="${target.loaderRange}"`,
       `    ordering="NONE"`,
       `    side="BOTH"`,
       ``,
       `[[dependencies.${modId}]]`,
       `    modId="minecraft"`,
-      `    mandatory=true`,
-      `    versionRange="[1.20.1,1.21)"`,
+      target.requiredLine,
+      `    versionRange="${target.mcRange}"`,
       `    ordering="NONE"`,
       `    side="BOTH"`,
     ].join("\n"),
@@ -887,7 +1010,8 @@ async function buildJavaZip(state: EditorState, jsCode: string): Promise<JSZip> 
   // pack.mcmeta
   resources.file(
     "pack.mcmeta",
-    JSON.stringify({ pack: { description: `${state.projectName} Resources`, pack_format: 15 } }, null, 2),
+    // ⚠️ pack_format はマイクラの版ごとに違う。合わないと資源が読まれない
+    JSON.stringify({ pack: { description: `${state.projectName} Resources`, pack_format: target.packFormat } }, null, 2),
   );
 
   // Block models, blockstates, item models, textures, lang
@@ -930,15 +1054,15 @@ async function buildJavaZip(state: EditorState, jsCode: string): Promise<JSZip> 
       "```",
       ``,
       `## ビルド方法 / Setup`,
-      `必要なのは **JDK 17** だけです（Gradleラッパーは同梱済み）。`,
+      `必要なのは **JDK ${target.mdk.javaVersion}** だけです（Gradleラッパーは同梱済み）。`,
       ``,
-      `1. **JDK 17** をインストール（例: https://adoptium.net/ ）`,
-      `2. このフォルダで次を実行（初回は Gradle と Minecraft/Forge を自動DL）:`,
+      `1. **JDK ${target.mdk.javaVersion}** をインストール（例: https://adoptium.net/ ）`,
+      `2. このフォルダで次を実行（初回は Gradle と Minecraft/${target.label} を自動DL）:`,
       `   - Windows: \`gradlew.bat build\``,
       `   - Mac / Linux: \`./gradlew build\``,
       `3. できあがった \`build/libs/${modId}-1.0.0.jar\` を、`,
-      `   Forge 1.20.1 を導入した Minecraft の \`mods/\` フォルダに入れる`,
-      `4. Minecraft（Forge 1.20.1）を起動すれば Mod が読み込まれます`,
+      `   ${target.requires} を導入した Minecraft の \`mods/\` フォルダに入れる`,
+      `4. Minecraft（${target.requires}）を起動すれば Mod が読み込まれます`,
       ``,
       `## Blocks`,
       ...state.blocks.map((b) => `- \`${b.name}\``),
@@ -1054,22 +1178,23 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
       ``,
       `[[dependencies.${modId}]]`,
       `    modId="${target.loaderModId}"`,
-      `    mandatory=true`,
+      target.requiredLine,
       `    versionRange="${target.loaderRange}"`,
       `    ordering="NONE"`,
       `    side="BOTH"`,
       ``,
       `[[dependencies.${modId}]]`,
       `    modId="minecraft"`,
-      `    mandatory=true`,
+      target.requiredLine,
       `    versionRange="${target.mcRange}"`,
       `    ordering="NONE"`,
       `    side="BOTH"`,
       // ⚠️ GeckoLib は**前提modモードのときだけ**要求する。
       //    同梱エンジンの mods.toml は常に mandatory で書いてあるが、
       //    ここで上書きするので、ふつうモードの人に前提MODを強いずに済む。
-      //    エンジンの registerRenderers は ENTITIES が空なら中身を実行しないため、
-      //    geo モブが1体も無ければ GeckoLib のクラスは読み込まれない（javap で実測）。
+      //    エンジン側は registerAttributes / registerRenderers の先頭で
+      //    DynamicRegistry.hasGeoMobs を見て抜けるので、geo モブが1体も無ければ
+      //    GeckoLib のクラスは読み込まれない（GeoSupport.java に経緯がある）。
       //    ⚠️ 逆に、render:"geo" を出したのにこの依存を書き忘れると、
       //       GeckoLib を入れていない人のマイクラが**起動時に落ちる**。
       ...(useGeo
@@ -1077,7 +1202,7 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
             ``,
             `[[dependencies.${modId}]]`,
             `    modId="geckolib"`,
-            `    mandatory=true`,
+            target.requiredLine,
             `    versionRange="${target.geckolibRange}"`,
             `    ordering="NONE"`,
             `    side="BOTH"`,
@@ -1227,7 +1352,9 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
     // フォールバックとしてソースコードZIPを出力
     const fallbackZip = await buildJavaZip(state, jsCode);
     const blob = await fallbackZip.generateAsync({ type: "blob" });
-    return await downloadBlob(blob, `${name}-forge-mod.zip`);
+    // ⚠️ 名前に出し先を入れる。完成済み .jar と同じ理由（入れる先を間違えても
+    //    本人が気づける）。ここだけ forge 決め打ちで残っていた。
+    return await downloadBlob(blob, `${name}-${target.fileSuffix}-mod.zip`);
   }
 }
 

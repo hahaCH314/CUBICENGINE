@@ -43,6 +43,12 @@ public class cubicenginegenericMod {
     //    LivingEntity のコンストラクタ内 setHealth(getMaxHealth()) で NPE になる。
     //    マイクラは「スポーンエッグを使ったら落ちた」としか見えない。
     private void registerAttributes(EntityAttributeCreationEvent event) {
+        // ⚠️ GeckoLib の門。CubicGeoEntity に触れるので、geo モブが1体も無い作品では
+        //    **絶対にここから先へ入れない**（ふつうモードの .jar は GeckoLib を要求せず、
+        //    遊ぶ人の環境に GeckoLib は無い）。GeoSupport.java の説明を読むこと。
+        //    いまは ENTITIES に入るのが geo モブだけなので旗を見なくても通るが、
+        //    geo でない EntityType を1つ登録した瞬間に起動時 NoClassDefFoundError が戻る。
+        if (!DynamicRegistry.hasGeoMobs) return;
         for (DeferredHolder<EntityType<?>, ? extends EntityType<?>> type : DynamicRegistry.ENTITIES.getEntries()) {
             @SuppressWarnings("unchecked")
             EntityType<? extends LivingEntity> living = (EntityType<? extends LivingEntity>) type.get();
@@ -60,6 +66,8 @@ public class cubicenginegenericMod {
     public static class ClientModEvents {
         @SubscribeEvent
         public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+            // ⚠️ GeckoLib の門。理由は registerAttributes と同じ（GeoSupport.java 参照）。
+            if (!DynamicRegistry.hasGeoMobs) return;
             for (DeferredHolder<EntityType<?>, ? extends EntityType<?>> type : DynamicRegistry.ENTITIES.getEntries()) {
                 event.registerEntityRenderer((EntityType<CubicGeoEntity>) type.get(), CubicGeoRenderer::new);
             }

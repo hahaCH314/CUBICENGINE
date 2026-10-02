@@ -78,7 +78,9 @@ function BuildTerminal() {
       const state = useEditorStore.getState();
       const plat = state.targetPlatform as "bedrock" | "java";
       const isElec = typeof window !== "undefined" && !!(window as any).electronAPI?.isElectron;
-      push(`# ターゲット: ${plat === "java" ? "Java / Forge 1.20.1" : "Bedrock / 統合版"} ${isElec ? "(デスクトップ)" : "(Web)"}`);
+      // ⚠️ 出し先の名前は表から出す。直書きすると片方だけ古くなる
+      const jt = getJavaTarget(state.javaTarget);
+      push(`# ターゲット: ${plat === "java" ? `Java / ${jt.label}` : "Bedrock / 統合版"} ${isElec ? "(デスクトップ)" : "(Web)"}`);
 
       // デスクトップのJavaは、ソースZIPでなく本物ビルド→.minecraft/mods へ.jar導入（「放つ」と同じ）。
       if (plat === "java" && isElec) {
@@ -91,7 +93,7 @@ function BuildTerminal() {
         const res = await api.buildAndInstall({ files, modsDir: det.modsDir, projectName: state.projectName });
         api.offBuildLog?.();
         push("");
-        push(`✅ ${res.jarName} を mods に導入しました！Forge 1.20.1 で起動して確認してね。`);
+        push(`✅ ${res.jarName} を mods に導入しました！${jt.requires} で起動して確認してね。`);
         setExportedPlatform("java");
         setShowGuide(false);
         return;

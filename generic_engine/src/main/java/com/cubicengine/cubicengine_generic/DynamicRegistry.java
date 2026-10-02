@@ -28,6 +28,15 @@ public class DynamicRegistry {
     public static JsonObject modData = null;
     public static final java.util.Map<String, JsonObject> MOBS_MAP = new java.util.HashMap<>();
 
+    /**
+     * GeckoLib で描くモブ（render:"geo"）が1体でもあるか。
+     *
+     * ⚠️ これが false のときは **GeckoLib のクラスに一切触ってはいけない**。
+     *    ふつうモードの .jar は GeckoLib を要求しないので、遊ぶ人の環境に無い。
+     *    詳しい理由と、実際に起きた事故は GeoSupport のコメントに書いてある。
+     */
+    public static boolean hasGeoMobs = false;
+
     public static void init(IEventBus bus) {
         // Load data from JAR
         try {
@@ -89,6 +98,9 @@ public class DynamicRegistry {
                     MOBS_MAP.put(id, m);
                     
                     if (m.has("render") && m.get("render").getAsString().equals("geo")) {
+                        // ここを通った作品だけが GeckoLib を必要とする。
+                        // 旗を立てるのを忘れると、geo モブの体力や名前が全部素通りする。
+                        hasGeoMobs = true;
                         RegistryObject<EntityType<CubicGeoEntity>> entityReg = ENTITIES.register(id, 
                             () -> EntityType.Builder.of((EntityType.EntityFactory<CubicGeoEntity>) (type, level) -> new CubicGeoEntity(type, level, id), MobCategory.CREATURE)
                                 .sized(1.0F, 1.0F)

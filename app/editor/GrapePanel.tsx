@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect, useMemo, type ComponentType }
 import { GrapeIcons, type IconProps } from "./grapeIcons";
 import { grapeToCBlock } from "../../lib/grapeToCBlock";
 import { exportProject, buildJavaFileList } from "./exporter";
+import { getJavaTarget } from "../../lib/javaEngine/targets";
 import { useEditorStore } from "./store";
 import { buildGroveStructure, type GroveSlot } from "../../lib/groveTree";
 import { CodeRevealOverlay } from "./CodeRevealOverlay";
@@ -733,9 +734,12 @@ export default function GrapePanel() {
           }
           const files = await buildJavaFileList(outState as any, (outState as any).generatedJsCode || "");
           const res = await api.buildAndInstall({ files, modsDir: det.modsDir, projectName: outState.projectName });
-          alert(`✅ ${res.jarName} を mods に導入しました！\nForge 1.20.1 でマイクラを起動して確認してください。`);
+          // ⚠️ 案内はビルドした出し先に合わせる（page.tsx と同じ理由）
+          const jt = getJavaTarget(outState.javaTarget);
+          alert(`✅ ${res.jarName} を mods に導入しました！\n${jt.requires} でマイクラを起動して確認してください。`);
         } catch (e: any) {
-          alert("❌ ビルドに失敗しました：\n" + (e?.message || e) + "\n\n※初回はGradle本体(8.8)のDLに数分かかります。ネット接続とJDK17を確認してください。");
+          const jt = getJavaTarget(outState.javaTarget);
+          alert("❌ ビルドに失敗しました：\n" + (e?.message || e) + `\n\n※初回はGradle本体(${jt.mdk.gradleVersion})のDLに数分かかります。ネット接続とJDK${jt.mdk.javaVersion}を確認してください。`);
         }
       })();
     } else {
