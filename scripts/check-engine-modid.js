@@ -24,7 +24,7 @@ const JSZip = require('jszip');
 const root = path.join(__dirname, '..');
 
 // 検査するjar。無いものは飛ばす（neo はまだ無い時期があった）。
-const JARS = ['public/base-mod.jar', 'public/base-mod-neo.jar'];
+const JARS = ['public/base-mod.jar', 'public/base-mod-neo.jar', 'public/base-mod-neo26.jar'];
 
 function readEngineModId() {
   const specPath = path.join(root, 'lib/javaEngine/spec.ts');
