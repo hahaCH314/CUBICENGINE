@@ -7,9 +7,11 @@ name: Build Engine (NeoForge 26.1)
 #   加えて 26.1 は Java 25 が要り、手元に無い環境が多い。
 #
 # ■ 出来た jar の扱い
-#   Artifacts に base-mod-neo26.jar が上がる。**public/ への配置は人が確認してから**。
-#   置くときは scripts/check-engine-modid.js（npm run check:modid）が通ることを見る。
-#   base-mod.jar / base-mod-neo.jar を上書きしないこと（1.20.1 / 1.21.1 の人が遊べなくなる）。
+#   Artifacts に base-mod-neo26.jar が上がる。
+#   public/ に置くのも CI にやらせる：Actions から手動実行して「commit_jar」を true にすると、
+#   組んだ jar を public/base-mod-neo26.jar としてそのブランチにコミットする
+#   （手元に落として置き直す経路を作らないため。作業環境からは Artifacts も落とせない）。
+#   base-mod.jar / base-mod-neo.jar には触らない（1.20.1 / 1.21.1 の人が遊べなくなる）。
 on:
   push:
     branches: [main]
@@ -21,6 +23,15 @@ on:
       - 'generic_engine_26/**'
       - '.github/workflows/engine-neo26.yml'
   workflow_dispatch:
+    inputs:
+      commit_jar:
+        description: '組んだ jar を public/base-mod-neo26.jar としてこのブランチにコミットする'
+        type: boolean
+        default: false
+
+# commit_jar のときだけ push する。それ以外は読むだけ
+permissions:
+  contents: write
 
 jobs:
   build-engine:
@@ -90,3 +101,18 @@ jobs:
         with:
           name: base-mod-neo26
           path: /tmp/base-mod-neo26.jar
+
+      - name: public/ に置いてコミット（手動実行で commit_jar のときだけ）
+        if: github.event_name == 'workflow_dispatch' && inputs.commit_jar
+        run: |
+          set -e
+          cp /tmp/base-mod-neo26.jar public/base-mod-neo26.jar
+          # 置いた直後に、同梱 jar 全部の modId 検査を通す（scripts/check-engine-modid.js）
+          node scripts/check-engine-modid.js
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/base-mod-neo26.jar
+          if git diff --cached --quiet; then echo "jar に変化なし"; exit 0; fi
+          git commit -m "26.1 エンジンの jar を public/ に置く（CI ビルド ${GITHUB_SHA::7}）" \
+                     -m "engine-neo26.yml の手動実行（commit_jar）が組んで置いた。手元ビルドではない。"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
