@@ -169,7 +169,7 @@ export const JAVA_TARGETS: Record<JavaTargetId, JavaTarget> = {
   neoforge_261: {
     id: "neoforge_261",
     label: "NeoForge 26.1",
-    hint: "いちばん新しいバージョン",
+    hint: "いちばん新しいバージョン（ためし中）",
     requires: "NeoForge 26.1",
     // ⚠️ エンジンは generic_engine_26/ を CI（engine-neo26.yml）で組んだもの。
     //    Actions の Artifacts から取って public/ に置く。手元で組んだものは置かない（AGENTS.md）。
@@ -197,12 +197,12 @@ export const JAVA_TARGETS: Record<JavaTargetId, JavaTarget> = {
       loaderVersion: "26.1.2.122",
       mcVersion: "26.1.2",
     },
-    // ⚠️ まだ実機で動かしていない。CI で jar が組めて public/ に置かれ、
-    //    1.21.1 のときと同じく「あげる」が実機で走るまで鍵をかけておく。
-    //    鍵をかけたままでは選べず試せない（鶏と卵）のは 1.21.1 と同じなので、
-    //    jar を置いた時点で true にして試す、という順でよい。
-    ready: false,
-    notReadyReason: "26.1 のエンジンを準備中です（まだ実機で確かめていません）",
+    // ⚠️ 2026-10-18、**まだ実機で動かしていない**。jar は CI（engine-neo26.yml）で組んで
+    //    public/ に置いた（コンパイルと modId 検査は通っている）。
+    //    鍵をかけたままでは選べず試せない（鶏と卵）ので、1.21.1 のとき（2026-09-05）と同じく
+    //    先に開けて試す。手順は docs/実機確認_NeoForge26.1.md。
+    //    動いたらここに「✅ 日付・何が動いたか」を足す。動かなければ false に戻す。
+    ready: true,
   },
 };
 

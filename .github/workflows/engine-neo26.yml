@@ -107,8 +107,8 @@ jobs:
         run: |
           set -e
           cp /tmp/base-mod-neo26.jar public/base-mod-neo26.jar
-          # 置いた直後に、同梱 jar 全部の modId 検査を通す（scripts/check-engine-modid.js）
-          node scripts/check-engine-modid.js
+          # modId の検査は上の「modId が焼かれているか」で済んでいる
+          # （scripts/check-engine-modid.js は jszip が要り、ここでは npm ci していない）
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add public/base-mod-neo26.jar
