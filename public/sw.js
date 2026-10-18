@@ -10,7 +10,8 @@
 // v4: fetch ハンドラが undefined を返しうるバグを直したので、旧キャッシュを一掃する
 // v5: /base-mod.jar を network-first に変えたので、焼き付いた古いエンジンを一掃する
 // v6: /base-mod-neo.jar が v5 の間 stale-while-revalidate に落ちていたので、一掃する
-const CACHE_NAME = 'cubicengine-v6'
+// v7: /base-mod-neo26.jar（26.1 エンジン）を ALWAYS_FRESH に足した
+const CACHE_NAME = 'cubicengine-v7'
 
 // ⚠️ **名前が変わらないのに中身が変わるもの。** ここは network-first にする。
 //    下の stale-while-revalidate は「ビルドごとにファイル名が変わる」前提なので、
@@ -28,7 +29,7 @@ const CACHE_NAME = 'cubicengine-v6'
 //    その .jar は下の stale-while-revalidate に落ちて上と同じ事故になる。
 //    exporter の cache:"no-cache" は Service Worker には効かない
 //    （SW が先に応答するので、そもそもネットワークまで行かない）。
-const ALWAYS_FRESH = ['/base-mod.jar', '/base-mod-neo.jar']
+const ALWAYS_FRESH = ['/base-mod.jar', '/base-mod-neo.jar', '/base-mod-neo26.jar']
 // 実在するものだけ。存在しないURL(例: 削除した /icon.svg)を入れると addAll が丸ごと reject し、
 // install 自体が失敗 → 新SWが有効化されず旧キャッシュが永久に残る（特にiOSで顕著だった事故）。
 const STATIC_ASSETS = [

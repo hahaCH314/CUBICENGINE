@@ -708,6 +708,14 @@ async function buildJavaZip(state: EditorState, jsCode: string): Promise<JSZip> 
   // 🎯 出し先。⚠️ 遊べない出し先が選ばれていても getJavaTarget が既定へ落とす。
   const target = getJavaTarget(state.javaTarget);
   const isNeo = target.loader === "neoforge";
+  // ⚠️ 26.1 はソース一式（MDK）の書き出しにまだ対応していない。
+  //    lib/codegenJava.ts の DIALECTS は 1.21.1 の名前（ResourceLocation、withPermission(4)、
+  //    BlockEvent.BreakEvent …）で生成するので、26.1 の gradle では**コンパイルが通らない**。
+  //    黙って 1.21.1 用を渡すと「NeoForge を選んだ人に Forge を渡していた」2026-09-07 の
+  //    事故と同じ形になるので、はっきり止める。完成済み .jar（exportJava）は 26.1 でも出せる。
+  if (target.id === "neoforge_261") {
+    throw new Error("NeoForge 26.1 向けの「ソース一式」書き出しはまだ対応していません。完成済み .jar の書き出しを使ってください。");
+  }
 
   // ─── build.gradle ───
   // ⚠️ 使うプラグインからして違う。Forge は ForgeGradle、NeoForge は ModDevGradle。
@@ -1311,9 +1319,10 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
     //    animation は 1.8.0 で、GeckoLib が読むのはまさにこの Bedrock 形式。
     //    ここで別の作り方をすると、統合版と Java版で形が食い違う元になる。
     //
-    // ⚠️ パスはエンジンが決めている（CubicGeoModel を javap で実測）。
-    //    geo/<id>.geo.json / animations/<id>.animation.json /
-    //    textures/entity/<id>.png のどれか1つでも欠けると、
+    // ⚠️ パスはエンジン（GeckoLib の版）が決めている。出し先の表 target.geoDirs が唯一の出どころ。
+    //    GeckoLib 4: geo/<id>.geo.json / animations/<id>.animation.json
+    //    GeckoLib 5: geckolib/models/<id>.geo.json / geckolib/animations/<id>.animation.json
+    //    textures/entity/<id>.png は共通。どれか1つでも欠けると、
     //    モブは登録されるのに描けない。マイクラは何も言わない。
     if (useGeo) {
       const { mobToBedrock } = await import("../../lib/devtab/toBedrock");
@@ -1331,7 +1340,7 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
           const g = JSON.parse(geo.text) as { "minecraft:geometry"?: { description?: { identifier?: string } }[] };
           const desc = g["minecraft:geometry"]?.[0]?.description;
           if (desc) desc.identifier = `geometry.${ce.id}`;
-          zip.file(`assets/${modId}/geo/${ce.id}.geo.json`, JSON.stringify(g, null, 2));
+          zip.file(`assets/${modId}/${target.geoDirs.model}/${ce.id}.geo.json`, JSON.stringify(g, null, 2));
         }
         if (anim?.text) {
           const a = JSON.parse(anim.text) as { animations?: Record<string, unknown> };
@@ -1342,7 +1351,7 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
             renamed[`animation.${ce.id}.${short}`] = body;
           }
           a.animations = renamed;
-          zip.file(`assets/${modId}/animations/${ce.id}.animation.json`, JSON.stringify(a, null, 2));
+          zip.file(`assets/${modId}/${target.geoDirs.anim}/${ce.id}.animation.json`, JSON.stringify(a, null, 2));
         }
 
         // テクスチャは取り込んだ画像そのもの。data URL から戻す。

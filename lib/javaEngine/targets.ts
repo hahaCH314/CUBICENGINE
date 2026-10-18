@@ -15,7 +15,7 @@
  *   そのときは立ち止まること。
  */
 
-export type JavaTargetId = "forge_1201" | "neoforge_1211";
+export type JavaTargetId = "forge_1201" | "neoforge_1211" | "neoforge_261";
 
 export interface JavaTarget {
   id: JavaTargetId;
@@ -46,6 +46,14 @@ export interface JavaTarget {
   packFormat: number;
   /** GeckoLib（前提modモードのときだけ書く）のバージョン範囲 */
   geckolibRange: string;
+  /**
+   * GeckoLib が geo モデルと動きを読む場所（assets/<modid>/ の下）。
+   * ⚠️ GeckoLib 4（1.20.1 / 1.21.1）はエンジンの CubicGeoModel が決めた geo/ と animations/。
+   *    GeckoLib 5（26.1）は GeckoLib 側が geckolib/models/ と geckolib/animations/ に固定し、
+   *    「<modid>:<name>」で引く。置き場所を間違えると、モブは湧くのにエラー四角で描かれる。
+   *    テクスチャは全部 textures/entity/ で共通。
+   */
+  geoDirs: { model: string; anim: string };
   /**
    * 依存を「必須」と書くときの1行。
    * ⚠️ Forge は `mandatory=true`、NeoForge は `type="required"` と**キーから違う**。
@@ -103,6 +111,7 @@ export const JAVA_TARGETS: Record<JavaTargetId, JavaTarget> = {
     mcRange: "[1.20.1,1.21)",
     packFormat: 15,
     geckolibRange: "[4.8.4,)",
+    geoDirs: { model: "geo", anim: "animations" },
     requiredLine: "    mandatory=true",
     loader: "forge",
     mdk: {
@@ -134,6 +143,7 @@ export const JAVA_TARGETS: Record<JavaTargetId, JavaTarget> = {
     //    data/ にレシピを入れ始めたら、1つの数字で足りるか実機で確かめること
     packFormat: 34,
     geckolibRange: "[4.9,)",
+    geoDirs: { model: "geo", anim: "animations" },
     requiredLine: '    type="required"',
     loader: "neoforge",
     mdk: {
@@ -156,9 +166,51 @@ export const JAVA_TARGETS: Record<JavaTargetId, JavaTarget> = {
     //       ここを触ったときは、Forge 側だけでなく**こちらも実機で見ること**。
     ready: true,
   },
+  neoforge_261: {
+    id: "neoforge_261",
+    label: "NeoForge 26.1",
+    hint: "いちばん新しいバージョン",
+    requires: "NeoForge 26.1",
+    // ⚠️ エンジンは generic_engine_26/ を CI（engine-neo26.yml）で組んだもの。
+    //    Actions の Artifacts から取って public/ に置く。手元で組んだものは置かない（AGENTS.md）。
+    //    ⚠️ base-mod.jar / base-mod-neo.jar を**上書きしない**こと
+    engineUrl: "/base-mod-neo26.jar",
+    fileSuffix: "neoforge261",
+    metaPath: "META-INF/neoforge.mods.toml",
+    loaderModId: "neoforge",
+    loaderRange: "[26.1,)",
+    // 26.1 の javafml は 5.x（GeckoLib の libs.versions.toml では [5,)）。下限のみ緩く見る
+    fmlRange: "[1,)",
+    mcRange: "[26.1,26.2)",
+    // ⚠️ 26.1 の pack_format は resources 84 / data 101。NeoForge は mod の pack.mcmeta を
+    //    自分で作るので、この数字が読まれる場面はほぼ無いが、合わせておく
+    packFormat: 84,
+    // GeckoLib 5 系。4.x は 26.1 では動かない（パッケージも com.geckolib に変わった）
+    geckolibRange: "[5.5,)",
+    geoDirs: { model: "geckolib/models", anim: "geckolib/animations" },
+    requiredLine: '    type="required"',
+    loader: "neoforge",
+    mdk: {
+      // ⚠️ 26.1 は Java 25。21 では NeoForge 本体のクラスが読めない
+      javaVersion: 25,
+      gradleVersion: "9.2.1",
+      loaderVersion: "26.1.2.122",
+      mcVersion: "26.1.2",
+    },
+    // ⚠️ まだ実機で動かしていない。CI で jar が組めて public/ に置かれ、
+    //    1.21.1 のときと同じく「あげる」が実機で走るまで鍵をかけておく。
+    //    鍵をかけたままでは選べず試せない（鶏と卵）のは 1.21.1 と同じなので、
+    //    jar を置いた時点で true にして試す、という順でよい。
+    ready: false,
+    notReadyReason: "26.1 のエンジンを準備中です（まだ実機で確かめていません）",
+  },
 };
 
-export const JAVA_TARGET_LIST: JavaTarget[] = [JAVA_TARGETS.forge_1201, JAVA_TARGETS.neoforge_1211];
+export const JAVA_TARGET_LIST: JavaTarget[] = [
+  JAVA_TARGETS.forge_1201,
+  JAVA_TARGETS.neoforge_1211,
+  JAVA_TARGETS.neoforge_261,
+];
 
 /** 既定の出し先。実機で確認できているものを既定にする */
 export const DEFAULT_JAVA_TARGET: JavaTargetId = "forge_1201";
