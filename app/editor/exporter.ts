@@ -100,7 +100,8 @@ function escComment(s: string): string {
 }
 
 function sanitizeMcId(s: string): string {
-  return s.replace(/[^a-z0-9_-]/g, "");
+  // ⚠️ 先に小文字にすること。以前は大文字を消していたので "RubyBlock" が "ubylock" になっていた
+  return s.toLowerCase().replace(/[^a-z0-9_-]/g, "");
 }
 
 function sanitizeSlug(s: string): string {
@@ -116,11 +117,45 @@ function sanitizeClassName(s: string): string {
 
 function sanitizeModId(s: string): string {
   const id = s.replace(/[^a-z0-9_]/g, "");
-  return id || "mod";
+  // Forge / NeoForge の modId は ^[a-z][a-z0-9_]{1,63}$。Java のパッケージ名にも使うので、
+  // 「2024なつ」→"2024" や「A」→"a" のような数字始まり・1文字はそのままだとビルドで落ちる。
+  if (/^[a-z][a-z0-9_]{1,63}$/.test(id)) return id;
+  return `mod_${id}`.slice(0, 64);
 }
 
 function sanitizeBlockName(s: string): string {
-  return sanitizeMcId(s) || "block";
+  const id = sanitizeMcId(s) || "block";
+  // ⚠️ マイクラの識別子は数字で始められない（lib/devtab/ir.ts の toIdentifier と同じ理由）
+  return /^\d/.test(id) ? `b_${id}` : id;
+}
+
+/** ブロックの識別子。**同じ一覧の中で重ならないようにする。**
+ *  「ルビー」と「ダイヤ」のように日本語だけの名前はどちらも "block" になり、
+ *  zip の中で同じファイルを上書きして、ゲームにはブロックが1つしか出なかった。
+ *  2つ目以降に _2, _3 … を付ける。⚠️ ブロックのファイル名・識別子・テクスチャ・Java の
+ *  登録名がすべてこれで揃っている必要があるので、block.name から直接作らないこと。 */
+const _blockIdCache = new WeakMap<readonly { name: string }[], Map<object, string>>();
+function blockId(block: { name: string }, all: readonly { name: string }[]): string {
+  let ids = _blockIdCache.get(all);
+  if (!ids) {
+    ids = new Map();
+    const used = new Set<string>();
+    for (const b of all) {
+      const base = sanitizeBlockName(b.name);
+      let id = base;
+      for (let i = 2; used.has(id); i++) id = `${base}_${i}`;
+      used.add(id);
+      ids.set(b, id);
+    }
+    _blockIdCache.set(all, ids);
+  }
+  return ids.get(block) ?? sanitizeBlockName(block.name);
+}
+
+/** Java のフィールド名。識別子の "-" や数字始まりはそのままだとコンパイルが通らない */
+function javaField(bn: string): string {
+  const f = bn.toUpperCase().replace(/-/g, "_");
+  return /^\d/.test(f) ? `B_${f}` : f;
 }
 
 /* ═══════════════════════════════════════════
@@ -353,11 +388,11 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
   const itemNeeds = itemsScriptImports(state.devItems ?? []);
   // モデルタブのブロックに付けた粒子。ブロックのJSONではなくスクリプトで出す
   // （理由は lib/devtab/blockToScript.ts のコメント）。
-  // ⚠️ id は sanitizeBlockName を通すこと。ブロック本体のファイル名と識別子が
+  // ⚠️ id は blockId を通すこと。ブロック本体のファイル名と識別子が
   //    これで作られているので、ここだけ生の name を使うと一致せず粒子が出ない。
   const particleSrc = (state.blocks ?? [])
     .filter(b => b.registered && b.particle)
-    .map(b => ({ id: sanitizeBlockName(b.name), particle: b.particle }));
+    .map(b => ({ id: blockId(b, state.blocks ?? []), particle: b.particle }));
   const blockScript = blocksToScript(particleSrc);
   const blockNeeds = blocksScriptImports(particleSrc);
 
@@ -505,7 +540,7 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
     }
 
     for (const block of state.blocks) {
-      const bn = sanitizeBlockName(block.name); // zip入口パス/識別子の安全化（path traversal防止）
+      const bn = blockId(block, state.blocks); // zip入口パス/識別子の安全化（path traversal防止）
       const components: Record<string, unknown> = {
         // unit_cube = 標準の1×1×1キューブ（カスタムジオメトリ不要）
         "minecraft:unit_cube": {},
@@ -570,7 +605,7 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
     const textureData: Record<string, { textures: string }> = {};
     const blocksJson: Record<string, { textures: string; sound: string }> = {};
     for (const block of state.blocks) {
-      const bn = sanitizeBlockName(block.name);
+      const bn = blockId(block, state.blocks);
       textureData[`cubicengine_${bn}`] = { textures: `textures/blocks/${bn}` };
       blocksJson[`cubicengine:${bn}`] = { textures: `cubicengine_${bn}`, sound: "stone" };
     }
@@ -594,7 +629,7 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
     // 表示名(lang): 本格ブロックは displayName を、それ以外はブロック名をゲーム内名に
     const langLines = state.blocks
       .map((b) => {
-        const bn = sanitizeBlockName(b.name);
+        const bn = blockId(b, state.blocks);
         const disp = ((b.registered && b.displayName) ? b.displayName : b.name).replace(/[\n\r]/g, " "); // 改行除去でlang行注入を防止
         return `tile.cubicengine:${bn}.name=${disp}`;
       })
@@ -615,7 +650,7 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
     }
 
     for (const block of state.blocks) {
-      const bn = sanitizeBlockName(block.name);
+      const bn = blockId(block, state.blocks);
       const tex = await createColoredTexture(block.faces.top.color);
       rp.file(`textures/blocks/${bn}.png`, tex);
     }
@@ -895,9 +930,9 @@ async function buildJavaZip(state: EditorState, jsCode: string): Promise<JSZip> 
       `        DeferredRegister.create(${isNeo ? "BuiltInRegistries.BLOCK" : "ForgeRegistries.BLOCKS"}, ${className}Mod.MOD_ID);`,
       ``,
       ...state.blocks.map((b) => {
-        const bn = sanitizeBlockName(b.name);
+        const bn = blockId(b, state.blocks);
         return [
-          `    public static final ${isNeo ? "DeferredHolder<Block, Block>" : "RegistryObject<Block>"} ${bn.toUpperCase()} =`,
+          `    public static final ${isNeo ? "DeferredHolder<Block, Block>" : "RegistryObject<Block>"} ${javaField(bn)} =`,
           `        BLOCKS.register("${escJava(bn)}",`,
           `            () -> new Block(BlockBehaviour.Properties.of()`,
           `                .strength(3.0f).requiresCorrectToolForDrops()));`,
@@ -938,11 +973,11 @@ async function buildJavaZip(state: EditorState, jsCode: string): Promise<JSZip> 
       `        DeferredRegister.create(${isNeo ? "BuiltInRegistries.ITEM" : "ForgeRegistries.ITEMS"}, ${className}Mod.MOD_ID);`,
       ``,
       ...state.blocks.map((b) => {
-        const bn = sanitizeBlockName(b.name);
+        const bn = blockId(b, state.blocks);
         return [
-          `    public static final ${isNeo ? "DeferredHolder<Item, Item>" : "RegistryObject<Item>"} ${bn.toUpperCase()}_ITEM =`,
+          `    public static final ${isNeo ? "DeferredHolder<Item, Item>" : "RegistryObject<Item>"} ${javaField(bn)}_ITEM =`,
           `        ITEMS.register("${escJava(bn)}",`,
-          `            () -> new BlockItem(ModBlocks.${bn.toUpperCase()}.get(),`,
+          `            () -> new BlockItem(ModBlocks.${javaField(bn)}.get(),`,
           `                new Item.Properties()));`,
         ].join("\n");
       }),
@@ -1017,7 +1052,7 @@ async function buildJavaZip(state: EditorState, jsCode: string): Promise<JSZip> 
   // Block models, blockstates, item models, textures, lang
   const langEntries: Record<string, string> = {};
   for (const block of state.blocks) {
-    const bn = sanitizeBlockName(block.name); // zip入口パス/識別子の安全化（path traversal防止）＋Javaコード側(sanitizeBlockName)と一致
+    const bn = blockId(block, state.blocks); // zip入口パス/識別子の安全化（path traversal防止）＋Javaコード側(sanitizeBlockName)と一致
     resources.file(
       `assets/${modId}/blockstates/${bn}.json`,
       JSON.stringify({ variants: { "": { model: `${modId}:block/${bn}` } } }, null, 2),

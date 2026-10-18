@@ -1,6 +1,16 @@
 import { CBlock, Sticker } from '../app/editor/_types';
 
-function escStr(s:string){return s.replace(/\\/g,"\\\\").replace(/"/g,'\\"').replace(/`/g,"\\`").replace(/\$/g,"\\$").replace(/\n/g,"\\n");}
+function escStr(s:string){return s.replace(/\\/g,"\\\\").replace(/"/g,'\\"').replace(/`/g,"\\`").replace(/\$/g,"\\$").replace(/\n/g,"\\n").replace(/\r/g,"\\r");}
+/** 数値フィールド → JS の数値リテラル。子どもが入れた「３」（全角）や空欄をそのまま埋め込むと
+ *  main.js 全体が SyntaxError になり、アドオンのカードが1枚も動かなくなる。
+ *  全角数字・記号を半角に直し、数値にならなければ既定値に落とす。 */
+function num(v:string,fb:string):string{
+  const h=(v??"").replace(/[０-９．－＋]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).trim();
+  const n=Number(h);
+  return h!==""&&Number.isFinite(n)?String(n):String(Number(fb)||0);
+}
+/** 生成コードの // コメントに入れる文字列。改行が入るとコメントが途切れて SyntaxError になる */
+function escComment(s:string){return s.replace(/[\r\n]+/g," ");}
 function escId(s:string){return s.replace(/[^a-z0-9_.:/-]/gi,"");}
 /** Minecraft ID を正規化：名前空間が無ければ minecraft: を付与。二重付与は防ぐ */
 function nsId(s:string,fb="minecraft:air"):string{const v=escId(s)||fb;return v.includes(":")?v:"minecraft:"+v;}
@@ -88,15 +98,17 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
       return f("target","@a")==="@a"
         ? `${I}for (const _tp of world.getPlayers()) _tp.sendMessage("${escStr(f("msg","こんにちは"))}");`
         : `${I}player.sendMessage("${escStr(f("msg","こんにちは"))}");`;
-    case"ac_give":   return`${I}player.runCommand("give @s ${escId(f("item","minecraft:diamond"))} ${f("count","1")}");`;
-    case"ac_tp":     return`${I}player.teleport({x:${f("x","0")},y:${f("y","64")},z:${f("z","0")}});`;
+    case"ac_give":   return`${I}player.runCommand("give @s ${escId(f("item","minecraft:diamond"))} ${num(f("count","1"),"1")}");`;
+    case"ac_tp":     return`${I}player.teleport({x:${num(f("x","0"),"0")},y:${num(f("y","64"),"64")},z:${num(f("z","0"),"0")}});`;
     case"ac_cmd":    return`${I}player.runCommand("${escStr(f("cmd","say hi"))}");`;
-    case"ac_sound":  return`${I}player.runCommand("playsound ${escId(f("snd","random.orb"))} @s ~ ~ ~ ${f("vol","1")}");`;
+    case"ac_sound":  return`${I}player.runCommand("playsound ${escId(f("snd","random.orb"))} @s ~ ~ ~ ${num(f("vol","1"),"1")}");`;
     case"ac_title":  return[
-      `${I}player.runCommand(\`titleraw @s title {"rawtext":[{"text":"${escStr(f("title",""))}"}]}\`);`,
-      `${I}player.runCommand(\`titleraw @s subtitle {"rawtext":[{"text":"${escStr(f("sub",""))}"}]}\`);`,
+      // ⚠️ 統合版は subtitle を「次に出す title」に添える。title → subtitle の順だと副題が出ない。
+      //    文字列は JSON.stringify で作ってから埋め込む（" が入ると JSON が壊れていた）。
+      `${I}player.runCommand("titleraw @s subtitle ${escStr(JSON.stringify({rawtext:[{text:f("sub","")}]}))}");`,
+      `${I}player.runCommand("titleraw @s title ${escStr(JSON.stringify({rawtext:[{text:f("title","")}]}))}");`,
     ].join("\n");
-    case"ac_effect": return`${I}player.runCommand("effect @s ${escId(f("eff","speed"))} ${f("dur","10")} 0");`;
+    case"ac_effect": return`${I}player.runCommand("effect @s ${escId(f("eff","speed"))} ${num(f("dur","10"),"10")} 0");`;
     case"ac_score":{
       const ops:Record<string,string>={"加算":"add","減算":"remove","セット":"set","リセット":"set"};
       const cmd=ops[f("op","加算")]??"add";
@@ -116,7 +128,7 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
     case"ac_particle":
       return`${I}player.runCommand("particle ${escId(f("particle","minecraft:heart_particle"))} ~ ~1 ~");`;
     case"ac_xp":
-      return`${I}player.addExperience(Number(${f("amount","10")})||0);`;
+      return`${I}player.addExperience(Number(${num(f("amount","10"),"10")})||0);`;
     case"ac_heal":
       return`${I}{const _h=player.getComponent("minecraft:health");if(_h)_h.setCurrentValue(_h.effectiveMax);}`;
     // 演算ブロックをアクションとして単体実行（ログ出力付き）
@@ -130,7 +142,7 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
     // 制御
     case"ct_rep":{
       const body=genChain(b.thenId,blocks,I+"  ");
-      return`${I}for (let _ri = 0; _ri < ${f("n","3")}; _ri++) {\n${body}\n${I}}`;
+      return`${I}for (let _ri = 0; _ri < ${num(f("n","3"),"3")}; _ri++) {\n${body}\n${I}}`;
     }
     case"ct_log":{
       const _e=genExpr(b.innerId,blocks)||`"${escStr(f("v","ログ"))}"`;
@@ -139,11 +151,11 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
     case"ct_return":
       return`${I}return;`;
     // 変数
-    case"vv_set":    return`${I}_v_${sanitizeVarName(f("name","score"))} = ${genExpr(b.innerId,blocks)||`Number(${f("val","0")})`};`;
-    case"vv_add":    return`${I}_v_${sanitizeVarName(f("name","score"))} += ${genExpr(b.innerId,blocks)||`Number(${f("val","1")})`};`;
-    case"vv_sub":    return`${I}_v_${sanitizeVarName(f("name","score"))} -= ${genExpr(b.innerId,blocks)||`Number(${f("val","1")})`};`;
-    case"vv_mul":    return`${I}_v_${sanitizeVarName(f("name","score"))} *= ${genExpr(b.innerId,blocks)||`Number(${f("val","2")})`};`;
-    case"vv_div":    return`${I}_v_${sanitizeVarName(f("name","score"))} /= ${genExpr(b.innerId,blocks)||`Number(${f("val","2")})`};`;
+    case"vv_set":    return`${I}_v_${sanitizeVarName(f("name","score"))} = ${genExpr(b.innerId,blocks)||`Number(${num(f("val","0"),"0")})`};`;
+    case"vv_add":    return`${I}_v_${sanitizeVarName(f("name","score"))} += ${genExpr(b.innerId,blocks)||`Number(${num(f("val","1"),"1")})`};`;
+    case"vv_sub":    return`${I}_v_${sanitizeVarName(f("name","score"))} -= ${genExpr(b.innerId,blocks)||`Number(${num(f("val","1"),"1")})`};`;
+    case"vv_mul":    return`${I}_v_${sanitizeVarName(f("name","score"))} *= ${genExpr(b.innerId,blocks)||`Number(${num(f("val","2"),"2")})`};`;
+    case"vv_div":    return`${I}_v_${sanitizeVarName(f("name","score"))} /= ${genExpr(b.innerId,blocks)||`Number(${num(f("val","2"),"2")})`};`;
     case"vv_inc":    return`${I}_v_${sanitizeVarName(f("name","score"))}++;`;
     case"vv_dec":    return`${I}_v_${sanitizeVarName(f("name","score"))}--;`;
     case"vv_reset":  return`${I}_v_${sanitizeVarName(f("name","score"))} = 0;`;
@@ -155,7 +167,7 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
       const b1=f("btn1","はい"), b2=f("btn2","いいえ"), b3=f("btn3","");
       const m1=f("msg1"), m2=f("msg2"), m3=f("msg3");
       return[
-        `${I}const _form = new ActionFormData().title("${escStr(title)}").body("${escStr(bodyText)}");`,
+        `${I}{ const _form = new ActionFormData().title("${escStr(title)}").body("${escStr(bodyText)}");`,
         `${I}_form.button("${escStr(b1)}");`,
         `${I}_form.button("${escStr(b2)}");`,
         ...(b3?[`${I}_form.button("${escStr(b3)}");`]:[]),
@@ -164,7 +176,7 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
         `${I}  if (res.selection === 0) { ${m1?`player.sendMessage("${escStr(m1)}");`:""} }`,
         `${I}  else if (res.selection === 1) { ${m2?`player.sendMessage("${escStr(m2)}");`:""} }`,
         ...(b3?[`${I}  else if (res.selection === 2) { ${m3?`player.sendMessage("${escStr(m3)}");`:""} }`]:[]),
-        `${I}});`,
+        `${I}}); }`,
       ].join("\n");
     }
     case"ui_message":{
@@ -172,12 +184,12 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
       const b1=f("btn1","はい"), b2=f("btn2","いいえ");
       const m1=f("msg1"), m2=f("msg2");
       return[
-        `${I}const _form = new MessageFormData().title("${escStr(title)}").body("${escStr(bodyText)}").button1("${escStr(b1)}").button2("${escStr(b2)}");`,
+        `${I}{ const _form = new MessageFormData().title("${escStr(title)}").body("${escStr(bodyText)}").button1("${escStr(b1)}").button2("${escStr(b2)}");`,
         `${I}_form.show(player).then((res) => {`,
         `${I}  if (res.canceled) return;`,
         `${I}  if (res.selection === 1) { ${m1?`player.sendMessage("${escStr(m1)}");`:""} }`,
         `${I}  else if (res.selection === 0) { ${m2?`player.sendMessage("${escStr(m2)}");`:""} }`,
-        `${I}});`,
+        `${I}}); }`,
       ].join("\n");
     }
     case"ui_textinput":{
@@ -185,7 +197,7 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
       const l2=f("label2",""), h2=f("hint2",""), d2=f("default2","");
       const result=f("result","入力:{0}");
       return[
-        `${I}const _form = new ModalFormData().title("${escStr(title)}");`,
+        `${I}{ const _form = new ModalFormData().title("${escStr(title)}");`,
         `${I}_form.textField("${escStr(l1)}", "${escStr(h1)}", "${escStr(d1)}");`,
         ...(l2?[`${I}_form.textField("${escStr(l2)}", "${escStr(h2)}", "${escStr(d2)}");`]:[]),
         `${I}_form.show(player).then((res) => {`,
@@ -193,48 +205,48 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
         `${I}  const _v0 = String(res.formValues[0]);`,
         `${I}  const _v1 = ${l2?"String(res.formValues[1])":'""'};`,
         `${I}  player.sendMessage(\`${escStr(result).replace(/\{0\}/g,"${_v0}").replace(/\{1\}/g,"${_v1}")}\`);`,
-        `${I}});`,
+        `${I}}); }`,
       ].join("\n");
     }
     case"ui_toggle":{
       const title=f("title","設定"), label=f("label","トグル"), def=f("default","ON")==="ON";
       const mon=f("msgon"), moff=f("msgoff");
       return[
-        `${I}const _form = new ModalFormData().title("${escStr(title)}").toggle("${escStr(label)}", ${def});`,
+        `${I}{ const _form = new ModalFormData().title("${escStr(title)}").toggle("${escStr(label)}", ${def});`,
         `${I}_form.show(player).then((res) => {`,
         `${I}  if (res.canceled || !res.formValues) return;`,
         `${I}  if (res.formValues[0] === true) { ${mon?`player.sendMessage("${escStr(mon)}");`:""} }`,
         `${I}  else { ${moff?`player.sendMessage("${escStr(moff)}");`:""} }`,
-        `${I}});`,
+        `${I}}); }`,
       ].join("\n");
     }
     case"ui_slider":{
       const title=f("title","数値入力"), label=f("label","値");
-      const min=f("min","0"), max=f("max","100"), step=f("step","1"), def=f("default","50");
+      const min=num(f("min","0"),"0"), max=num(f("max","100"),"100"), step=num(f("step","1"),"1"), def=num(f("default","50"),"50");
       const result=f("result","値:{0}");
       return[
-        `${I}const _form = new ModalFormData().title("${escStr(title)}").slider("${escStr(label)}", ${min}, ${max}, ${step}, ${def});`,
+        `${I}{ const _form = new ModalFormData().title("${escStr(title)}").slider("${escStr(label)}", ${min}, ${max}, ${step}, ${def});`,
         `${I}_form.show(player).then((res) => {`,
         `${I}  if (res.canceled || !res.formValues) return;`,
         `${I}  const _val = res.formValues[0];`,
         `${I}  player.sendMessage(\`${escStr(result).replace(/\{0\}/g,"${_val}")}\`);`,
-        `${I}});`,
+        `${I}}); }`,
       ].join("\n");
     }
     case"ui_dropdown":{
       const title=f("title","選択"), label=f("label","項目");
       const items=f("items","A,B").split(",").map(s=>s.trim()).filter(Boolean);
-      const defIdx=f("default","0");
+      const defIdx=num(f("default","0"),"0");
       const result=f("result","選択:{0}");
       return[
-        `${I}const _form = new ModalFormData().title("${escStr(title)}").dropdown("${escStr(label)}", [${items.map(s=>`"${escStr(s)}"`).join(",")}], ${defIdx});`,
+        `${I}{ const _form = new ModalFormData().title("${escStr(title)}").dropdown("${escStr(label)}", [${items.map(s=>`"${escStr(s)}"`).join(",")}], ${defIdx});`,
         `${I}_form.show(player).then((res) => {`,
         `${I}  if (res.canceled || !res.formValues) return;`,
         `${I}  const _idx = Number(res.formValues[0]);`,
         `${I}  const _items = [${items.map(s=>`"${escStr(s)}"`).join(",")}];`,
         `${I}  const _val = _items[_idx];`,
         `${I}  player.sendMessage(\`${escStr(result).replace(/\{0\}/g,"${_val}")}\`);`,
-        `${I}});`,
+        `${I}}); }`,
       ].join("\n");
     }
     case"ui_mixed":{
@@ -244,24 +256,24 @@ function genBlock(b:CBlock,blocks:CBlock[],indent:string):string{
       const el3=f("el3","slider"), lbl3=f("lbl3","音量"), val3=f("val3","50");
       const result=f("result","{0}/{1}/{2}");
       return[
-        `${I}const _form = new ModalFormData().title("${escStr(title)}");`,
-        el1==="text"?`${I}_form.textField("${escStr(lbl1)}", "", "${escStr(val1)}");`:el1==="toggle"?`${I}_form.toggle("${escStr(lbl1)}", ${val1==="true"});`:`${I}_form.slider("${escStr(lbl1)}", 0, 100, 1, ${val1});`,
-        el2==="text"?`${I}_form.textField("${escStr(lbl2)}", "", "${escStr(val2)}");`:el2==="toggle"?`${I}_form.toggle("${escStr(lbl2)}", ${val2==="true"});`:`${I}_form.slider("${escStr(lbl2)}", 0, 100, 1, ${val2});`,
-        el3==="text"?`${I}_form.textField("${escStr(lbl3)}", "", "${escStr(val3)}");`:el3==="toggle"?`${I}_form.toggle("${escStr(lbl3)}", ${val3==="true"});`:`${I}_form.slider("${escStr(lbl3)}", 0, 100, 1, ${val3});`,
+        `${I}{ const _form = new ModalFormData().title("${escStr(title)}");`,
+        el1==="text"?`${I}_form.textField("${escStr(lbl1)}", "", "${escStr(val1)}");`:el1==="toggle"?`${I}_form.toggle("${escStr(lbl1)}", ${val1==="true"});`:`${I}_form.slider("${escStr(lbl1)}", 0, 100, 1, ${num(val1,"50")});`,
+        el2==="text"?`${I}_form.textField("${escStr(lbl2)}", "", "${escStr(val2)}");`:el2==="toggle"?`${I}_form.toggle("${escStr(lbl2)}", ${val2==="true"});`:`${I}_form.slider("${escStr(lbl2)}", 0, 100, 1, ${num(val2,"50")});`,
+        el3==="text"?`${I}_form.textField("${escStr(lbl3)}", "", "${escStr(val3)}");`:el3==="toggle"?`${I}_form.toggle("${escStr(lbl3)}", ${val3==="true"});`:`${I}_form.slider("${escStr(lbl3)}", 0, 100, 1, ${num(val3,"50")});`,
         `${I}_form.show(player).then((res) => {`,
         `${I}  if (res.canceled || !res.formValues) return;`,
         `${I}  const _v0 = res.formValues[0];`,
         `${I}  const _v1 = res.formValues[1];`,
         `${I}  const _v2 = res.formValues[2];`,
         `${I}  player.sendMessage(\`${escStr(result).replace(/\{0\}/g,"${_v0}").replace(/\{1\}/g,"${_v1}").replace(/\{2\}/g,"${_v2}")}\`);`,
-        `${I}});`,
+        `${I}}); }`,
       ].join("\n");
     }
     case"ui_longtext":{
       const title=f("title","おしらせ"), bodyText=f("body",""), btn=f("btn","とじる");
       return[
-        `${I}const _form = new ActionFormData().title("${escStr(title)}").body("${escStr(bodyText)}").button("${escStr(btn)}");`,
-        `${I}_form.show(player);`,
+        `${I}{ const _form = new ActionFormData().title("${escStr(title)}").body("${escStr(bodyText)}").button("${escStr(btn)}");`,
+        `${I}_form.show(player); }`,
       ].join("\n");
     }
     case"co_if":{
@@ -288,9 +300,9 @@ function genExpr(id:string|null, blocks:CBlock[]):string{
   const f=(fid:string,fb="")=>gf(b,fid,fb);
   switch(b.type){
     case"va_name":  return"player.name";
-    case"va_rand":  return`(Math.floor(Math.random()*(Number(${f("max","100")})-Number(${f("min","0")})+1))+Number(${f("min","0")}))`;
+    case"va_rand":  return`(Math.floor(Math.random()*(Number(${num(f("max","100"),"100")})-Number(${num(f("min","0"),"0")})+1))+Number(${num(f("min","0"),"0")}))`;
     case"va_str":   return`"${escStr(f("v",""))}"`;
-    case"va_num":   return`Number(${f("v","0")})`;
+    case"va_num":   return`Number(${num(f("v","0"),"0")})`;
     case"va_hp":    return`(player.getComponent("minecraft:health")?.currentValue??20)`;
     case"va_pos":   return`Math.round(player.location.${f("axis","Y").toLowerCase()})`;
     case"va_score": return`(()=>{try{return world.scoreboard.getObjective("${escId(f("obj","points"))}")?.getScore(player.scoreboardIdentity)??0;}catch(_e){return 0;}})()`;
@@ -329,7 +341,7 @@ function genExpr(id:string|null, blocks:CBlock[]):string{
     case"ca_strlen":return`String(${genExpr(b.fields[0]?.id,blocks)||`"${escStr(f("str",""))}"`}).length`;
     case"ca_numstr":return`String(${genExpr(b.fields[0]?.id,blocks)||f("num","42")})`;
     case"ca_strnum":return`Number(${genExpr(b.fields[0]?.id,blocks)||`"${escStr(f("str","0"))}"`})`;
-    case"ca_substr":return`String(${genExpr(b.fields[0]?.id,blocks)||`"${escStr(f("str",""))}"`}).substring(${f("start","0")}, ${f("start","0")} + ${f("len","3")})`;
+    case"ca_substr":return`String(${genExpr(b.fields[0]?.id,blocks)||`"${escStr(f("str",""))}"`}).substring(${num(f("start","0"),"0")}, ${num(f("start","0"),"0")} + ${num(f("len","3"),"3")})`;
     case"ca_replace":return`String(${genExpr(b.fields[0]?.id,blocks)||`"${escStr(f("str",""))}"`}).replace("${escStr(f("from",""))}", "${escStr(f("to",""))}")`;
     case"ca_upper":  return`String(${genExpr(b.fields[0]?.id,blocks)||`"${escStr(f("str",""))}"`}).toUpperCase()`;
     case"ca_lower":  return`String(${genExpr(b.fields[0]?.id,blocks)||`"${escStr(f("str",""))}"`}).toLowerCase()`;
@@ -342,43 +354,43 @@ function genExpr(id:string|null, blocks:CBlock[]):string{
     case"ca_id_misc":  return`"${escId(f("id","ender_pearl"))}"`;
     case"ca_id_mob":   return`"${escId(f("id","zombie"))}"`;
     case"ca_id_effect":return`"${escId(f("id","speed"))}"`;
-    case"ca_rand_int":  return`(Math.floor(Math.random()*(Number(${f("max","6")})-Number(${f("min","1")})+1))+Number(${f("min","1")}))`;
+    case"ca_rand_int":  return`(Math.floor(Math.random()*(Number(${num(f("max","6"),"6")})-Number(${num(f("min","1"),"1")})+1))+Number(${num(f("min","1"),"1")}))`;
     case"ca_rand_float":return`Math.random()`;
     case"ca_rand_bool": return`(Math.random()<0.5)`;
-    case"ca_rand_range":return`(Math.random()*(Number(${f("max","1.0")})-Number(${f("min","0.0")}))+Number(${f("min","0.0")}))`;
-    case"ca_rand_pct":  return`(Math.random()*100<Number(${f("pct","30")}))`;
+    case"ca_rand_range":return`(Math.random()*(Number(${num(f("max","1.0"),"1.0")})-Number(${num(f("min","0.0"),"0.0")}))+Number(${num(f("min","0.0"),"0.0")}))`;
+    case"ca_rand_pct":  return`(Math.random()*100<Number(${num(f("pct","30"),"30")}))`;
     case"ca_rand_sign": return`(Math.random()<0.5?1:-1)`;
     case"ca_rand_gauss":{
-      return`(()=>{const _u=1-Math.random(),_v=Math.random();const _n=Math.sqrt(-2*Math.log(_u))*Math.cos(2*Math.PI*_v);return Math.round(_n*Number(${f("sd","15")})+Number(${f("mean","50")}));})()`;
+      return`(()=>{const _u=1-Math.random(),_v=Math.random();const _n=Math.sqrt(-2*Math.log(_u))*Math.cos(2*Math.PI*_v);return Math.round(_n*Number(${num(f("sd","15"),"15")})+Number(${num(f("mean","50"),"50")}));})()`;
     }
     case"ca_rand_pick":{
       const items=f("items","A,B,C").split(",").map(s=>s.trim()).filter(Boolean);
       return`[${items.map(i=>`"${escStr(i)}"`).join(",")}][Math.floor(Math.random()*${items.length})]`;
     }
     case"ca_rand_shuffle":
-      return`(()=>{const _a=Array.from({length:Number(${f("n","5")})},(_, i)=>i+1);for(let _i=_a.length-1;_i>0;_i--){const _j=Math.floor(Math.random()*(_i+1));[_a[_i],_a[_j]]=[_a[_j],_a[_i]];}return _a;})()`;
+      return`(()=>{const _a=Array.from({length:Number(${num(f("n","5"),"5")})},(_, i)=>i+1);for(let _i=_a.length-1;_i>0;_i--){const _j=Math.floor(Math.random()*(_i+1));[_a[_i],_a[_j]]=[_a[_j],_a[_i]];}return _a;})()`;
     case"ca_rand_seed":{
-      const seed=f("seed","42");
-      return`(()=>{let _s=${seed}|0;_s|=0;_s=_s+0x6D2B79F5|0;let _t=Math.imul(_s^(_s>>>15),1|_s);_t^=_t+Math.imul(_t^(_t>>>7),61|_t);const _r=((_t^(_t>>>14))>>>0)/4294967296;return Math.floor(_r*(Number(${f("max","100")})-Number(${f("min","0")})+1)+Number(${f("min","0")}));})()`;
+      const seed=num(f("seed","42"),"42");
+      return`(()=>{let _s=${seed}|0;_s|=0;_s=_s+0x6D2B79F5|0;let _t=Math.imul(_s^(_s>>>15),1|_s);_t^=_t+Math.imul(_t^(_t>>>7),61|_t);const _r=((_t^(_t>>>14))>>>0)/4294967296;return Math.floor(_r*(Number(${num(f("max","100"),"100")})-Number(${num(f("min","0"),"0")})+1)+Number(${num(f("min","0"),"0")}));})()`;
     }
     case"vv_get":   return`_v_${sanitizeVarName(f("name","score"))}`;
-    case"vv_eq":    return`(_v_${sanitizeVarName(f("name","score"))}===${f("val","0")})`;
-    case"vv_gt":    return`(_v_${sanitizeVarName(f("name","score"))}>${f("val","0")})`;
-    case"vv_lt":    return`(_v_${sanitizeVarName(f("name","score"))}<${f("val","100")})`;
-    case"vv_neq":   return`(_v_${sanitizeVarName(f("name","score"))}!==${f("val","0")})`;
-    case"vv_gte":   return`(_v_${sanitizeVarName(f("name","score"))}>=${f("val","0")})`;
-    case"vv_lte":   return`(_v_${sanitizeVarName(f("name","score"))}<=${f("val","100")})`;
+    case"vv_eq":    return`(_v_${sanitizeVarName(f("name","score"))}===${num(f("val","0"),"0")})`;
+    case"vv_gt":    return`(_v_${sanitizeVarName(f("name","score"))}>${num(f("val","0"),"0")})`;
+    case"vv_lt":    return`(_v_${sanitizeVarName(f("name","score"))}<${num(f("val","100"),"100")})`;
+    case"vv_neq":   return`(_v_${sanitizeVarName(f("name","score"))}!==${num(f("val","0"),"0")})`;
+    case"vv_gte":   return`(_v_${sanitizeVarName(f("name","score"))}>=${num(f("val","0"),"0")})`;
+    case"vv_lte":   return`(_v_${sanitizeVarName(f("name","score"))}<=${num(f("val","100"),"100")})`;
     case"co_tag":     return`player.hasTag("${escId(f("tag",""))}")`;
     case"co_sneak":   return"player.isSneaking";
-    case"co_hp":      return`((player.getComponent("minecraft:health")?.currentValue??20)<=Number(${f("threshold","10")}))`;
+    case"co_hp":      return`((player.getComponent("minecraft:health")?.currentValue??20)<=Number(${num(f("threshold","10"),"10")}))`;
     case"co_night":   return"(world.getTimeOfDay()>=13000&&world.getTimeOfDay()<23000)";
     case"co_rain":    return`(world.getDimension("overworld").weather?.precipitation==="rain"||world.getDimension("overworld").weather?.precipitation==="thunder")`;
     case"co_item":    return`(()=>{const _c=player.getComponent("minecraft:inventory")?.container;if(!_c)return false;for(let _i=0;_i<_c.size;_i++)if(_c.getItem(_i)?.typeId==="${nsId(f("item","minecraft:diamond"))}")return true;return false;})()`;
     case"co_sprint":  return"player.isSprinting";
     case"co_water":   return"player.isInWater";
     case"co_ground":  return"player.isOnGround";
-    case"co_chance":  return`(Math.random()*100<Number(${f("pct","50")}))`;
-    case"co_scoregte":return`((()=>{try{return world.scoreboard.getObjective("${escId(f("obj","points"))}")?.getScore(player.scoreboardIdentity)??0;}catch(_e){return 0;}})()>=Number(${f("val","10")}))`;
+    case"co_chance":  return`(Math.random()*100<Number(${num(f("pct","50"),"50")}))`;
+    case"co_scoregte":return`((()=>{try{return world.scoreboard.getObjective("${escId(f("obj","points"))}")?.getScore(player.scoreboardIdentity)??0;}catch(_e){return 0;}})()>=Number(${num(f("val","10"),"10")}))`;
     case"co_and":     return`((${genExpr(b.innerId,blocks)||"true"})&&(${genExpr(b.thenId,blocks)||"true"}))`;
     case"co_or":      return`((${genExpr(b.innerId,blocks)||"false"})||(${genExpr(b.thenId,blocks)||"false"}))`;
     case"co_not":     return`(!(${genExpr(b.innerId,blocks)||"false"}))`;
@@ -423,7 +435,7 @@ function genTrigger(b:CBlock,blocks:CBlock[]):string{
       ].join("\n");
     case"ev_break":
       return[
-        `// ⛏️ ブロックをこわしたとき (${f("block","minecraft:stone")})`,
+        `// ⛏️ ブロックをこわしたとき (${escComment(f("block","minecraft:stone"))})`,
         `world.afterEvents.playerBreakBlock.subscribe((event) => {`,
         `  if (event.brokenBlockPermutation.type.id !== "${nsId(f("block","minecraft:stone"))}") return;`,
         `  const player = event.player;`,
@@ -433,7 +445,7 @@ function genTrigger(b:CBlock,blocks:CBlock[]):string{
       ].join("\n");
     case"ev_item":
       return[
-        `// 🔮 アイテムをつかったとき (${f("item","minecraft:diamond")})`,
+        `// 🔮 アイテムをつかったとき (${escComment(f("item","minecraft:diamond"))})`,
         `world.afterEvents.itemUse.subscribe((event) => {`,
         `  if (event.itemStack.typeId !== "${nsId(f("item","minecraft:diamond"))}") return;`,
         `  const player = event.source;`,
@@ -458,7 +470,7 @@ function genTrigger(b:CBlock,blocks:CBlock[]):string{
       //    ⚠️ event.sender は callback を抜けると使えなくなる恐れがあるので、
       //       名前で取り直す（ev_join と同じ作り）。
       return[
-        `// 💬 チャットしたとき ("${f("pat","!hi")}")`,
+        `// 💬 チャットしたとき ("${escComment(f("pat","!hi"))}")`,
         `world.beforeEvents.chatSend.subscribe((event) => {`,
         `  if (event.message !== "${escStr(f("pat","!hi"))}") return;`,
         `  event.cancel = true;`,
@@ -519,7 +531,7 @@ function genTrigger(b:CBlock,blocks:CBlock[]):string{
       ].join("\n");
     case"ev_useblock":
       return[
-        `// 🤚 ブロックを使用したとき (${f("block","minecraft:chest")})`,
+        `// 🤚 ブロックを使用したとき (${escComment(f("block","minecraft:chest"))})`,
         `world.afterEvents.playerInteractWithBlock.subscribe((event) => {`,
         `  if (event.block?.typeId !== "${nsId(f("block","minecraft:chest"))}") return;`,
         `  const player = event.player;`,
@@ -556,7 +568,7 @@ function genTrigger(b:CBlock,blocks:CBlock[]):string{
       ].join("\n");
     case"ev_hitblock":
       return[
-        `// 🔨 ブロックを叩いたとき (${f("block","minecraft:stone")})`,
+        `// 🔨 ブロックを叩いたとき (${escComment(f("block","minecraft:stone"))})`,
         `world.afterEvents.entityHitBlock.subscribe((event) => {`,
         `  if (event.damagingEntity?.typeId !== "minecraft:player") return;`,
         `  if (event.hitBlock?.typeId !== "${nsId(f("block","minecraft:stone"))}") return;`,
