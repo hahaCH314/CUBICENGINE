@@ -57,7 +57,12 @@ jobs:
         # 「そのメソッドは無い」と言われたとき、代わりの名前をここで探せるようにする。
         if: failure()
         run: |
-          JAR=$(find / -name '*.jar' 2>/dev/null | grep -E 'neoforge.*26\.1\.2|26\.1\.2.*neoforge' | grep -vE 'sources|installer|userdev' | head -1)
+          # neoforge-*-universal.jar には本体のクラスが入っていない。ModDevGradle が作る
+          # 「本体＋NeoForge を合わせた jar」を、Entity.class が入っているかで探す
+          JAR=""
+          for j in $(find "$HOME/.gradle" generic_engine_26/build -name '*.jar' 2>/dev/null | grep -vE 'sources|javadoc'); do
+            if unzip -l "$j" 2>/dev/null | grep -q 'net/minecraft/world/entity/Entity.class'; then JAR="$j"; break; fi
+          done
           echo "jar: $JAR"
           [ -z "$JAR" ] && exit 0
           for c in net.minecraft.world.entity.Entity net.minecraft.server.level.ServerPlayer net.minecraft.world.level.Level net.minecraft.world.entity.player.Player; do
