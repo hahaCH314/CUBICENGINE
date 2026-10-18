@@ -212,6 +212,11 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # 既定の packages は "tools platform-tools"。ランナーの sdkmanager(cmdline-tools 16)
+          # には古い "tools" パッケージがもう無く、`Failed to find package 'tools'` で
+          # このステップごと落ちていた（2026-10-02 の main から Android が毎回赤）。
+          packages: 'platform-tools'
 
       - name: Install Dependencies
         run: npm ci
