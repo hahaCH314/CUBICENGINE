@@ -56,9 +56,21 @@ function toValue(b: CBlock | undefined, raw: string): CEValue {
     case "va_hp":   return { kind: "var", name: "playerHp" };
     case "va_pos":  return { kind: "var", name: "playerPos" };
     case "va_score": return { kind: "var", name: "score", arg: f(b, "obj", "points") };
-    case "va_rand": return { kind: "rand", max: num(f(b, "max", "10"), 10) };
-    case "va_num":  return { kind: "num", value: num(f(b, "value", "0"), 0) };
+    case "va_rand": return { kind: "rand", max: num(f(b, "max", "100"), 100) };
+    // ⚠️ 数値カードの欄は "v"（data/templates.ts）。"value" を読んでいて常に 0 になっていた
+    case "va_num":  return { kind: "num", value: num(f(b, "v", "0"), 0) };
     default:        return { kind: "text", value: f(b, "value", raw) };
+  }
+}
+
+/** 「もしも」カード自身の欄 → CECondition。統合版の genCondFromField（lib/codegen.ts）と対応を揃える */
+function condFromField(b: CBlock): CECondition | null {
+  switch (f(b, "cond", "")) {
+    case "スニーク中": return { type: "isSneaking" };
+    case "夜間":      return { type: "isNight" };
+    case "雨天":      return { type: "isRaining" };
+    case "HPが少ない": return { type: "hpBelow", value: 10 };
+    default:          return null;
   }
 }
 
@@ -156,15 +168,23 @@ function toAction(b: CBlock, all: CBlock[]): CEAction | null {
       return { type: "teleport", x: num(f(b, "x", "0"), 0), y: num(f(b, "y", "64"), 64), z: num(f(b, "z", "0"), 0) };
     case "ac_cmd":
       return { type: "command", command: f(b, "cmd", "say hi") };
-    case "ac_tag":
-      return { type: "tag", tag: f(b, "tag", "vip"), add: f(b, "op", "add") !== "remove" };
+    // ⚠️ カードの操作名は日本語で保存される（data/templates.ts: 追加/削除、加算/減算/セット/リセット）。
+    //    英語名で比べていたので「削除」が追加に、「減算 5」「セット 10」が「加算 1」になっていた。
+    case "ac_tag": {
+      const op = f(b, "op", "追加");
+      return { type: "tag", tag: f(b, "tag", "vip"), add: op !== "削除" && op !== "remove" };
+    }
     case "ac_score": {
-      const op = f(b, "op", "add");
+      const op = f(b, "op", "加算");
+      const ops: Record<string, "add" | "remove" | "set"> = {
+        "加算": "add", "減算": "remove", "セット": "set", "リセット": "set",
+        add: "add", remove: "remove", set: "set",
+      };
       return {
         type: "score",
         objective: f(b, "obj", "points"),
-        op: op === "set" ? "set" : op === "remove" ? "remove" : "add",
-        value: num(f(b, "value", "1"), 1),
+        op: ops[op] ?? "add",
+        value: op === "リセット" ? 0 : num(f(b, "val", "1"), 1),
       };
     }
     case "ac_kick":
@@ -397,7 +417,10 @@ function walkChain(startId: string | null | undefined, w: Walk, base: CEConditio
         pending.push(action);
       }
     } else if (b.type === "co_if") {
-      const cond = toCondition(byId(w.blocks, b.innerId), w.blocks);
+      // 穴に条件カードが挿してあればそれを、無ければカード自身の「もしも」欄
+      // （スニーク中／夜間／雨天／HPが少ない）を使う。統合版の genCondFromField と同じ扱い。
+      // ⚠️ 以前は欄を見ていなかったので、今の「もしも」カードは全部「穴が空」と言われて消えていた
+      const cond = b.innerId ? toCondition(byId(w.blocks, b.innerId), w.blocks) : condFromField(b);
       flush();
       if (!cond) {
         // 条件が読めないまま中身を出すと、**条件を無視して必ず動く**ものになる。

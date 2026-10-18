@@ -149,6 +149,16 @@ function genCondJava(id: string | null | undefined, blocks: CBlock[]): string {
   return expr === "0" || expr === "" ? "true" : expr;
 }
 
+function genCondFromFieldJava(b: CBlock): string {
+  switch (gf(b, "cond", "")) {
+    case "スニーク中": return "player.isShiftKeyDown()";
+    case "夜間":      return "!player.level().isDay()";
+    case "雨天":      return "player.level().isRaining()";
+    case "HPが少ない": return "(player.getHealth() <= 10)";
+    default:          return "true";
+  }
+}
+
 /* ─────────────── アクション（命令）→ Java 文 ─────────────── */
 function genBlockJava(b: CBlock, blocks: CBlock[], indent: string): string {
   const f = (id: string, fb = "") => gf(b, id, fb);
@@ -192,7 +202,10 @@ function genBlockJava(b: CBlock, blocks: CBlock[], indent: string): string {
     // ── 制御 ──
     case "ct_rep": {
       const body = genChainJava(b.thenId, blocks, I + "    ");
-      return `${I}for (int _ri = 0; _ri < ${jint(f("n","3"),"3")}; _ri++) {\n${body || I + "    // くりかえす"}\n${I}}`;
+      // ⚠️ ループ変数はカード id で名前を分ける。くりかえすの中にくりかえすを置くと
+      //    `_ri` が二重定義でコンパイルが通らなかった
+      const ri = `_ri_${b.id.replace(/[^A-Za-z0-9]/g, "")}`;
+      return `${I}for (int ${ri} = 0; ${ri} < ${jint(f("n","3"),"3")}; ${ri}++) {\n${body || I + "    // くりかえす"}\n${I}}`;
     }
     case "ct_log": {
       const e = genExprJava(b.innerId, blocks) || `"${escJava(f("v","ログ"))}"`;
@@ -215,7 +228,9 @@ function genBlockJava(b: CBlock, blocks: CBlock[], indent: string): string {
       return `${I}// 📋 フォーム(${b.type})は統合版(SPROUT)専用：Java版では未対応です`;
     // ── もし〜なら ──
     case "co_if": {
-      const cond = genCondJava(b.innerId, blocks);
+      // 穴が空なら、カード自身の「もしも」欄から条件を作る（統合版 genCondFromField と同じ）。
+      // ⚠️ 以前は欄を見ずに `if (true)` にしていたので、「夜ならキック」が全員キックになっていた
+      const cond = b.innerId ? genCondJava(b.innerId, blocks) : genCondFromFieldJava(b);
       const t = genChainJava(b.thenId, blocks, I + "    ");
       const e = genChainJava(b.elseId, blocks, I + "    ");
       return [
