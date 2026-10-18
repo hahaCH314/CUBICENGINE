@@ -52,6 +52,19 @@ jobs:
           chmod +x gradlew
           ./gradlew build --no-daemon --stacktrace --warning-mode all
 
+      - name: マイクラ本体の API 名を出す（コンパイルが落ちたときの手がかり）
+        # 作業用の環境からは Mojang の mappings も maven も取れない（403）。
+        # 「そのメソッドは無い」と言われたとき、代わりの名前をここで探せるようにする。
+        if: failure()
+        run: |
+          JAR=$(find / -name '*.jar' 2>/dev/null | grep -E 'neoforge.*26\.1\.2|26\.1\.2.*neoforge' | grep -vE 'sources|installer|userdev' | head -1)
+          echo "jar: $JAR"
+          [ -z "$JAR" ] && exit 0
+          for c in net.minecraft.world.entity.Entity net.minecraft.server.level.ServerPlayer net.minecraft.world.level.Level net.minecraft.world.entity.player.Player; do
+            echo "### $c"
+            javap -cp "$JAR" -public "$c" | grep -iE 'tag|scoreboard|server\(|clock|daytime|permission' || true
+          done
+
       - name: modId が焼かれているか
         # 「起動するのに何も動かない」事故の予防。lib/javaEngine/spec.ts の ENGINE_MOD_ID と
         # jar の中の文字列が一致しなければ落とす（scripts/check-engine-modid.js と同じ考え方）

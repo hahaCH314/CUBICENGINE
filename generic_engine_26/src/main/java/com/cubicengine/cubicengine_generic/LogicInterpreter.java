@@ -178,7 +178,7 @@ public class LogicInterpreter {
                     String msg = evalValue(action.getAsJsonObject("text"), player);
                     String target = action.get("target").getAsString();
                     if (target.equals("all")) {
-                        player.getServer().getPlayerList().broadcastSystemMessage(Component.literal(msg), false);
+                        player.level().getServer().getPlayerList().broadcastSystemMessage(Component.literal(msg), false);
                     } else {
                         player.sendSystemMessage(Component.literal(msg));
                     }
@@ -259,7 +259,7 @@ public class LogicInterpreter {
                 if (name.equals("playerPos")) return (int)player.getX() + " " + (int)player.getY() + " " + (int)player.getZ();
                 if (name.equals("score")) {
                     try {
-                        Scoreboard sb = player.getScoreboard();
+                        Scoreboard sb = player.level().getScoreboard();
                         Objective o = sb.getObjective(val.get("arg").getAsString());
                         if (o != null) return String.valueOf(sb.getOrCreatePlayerScore(player, o).get());
                     } catch (Exception e) {}
@@ -273,9 +273,9 @@ public class LogicInterpreter {
 
     private static void _cmd(ServerPlayer p, String command) {
         try {
-            if (p.getServer() == null) return;
+            if (p.level().getServer() == null) return;
             // 26.1 で権限は int ではなく PermissionSet。OWNER が旧 4 に当たる
-            p.getServer().getCommands().performPrefixedCommand(
+            p.level().getServer().getCommands().performPrefixedCommand(
                 p.createCommandSourceStack().withPermission(LevelBasedPermissionSet.OWNER), command);
         } catch (Exception e) {}
     }
