@@ -121,7 +121,8 @@ public class LogicInterpreter {
         try {
             switch (type) {
                 case "hasTag":
-                    return player.getTags().contains(cond.get("tag").getAsString());
+                    // 26.1 で getTags() は entityTags() に改名された（CI の javap で確認）
+                    return player.entityTags().contains(cond.get("tag").getAsString());
                 case "hasItem":
                     Identifier wantId = Identifier.tryParse(cond.get("item").getAsString());
                     if (wantId != null && BuiltInRegistries.ITEM.containsKey(wantId)) {
