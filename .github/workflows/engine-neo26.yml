@@ -37,6 +37,15 @@ jobs:
           # NeoForge 26.1 は Java 25 で組まれている。21 では NeoForge 本体のクラスが読めない
           java-version: '25'
 
+      - name: GeckoLib の配布版を確かめる
+        # 依存が見つからずに落ちたとき、ログだけで「どの名前・どの版が実在するか」が分かるようにする。
+        # 作業用の環境からは cloudsmith に出られない（403）ので、ここで一覧を出しておく。
+        run: |
+          for a in geckolib-neoforge-26.1 geckolib-neoforge-26.1.2; do
+            echo "### $a"
+            curl -sS "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/com/geckolib/$a/maven-metadata.xml" | head -40 || true
+          done
+
       - name: Build
         working-directory: generic_engine_26
         run: |

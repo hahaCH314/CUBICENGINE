@@ -118,8 +118,11 @@ configurations {
 }
 
 dependencies {
-    // ⚠️ 26.1 向けは GeckoLib 5.5 系。4.x は 26.1 では動かない。artifact 名の後ろはマイクラの版（26.1）
-    implementation "com.geckolib:geckolib-neoforge-26.1:5.5.2"
+    // ⚠️ 26.1 向けは GeckoLib 5.5 系。4.x は 26.1 では動かない。
+    //    artifact 名の後ろは GeckoLib が組んだマイクラの版で、**3桁（26.1.2）**。
+    //    26.1 と書くと cloudsmith に無く Could not find で落ちる（CI で実際に落ちた）。
+    //    出どころ: geckolib リポジトリ 26.1 ブランチの gradle/libs.versions.toml（minecraft prefer）
+    implementation "com.geckolib:geckolib-neoforge-26.1.2:5.5.2"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
