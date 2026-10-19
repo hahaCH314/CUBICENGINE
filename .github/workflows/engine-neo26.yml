@@ -57,6 +57,13 @@ jobs:
             curl -sS "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/com/geckolib/$a/maven-metadata.xml" | head -40 || true
           done
 
+      - name: NeoForge 26.1 の配布版を確かめる
+        # 2026-10-19 の実機事故：同じ 26.1 でもビルド番号で API が違った（BlockBreakHook.java）。
+        # どの版が世に出ているかをログに残し、次に版の違いで落ちたとき見比べられるようにする。
+        run: |
+          curl -sS "https://maven.neoforged.net/releases/net/neoforged/neoforge/maven-metadata.xml" \
+            | grep -oE '<version>26\.1[^<]*</version>' | sed 's/<[^>]*>//g' | tr '\n' ' ' ; echo
+
       - name: Build
         working-directory: generic_engine_26
         run: |

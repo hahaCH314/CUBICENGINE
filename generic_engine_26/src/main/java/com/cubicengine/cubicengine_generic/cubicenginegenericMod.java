@@ -26,6 +26,8 @@ public class cubicenginegenericMod {
         bus.addListener(this::addCreative);
         bus.addListener(this::registerAttributes);
         DynamicRegistry.init(bus);
+        // 「こわしたとき」は NeoForge の版でクラスが違うので、ここで版を見て登録する（BlockBreakHook 参照）
+        BlockBreakHook.register();
         // ⚠️ Forge にあった NeoForge.EVENT_BUS.register(this) は**書いてはいけない**。
         //    このクラスに @SubscribeEvent メソッドは1つも無く、NeoForge のバスは
         //    その場合 IllegalArgumentException を投げる（Forge のバスは黙って無視していた）。
