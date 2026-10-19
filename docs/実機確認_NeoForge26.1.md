@@ -29,6 +29,8 @@
   min_format / max_format が必須。NeoForge は mod の pack.mcmeta に版の欄が無ければ「全部対応」と読むので、
   26.1 では欄ごと書かないようにした（`lib/javaEngine/targets.ts` の `packMeta` / `buildPackMcmeta`）。
   **エンジンの jar は変えていない。Web で書き出し直せば新しい pack.mcmeta になる。**
+- **2026-10-19 ✅ 起動した**（NeoForge 26.1.0.19-beta、PrismLauncher）。#16 と #17 を main に入れたあと、Web で書き出し直した
+  .jar で起動し、「できた」の報告。ブロック・クリエイティブタブ・モブ（geo）はまだ見ていない（下の手順 5 と前提modモード）。
 
 ## 手順（ふつうモード）
 

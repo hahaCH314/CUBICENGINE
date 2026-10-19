@@ -222,6 +222,10 @@ export const JAVA_TARGETS: Record<JavaTargetId, JavaTarget> = {
     //    （generic_engine_26/.../BlockBreakHook.java）。
     // ❌ 2026-10-19 2回目（NeoForge 26.1.0.19-beta）。上の直しは効いた（ログに BreakEvent を選んだ行あり、
     //    MOD は初期化まで通った）が、次は pack.mcmeta で落ちた（packMeta の注記）。書き出し側を直した。
+    // ✅ 2026-10-19、**実機で動いた**（NeoForge 26.1.0.19-beta、PrismLauncher）。
+    //    #16（ブロック破壊イベントを版で選ぶ）と #17（pack.mcmeta の版の欄を書かない）を入れた後、
+    //    Web で書き出し直した .jar で起動し、なっとうサイダーから「できた」の報告。
+    //    ⚠️ まだ見ていないもの: ブロック・クリエイティブタブ・モブ（geo 含む）。1.21.1 と同じ。
     ready: true,
   },
 };
