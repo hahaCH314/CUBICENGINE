@@ -202,6 +202,10 @@ export const JAVA_TARGETS: Record<JavaTargetId, JavaTarget> = {
     //    鍵をかけたままでは選べず試せない（鶏と卵）ので、1.21.1 のとき（2026-09-05）と同じく
     //    先に開けて試す。手順は docs/実機確認_NeoForge26.1.md。
     //    動いたらここに「✅ 日付・何が動いたか」を足す。動かなければ false に戻す。
+    // ❌ 2026-10-19、実機で**起動しなかった**。NoClassDefFoundError: BreakBlockEvent。
+    //    NeoForge は同じ 26.1 のまま 26.1.2.21 でブロック破壊イベントのクラスを入れ替えており、
+    //    それより古い NeoForge では読めなかった。エンジン側で版を見て登録するように直した
+    //    （generic_engine_26/.../BlockBreakHook.java）。直した jar での再確認待ち。
     ready: true,
   },
 };

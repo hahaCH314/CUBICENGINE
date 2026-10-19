@@ -30,8 +30,8 @@ import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
@@ -166,14 +166,14 @@ public class ModEventHandler {
         }
     }
 
-    // 1.21.1 の BlockEvent.BreakEvent は 26.1 で BreakBlockEvent（別クラス）になった
-    @SubscribeEvent
-    public static void onBlockBreak(BreakBlockEvent event) {
-        if (event.getPlayer() instanceof ServerPlayer player) {
-            JsonObject ctx = new JsonObject();
-            ctx.addProperty("block", BuiltInRegistries.BLOCK.getKey(event.getState().getBlock()).toString());
-            LogicInterpreter.onTrigger("break", player, ctx);
-        }
+    // ⚠️ 「こわしたとき」だけは @SubscribeEvent で書かない。
+    //    26.1 の NeoForge は版によってイベントのクラスが違い（BlockEvent.BreakEvent → BreakBlockEvent）、
+    //    ここに片方の型を書くとこのクラスごと読めなくなって MOD が起動しない（2026-10-19 実機）。
+    //    登録は BlockBreakHook が版を見て行い、ここへ届ける。
+    static void handleBlockBreak(ServerPlayer player, BlockState state) {
+        JsonObject ctx = new JsonObject();
+        ctx.addProperty("block", BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString());
+        LogicInterpreter.onTrigger("break", player, ctx);
     }
 
     @SubscribeEvent

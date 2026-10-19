@@ -13,6 +13,16 @@
 | Java | 25 | NeoForge のインストーラが要求する。21 では 26.1 が起動しない |
 | GeckoLib | 5.5 以上（26.1 向け） | **前提modモード（geo モブ）を試すときだけ**。Modrinth / CurseForge |
 
+## これまでの結果
+
+- **2026-10-19 ❌ 起動せず**：`NoClassDefFoundError: net/neoforged/neoforge/event/level/block/BreakBlockEvent`。
+  NeoForge は同じ「26.1」のまま **26.1.2.21** でブロック破壊イベントのクラスを入れ替えていた
+  （古い版は `BlockEvent.BreakEvent`、新しい版は `BreakBlockEvent`。古い方は新しい版から消えている）。
+  CI は 26.1.2.122 でコンパイルしていたので気づけなかった。
+  → エンジンが起動時に版を見て、ある方を登録するように直した（`generic_engine_26/.../BlockBreakHook.java`）。
+  **次に試すときは、使った NeoForge の版（例: 26.1.2.15）も書き残してほしい。** ランチャーのインスタンス設定か、
+  起動画面の左下に出る。
+
 ## 手順（ふつうモード）
 
 1. CUBICENGINE の設定で出し先を **NeoForge 26.1** にする。
