@@ -22,6 +22,13 @@
   → エンジンが起動時に版を見て、ある方を登録するように直した（`generic_engine_26/.../BlockBreakHook.java`）。
   **次に試すときは、使った NeoForge の版（例: 26.1.2.15）も書き残してほしい。** ランチャーのインスタンス設定か、
   起動画面の左下に出る。
+- **2026-10-19 ❌ 2回目、起動せず**（NeoForge **26.1.0.19-beta**、PrismLauncher、ログ https://mclo.gs/xDcM9sM）。
+  上の直しは効いた（ログに `ブロック破壊イベント: ...BlockEvent$BreakEvent` が出て、MOD は初期化まで通った）。
+  次は `JsonParseException: Pack declares support for version newer than 64, but is missing mandatory fields min_format and max_format`。
+  書き出した .jar の `pack.mcmeta` に `pack_format: 84` と書いていたのが原因。26.1 は 64 を超える数字には
+  min_format / max_format が必須。NeoForge は mod の pack.mcmeta に版の欄が無ければ「全部対応」と読むので、
+  26.1 では欄ごと書かないようにした（`lib/javaEngine/targets.ts` の `packMeta` / `buildPackMcmeta`）。
+  **エンジンの jar は変えていない。Web で書き出し直せば新しい pack.mcmeta になる。**
 
 ## 手順（ふつうモード）
 

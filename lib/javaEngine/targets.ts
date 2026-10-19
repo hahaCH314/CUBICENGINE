@@ -42,8 +42,19 @@ export interface JavaTarget {
    *     「Missing language javafml version」で**起動時に弾かれる**。 */
   fmlRange: string;
   mcRange: string;
-  /** pack.mcmeta に書く番号 */
+  /** pack.mcmeta に書く番号（packMeta が "pack_format" のときだけ書く） */
   packFormat: number;
+  /**
+   * pack.mcmeta の書き方。
+   * ⚠️ 26.1 のマイクラは pack_format が 64 を超えると min_format / max_format を**必須**にし、
+   *    無いと起動時に落ちる（2026-10-19 実機: "Pack declares support for version newer than 64,
+   *    but is missing mandatory fields min_format and max_format"）。
+   *    いっぽう NeoForge は、mod の pack.mcmeta に版の欄が**1つも無ければ**「全部の版に対応」と
+   *    読む（ResourcePackLoader の UNLIMITED_SUPPORT。26.1.0 から最新まで同じ）。
+   *    数字を当てにいくと版が上がるたびに外れるので、26.1 以降は欄ごと書かない。
+   *    1.20.1 / 1.21.1 は従来どおり pack_format を書く（そちらで欄を消すのは実機で見ていない）。
+   */
+  packMeta: "pack_format" | "omit";
   /** GeckoLib（前提modモードのときだけ書く）のバージョン範囲 */
   geckolibRange: string;
   /**
@@ -110,6 +121,7 @@ export const JAVA_TARGETS: Record<JavaTargetId, JavaTarget> = {
     fmlRange: "[47,)",
     mcRange: "[1.20.1,1.21)",
     packFormat: 15,
+    packMeta: "pack_format",
     geckolibRange: "[4.8.4,)",
     geoDirs: { model: "geo", anim: "animations" },
     requiredLine: "    mandatory=true",
@@ -142,6 +154,7 @@ export const JAVA_TARGETS: Record<JavaTargetId, JavaTarget> = {
     //    いまは assets しか出していないので 34。Create 連携などで
     //    data/ にレシピを入れ始めたら、1つの数字で足りるか実機で確かめること
     packFormat: 34,
+    packMeta: "pack_format",
     geckolibRange: "[4.9,)",
     geoDirs: { model: "geo", anim: "animations" },
     requiredLine: '    type="required"',
@@ -182,9 +195,10 @@ export const JAVA_TARGETS: Record<JavaTargetId, JavaTarget> = {
     // 26.1 の javafml は 5.x（GeckoLib の libs.versions.toml では [5,)）。下限のみ緩く見る
     fmlRange: "[1,)",
     mcRange: "[26.1,26.2)",
-    // ⚠️ 26.1 の pack_format は resources 84 / data 101。NeoForge は mod の pack.mcmeta を
-    //    自分で作るので、この数字が読まれる場面はほぼ無いが、合わせておく
+    // ⚠️ 26.1 の pack_format は resources 84 / data 101 だが、**この数字は書かない**（packMeta 参照）。
+    //    2026-10-19、書いたら実機で起動時に落ちた。参考値として残すだけ
     packFormat: 84,
+    packMeta: "omit",
     // GeckoLib 5 系。4.x は 26.1 では動かない（パッケージも com.geckolib に変わった）
     geckolibRange: "[5.5,)",
     geoDirs: { model: "geckolib/models", anim: "geckolib/animations" },
@@ -205,10 +219,21 @@ export const JAVA_TARGETS: Record<JavaTargetId, JavaTarget> = {
     // ❌ 2026-10-19、実機で**起動しなかった**。NoClassDefFoundError: BreakBlockEvent。
     //    NeoForge は同じ 26.1 のまま 26.1.2.21 でブロック破壊イベントのクラスを入れ替えており、
     //    それより古い NeoForge では読めなかった。エンジン側で版を見て登録するように直した
-    //    （generic_engine_26/.../BlockBreakHook.java）。直した jar での再確認待ち。
+    //    （generic_engine_26/.../BlockBreakHook.java）。
+    // ❌ 2026-10-19 2回目（NeoForge 26.1.0.19-beta）。上の直しは効いた（ログに BreakEvent を選んだ行あり、
+    //    MOD は初期化まで通った）が、次は pack.mcmeta で落ちた（packMeta の注記）。書き出し側を直した。
     ready: true,
   },
 };
+
+/**
+ * pack.mcmeta の中身。書き出し側はこれを使い、自分で組み立てない
+ * （2か所で別々に組み立てていて、片方だけ直す事故の種だった）。
+ */
+export function buildPackMcmeta(target: JavaTarget, description: string): { pack: Record<string, unknown> } {
+  if (target.packMeta === "omit") return { pack: { description } };
+  return { pack: { description, pack_format: target.packFormat } };
+}
 
 export const JAVA_TARGET_LIST: JavaTarget[] = [
   JAVA_TARGETS.forge_1201,
