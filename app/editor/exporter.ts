@@ -8,7 +8,7 @@ import { itemsToScript, itemsScriptImports } from "../../lib/devtab/itemToScript
 import { blocksToScript, blocksScriptImports } from "../../lib/devtab/blockToScript";
 import { isCapacitor } from "../../lib/platform";
 import { ENGINE_MOD_ID } from "../../lib/javaEngine/spec";
-import { getJavaTarget } from "../../lib/javaEngine/targets";
+import { getJavaTarget, buildPackMcmeta } from "../../lib/javaEngine/targets";
 
 /* ═══════════════════════════════════════════
    悪用防止の注意喚起（生成物に必ず同梱）
@@ -1053,8 +1053,9 @@ async function buildJavaZip(state: EditorState, jsCode: string): Promise<JSZip> 
   // pack.mcmeta
   resources.file(
     "pack.mcmeta",
-    // ⚠️ pack_format はマイクラの版ごとに違う。合わないと資源が読まれない
-    JSON.stringify({ pack: { description: `${state.projectName} Resources`, pack_format: target.packFormat } }, null, 2),
+    // ⚠️ pack_format はマイクラの版ごとに違う。合わないと資源が読まれず、26.1 は書き方を間違えると起動しない。
+    //    中身の決め方は targets.ts の buildPackMcmeta に寄せてある
+    JSON.stringify(buildPackMcmeta(target, `${state.projectName} Resources`), null, 2),
   );
 
   // Block models, blockstates, item models, textures, lang
@@ -1193,7 +1194,7 @@ export async function exportJava(state: EditorState, jsCode: string): Promise<bo
     // 実害は無いが、assets 配下に別 modId のフォルダがあると
     // 「どっちが本物か」を追うときに必ず迷う。
     zip.remove("assets/cubicengine_generic");
-    zip.file("pack.mcmeta", JSON.stringify({ pack: { description: `${state.projectName} Resources`, pack_format: target.packFormat } }, null, 2));
+    zip.file("pack.mcmeta", JSON.stringify(buildPackMcmeta(target, `${state.projectName} Resources`), null, 2));
 
     // ⚠️ 免責と注意書きを .jar にも必ず入れる。
     //    統合版のパックにも、ZIP フォールバックにも入っているのに、
