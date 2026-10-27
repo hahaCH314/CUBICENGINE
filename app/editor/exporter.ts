@@ -410,6 +410,10 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
     case "1.21.40+": minEngineVersion = [1, 21, 40]; break;
     case "1.26.x": minEngineVersion = [1, 26, 0]; break;
   }
+  // ブロック定義の版。ゲームより新しい版は読めないので min_engine_version を超えない。
+  // 1.21.40 は 1.26.52 の実機で通った版（docs/実機確認_統合版1.26.md）
+  const blockFormatVersion =
+    state.mcVersion === "1.20.x" ? "1.20.10" : state.mcVersion === "1.21.0" ? "1.21.0" : "1.21.40";
 
   // ── ベータ専用APIの検出＆gating（設計=シオン）──
   // world.beforeEvents.chatSend(ev_chat)は安定版@minecraft/serverに存在しない=ベータ専用。
@@ -542,8 +546,8 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
     for (const block of state.blocks) {
       const bn = blockId(block, state.blocks); // zip入口パス/識別子の安全化（path traversal防止）
       const components: Record<string, unknown> = {
-        // unit_cube = 標準の1×1×1キューブ（カスタムジオメトリ不要）
-        "minecraft:unit_cube": {},
+        // 標準の1×1×1キューブ。unit_cube はもう読めない（docs/実機確認_統合版1.26.md）
+        "minecraft:geometry": "minecraft:geometry.full_block",
         "minecraft:material_instances": {
           "*": { texture: `cubicengine_${bn}`, render_method: "opaque" },
         },
@@ -561,7 +565,7 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
         `blocks/${bn}.json`,
         JSON.stringify(
           {
-            format_version: "1.20.10",
+            format_version: blockFormatVersion,
             "minecraft:block": {
               description: {
                 identifier: `cubicengine:${bn}`,
@@ -624,7 +628,8 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
         2,
       ),
     );
-    rp.file("blocks.json", JSON.stringify(blocksJson, null, 2));
+    // format_version が無いと、読み込むたびに警告が出る（バニラと同じ 1.1.0）
+    rp.file("blocks.json", JSON.stringify({ format_version: [1, 1, 0], ...blocksJson }, null, 2));
 
     // 表示名(lang): 本格ブロックは displayName を、それ以外はブロック名をゲーム内名に
     const langLines = state.blocks
@@ -655,7 +660,7 @@ export async function exportBedrock(state: EditorState, jsCode: string) {
       rp.file(`textures/blocks/${bn}.png`, tex);
     }
 
-    // カスタムジオメトリは不要（unit_cube を使用するため）
+    // カスタムジオメトリは不要（minecraft:geometry.full_block を使うため）
   }
 
   const genOpts = { type: "blob" as const, compression, compressionOptions };
