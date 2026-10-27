@@ -423,14 +423,13 @@ function genTrigger(b:CBlock,blocks:CBlock[]):string{
   switch(b.type){
     case"ev_join":
       return[
+        // playerJoin の時点ではまだ体が無い。最初の出現で動かす（docs/実機確認_統合版1.26.md）
         `// 👋 プレイヤーが参加したとき`,
-        `world.afterEvents.playerJoin.subscribe((event) => {`,
-        `  const _joinName = event.playerName;`,
-        `  system.runTimeout(() => {`,
-        `    const player = world.getPlayers().find(p => p.name === _joinName);`,
-        `    if (!player) return;`,
-        body.split("\n").map((l:string)=>"    "+l).join("\n"),
-        `  }, 40);`,
+        `world.afterEvents.playerSpawn.subscribe((event) => {`,
+        `  if (!event.initialSpawn) return;`,
+        `  const player = event.player;`,
+        `  if (!player) return;`,
+        body,
         `});`,
       ].join("\n");
     case"ev_break":
@@ -624,15 +623,13 @@ export function buildCode(blocks: CBlock[]): string {
     ...(varDecls ? [varDecls, ``] : []),
     `// ★ 起動確認`,
     `let _ce_ok = false;`,
-    `world.afterEvents.playerJoin.subscribe((ev) => {`,
-    `  if (_ce_ok) return;`,
+    `world.afterEvents.playerSpawn.subscribe((ev) => {`,
+    `  if (_ce_ok || !ev.initialSpawn) return;`,
     `  _ce_ok = true;`,
-    `  const _name = ev.playerName;`,
+    `  const _p = ev.player;`,
     `  system.runTimeout(() => {`,
-    `    const _p = world.getPlayers().find(p => p.name === _name);`,
-    `    if (_p) _p.sendMessage("§a§l[CUBICENGINE] §r§aアドオン起動！ イベント${triggers.length}個");`,
-    `    else { for (const _ap of world.getPlayers()) _ap.sendMessage("§a§l[CUBICENGINE] §r§aアドオン起動！"); }`,
-    `  }, 40);`,
+    `    if (_p.isValid()) _p.sendMessage("§a§l[CUBICENGINE] §r§aアドオン起動！ イベント${triggers.length}個");`,
+    `  }, 20);`,
     `});`,
     ``,
   ].join("\n");
